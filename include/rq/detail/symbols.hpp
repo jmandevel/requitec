@@ -231,6 +231,8 @@ namespace rq {
     return "LocalStaticVariable";
   case S::TEMPLATE_ARGUMENT:
     return "TemplateArgument";
+  case S::PROCEDURE_ARGUMENT:
+    return "ProcedureArgument";
   case S::ENUMERATOR:
     return "Enumerator";
 
@@ -647,8 +649,9 @@ namespace rq {
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
+  case S::PROCEDURE_ARGUMENT:
+    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
   case S::ENUMERATOR:
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
@@ -2010,9 +2013,10 @@ RQ_ALWAYS_INLINE
 LocalVariable::LocalVariable(rq::SymbolKind kind, llvm::StringRef name,
                              rq::SymbolTable &containing_table,
                              rq::SymbolTable &hosting_table, rq::Module &module,
-                             rq::ExpressionFlags flags)
+                             rq::ExpressionFlags flags,
+                             rq::SymbolConstant &type)
     : LocalDeclaration(kind, name, containing_table, hosting_table, module),
-      _expression_flags(flags) {
+      _expression_flags(flags), _type_ptr(&type) {
   RQ_ASSERT(rq::getIsLocalVariable(kind), "not local variable");
 }
 
@@ -2021,21 +2025,13 @@ LocalVariable::getExpressionFlags() const {
   return this->_expression_flags;
 }
 
-RQ_ALWAYS_INLINE void LocalVariable::setType(rq::SymbolConstant &type) {
-  rq::assignSingleValue(this->_type_ptr, &type);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &
+LocalVariable::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
 }
 
-RQ_ALWAYS_INLINE void LocalVariable::replaceType(rq::SymbolConstant &type) {
-  rq::replaceValue(this->_type_ptr, &type);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-LocalVariable::getTypePtr() const {
-  return this->_type_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *LocalVariable::getTypePtr() {
-  return this->_type_ptr;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &LocalVariable::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
 }
 
 [[nodiscard]] inline bool LocalVariable::classof(const rq::Entity *entity_ptr) {
@@ -2051,9 +2047,9 @@ LocalVariable::getTypePtr() const {
 RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
     llvm::StringRef name, rq::SymbolTable &containing_table,
     rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags)
+    rq::ExpressionFlags flags, rq::SymbolConstant &type)
     : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name,
-                    containing_table, hosting_table, module, flags) {}
+                    containing_table, hosting_table, module, flags, type) {}
 
 [[nodiscard]] inline bool
 LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
@@ -2066,9 +2062,11 @@ LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
     llvm::StringRef name, rq::SymbolTable &containing_table,
     rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags)
+    rq::ExpressionFlags flags, rq::SymbolConstant &type,
+    rq::Gendex<rq::StaticValue> value)
     : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
-                    containing_table, hosting_table, module, flags) {}
+                    containing_table, hosting_table, module, flags, type),
+      _value(value) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
 LocalStaticVariable::getValue() const {
@@ -2086,6 +2084,69 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
                    rq::getUnderlying(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
+}
+
+RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
+    llvm::StringRef name, rq::SymbolTable &containing_table,
+    rq::SymbolTable &hosting_table, rq::Module &module,
+    rq::ExpressionFlags flags, rq::SymbolConstant &type, rq::Entity &value,
+    rq::LayoutParameter &parameter)
+    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
+                    hosting_table, module, flags, type),
+      _value_ptr(&value), _parameter_ptr(&parameter) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
+TemplateArgument::getValue() const {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &TemplateArgument::getValue() {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
+TemplateArgument::getLayoutParameter() const {
+  return rq::dereferencePtr(this->_parameter_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &
+TemplateArgument::getLayoutParameter() {
+  return rq::dereferencePtr(this->_parameter_ptr);
+}
+
+[[nodiscard]] inline bool
+TemplateArgument::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::TEMPLATE_ARGUMENT);
+}
+
+RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
+    llvm::StringRef name, rq::SymbolTable &containing_table,
+    rq::SymbolTable &hosting_table, rq::Module &module,
+    rq::ExpressionFlags flags, rq::SymbolConstant &type,
+    rq::ProcedureParameter &parameter)
+    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
+                    hosting_table, module, flags, type),
+      _parameter_ptr(&parameter) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
+ProcedureArgument::getProcedureParameter() const {
+  return rq::dereferencePtr(this->_parameter_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
+ProcedureArgument::getProcedureParameter() {
+  return rq::dereferencePtr(this->_parameter_ptr);
+}
+
+[[nodiscard]] inline bool
+ProcedureArgument::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::PROCEDURE_ARGUMENT);
 }
 
 RQ_ALWAYS_INLINE
@@ -3418,6 +3479,15 @@ GlobalDeclaration::GlobalDeclaration(
       _name_expression_ptr(name_expression_ptr), _flags(flags),
       _module_ptr(&module) {
   RQ_ASSERT(rq::getIsGlobalDeclaration(kind), "not global declaration");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalDeclaration::getIsEvaluated() const {
+  return this->_is_evaluated;
+}
+
+RQ_ALWAYS_INLINE void GlobalDeclaration::setIsEvaluated() {
+  RQ_ASSERT(this->_is_evaluated == false, "already evaluated");
+  this->_is_evaluated = true;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &

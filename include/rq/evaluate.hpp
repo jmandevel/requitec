@@ -1,7 +1,7 @@
 #pragma once
-#include <rq/utility.hpp>
-#include <rq/static_value.hpp>
 #include <rq/generational_arena.hpp>
+#include <rq/static_value.hpp>
+#include <rq/utility.hpp>
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
@@ -49,10 +49,10 @@ struct StaticRvalue final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemp() const {
     return this->_entity_ptr == nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue& getTemp() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getTemp() const {
     return this->_temp;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue& getTemp() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getTemp() {
     return this->_temp;
   }
 };
@@ -85,14 +85,27 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void evaluateModule(rq::Module &module);
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
-                    rq::Expression &first_ex);
+                           rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
+  void evaluate(rq::Module &module);
+  void evaluate(rq::Destructor &destructor);
+  void evaluate(rq::Main &main);
+  void evaluate(rq::ClassType &class_);
+  void evaluate(rq::EnumerationType &enum_);
+  void evaluate(rq::Interface &interface);
+  void evaluate(rq::Adapter &adapter);
+  void evaluate(rq::GlobalDynamicVariable &var);
+  void evaluate(rq::GlobalStaticVariable &var);
+  void evaluate(rq::ForwardRanger &ranger);
+  void evaluate(rq::BackwardRanger &ranger);
+  void evaluate(rq::Function &func);
+  void evaluate(rq::Method &meth);
+  void evaluate(rq::ExtensionMethod &meth);
 
-  [[nodiscard]] rq::StaticRvalue evaluateStaticRvalue(rq::SymbolTable &table,
-                                          rq::Module &module,
-                                          rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::StaticRvalue
+  evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+                       rq::Expression &rvalue_ex);
   [[nodiscard]] rq::Expression &
   evaluateExpressionAttributes(rq::ExpressionFlagsFactory &out_factory,
                                rq::SymbolTable &table, rq::Module &module,

@@ -13,19 +13,11 @@ namespace rq {
 
 void Evaluator::evaluateSourceModule() {
   rq::Module &source = this->getContext().getSourceModule();
-  this->evaluateModule(source);
+  this->evaluate(source);
   if (!this->getIsOk()) {
     return;
   }
   this->evaluateAllModuleSymbols(source);
-}
-void Evaluator::evaluateModule(rq::Module &module) {
-  rq::Expression &top_ex = module.getExpression();
-  if (!top_ex.getHasBranch()) {
-    return;
-  }
-  rq::Expression &first_ex = top_ex.getBranch();
-  this->evaluateGlobalScope(this->getContext().getTop(), module, first_ex);
 }
 
 void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
@@ -45,6 +37,77 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
 
 void Evaluator::evaluateAllModuleSymbols(rq::Module &module) {
   std::ignore = module;
+}
+
+void Evaluator::evaluate(rq::Module &module) {
+  rq::Expression &top_ex = module.getExpression();
+  if (!top_ex.getHasBranch()) {
+    return;
+  }
+  rq::Expression &first_ex = top_ex.getBranch();
+  this->evaluateGlobalScope(this->getContext().getTop(), module, first_ex);
+}
+
+void Evaluator::evaluate(rq::Destructor &destructor) {
+  std::ignore = destructor;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::Main &main) {
+  std::ignore = main;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::ClassType &class_) {
+  std::ignore = class_;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::EnumerationType &enum_) { std::ignore = enum_; }
+
+void Evaluator::evaluate(rq::Interface &interface) {
+  std::ignore = interface;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::Adapter &adapter) {
+  std::ignore = adapter;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::GlobalDynamicVariable &var) {
+  std::ignore = var;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::GlobalStaticVariable &var) {
+  std::ignore = var;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::ForwardRanger &ranger) {
+  std::ignore = ranger;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::BackwardRanger &ranger) {
+  std::ignore = ranger;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::Function &func) {
+  std::ignore = func;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::Method &meth) {
+  std::ignore = meth;
+  RQ_TODO_IMPLEMENTATION();
+}
+
+void Evaluator::evaluate(rq::ExtensionMethod &meth) {
+  std::ignore = meth;
+  RQ_TODO_IMPLEMENTATION();
 }
 
 [[nodiscard]] rq::StaticRvalue
@@ -144,8 +207,8 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     if (llvm::isa<rq::TemplateArgument>(rvalue_sy)) {
       rq::TemplateArgument &arg = llvm::cast<rq::TemplateArgument>(rvalue_sy);
       rq::Symbol &type = arg.getType().getSymbol();
-      rq::Constant &constant = arg.getValue();
-      return rq::StaticRvalue(type, constant);
+      rq::Entity &value = arg.getValue();
+      return rq::StaticRvalue(type, value);
     }
     if (llvm::isa<rq::Enumerator>(rvalue_sy)) {
       RQ_UNHANDLED_ERROR("enumerator rvalue");
@@ -202,8 +265,8 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       }
       rq::SymbolConstant &type = rq::dereferencePtr(var.getTypePtr());
       rq::Symbol &type_sy = type.getSymbol();
-      rq::Constant &constant = rq::dereferencePtr(var.getValuePtr());
-      return rq::StaticRvalue(type_sy, constant);
+      rq::Entity &value = rq::dereferencePtr(var.getValuePtr());
+      return rq::StaticRvalue(type_sy, value);
     }
     RQ_UNREACHABLE();
   }

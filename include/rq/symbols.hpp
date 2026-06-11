@@ -137,8 +137,10 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 getHasExpressionAttributes(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedurePolymorph(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureWeightLevel(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedurePolymorph(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedureWeightLevel(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureInstance(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureTemplate(rq::SymbolKind kind);
 
@@ -402,6 +404,7 @@ struct Symbol;
       struct LocalDynamicVariable;
       struct LocalStaticVariable;
       struct TemplateArgument;
+      struct ProcedureArgument;
       struct Enumerator;
   struct Parameter;
     struct SymbolParameter;
@@ -965,20 +968,17 @@ struct LocalVariable : public rq::LocalDeclaration {
   using Self = rq::LocalVariable;
 
   rq::ExpressionFlags _expression_flags;
-  rq::SymbolConstant *_type_ptr{nullptr};
+  rq::SymbolConstant *_type_ptr;
 
-  explicit RQ_ALWAYS_INLINE LocalVariable(rq::SymbolKind kind,
-                                          llvm::StringRef name,
-                                          rq::SymbolTable &containing_table,
-                                          rq::SymbolTable &hosting_table,
-                                          rq::Module &module,
-                                          rq::ExpressionFlags flags);
+  explicit RQ_ALWAYS_INLINE
+  LocalVariable(rq::SymbolKind kind, llvm::StringRef name,
+                rq::SymbolTable &containing_table,
+                rq::SymbolTable &hosting_table, rq::Module &module,
+                rq::ExpressionFlags flags, rq::SymbolConstant &type);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
-  RQ_ALWAYS_INLINE void setType(rq::SymbolConstant &type);
-  RQ_ALWAYS_INLINE void replaceType(rq::SymbolConstant &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *getTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -989,7 +989,7 @@ struct LocalDynamicVariable final : public rq::LocalVariable {
   explicit RQ_ALWAYS_INLINE
   LocalDynamicVariable(llvm::StringRef name, rq::SymbolTable &containing_table,
                        rq::SymbolTable &hosting_table, rq::Module &module,
-                       rq::ExpressionFlags flags);
+                       rq::ExpressionFlags flags, rq::SymbolConstant &type);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -997,16 +997,56 @@ struct LocalDynamicVariable final : public rq::LocalVariable {
 struct LocalStaticVariable final : public rq::LocalVariable {
   using Self = rq::LocalStaticVariable;
 
-  rq::Gendex<rq::StaticValue> _value{};
+  rq::Gendex<rq::StaticValue> _value;
 
   explicit RQ_ALWAYS_INLINE
   LocalStaticVariable(llvm::StringRef name, rq::SymbolTable &containing_table,
                       rq::SymbolTable &hosting_table, rq::Module &module,
-                      rq::ExpressionFlags flags);
+                      rq::ExpressionFlags flags, rq::SymbolConstant &type, rq::Gendex<rq::StaticValue> gendex);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
   getValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Gendex<rq::StaticValue> &getValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct TemplateArgument final : public rq::LocalVariable {
+  using Self = rq::TemplateArgument;
+
+  rq::Entity* _value_ptr;
+  rq::LayoutParameter *_parameter_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  TemplateArgument(llvm::StringRef name, rq::SymbolTable &containing_table,
+                   rq::SymbolTable &hosting_table, rq::Module &module,
+                   rq::ExpressionFlags flags, rq::SymbolConstant &type, rq::Entity& value,
+                   rq::LayoutParameter &parameter);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity& getValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity& getValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
+  getLayoutParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getLayoutParameter();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ProcedureArgument final : public rq::LocalVariable {
+  using Self = rq::ProcedureArgument;
+
+  rq::ProcedureParameter *_parameter_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  ProcedureArgument(llvm::StringRef name, rq::SymbolTable &containing_table,
+                    rq::SymbolTable &hosting_table, rq::Module &module,
+                    rq::ExpressionFlags flags, rq::SymbolConstant &type,
+                    rq::ProcedureParameter &parameter);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
+  getProcedureParameter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
+  getProcedureParameter();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1801,6 +1841,7 @@ struct Namespace final : public rq::NamedTable {
 struct GlobalDeclaration : public rq::NamedTable {
   using Self = rq::GlobalDeclaration;
 
+  bool _is_evaluated : 1 {false};
   rq::SymbolTable *_hosting_table_ptr;
   rq::Expression *_expression_ptr;
   rq::Expression *_name_expression_ptr;
@@ -1814,6 +1855,8 @@ struct GlobalDeclaration : public rq::NamedTable {
                     rq::Expression *name_expression_ptr,
                     rq::ExpressionFlags flags, rq::Module &module);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluated() const;
+  RQ_ALWAYS_INLINE void setIsEvaluated();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
   getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
@@ -2266,15 +2309,17 @@ struct WeightLevel : rq::Symbol {
   rq::Polymorph *_polymorph_ptr;
   rq::WeightLevel *_next_ptr{nullptr};
   rq::Template *_first_ptr{nullptr};
-  rq::SymbolTable* _containing_table_ptr;
+  rq::SymbolTable *_containing_table_ptr;
 
   explicit RQ_ALWAYS_INLINE WeightLevel(rq::SymbolKind kind, unsigned weight,
-                                        rq::Polymorph &polymorph, rq::SymbolTable& containing_table);
+                                        rq::Polymorph &polymorph,
+                                        rq::SymbolTable &containing_table);
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph& getPolymorph() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph& getPolymorph();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph &getPolymorph() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph &getPolymorph();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Template>,
                             rq::NextIterator<rq::Template>,
@@ -2293,8 +2338,9 @@ struct DerivedWeightLevel final : public rq::WeightLevel {
   using Self = rq::DerivedWeightLevel<KIND>;
   using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
 
-  explicit RQ_ALWAYS_INLINE DerivedWeightLevel(unsigned weight,
-                                               rq::Polymorph &polymorph, rq::SymbolTable& containing_table);
+  explicit RQ_ALWAYS_INLINE
+  DerivedWeightLevel(unsigned weight, rq::Polymorph &polymorph,
+                     rq::SymbolTable &containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Template, DerivedTemplate>,
@@ -2339,16 +2385,17 @@ struct Polymorph : public rq::Symbol {
   rq::WeightLevel *_highest_weight_ptr{nullptr};
   rq::SymbolTable *_containing_table_ptr;
 
-  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind,
-                                      llvm::StringRef name, rq::SymbolTable& containing_table);
+  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind, llvm::StringRef name,
+                                      rq::SymbolTable &containing_table);
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+  getContainingTable() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSomeInstance() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleInstance() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instance& getOnlyInstance() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instance& getOnlyInstance();  
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instance &getOnlyInstance() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instance &getOnlyInstance();
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Instance>,
@@ -2383,7 +2430,8 @@ struct DerivedPolymorph final : public rq::Polymorph {
       rq::DerivedWeightLevel<rq::getWeightLevelKind<KIND>()>;
   using DerivedTemplate = rq::DerivedTemplate<rq::getTemplateKind<KIND>()>;
 
-  explicit RQ_ALWAYS_INLINE DerivedPolymorph(llvm::StringRef name, rq::SymbolTable& containing_table);
+  explicit RQ_ALWAYS_INLINE DerivedPolymorph(llvm::StringRef name,
+                                             rq::SymbolTable &containing_table);
 
   inline void addDerivedTemplate(rq::BumpPtrAllocator &allocator,
                                  DerivedTemplate &template_);
