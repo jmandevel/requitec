@@ -51,7 +51,6 @@ void Evaluator::evaluateAllModuleSymbols(rq::Module &module) {
 Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
                                 rq::Expression &rvalue_ex) {
   using K = rq::Keyword;
-  using S = rq::SymbolKind;
   switch (rvalue_ex.getKeyword()) {
   case K::INTEGER_LITERAL: {
     rq::Symbol &type = this->getContext().getIntegerLiteralType();
@@ -76,26 +75,31 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
   case K::IDENTIFIER_LITERAL: {
     auto list = table.findNamedList(rvalue_ex.getSourceText());
     if (list.getIsEmpty()) {
-      this->getContext().logErrorNotSymbol(rvalue_ex);
+      RQ_UNHANDLED_ERROR("no symbol of name");
       this->setNotOk();
       return rq::StaticRvalue();
     }
     if (list.getHasTail()) {
-      this->getContext().logErrorNameCollision(rvalue_ex);
+      RQ_UNHANDLED_ERROR("name collision");
       this->setNotOk();
       return rq::StaticRvalue();
     }
     rq::Symbol &found_sy = list.getHead();
     rq::Symbol *rvalue_sy_ptr = nullptr;
     if (llvm::isa<rq::Polymorph>(found_sy)) {
-      rq::Polymorph &poly = llvm::cast<rq::Polymorph>(found_sy);
-      if (!poly.getHasSomeInstance()) {
-        this->getContext().logErrorNotSymbol(rvalue_ex);
+      if (found_sy.getIsProcedureRelated()) {
+        RQ_UNHANDLED_ERROR("procedure polymorph rvalue");
         this->setNotOk();
         return rq::StaticRvalue();
       }
-      if (poly.getHasCollision()) {
-        this->getContext().logErrorNameCollision(rvalue_ex);
+      rq::Polymorph &poly = llvm::cast<rq::Polymorph>(found_sy);
+      if (!poly.getHasSomeInstance()) {
+        RQ_UNHANDLED_ERROR("polymorph has no non-template instances");
+        this->setNotOk();
+        return rq::StaticRvalue();
+      }
+      if (poly.getHasMultipleInstance()) {
+        RQ_UNHANDLED_ERROR("polymorph has multiple non-template instances");
         this->setNotOk();
         return rq::StaticRvalue();
       }
@@ -104,14 +108,109 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       rvalue_sy_ptr = &found_sy;
     }
     rq::Symbol &rvalue_sy = rq::dereferencePtr(rvalue_sy_ptr);
-    std::ignore = rvalue_sy;
-    //switch (rvalue_sy.getKind()) {
-    //}
+    if (llvm::isa<rq::Label>(rvalue_sy)) {
+      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Label &label = llvm::cast<rq::Label>(rvalue_sy);
+      return rq::StaticRvalue(type, label);
+    }
+    if (llvm::isa<rq::Anchor>(rvalue_sy)) {
+      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Anchor &anchor = llvm::cast<rq::Anchor>(rvalue_sy);
+      return rq::StaticRvalue(type, anchor);
+    }
+    if (llvm::isa<rq::LocalDynamicVariable>(rvalue_sy)) {
+      RQ_UNHANDLED_ERROR("no_static value");
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    if (llvm::isa<rq::LocalStaticVariable>(rvalue_sy)) {
+      rq::LocalStaticVariable &var =
+          llvm::cast<rq::LocalStaticVariable>(rvalue_sy);
+      rq::Symbol &type = var.getType().getSymbol();
+      rq::Gendex<rq::StaticValue> gendex = var.getValue();
+      if (!gendex.getHasData()) {
+        RQ_UNHANDLED_ERROR("invalid memory");
+        this->setNotOk();
+        return rq::StaticRvalue();
+      }
+      rq::StaticValue value = gendex.getData();
+      return rq::StaticRvalue(type, std::move(value));
+    }
+    if (llvm::isa<rq::ProcedureArgument>(rvalue_sy)) {
+      RQ_UNHANDLED_ERROR("no_static value");
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    if (llvm::isa<rq::TemplateArgument>(rvalue_sy)) {
+      rq::TemplateArgument &arg = llvm::cast<rq::TemplateArgument>(rvalue_sy);
+      rq::Symbol &type = arg.getType().getSymbol();
+      rq::Constant &constant = arg.getValue();
+      return rq::StaticRvalue(type, constant);
+    }
+    if (llvm::isa<rq::Enumerator>(rvalue_sy)) {
+      RQ_UNHANDLED_ERROR("enumerator rvalue");
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    if (llvm::isa<rq::Namespace>(rvalue_sy)) {
+      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(rvalue_sy);
+      return rq::StaticRvalue(type, namespace_);
+    }
+    if (llvm::isa<rq::ClassType>(rvalue_sy)) {
+      rq::ClassType &class_ = llvm::cast<rq::ClassType>(rvalue_sy);
+      if (!class_.getIsEvaluated()) {
+        this->evaluate(class_);
+      }
+      rq::Symbol &type = this->getContext().getSymbolType();
+      return rq::StaticRvalue(type, class_);
+    }
+    if (llvm::isa<rq::EnumerationType>(rvalue_sy)) {
+      rq::EnumerationType &enum_ = llvm::cast<rq::EnumerationType>(rvalue_sy);
+      if (!enum_.getIsEvaluated()) {
+        this->evaluate(enum_);
+      }
+      rq::Symbol &type = this->getContext().getSymbolType();
+      return rq::StaticRvalue(type, enum_);
+    }
+    if (llvm::isa<rq::Interface>(rvalue_sy)) {
+      rq::Interface &interface = llvm::cast<rq::Interface>(rvalue_sy);
+      if (!interface.getIsEvaluated()) {
+        this->evaluate(interface);
+      }
+      rq::Symbol &type = this->getContext().getSymbolType();
+      return rq::StaticRvalue(type, interface);
+    }
+    if (llvm::isa<rq::Adapter>(rvalue_sy)) {
+      rq::Adapter &adapter = llvm::cast<rq::Adapter>(rvalue_sy);
+      if (!adapter.getIsEvaluated()) {
+        this->evaluate(adapter);
+      }
+      rq::Symbol &type = this->getContext().getSymbolType();
+      return rq::StaticRvalue(type, adapter);
+    }
+    if (llvm::isa<rq::GlobalDynamicVariable>(rvalue_sy)) {
+      RQ_UNHANDLED_ERROR("no_static value");
+      this->setNotOk();
+      return rq::StaticRvalue();
+    }
+    if (llvm::isa<rq::GlobalStaticVariable>(rvalue_sy)) {
+      rq::GlobalStaticVariable &var =
+          llvm::cast<rq::GlobalStaticVariable>(rvalue_sy);
+      if (!var.getIsEvaluated()) {
+        this->evaluate(var);
+      }
+      rq::SymbolConstant &type = rq::dereferencePtr(var.getTypePtr());
+      rq::Symbol &type_sy = type.getSymbol();
+      rq::Constant &constant = rq::dereferencePtr(var.getValuePtr());
+      return rq::StaticRvalue(type_sy, constant);
+    }
+    RQ_UNREACHABLE();
   }
   case K::ADD: {
-
-    }
-    default: break;
+  }
+  default:
+    break;
   }
 
   std::ignore = table;
@@ -143,8 +242,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       continue;
     }
     if (rvalue.getHasTemp()) {
-      rq::StaticValue &value = rvalue.getTemp();
-      rq::StaticInt =
+      // rq::StaticValue &value = rvalue.getTemp();
     }
     rq::WordConstant &attribute_wd =
         llvm::cast<rq::WordConstant>(rvalue.getEntity());
