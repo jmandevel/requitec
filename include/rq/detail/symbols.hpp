@@ -1197,6 +1197,39 @@ getHasExpressionAttributes(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::IS_FRAME);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedurePolymorph(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
+                                  rq::SymbolFlags::POLYMORPH);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedureWeightLevel(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
+                                  rq::SymbolFlags::WEIGHT_LEVEL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedureInstance(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
+                                  rq::SymbolFlags::INSTANCE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedureTemplate(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
+                                  rq::SymbolFlags::TEMPLATE);
+}
+
 RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
     : Entity(rq::getUnderlying(kind) + rq::SYMBOL_OFFSET) {}
 
@@ -1378,6 +1411,26 @@ Symbol::getIsExpressionAttributeType() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrame() const {
   return rq::getIsFrame(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureRelated() const {
+  return rq::getIsProcedureRelated(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedurePolymorph() const {
+  return rq::getIsProcedurePolymorph(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureWeightLevel() const {
+  return rq::getIsProcedureWeightLevel(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureInstance() const {
+  return rq::getIsProcedureInstance(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureTemplate() const {
+  return rq::getIsProcedureTemplate(this->getKind());
 }
 
 [[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
@@ -4078,6 +4131,32 @@ Polymorph::getContainingTable() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
 Polymorph::getContainingTable() {
   return rq::dereferencePtr(this->_containing_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Polymorph::getHasSomeInstance() const {
+  return this->_first_instance_ptr != nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Polymorph::getHasMultipleInstance() const {
+  if (this->_first_instance_ptr == nullptr) {
+    return false;
+  }
+  rq::Instance &first_instance = rq::dereferencePtr(this->_first_instance_ptr);
+  if (first_instance._next_ptr == nullptr) {
+    return false;
+  }
+  return true;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instance &
+Polymorph::getOnlyInstance() const {
+  RQ_ASSERT(!this->getHasMultipleInstance(), "has multiple");
+  return rq::dereferencePtr(this->_first_instance_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instance &Polymorph::getOnlyInstance() {
+  RQ_ASSERT(!this->getHasMultipleInstance(), "has multiple");
+  return rq::dereferencePtr(this->_first_instance_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE

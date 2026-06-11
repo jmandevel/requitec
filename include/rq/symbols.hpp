@@ -75,7 +75,8 @@ enum class SymbolFlags : std::uint64_t {
   IS_BFLOAT_TYPE = rq::getBit(39),
   IS_CODEUNIT_TYPE = rq::getBit(40),
   HAS_EXPRESSION_ATTRIBUTES = rq::getBit(41),
-  IS_FRAME = rq::getBit(42)
+  IS_FRAME = rq::getBit(42),
+  IS_PROCEDURE_RELATED = rq::getBit(43)
 };
 
 template <> struct is_flags<rq::SymbolFlags> final : std::true_type {};
@@ -135,6 +136,11 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasExpressionAttributes(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedurePolymorph(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureWeightLevel(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureInstance(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureTemplate(rq::SymbolKind kind);
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] consteval rq::SymbolKind getInstanceKind() {
@@ -481,6 +487,11 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedurePolymorph() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureWeightLevel() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureInstance() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureTemplate() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2335,7 +2346,7 @@ struct Polymorph : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getContainingTable() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getContainingTable();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSomeInstance() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasCollision() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasMultipleInstance() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instance& getOnlyInstance() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instance& getOnlyInstance();  
 
