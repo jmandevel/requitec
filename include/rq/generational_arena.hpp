@@ -9,10 +9,10 @@
 #include <utility>
 #include <vector>
 
-namespace rq {
+#include <llvm/Support/AlignOf.h>
+#include <llvm/Support/Casting.h>
 
-template <typename T>
-concept HasRelease = requires(T &t) { t.release(); };
+namespace rq {
 
 using Generation = std::uint64_t;
 
@@ -24,35 +24,57 @@ template <typename DataParam> struct Slot final {
   using Self = rq::Slot<Data>;
 
   rq::Generation _generation{0};
-  Data _data{};
+  llvm::AlignedCharArrayUnion<Self *, Data> _data_or_next_ptr{};
 
   Slot() = default;
   template <typename... ArgNParam>
-  Slot(rq::Generation generation, ArgNParam &&...arg_n)
-      : _generation(generation), _data(std::forward<ArgNParam>(arg_n)...) {}
-  Slot(const Self &) = default;
-  Slot(Self &&) = default;
-  ~Slot() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
+  inline Slot(rq::Generation generation, ArgNParam &&...arg_n)
+      : _generation(generation) {
+    std::construct_at(this->getDataPtr(), std::forward<ArgNParam>(arg_n)...);
+  }
+  Slot(const Self &) = delete;
+  Slot(Self &&) = delete;
+  inline ~Slot() {
+    if (this->_generation != 0) {
+      std::destroy_at(this->getDataPtr());
+    }
+  }
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+  [[nodiscard]] RQ_ALWAYS_INLINE Data *getDataPtr() {
+    return std::launder(reinterpret_cast<Data *>(&this->_data_or_next_ptr));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const Data *getDataPtr() const {
+    return std::launder(
+        reinterpret_cast<const Data *>(&this->_data_or_next_ptr));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() {
+    return this->_generation == 0;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Generation getGeneration() const {
     return this->_generation;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Data &getData() { return this->_data; }
+  [[nodiscard]] RQ_ALWAYS_INLINE Data &getData() {
+    RQ_ASSERT(this->_generation != 0, "no data");
+    return *this->getDataPtr();
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE const Data &getData() const {
-    return this->_data;
+    RQ_ASSERT(this->_generation != 0, "no data");
+    return *this->getDataPtr();
   }
-  void clear()
-    requires rq::HasRelease<Data>
-  {
-    this->_generation = 0;
-    this->_data.release();
+  inline void clear() {
+    if (this->_generation != 0) {
+      this->_generation = 0;
+      std::destroy_at(this->getDataPtr());
+    }
   }
-  void clear() { this->_generation = 0; }
   template <typename... ArgNParam>
-  void reset(std::uint32_t generation, ArgNParam... arg_n) {
+  inline void reset(std::uint32_t generation, ArgNParam... arg_n) {
+    if (this->_generation != 0) {
+      std::destroy_at(this->getDataPtr());
+    }
     this->_generation = generation;
-    this->_data = Data(std::forward(arg_n)...);
+    std::construct_at(this->getDataPtr(), std::forward<ArgNParam>(arg_n)...);
   }
 };
 
@@ -76,23 +98,23 @@ template <typename DataParam> struct Gendex final {
     return this->_generation;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasData() const {
-    if (this->_slot_ptr == nullptr) {
+    if (this->_generation == 0) {
       return false;
     }
-    const Slot& slot = rq::dereferencePtr(this->_slot_ptr);
+    const Slot &slot = rq::dereferencePtr(this->_slot_ptr);
     if (slot.getGeneration() != this->getGeneration()) {
       return false;
     }
     return true;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Data& getData() {
+  [[nodiscard]] RQ_ALWAYS_INLINE Data &getData() {
     RQ_ASSERT(this->getHasData(), "no data");
-    Slot& slot = rq::dereferencePtr(this->_slot_ptr);
+    Slot &slot = rq::dereferencePtr(this->_slot_ptr);
     return slot.getData();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Data& getData() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const Data &getData() const {
     RQ_ASSERT(this->getHasData(), "no data");
-    const Slot& slot = rq::dereferencePtr(this->_slot_ptr);
+    const Slot &slot = rq::dereferencePtr(this->_slot_ptr);
     return slot.getData();
   }
   RQ_ALWAYS_INLINE void clear() {
@@ -100,10 +122,12 @@ template <typename DataParam> struct Gendex final {
     this->_generation = 0;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
-    return this->_slot_ptr == rhs._slot_ptr && this->_generation == rhs._generation;
+    return this->_slot_ptr == rhs._slot_ptr &&
+           this->_generation == rhs._generation;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
-    return this->_slot_ptr != rhs._slot_ptr || this->_generation != rhs._generation;
+    return this->_slot_ptr != rhs._slot_ptr ||
+           this->_generation != rhs._generation;
   }
 };
 
@@ -128,7 +152,7 @@ struct GenerationalArena final {
   rq::Generation _generation{0};
   std::vector<std::unique_ptr<Slot[]>> _slabs{};
   std::size_t _next_index{0};
-  std::vector<Slot *> _recycle_bin{};
+  Slot *_next_free_ptr{nullptr};
 
   GenerationalArena() = default;
   GenerationalArena(const Self &) = default;
@@ -144,10 +168,6 @@ struct GenerationalArena final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getSlabCount() const {
     return this->_slabs.size();
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const std::vector<Slot *>
-  getRecycleBin() const {
-    return this->_recycle_bin;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Slot &slotAt(std::size_t index) {
     const std::size_t slab = index / SLOTS_PER_SLAB;
@@ -182,27 +202,31 @@ struct GenerationalArena final {
   template <typename... ArgNParam>
   [[nodiscard]] inline Gendex fillSlot(ArgNParam &&...arg_n) {
     const rq::Generation generation = ++this->_generation;
-    if (this->_recycle_bin.empty()) {
+    if (this->_next_free_ptr == nullptr) {
       const std::size_t index = this->_next_index++;
       std::ignore = this->ensureSlabForIndex(index);
       Slot &slot = this->slotAt(index);
       slot.reset(generation, std::forward<ArgNParam>(arg_n)...);
       return Gendex(slot, generation);
     }
-    Slot *slot_ptr = this->_recycle_bin.back();
-    this->_recycle_bin.pop_back();
+    Slot *slot_ptr = this->_next_free_ptr;
     Slot &slot = rq::dereferencePtr(slot_ptr);
+    this->_next_free_ptr = *slot.getDataPtr();
     slot.reset(generation, std::forward<ArgNParam>(arg_n)...);
     return Gendex(slot, generation);
   }
-  void recycleSlot(Gendex &gendex) {
+  void releaseSlot(Gendex &gendex) {
+    if (!gendex.getHasData()) {
+      return;
+    }
     Slot &slot = gendex.getSlot();
     RQ_ASSERT(this->getOwnsSlot(slot), "does not own slot");
     if (gendex.getGeneration() != slot.getGeneration()) {
       return;
     }
     slot.clear();
-    this->_recycle_bin.push_back(&slot);
+    std::construct_at(slot.getDataPtr(), this->_next_free_ptr);
+    this->_next_free_ptr = &slot;
     gendex.clear();
   }
 };
