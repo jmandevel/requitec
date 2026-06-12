@@ -720,7 +720,13 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
   NONE,
 
-  // TODO
+  // ARITHMETIC
+  ADD,
+  SUBTRACT,
+  MULTIPLY,
+  DIVIDE,
+  MODULUS,
+  NEGATE,
 
   LAST
 };

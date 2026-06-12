@@ -7,7 +7,29 @@
 
 namespace rq {
 
-enum class Opcode : std::uint_fast32_t { NONE };
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Opcode opcode) {
+  using O = rq::Opcode;
+  switch (opcode) {
+    case O::NONE:
+      return "NONE";
+
+    // ARITHMETIC
+    case O::ADD:
+      return "ADD";
+    case O::SUBTRACT:
+      return "SUB";
+    case O::MULTIPLY:
+      return "MUL";
+    case O::MODULUS:
+      return "MOD";
+    case O::NEGATE:
+      return "NEG";
+
+    default:
+      break;
+  }
+  RQ_UNREACHABLE();
+}
 
 enum class OpcodeFlags : std::uint32_t {
   NONE = 0,
@@ -20,7 +42,30 @@ enum class OpcodeFlags : std::uint32_t {
 template <> struct is_flags<rq::OpcodeFlags> : std::true_type {};
 
 [[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode) {
-  return rq::OpcodeFlags::NONE;
+  using O = rq::Opcode;
+  using OF = rq::OpcodeFlags;
+  switch (opcode) {
+    case O::NONE:
+      break;
+
+    // ARITHMETIC
+    case O::ADD:
+      return OF::BINARY;
+    case O::SUBTRACT:
+      return OF::BINARY;
+    case O::MULTIPLY:
+      return OF::BINARY;
+    case O::DIVIDE:
+      return OF::BINARY;
+    case O::MODULUS:
+      return OF::BINARY;
+    case O::NEGATE:
+      return OF::UNARY;
+
+    case O::LAST:
+      break;
+  }
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNullary(rq::Opcode opcode) {
