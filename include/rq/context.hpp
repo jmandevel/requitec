@@ -2,6 +2,7 @@
 
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/constants.hpp>
+#include <rq/instructions.hpp>
 #include <rq/static_value.hpp>
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
@@ -36,6 +37,9 @@ struct Token;
 struct Module;
 enum class TokenKind : std::uint_fast8_t;
 enum class NumericResultCode : unsigned;
+struct NullaryInstruction;
+struct UnaryInstruction;
+struct BinaryInstruction;
 
 enum class LogType : std::underlying_type_t<llvm::SourceMgr::DiagKind> {
   ERROR = llvm::SourceMgr::DiagKind::DK_Error,
@@ -78,6 +82,9 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
   rq::FactoryExpression *_free_expression_ptr{nullptr};
+  rq::NullaryInstruction *_free_nullary_instruction_ptr{nullptr};
+  rq::UnaryInstruction *_free_unary_instruction_ptr{nullptr};
+  rq::BinaryInstruction *_free_binary_instruction_ptr{nullptr};
   rq::IntegerLiteral _integer_literal_type{};
   rq::FloatLiteral _float_literal_type{};
   rq::StringLiteral _string_literal_type{};
@@ -306,15 +313,18 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorIsLast(const rq::FactoryExpression &mark);
   void logErrorExpectedCommaSeparator(const rq::FactoryExpression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
-  void logErrorExpectedSemicolonSeparator(const rq::FactoryExpression &expression);
-  void logErrorExpressionShouldNeverOccur(const rq::FactoryExpression &expression);
+  void
+  logErrorExpectedSemicolonSeparator(const rq::FactoryExpression &expression);
+  void
+  logErrorExpressionShouldNeverOccur(const rq::FactoryExpression &expression);
   void logErrorDuplicateParameterMark(const rq::FactoryExpression &mark);
   void logErrorDuplicateAttribute(const rq::FactoryExpression &attribute);
   void logErrorNonpositionalBeginAfterPositionalEnd(
       const rq::FactoryExpression &named_begin);
-  void
-  logErrorNonpositionalBeginAfterLockedBegin(const rq::FactoryExpression &named_begin);
-  void logErrorPositionalEndAfterLockedBegin(const rq::FactoryExpression &named_begin);
+  void logErrorNonpositionalBeginAfterLockedBegin(
+      const rq::FactoryExpression &named_begin);
+  void logErrorPositionalEndAfterLockedBegin(
+      const rq::FactoryExpression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::FactoryExpression &expression,
                                    unsigned count);
@@ -326,11 +336,16 @@ struct Context final : public rq::BumpPtrAllocator {
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::FactoryExpression &branch);
-  void logErrorExpectedHeaderExpression(const rq::FactoryExpression &expresison);
-  void logErrorUnexpectedHeaderExpression(const rq::FactoryExpression &expresison);
-  void logErrorExpectedChainLinkExpression(const rq::FactoryExpression &expresison);
-  void logErrorUnexpectedChainLinkExpression(const rq::FactoryExpression &expresison);
-  void logErrorNotDeterminateStaticValue(const rq::FactoryExpression &expression);
+  void
+  logErrorExpectedHeaderExpression(const rq::FactoryExpression &expresison);
+  void
+  logErrorUnexpectedHeaderExpression(const rq::FactoryExpression &expresison);
+  void
+  logErrorExpectedChainLinkExpression(const rq::FactoryExpression &expresison);
+  void logErrorUnexpectedChainLinkExpression(
+      const rq::FactoryExpression &expresison);
+  void
+  logErrorNotDeterminateStaticValue(const rq::FactoryExpression &expression);
   void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
                                           const rq::Expression &attribute);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
@@ -362,212 +377,221 @@ struct Context final : public rq::BumpPtrAllocator {
     expression._branch_ptr = this->_free_expression_ptr;
     this->_free_expression_ptr = &expression;
   }
-  [[nodiscard]] rq::FactoryExpression &copyExpression(rq::FactoryExpression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &getIntegerLiteralType() {
+  [[nodiscard]] rq::FactoryExpression &
+  copyExpression(rq::FactoryExpression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &
+  acquireIntegerLiteralType() {
     return this->_integer_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteral &getFloatLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteral &acquireFloatLiteralType() {
     return this->_float_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteral &getStringLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteral &acquireStringLiteralType() {
     return this->_string_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteral &getCodeunitLiteralType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteral &
+  acquireCodeunitLiteralType() {
     return this->_codeunit_literal_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &getOutValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &acquireOutValue() {
     return this->_out_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &getThisValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &acquireThisValue() {
     return this->_this_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResultValue &getResultValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResultValue &acquireResultValue() {
     return this->_result_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &getIndexValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &acquireIndexValue() {
     return this->_index_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &getDiscriminantValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &
+  acquireDiscriminantValue() {
     return this->_discrimnant_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
-  getCommandLineArgumentsValue() {
+  acquireCommandLineArgumentsValue() {
     return this->_command_line_arguments_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &getCallsiteValue() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &acquireCallsiteValue() {
     return this->_callsite_value;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &getInferenceType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &acquireInferenceType() {
     return this->_inference_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &getVoidType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &acquireVoidType() {
     return this->_void_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &getNoReturnType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &acquireNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &getAnchorType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &acquireAnchorType() {
     return this->_anchor_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &getOpaqueType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &acquireOpaqueType() {
     return this->_opaque_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &getGlobalType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &acquireGlobalType() {
     return this->_global_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &getAccessType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &acquireAccessType() {
     return this->_access_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &
-  getPartialMutateAttributeType() {
+  acquirePartialMutateAttributeType() {
     return this->_partial_mutate_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &
-  getStaticAttributeType() {
+  acquireStaticAttributeType() {
     return this->_static_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &
-  getCaptureAttributeType() {
+  acquireCaptureAttributeType() {
     return this->_capture_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineAttributeType &
-  getInlineAttributeType() {
+  acquireInlineAttributeType() {
     return this->_inline_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleAttributeType &
-  getMangleAttributeType() {
+  acquireMangleAttributeType() {
     return this->_mangle_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &getPackAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackAttributeType &
+  acquirePackAttributeType() {
     return this->_pack_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendAttributeType &
-  getBranchTrendAttributeType() {
+  acquireBranchTrendAttributeType() {
     return this->_branch_trend_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportStatusAttributeType &
-  getSupportStatusAttributeType() {
+  acquireSupportStatusAttributeType() {
     return this->_support_status_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StableAddressAttributeType &
-  getStableAddressAttributeType() {
+  acquireStableAddressAttributeType() {
     return this->_stable_address_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicAttributeType &
-  getVariadicAttributeType() {
+  acquireVariadicAttributeType() {
     return this->_variadic_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationAttributeType &
-  getLocationAttributeType() {
+  acquireLocationAttributeType() {
     return this->_location_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateAttributeType &
-  getTemplateAttributeType() {
+  acquireTemplateAttributeType() {
     return this->_template_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintAttributeType &
-  getConstraintAttributeType() {
+  acquireConstraintAttributeType() {
     return this->_constraint_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &
-  getWeightAttributeType() {
+  acquireWeightAttributeType() {
     return this->_weight_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &
-  getRequireAttributeType() {
+  acquireRequireAttributeType() {
     return this->_require_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureAttributeType &
-  getEnsureAttributeType() {
+  acquireEnsureAttributeType() {
     return this->_ensure_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &getVarAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VarAttributeType &
+  acquireVarAttributeType() {
     return this->_var_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileAttributeType &
-  getVolatileAttributeType() {
+  acquireVolatileAttributeType() {
     return this->_volatile_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicAttributeType &
-  getAtomicAttributeType() {
+  acquireAtomicAttributeType() {
     return this->_atomic_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateAttributeType &
-  getNullTerminateAttributeType() {
+  acquireNullTerminateAttributeType() {
     return this->_null_terminate_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &getSymbolType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &acquireSymbolType() {
     return this->_symbol_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &getExpressionType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &acquireExpressionType() {
     return this->_expression_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &getBooleanType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &acquireBooleanType() {
     return this->_boolean_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &getHalfType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &acquireHalfType() {
     return this->_half_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &getSingleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &acquireSingleType() {
     return this->_single_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &getDoubleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &acquireDoubleType() {
     return this->_double_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &getQuadrupleType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &acquireQuadrupleType() {
     return this->_quadruple_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &getSignedIntegerType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIntegerType &
+  acquireSignedIntegerType() {
     return this->_signed_integer_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIntegerType &
-  getUnsignedIntegerType() {
+  acquireUnsignedIntegerType() {
     return this->_unsigned_integer_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &getSignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedIndexType &acquireSignedIndexType() {
     return this->_signed_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIndexType &getUnsignedIndexType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedIndexType &
+  acquireUnsignedIndexType() {
     return this->_unsigned_index_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &getSignedAddressType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedAddressType &
+  acquireSignedAddressType() {
     return this->_signed_address_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedAddressType &
-  getUnsignedAddressType() {
+  acquireUnsignedAddressType() {
     return this->_unsigned_address_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &getCharType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &acquireCharType() {
     return this->_char_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &getBinary16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &acquireBinary16Type() {
     return this->_binary16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &getBinary32Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &acquireBinary32Type() {
     return this->_binary32_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &getBinary64Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &acquireBinary64Type() {
     return this->_binary64_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &getBinary128Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &acquireBinary128Type() {
     return this->_binary128_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Type &getBfloat16Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Bfloat16Type &acquireBfloat16Type() {
     return this->_bfloat16_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &getAsciiType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &acquireAsciiType() {
     return this->_ascii_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &getUtf8Type() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &acquireUtf8Type() {
     return this->_utf8_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicArgumentsType &
-  getVariadicArgumentsType() {
+  acquireVariadicArgumentsType() {
     return this->_variadic_arguments_type;
   }
   [[nodiscard]] inline rq::ScaledPrimitiveType &
-  getScaledPrimitiveType(rq::SymbolKind kind, rq::ScaleKind scale_kind,
-                         unsigned scale, std::uint64_t synonym_id) {
+  acquireScaledPrimitiveType(rq::SymbolKind kind, rq::ScaleKind scale_kind,
+                             unsigned scale, std::uint64_t synonym_id) {
     llvm::FoldingSetNodeID id;
     rq::profileScaledPrimitiveType(id, kind, scale_kind, scale, synonym_id);
     void *insert_pos;
@@ -584,19 +608,23 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledSignedIntegerType &
-  getScaledSignedIntegerType(rq::ScaleKind kind, unsigned scale,
-                             std::uint64_t synonym_id) {
-    return llvm::cast<rq::ScaledSignedIntegerType>(this->getScaledPrimitiveType(
-        rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale, synonym_id));
+  acquireScaledSignedIntegerType(rq::ScaleKind kind, unsigned scale,
+                                 std::uint64_t synonym_id) {
+    return llvm::cast<rq::ScaledSignedIntegerType>(
+        this->acquireScaledPrimitiveType(
+            rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE, kind, scale,
+            synonym_id));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedIntegerType &
-  getScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
-                               std::uint64_t synonym_id) {
-    return llvm::cast<ScaledUnsignedIntegerType>(this->getScaledPrimitiveType(
-        rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale, synonym_id));
+  acquireScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
+                                   std::uint64_t synonym_id) {
+    return llvm::cast<ScaledUnsignedIntegerType>(
+        this->acquireScaledPrimitiveType(
+            rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale,
+            synonym_id));
   }
   [[nodiscard]] inline rq::ArraySubtype &
-  getArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {
+  acquireArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {
     llvm::FoldingSetNodeID id;
     rq::profileArraySubtype(id, child, count);
     void *insert_pos;
@@ -612,7 +640,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::UncountedSubtype &
-  getUncountedSubtype(rq::SymbolKind kind, rq::SymbolConstant &child) {
+  acquireUncountedSubtype(rq::SymbolKind kind, rq::SymbolConstant &child) {
     llvm::FoldingSetNodeID id;
     rq::profileUncountedSubtype(id, kind, child);
     void *insert_pos;
@@ -628,36 +656,37 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSubtype &
-  getReferenceSubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::ReferenceSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child));
+  acquireReferenceSubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::ReferenceSubtype>(this->acquireUncountedSubtype(
+        rq::SymbolKind::REFERENCE_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSubtype &
-  getPointerSubtype(rq::SymbolConstant &child) {
+  acquirePointerSubtype(rq::SymbolConstant &child) {
     return llvm::cast<rq::PointerSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
+        this->acquireUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceSubtype &
-  getSliceSubtype(rq::SymbolConstant &child) {
+  acquireSliceSubtype(rq::SymbolConstant &child) {
     return llvm::cast<rq::SliceSubtype>(
-        this->getUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
+        this->acquireUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceCountArraySubtype &
-  getInferenceCountArraySubtype(rq::SymbolConstant &child) {
-    return llvm::cast<rq::InferenceCountArraySubtype>(this->getUncountedSubtype(
-        rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
+  acquireInferenceCountArraySubtype(rq::SymbolConstant &child) {
+    return llvm::cast<rq::InferenceCountArraySubtype>(
+        this->acquireUncountedSubtype(
+            rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &
-  getModule(rq::ModuleFactory &&factory) {
+  acquireModule(rq::ModuleFactory &&factory) {
     return this->allocateValue<rq::Module>(std::move(factory));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Import &
-  getImport(rq::ExpressionFlags flags, rq::Expression &expression,
-            rq::Module &module, rq::Module &imported) {
+  acquireImport(rq::ExpressionFlags flags, rq::Expression &expression,
+                rq::Module &module, rq::Module &imported) {
     return this->allocateValue<rq::Import>(flags, expression, module, imported);
   }
   [[nodiscard]] inline rq::JuxtapositionalListType &
-  getJuxtapositionalListType(rq::JuxtapositionalListItem &first_item) {
+  acquireJuxtapositionalListType(rq::JuxtapositionalListItem &first_item) {
     llvm::FoldingSetNodeID id;
     rq::profileJuxtapositionalListType(id, first_item);
     void *insert_pos;
@@ -673,9 +702,9 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::ArithmeticSequenceType &
-  getArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
-                            rq::ArithmeticSequenceCondition condition,
-                            rq::ArithmeticSequenceStep step) {
+  acquireArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
+                                rq::ArithmeticSequenceCondition condition,
+                                rq::ArithmeticSequenceStep step) {
     llvm::FoldingSetNodeID id;
     rq::profileArithmeticSequenceType(id, kind, child, condition, step);
     void *insert_pos;
@@ -692,34 +721,34 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalType &
-  getArithmeticIntervalType(rq::SymbolConstant &child,
-                            rq::ArithmeticSequenceCondition condition) {
+  acquireArithmeticIntervalType(rq::SymbolConstant &child,
+                                rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::ArithmeticIntervalType>(
-        this->getArithmeticSequenceType(
+        this->acquireArithmeticSequenceType(
             rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE, child, condition,
             rq::ArithmeticSequenceStep::NONE));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceType &
-  getInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
-                                    rq::ArithmeticSequenceStep step) {
+  acquireInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
+                                        rq::ArithmeticSequenceStep step) {
     return llvm::cast<rq::InfiniteArithmeticSequenceType>(
-        this->getArithmeticSequenceType(
+        this->acquireArithmeticSequenceType(
             rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE, child,
             rq::ArithmeticSequenceCondition::NONE, step));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceType &
-  getFiniteArithmeticSequenceType(rq::SymbolConstant &child,
-                                  rq::ArithmeticSequenceStep step,
-                                  rq::ArithmeticSequenceCondition condition) {
+  acquireFiniteArithmeticSequenceType(
+      rq::SymbolConstant &child, rq::ArithmeticSequenceStep step,
+      rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::FiniteArithmeticSequenceType>(
-        this->getArithmeticSequenceType(
+        this->acquireArithmeticSequenceType(
             rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
             step));
   }
   [[nodiscard]] inline rq::TypeParameter &
-  getTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                   llvm::StringRef name, rq::SymbolConstant &type,
-                   unsigned location, bool is_positional) {
+  acquireTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
+                       llvm::StringRef name, rq::SymbolConstant &type,
+                       unsigned location, bool is_positional) {
     llvm::FoldingSetNodeID id;
     rq::profileTypeParameter(id, kind, next_ptr, name, type, location,
                              is_positional);
@@ -736,22 +765,22 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-  getProcedureParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
-                        rq::SymbolConstant &type, unsigned location,
-                        bool is_positional) {
-    return llvm::cast<rq::ProcedureParameter>(
-        this->getTypeParameter(rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr,
-                               name, type, location, is_positional));
+  acquireProcedureParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+                            rq::SymbolConstant &type, unsigned location,
+                            bool is_positional) {
+    return llvm::cast<rq::ProcedureParameter>(this->acquireTypeParameter(
+        rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr, name, type, location,
+        is_positional));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
-  getTupleParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
-                    rq::SymbolConstant &type, unsigned location,
-                    bool is_positional) {
+  acquireTupleParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+                        rq::SymbolConstant &type, unsigned location,
+                        bool is_positional) {
     return llvm::cast<rq::TupleParameter>(
-        this->getTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr, name,
-                               type, location, is_positional));
+        this->acquireTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr,
+                                   name, type, location, is_positional));
   }
-  [[nodiscard]] inline rq::ProcedureType &getProcedureType(
+  [[nodiscard]] inline rq::ProcedureType &acquireProcedureType(
       rq::ProcedureParameter *first_parameter_ptr, unsigned parameter_count,
       unsigned positional_parameter_count,
       unsigned nonpositional_parameter_count, rq::SymbolConstant &return_type,
@@ -773,10 +802,11 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::TupleType &
-  getTupleType(rq::TupleParameter *first_parameter_ptr,
-               unsigned parameter_count, unsigned positional_parameter_count,
-               unsigned nonpositional_parameter_count,
-               unsigned type_keyed_parameter_count) {
+  acquireTupleType(rq::TupleParameter *first_parameter_ptr,
+                   unsigned parameter_count,
+                   unsigned positional_parameter_count,
+                   unsigned nonpositional_parameter_count,
+                   unsigned type_keyed_parameter_count) {
     llvm::FoldingSetNodeID id;
     rq::profileTupleType(id, first_parameter_ptr);
     void *insert_pos;
@@ -793,7 +823,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PlacementType &
-  getPlacementType(rq::Procedure &procedure) {
+  acquirePlacementType(rq::Procedure &procedure) {
     llvm::FoldingSetNodeID id;
     rq::profilePlacement(id, procedure);
     void *insert_pos;
@@ -809,7 +839,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::CompositionComponent &
-  getCompositionComponent(rq::CompositionComponent *next_ptr) {
+  acquireCompositionComponent(rq::CompositionComponent *next_ptr) {
     llvm::FoldingSetNodeID id;
     rq::profileCompositionComponent(id, next_ptr);
     void *insert_pos;
@@ -825,7 +855,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::CompositionType &
-  getCompositionType(rq::CompositionComponent &first_component) {
+  acquireCompositionType(rq::CompositionComponent &first_component) {
     llvm::FoldingSetNodeID id;
     rq::profileCompositionType(id, first_component);
     void *insert_pos;
@@ -841,7 +871,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::SymbolConstant &
-  getSymbolConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
+  acquireSymbolConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
     llvm::FoldingSetNodeID id;
     rq::profileSymbolConstant(id, symbol, flags);
     void *insert_pos;
@@ -857,7 +887,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::WordConstant &
-  getWordConstant(const llvm::APInt &value) {
+  acquireWordConstant(const llvm::APInt &value) {
     llvm::FoldingSetNodeID id;
     rq::profileWordConstant(id, value);
     void *insert_pos;
@@ -872,7 +902,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::ArrayConstant &
-  getArrayConstant(llvm::ArrayRef<rq::Constant *> data) {
+  acquireArrayConstant(llvm::ArrayRef<rq::Constant *> data) {
     llvm::FoldingSetNodeID id;
     rq::profileArrayConstant(id, data);
     void *insert_pos;
@@ -885,6 +915,103 @@ struct Context final : public rq::BumpPtrAllocator {
     rq::ArrayConstant &created = this->allocateValue<rq::ArrayConstant>(data);
     this->_array_constants.InsertNode(&created, insert_pos);
     return created;
+  }
+
+  [[nodiscard]] inline rq::NullaryInstruction &
+  acquireNullaryInstruction(rq::Opcode opcode, rq::Expression &expression) {
+    if (this->_free_nullary_instruction_ptr == nullptr) {
+      rq::NullaryInstruction &instruction =
+          this->allocateValue<rq::NullaryInstruction>(opcode, &expression);
+      return instruction;
+    }
+    rq::NullaryInstruction &instruction =
+        rq::dereferencePtr(this->_free_nullary_instruction_ptr);
+    this->_free_nullary_instruction_ptr =
+        std::bit_cast<rq::NullaryInstruction *>(instruction._expression_ptr);
+    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
+    instruction._expression_ptr = &expression;
+    return instruction;
+  }
+
+  [[nodiscard]] inline rq::UnaryInstruction &
+  acquireUnaryInstruction(rq::Opcode opcode, rq::Expression &expression,
+                          rq::Entity &address0) {
+    if (this->_free_unary_instruction_ptr == nullptr) {
+      rq::UnaryInstruction &instruction =
+          this->allocateValue<rq::UnaryInstruction>(opcode, &expression,
+                                                    address0);
+      return instruction;
+    }
+    rq::UnaryInstruction &instruction =
+        rq::dereferencePtr(this->_free_unary_instruction_ptr);
+    this->_free_unary_instruction_ptr =
+        std::bit_cast<rq::UnaryInstruction *>(instruction._expression_ptr);
+    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
+    instruction._expression_ptr = &expression;
+    instruction._address0_ptr = &address0;
+    return instruction;
+  }
+
+  [[nodiscard]] inline rq::BinaryInstruction &
+  acquireBinaryInstruction(rq::Opcode opcode, rq::Expression &expression,
+                           rq::Entity &address0, rq::Entity &address1) {
+    if (this->_free_binary_instruction_ptr == nullptr) {
+      rq::BinaryInstruction &instruction =
+          this->allocateValue<rq::BinaryInstruction>(opcode, &expression,
+                                                     address0, address1);
+      return instruction;
+    }
+    rq::BinaryInstruction &instruction =
+        rq::dereferencePtr(this->_free_binary_instruction_ptr);
+    this->_free_binary_instruction_ptr =
+        std::bit_cast<rq::BinaryInstruction *>(instruction._expression_ptr);
+    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
+    instruction._expression_ptr = &expression;
+    instruction._address0_ptr = &address0;
+    instruction._address1_ptr = &address1;
+    return instruction;
+  }
+
+  inline void discardInstruction(rq::Instruction &instruction) {
+    if (llvm::isa<rq::NullaryInstruction>(instruction)) {
+      rq::NullaryInstruction &nullary =
+          llvm::cast<rq::NullaryInstruction>(instruction);
+      nullary._expression_ptr =
+          std::bit_cast<rq::Expression *>(this->_free_nullary_instruction_ptr);
+      this->_free_nullary_instruction_ptr = &nullary;
+      return;
+    }
+    if (llvm::isa<rq::UnaryInstruction>(instruction)) {
+      rq::UnaryInstruction &unary =
+          llvm::cast<rq::UnaryInstruction>(instruction);
+      if (llvm::isa<rq::Instruction>(unary.getAddress0())) {
+        rq::Instruction &address0 =
+            llvm::cast<rq::Instruction>(unary.getAddress0());
+        this->discardInstruction(address0);
+      }
+      unary._expression_ptr =
+          std::bit_cast<rq::Expression *>(this->_free_unary_instruction_ptr);
+      this->_free_unary_instruction_ptr = &unary;
+      return;
+    }
+    if (llvm::isa<rq::BinaryInstruction>(instruction)) {
+      rq::BinaryInstruction &binary =
+          llvm::cast<rq::BinaryInstruction>(instruction);
+      if (llvm::isa<rq::Instruction>(binary.getAddress0())) {
+        rq::Instruction &address0 =
+            llvm::cast<rq::Instruction>(binary.getAddress0());
+        this->discardInstruction(address0);
+      }
+      if (llvm::isa<rq::Instruction>(binary.getAddress1())) {
+        rq::Instruction &address1 =
+            llvm::cast<rq::Instruction>(binary.getAddress1());
+        this->discardInstruction(address1);
+      }
+      binary._expression_ptr =
+          std::bit_cast<rq::Expression *>(this->_free_binary_instruction_ptr);
+      this->_free_binary_instruction_ptr = &binary;
+      return;
+    }
   }
 };
 

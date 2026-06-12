@@ -116,22 +116,22 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
   using K = rq::Keyword;
   switch (rvalue_ex.getKeyword()) {
   case K::INTEGER_LITERAL: {
-    rq::Symbol &type = this->getContext().getIntegerLiteralType();
+    rq::Symbol &type = this->getContext().acquireIntegerLiteralType();
     rq::Entity &value = rvalue_ex;
     return rq::StaticRvalue(type, value);
   }
   case K::FLOAT_LITERAL: {
-    rq::Symbol &type = this->getContext().getFloatLiteralType();
+    rq::Symbol &type = this->getContext().acquireFloatLiteralType();
     rq::Entity &value = rvalue_ex;
     return rq::StaticRvalue(type, value);
   }
   case K::STRING_LITERAL: {
-    rq::Symbol &type = this->getContext().getStringLiteralType();
+    rq::Symbol &type = this->getContext().acquireStringLiteralType();
     rq::Entity &value = rvalue_ex;
     return rq::StaticRvalue(type, value);
   }
   case K::CODEUNIT_LITERAL: {
-    rq::Symbol &type = this->getContext().getCodeunitLiteralType();
+    rq::Symbol &type = this->getContext().acquireCodeunitLiteralType();
     rq::Entity &value = rvalue_ex;
     return rq::StaticRvalue(type, value);
   }
@@ -172,12 +172,12 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     }
     rq::Symbol &rvalue_sy = rq::dereferencePtr(rvalue_sy_ptr);
     if (llvm::isa<rq::Label>(rvalue_sy)) {
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       rq::Label &label = llvm::cast<rq::Label>(rvalue_sy);
       return rq::StaticRvalue(type, label);
     }
     if (llvm::isa<rq::Anchor>(rvalue_sy)) {
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       rq::Anchor &anchor = llvm::cast<rq::Anchor>(rvalue_sy);
       return rq::StaticRvalue(type, anchor);
     }
@@ -216,7 +216,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       return rq::StaticRvalue();
     }
     if (llvm::isa<rq::Namespace>(rvalue_sy)) {
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(rvalue_sy);
       return rq::StaticRvalue(type, namespace_);
     }
@@ -225,7 +225,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       if (!class_.getIsEvaluated()) {
         this->evaluate(class_);
       }
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       return rq::StaticRvalue(type, class_);
     }
     if (llvm::isa<rq::EnumerationType>(rvalue_sy)) {
@@ -233,7 +233,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       if (!enum_.getIsEvaluated()) {
         this->evaluate(enum_);
       }
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       return rq::StaticRvalue(type, enum_);
     }
     if (llvm::isa<rq::Interface>(rvalue_sy)) {
@@ -241,7 +241,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       if (!interface.getIsEvaluated()) {
         this->evaluate(interface);
       }
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       return rq::StaticRvalue(type, interface);
     }
     if (llvm::isa<rq::Adapter>(rvalue_sy)) {
@@ -249,7 +249,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       if (!adapter.getIsEvaluated()) {
         this->evaluate(adapter);
       }
-      rq::Symbol &type = this->getContext().getSymbolType();
+      rq::Symbol &type = this->getContext().acquireSymbolType();
       return rq::StaticRvalue(type, adapter);
     }
     if (llvm::isa<rq::GlobalDynamicVariable>(rvalue_sy)) {
@@ -280,7 +280,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     [[fallthrough]];
   case K::MODULUS: {
 
-    rq::Symbol *type_sy_ptr = &this->getContext().getIntegerLiteralType();
+    rq::Symbol *type_sy_ptr = &this->getContext().acquireIntegerLiteralType();
     for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
       rq::StaticRvalue branch_rv =
           this->evaluateStaticRvalue(table, module, branch_ex);
@@ -299,7 +299,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
           continue;
         }
         if (llvm::isa<rq::IntegerLiteral>(type_sy)) {
-          type_sy_ptr = &this->getContext().getFloatLiteralType();
+          type_sy_ptr = &this->getContext().acquireFloatLiteralType();
           continue;
         }
       }

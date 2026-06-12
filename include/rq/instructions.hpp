@@ -5,28 +5,30 @@
 
 #include <rq/utility.hpp>
 
+#include <llvm/Support/Casting.h>
+
 namespace rq {
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Opcode opcode) {
   using O = rq::Opcode;
   switch (opcode) {
-    case O::NONE:
-      return "NONE";
+  case O::NONE:
+    return "NONE";
 
-    // ARITHMETIC
-    case O::ADD:
-      return "ADD";
-    case O::SUBTRACT:
-      return "SUB";
-    case O::MULTIPLY:
-      return "MUL";
-    case O::MODULUS:
-      return "MOD";
-    case O::NEGATE:
-      return "NEG";
+  // ARITHMETIC
+  case O::ADD:
+    return "ADD";
+  case O::SUBTRACT:
+    return "SUB";
+  case O::MULTIPLY:
+    return "MUL";
+  case O::MODULUS:
+    return "MOD";
+  case O::NEGATE:
+    return "NEG";
 
-    default:
-      break;
+  default:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -45,25 +47,25 @@ template <> struct is_flags<rq::OpcodeFlags> : std::true_type {};
   using O = rq::Opcode;
   using OF = rq::OpcodeFlags;
   switch (opcode) {
-    case O::NONE:
-      break;
+  case O::NONE:
+    break;
 
-    // ARITHMETIC
-    case O::ADD:
-      return OF::BINARY;
-    case O::SUBTRACT:
-      return OF::BINARY;
-    case O::MULTIPLY:
-      return OF::BINARY;
-    case O::DIVIDE:
-      return OF::BINARY;
-    case O::MODULUS:
-      return OF::BINARY;
-    case O::NEGATE:
-      return OF::UNARY;
+  // ARITHMETIC
+  case O::ADD:
+    return OF::BINARY;
+  case O::SUBTRACT:
+    return OF::BINARY;
+  case O::MULTIPLY:
+    return OF::BINARY;
+  case O::DIVIDE:
+    return OF::BINARY;
+  case O::MODULUS:
+    return OF::BINARY;
+  case O::NEGATE:
+    return OF::UNARY;
 
-    case O::LAST:
-      break;
+  case O::LAST:
+    break;
   }
   RQ_UNREACHABLE();
 }
@@ -89,14 +91,19 @@ struct Instruction : public rq::Entity {
   using Self = rq::Instruction;
 
   rq::Opcode opcode;
-  const rq::Expression *_expression_ptr{nullptr};
+  rq::Expression *_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
-                                        const rq::Expression *expression_ptr)
-      : Entity(rq::getUnderlying(opcode)), _expression_ptr(expression_ptr) {}
+                                        rq::Expression *expression_ptr)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _expression_ptr(expression_ptr) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getExpressionPtr() const {
+    return this->_expression_ptr;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr() {
     return this->_expression_ptr;
   }
 
@@ -110,9 +117,11 @@ struct Instruction : public rq::Entity {
 struct NullaryInstruction final : public rq::Instruction {
   using Self = rq::NullaryInstruction;
 
-  explicit RQ_ALWAYS_INLINE
-  NullaryInstruction(rq::Opcode opcode, const rq::Expression *expression_ptr)
-      : Instruction(opcode, expression_ptr) {}
+  explicit RQ_ALWAYS_INLINE NullaryInstruction(rq::Opcode opcode,
+                                               rq::Expression *expression_ptr)
+      : Instruction(opcode, expression_ptr) {
+    RQ_ASSERT(rq::getIsNullary(opcode), "not nullary opcode");
+  }
 
   [[nodiscard]] static inline bool classof(const rq::Instruction *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -120,8 +129,7 @@ struct NullaryInstruction final : public rq::Instruction {
       return false;
     }
     const rq::EntityId id = entity.getId();
-    return rq::getIsNullary(
-        static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
+    return rq::getIsNullary(static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
   }
 };
 
@@ -130,10 +138,12 @@ struct UnaryInstruction final : public rq::Instruction {
 
   rq::Entity *_address0_ptr;
 
-  explicit RQ_ALWAYS_INLINE
-  UnaryInstruction(rq::Opcode opcode, const rq::Expression *expression_ptr,
-                   rq::Entity &address0) :
-                   Instruction(opcode, expression_ptr), _address0_ptr(&address0) {}
+  explicit RQ_ALWAYS_INLINE UnaryInstruction(rq::Opcode opcode,
+                                             rq::Expression *expression_ptr,
+                                             rq::Entity &address0)
+      : Instruction(opcode, expression_ptr), _address0_ptr(&address0) {
+    RQ_ASSERT(rq::getIsUnary(opcode), "not unary opcode");
+  }
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const {
     return rq::dereferencePtr(this->_address0_ptr);
@@ -149,8 +159,7 @@ struct UnaryInstruction final : public rq::Instruction {
       return false;
     }
     const rq::EntityId id = entity.getId();
-    return rq::getIsUnary(
-        static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
+    return rq::getIsUnary(static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
   }
 };
 
@@ -164,7 +173,9 @@ struct BinaryInstruction final : public rq::Instruction {
   BinaryInstruction(rq::Opcode opcode, rq::Expression *expression_ptr,
                     rq::Entity &address0, rq::Entity &address1)
       : Instruction(opcode, expression_ptr), _address0_ptr(&address0),
-        _address1_ptr(&address1) {}
+        _address1_ptr(&address1) {
+    RQ_ASSERT(rq::getIsBinary(opcode), "not binary opcode");
+  }
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getAddress0() const {
     return rq::dereferencePtr(this->_address0_ptr);
@@ -188,8 +199,7 @@ struct BinaryInstruction final : public rq::Instruction {
       return false;
     }
     const rq::EntityId id = entity.getId();
-    return rq::getIsBinary(
-        static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
+    return rq::getIsBinary(static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET));
   }
 };
 
