@@ -270,7 +270,73 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     }
     RQ_UNREACHABLE();
   }
-  case K::ADD: {
+  case K::ADD:
+    [[fallthrough]];
+  case K::SUBTRACT:
+    [[fallthrough]];
+  case K::MULTIPLY:
+    [[fallthrough]];
+  case K::DIVIDE:
+    [[fallthrough]];
+  case K::MODULUS: {
+
+    rq::Symbol *type_sy_ptr = &this->getContext().getIntegerLiteralType();
+    for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
+      rq::StaticRvalue branch_rv =
+          this->evaluateStaticRvalue(table, module, branch_ex);
+      if (!branch_rv.getIsOk()) {
+        continue;
+      }
+      rq::Symbol &branch_sy = branch_rv.getType();
+      rq::Symbol &type_sy = rq::dereferencePtr(type_sy_ptr);
+      if (llvm::isa<rq::IntegerLiteral>(branch_sy)) {
+        continue;
+      }
+      if (llvm::isa<rq::FloatLiteral>(branch_sy)) {
+        if (type_sy.getIsIntegerType()) {
+          RQ_UNHANDLED_ERROR("float literal with integer");
+          this->setNotOk();
+          continue;
+        }
+        if (llvm::isa<rq::IntegerLiteral>(type_sy)) {
+          type_sy_ptr = &this->getContext().getFloatLiteralType();
+          continue;
+        }
+      }
+      if (branch_sy.getIsIntegerType()) {
+        if (!type_sy.getIsLiteralType()) {
+          if (type_sy != branch_sy) {
+            RQ_UNHANDLED_ERROR("types not implicitly convertable");
+            this->setNotOk();
+          }
+          continue;
+        }
+        if (llvm::isa<rq::FloatLiteral>(type_sy)) {
+          RQ_UNHANDLED_ERROR("float literal with integer");
+          this->setNotOk();
+          continue;
+        }
+        type_sy_ptr = &branch_sy;
+        continue;
+      }
+      if (branch_sy.getIsFloatType()) {
+        if (!type_sy.getIsLiteralType()) {
+          if (type_sy != branch_sy) {
+            RQ_UNHANDLED_ERROR("types not implicitly convertable");
+            this->setNotOk();
+          }
+          continue;
+        }
+        type_sy_ptr = &branch_sy;
+        continue;
+      }
+      if (!branch_sy.getIsNumericType()) {
+        RQ_UNHANDLED_ERROR("not numeric");
+        this->setNotOk();
+      }
+    }
+    //rq::Symbol& final_type = rq::dereferencePtr(type_sy_ptr);
+    RQ_TODO_IMPLEMENTATION();
   }
   default:
     break;

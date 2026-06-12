@@ -126,6 +126,7 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType(rq::SymbolKind kind);
@@ -480,6 +481,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType() const;

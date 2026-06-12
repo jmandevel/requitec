@@ -408,13 +408,13 @@ namespace rq {
 
   // LITERALS
   case S::INTEGER_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_SIGNED_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_INTEGER_TYPE;
   case S::FLOAT_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_SIGNED_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_FLOAT_TYPE;
   case S::STRING_LITERAL_TYPE:
     return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE;
   case S::CODEUNIT_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_CODEUNIT_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE;
 
   // CONTEXTUAL VALUE
   case S::OUT_VALUE:
@@ -1153,6 +1153,12 @@ getIsGlobalDeclaration(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::IS_TYPE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind) {
+  const rq::SymbolFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolFlags::IS_INTEGER_TYPE |
+                                  rq::SymbolFlags::IS_FLOAT_TYPE);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::IS_SIGNED_TYPE);
@@ -1377,6 +1383,10 @@ Symbol::getIsExpressionAttributeType() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
   return rq::getIsType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNumericType() const {
+  return rq::getIsNumericType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSignedType() const {
@@ -2009,9 +2019,9 @@ Anchor::getLocalStatement() const {
 }
 
 RQ_ALWAYS_INLINE
-Enumerator::Enumerator(llvm::StringRef name, rq::SymbolTable &containing_table,  rq::SymbolTable &hosting_table,
-                       rq::Module &module, rq::SymbolConstant *type_ptr,
-                       llvm::APInt discriminant)
+Enumerator::Enumerator(llvm::StringRef name, rq::SymbolTable &containing_table,
+                       rq::SymbolTable &hosting_table, rq::Module &module,
+                       rq::SymbolConstant *type_ptr, llvm::APInt discriminant)
     : LocalDeclaration(rq::SymbolKind::ENUMERATOR, name, containing_table,
                        hosting_table, module),
       _type_ptr(type_ptr), _discriminant_value(discriminant) {}
