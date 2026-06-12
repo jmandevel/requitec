@@ -400,12 +400,12 @@ struct Symbol;
   struct LocalDeclaration;
     struct Label;
     struct Anchor;
+    struct Enumerator;
     struct LocalVariable;
       struct LocalDynamicVariable;
       struct LocalStaticVariable;
       struct TemplateArgument;
       struct ProcedureArgument;
-      struct Enumerator;
   struct Parameter;
     struct SymbolParameter;
       struct SignatureParameter;
@@ -964,6 +964,25 @@ struct Anchor final : public rq::LocalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Enumerator final : rq::LocalDeclaration {
+  using Self = rq::Enumerator;
+
+  rq::SymbolConstant *_type_ptr;
+  llvm::APInt _discriminant_value;
+
+  explicit RQ_ALWAYS_INLINE
+  Enumerator(llvm::StringRef name, rq::SymbolTable &containing_table,
+             rq::SymbolTable &hosting_table, rq::Module &module,
+             rq::SymbolConstant *type_ptr, llvm::APInt discriminant);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *getTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt getDiscriminantValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt getDiscriminantValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct LocalVariable : public rq::LocalDeclaration {
   using Self = rq::LocalVariable;
 
@@ -1002,7 +1021,8 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   explicit RQ_ALWAYS_INLINE
   LocalStaticVariable(llvm::StringRef name, rq::SymbolTable &containing_table,
                       rq::SymbolTable &hosting_table, rq::Module &module,
-                      rq::ExpressionFlags flags, rq::SymbolConstant &type, rq::Gendex<rq::StaticValue> gendex);
+                      rq::ExpressionFlags flags, rq::SymbolConstant &type,
+                      rq::Gendex<rq::StaticValue> gendex);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
   getValue() const;
@@ -1014,17 +1034,17 @@ struct LocalStaticVariable final : public rq::LocalVariable {
 struct TemplateArgument final : public rq::LocalVariable {
   using Self = rq::TemplateArgument;
 
-  rq::Entity* _value_ptr;
+  rq::Entity *_value_ptr;
   rq::LayoutParameter *_parameter_ptr;
 
   explicit RQ_ALWAYS_INLINE
   TemplateArgument(llvm::StringRef name, rq::SymbolTable &containing_table,
                    rq::SymbolTable &hosting_table, rq::Module &module,
-                   rq::ExpressionFlags flags, rq::SymbolConstant &type, rq::Entity& value,
-                   rq::LayoutParameter &parameter);
+                   rq::ExpressionFlags flags, rq::SymbolConstant &type,
+                   rq::Entity &value, rq::LayoutParameter &parameter);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity& getValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity& getValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter &
   getLayoutParameter() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter &getLayoutParameter();

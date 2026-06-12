@@ -640,6 +640,8 @@ namespace rq {
     return SF::LOCAL_DECLARATION;
   case S::ANCHOR:
     return SF::LOCAL_DECLARATION;
+  case S::ENUMERATOR:
+    return SF::LOCAL_DECLARATION | SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // LOCAL VARIABLES
   case S::LOCAL_DYNAMIC_VARIABLE:
@@ -652,9 +654,6 @@ namespace rq {
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
   case S::PROCEDURE_ARGUMENT:
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
-  case S::ENUMERATOR:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // SYMBOL PARAMETERS
   case S::SIGNATURE_PARAMETER:
@@ -2007,6 +2006,39 @@ Anchor::getLocalStatement() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ANCHOR);
+}
+
+RQ_ALWAYS_INLINE
+Enumerator::Enumerator(llvm::StringRef name, rq::SymbolTable &containing_table,  rq::SymbolTable &hosting_table,
+                       rq::Module &module, rq::SymbolConstant *type_ptr,
+                       llvm::APInt discriminant)
+    : LocalDeclaration(rq::SymbolKind::ENUMERATOR, name, containing_table,
+                       hosting_table, module),
+      _type_ptr(type_ptr), _discriminant_value(discriminant) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
+Enumerator::getTypePtr() const {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *Enumerator::getTypePtr() {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt
+Enumerator::getDiscriminantValue() const {
+  return this->_discriminant_value;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt Enumerator::getDiscriminantValue() {
+  return this->_discriminant_value;
+}
+
+[[nodiscard]] inline bool Enumerator::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id ==
+         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ENUMERATOR);
 }
 
 RQ_ALWAYS_INLINE
