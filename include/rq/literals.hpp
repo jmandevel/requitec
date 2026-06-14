@@ -11,25 +11,6 @@
 
 namespace rq {
 
-inline const llvm::fltSemantics &getLlvmFloatSemantics(rq::SymbolKind kind) {
-  using namespace rq;
-  switch (kind) {
-  case rq::SymbolKind::BFLOAT16_TYPE:
-    return llvm::APFloat::BFloat();
-  case rq::SymbolKind::BINARY16_TYPE:
-    return llvm::APFloat::IEEEhalf();
-  case rq::SymbolKind::BINARY32_TYPE:
-    return llvm::APFloat::IEEEsingle();
-  case rq::SymbolKind::BINARY64_TYPE:
-    return llvm::APFloat::IEEEdouble();
-  case rq::SymbolKind::BINARY128_TYPE:
-    return llvm::APFloat::IEEEquad();
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
 enum class NumericResultCode : unsigned {
   OK,
   ERROR_EMPTY,
@@ -258,18 +239,21 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::NumericResultCode
-getNumericValue(llvm::StringRef text, llvm::APFloat &ost_term,
-                rq::SymbolKind semantics) {
+struct FloatParseResult final {
+  rq::NumericResultCode code;
+  llvm::APFloat float_;
+};
+
+[[nodiscard]] inline rq::FloatParseResult
+parseFloatLiteral(llvm::StringRef text,
+                  const llvm::fltSemantics &llvm_semantics) {
   llvm::SmallString<16> buffer;
-  rq::NumericResultCode result = rq::cleanFloatText(text, buffer);
-  if (result != rq::NumericResultCode::OK) {
-    return result;
+  rq::NumericResultCode code = rq::cleanFloatText(text, buffer);
+  if (code != rq::NumericResultCode::OK) {
+    return {code, llvm::APFloat(llvm_semantics)};
   }
-  const llvm::fltSemantics &llvm_semantics =
-      rq::getLlvmFloatSemantics(semantics);
-  ost_term = llvm::APFloat(llvm_semantics, buffer);
-  return result;
+  llvm::APFloat float_(llvm_semantics, buffer);
+  return {code, float_};
 }
 
 } // namespace rq

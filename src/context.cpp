@@ -12,6 +12,7 @@
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -801,8 +802,8 @@ void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorMustHaveParameterMark(rq::Situation situation,
-                                            const rq::FactoryExpression &expression) {
+void Context::logErrorMustHaveParameterMark(
+    rq::Situation situation, const rq::FactoryExpression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have parameter mark",
@@ -821,7 +822,8 @@ void Context::logErrorIsLast(const rq::FactoryExpression &mark) {
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeparator(const rq::FactoryExpression &expression) {
+void Context::logErrorExpectedCommaSeparator(
+    const rq::FactoryExpression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected comma separator after expression",
                    {expression.getLlvmSourceRange()}, {});
@@ -849,13 +851,15 @@ void Context::logErrorExpressionShouldNeverOccur(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(const rq::FactoryExpression &mark) {
+void Context::logErrorDuplicateParameterMark(
+    const rq::FactoryExpression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + mark.getName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateAttribute(const rq::FactoryExpression &attribute) {
+void Context::logErrorDuplicateAttribute(
+    const rq::FactoryExpression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + attribute.getName(),
                    {attribute.getLlvmSourceRange()}, {});
@@ -882,9 +886,9 @@ void Context::logErrorPositionalEndAfterLockedBegin(
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotExactBranchCount(rq::Situation situation,
-                                          const rq::FactoryExpression &expression,
-                                          unsigned count) {
+void Context::logErrorNotExactBranchCount(
+    rq::Situation situation, const rq::FactoryExpression &expression,
+    unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have exactly " +
@@ -892,9 +896,9 @@ void Context::logErrorNotExactBranchCount(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                            const rq::FactoryExpression &expression,
-                                            unsigned count) {
+void Context::logErrorNotAtLeastBranchCount(
+    rq::Situation situation, const rq::FactoryExpression &expression,
+    unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have at least " +
@@ -902,9 +906,9 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorTooManyBranchCount(rq::Situation situation,
-                                         const rq::FactoryExpression &expression,
-                                         unsigned count) {
+void Context::logErrorTooManyBranchCount(
+    rq::Situation situation, const rq::FactoryExpression &expression,
+    unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must not have more than " +
@@ -912,8 +916,8 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(rq::Situation situation,
-                                             const rq::FactoryExpression &branch) {
+void Context::logErrorInvalidBranchSituation(
+    rq::Situation situation, const rq::FactoryExpression &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(branch.getName()) + " can not be " +
                        rq::getDescription(situation),
@@ -1091,6 +1095,35 @@ void Context::logErrorUnexpectedRvalueType(const Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    "unexpected rvalue type", expression.getLlvmSourceRange(),
                    {});
+}
+
+[[nodiscard]] const llvm::fltSemantics &
+Context::getLlvmFloatSemantics(rq::SymbolKind kind) {
+  // TODO pick best float type for platform with platform float types
+  using K = rq::SymbolKind;
+  switch (kind) {
+  case K::HALF_TYPE:
+    return llvm::APFloat::IEEEhalf();
+  case K::SINGLE_TYPE:
+    return llvm::APFloat::IEEEsingle();
+  case K::DOUBLE_TYPE:
+    return llvm::APFloat::IEEEdouble();
+  case K::QUADRUPLE_TYPE:
+    return llvm::APFloat::IEEEquad();
+  case K::BINARY16_TYPE:
+    return llvm::APFloat::IEEEhalf();
+  case K::BINARY32_TYPE:
+    return llvm::APFloat::IEEEsingle();
+  case K::BINARY64_TYPE:
+    return llvm::APFloat::IEEEdouble();
+  case K::BINARY128_TYPE:
+    return llvm::APFloat::IEEEquad();
+  case K::BFLOAT16_TYPE:
+    return llvm::APFloat::BFloat();
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
 
 rq::FactoryExpression &Context::acquireExpression() {

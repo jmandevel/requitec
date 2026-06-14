@@ -157,9 +157,10 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::PlacementType> _placement_types{};
   llvm::FoldingSet<rq::CompositionComponent> _composition_components{};
   llvm::FoldingSet<rq::CompositionType> _composition_types{};
-  llvm::FoldingSet<rq::SymbolConstant> _symbol_constants{};
   llvm::FoldingSet<rq::WordConstant> _word_constants{};
   llvm::FoldingSet<rq::ArrayConstant> _array_constants{};
+  llvm::FoldingSet<rq::DataArrayConstant> _data_array_constants{};
+  llvm::FoldingSet<rq::SymbolConstant> _symbol_constants{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -167,11 +168,17 @@ struct Context final : public rq::BumpPtrAllocator {
   Context(Self &&) = delete;
   inline ~Context() {
     this->_top.release();
-    for (auto &word : this->_word_constants) {
-      std::destroy_at(&word);
+    for (auto &ct : this->_word_constants) {
+      std::destroy_at(&ct);
     }
-    for (auto &array : this->_array_constants) {
-      std::destroy_at(&array);
+    for (auto &ct : this->_array_constants) {
+      std::destroy_at(&ct);
+    }
+    for (auto &ct : this->_data_array_constants) {
+      std::destroy_at(&ct);
+    }
+    for (auto &ct : this->_symbol_constants) {
+      std::destroy_at(&ct);
     }
   }
   Self &operator=(const Self &) = delete;
@@ -369,6 +376,10 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorIndeterminateVariableValue(const rq::Expression &expression,
                                           rq::Symbol &symbol);
   void logErrorUnexpectedRvalueType(const Expression &expression);
+
+  [[nodiscard]] const llvm::fltSemantics &
+  getLlvmFloatSemantics(rq::SymbolKind kind);
+
   [[nodiscard]] rq::FactoryExpression &acquireExpression();
   inline void discardExpression(rq::FactoryExpression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
@@ -870,10 +881,62 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_composition_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] inline rq::SymbolConstant &
-  acquireSymbolConstant(rq::Symbol &symbol, rq::TypeFlags flags) {
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WordConstant &
+  acquireWordConstant(const llvm::APInt &word) {
     llvm::FoldingSetNodeID id;
-    rq::profileSymbolConstant(id, symbol, flags);
+    rq::profileWordConstant(id, word);
+    void *insert_pos;
+    rq::WordConstant *found_ptr =
+        this->_word_constants.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::WordConstant &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::WordConstant &created = this->allocateValue<rq::WordConstant>(word);
+    this->_word_constants.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WordConstant &
+  acquireWordConstant(llvm::APFloat float_) {
+    llvm::APInt word = float_.bitcastToAPInt();
+    return this->acquireWordConstant(word);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &
+  acquireArrayConstant(llvm::ArrayRef<rq::Constant *> array) {
+    llvm::FoldingSetNodeID id;
+    rq::profileArrayConstant(id, array);
+    void *insert_pos;
+    rq::ArrayConstant *found_ptr =
+        this->_array_constants.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::ArrayConstant &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::ArrayConstant &created = this->allocateValue<rq::ArrayConstant>(array);
+    this->_array_constants.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DataArrayConstant &
+  acquireDataArrayConstant(llvm::ArrayRef<std::byte> data_array) {
+    llvm::FoldingSetNodeID id;
+    rq::profileDataArrayConstant(id, data_array);
+    void *insert_pos;
+    rq::DataArrayConstant *found_ptr =
+        this->_data_array_constants.FindNodeOrInsertPos(id, insert_pos);
+    if (found_ptr != nullptr) {
+      rq::DataArrayConstant &found = rq::dereferencePtr(found_ptr);
+      return found;
+    }
+    rq::DataArrayConstant &created =
+        this->allocateValue<rq::DataArrayConstant>(data_array);
+    this->_data_array_constants.InsertNode(&created, insert_pos);
+    return created;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
+  acquireSymbolConstant(rq::ExpressionFlags flags, rq::Symbol &symbol) {
+    llvm::FoldingSetNodeID id;
+    rq::profileSymbolConstant(id, flags, symbol);
     void *insert_pos;
     rq::SymbolConstant *found_ptr =
         this->_symbol_constants.FindNodeOrInsertPos(id, insert_pos);
@@ -882,38 +945,8 @@ struct Context final : public rq::BumpPtrAllocator {
       return found;
     }
     rq::SymbolConstant &created =
-        this->allocateValue<rq::SymbolConstant>(symbol, flags);
+        this->allocateValue<rq::SymbolConstant>(flags, symbol);
     this->_symbol_constants.InsertNode(&created, insert_pos);
-    return created;
-  }
-  [[nodiscard]] inline rq::WordConstant &
-  acquireWordConstant(const llvm::APInt &value) {
-    llvm::FoldingSetNodeID id;
-    rq::profileWordConstant(id, value);
-    void *insert_pos;
-    rq::WordConstant *found_ptr =
-        this->_word_constants.FindNodeOrInsertPos(id, insert_pos);
-    if (found_ptr != nullptr) {
-      rq::WordConstant &found = rq::dereferencePtr(found_ptr);
-      return found;
-    }
-    rq::WordConstant &created = this->allocateValue<rq::WordConstant>(value);
-    this->_word_constants.InsertNode(&created, insert_pos);
-    return created;
-  }
-  [[nodiscard]] inline rq::ArrayConstant &
-  acquireArrayConstant(llvm::ArrayRef<rq::Constant *> data) {
-    llvm::FoldingSetNodeID id;
-    rq::profileArrayConstant(id, data);
-    void *insert_pos;
-    rq::ArrayConstant *found_ptr =
-        this->_array_constants.FindNodeOrInsertPos(id, insert_pos);
-    if (found_ptr != nullptr) {
-      rq::ArrayConstant &found = rq::dereferencePtr(found_ptr);
-      return found;
-    }
-    rq::ArrayConstant &created = this->allocateValue<rq::ArrayConstant>(data);
-    this->_array_constants.InsertNode(&created, insert_pos);
     return created;
   }
 

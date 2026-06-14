@@ -1701,6 +1701,11 @@ getSituatedAscribeKeyword(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::INTERNAL);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericLiteral(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INTEGER_LITERAL ||
+         keyword == rq::Keyword::FLOAT_LITERAL;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasSome(flags, rq::KeywordFlags::UNIVERSALIZABLE);
@@ -3123,6 +3128,9 @@ struct ExpressionBase : rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInternal() const {
     return rq::getIsInternal(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericLiteral() const {
+    return rq::getIsNumericLiteral(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
     return rq::getSituatedAscribeKeyword(this->getKeyword());
