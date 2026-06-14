@@ -710,9 +710,10 @@ enum class SymbolKind : rq::EntityId {
 enum class ConstantKind : rq::EntityId {
   NONE,
 
-  SYMBOL,
   WORD,
   ARRAY,
+  DATA_ARRAY,
+  SYMBOL,
 
   LAST
 };

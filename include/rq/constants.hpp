@@ -5,7 +5,7 @@
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/APInt.h>
+#include <llvm/ADT/APSInt.h>
 #include <llvm/ADT/FoldingSet.h>
 
 #include <algorithm>
@@ -35,111 +35,56 @@ struct Constant : public rq::Entity {
 struct Symbol;
 enum class TypeFlags : std::uint_fast8_t;
 
-inline void profileSymbolConstant(llvm::FoldingSetNodeID &out_id,
-                                  const rq::Symbol &symbol,
-                                  rq::TypeFlags flags) {
-  out_id.AddPointer(&symbol);
-  out_id.AddInteger(rq::getUnderlying(flags));
-}
-
-struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
-  using Self = rq::SymbolConstant;
-
-  rq::Symbol *_symbol_ptr;
-  rq::TypeFlags _type_flags;
-
-  explicit RQ_ALWAYS_INLINE SymbolConstant(rq::Symbol &symbol,
-                                           rq::TypeFlags flags)
-      : Constant(rq::ConstantKind::SYMBOL), _symbol_ptr(&symbol),
-        _type_flags(flags) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
-    return rq::dereferencePtr(this->_symbol_ptr);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
-    return rq::dereferencePtr(this->_symbol_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
-    return this->_type_flags;
-  }
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
-    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-    const rq::EntityId id = entity.getId();
-    return id ==
-           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
-  }
-
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
-    rq::profileSymbolConstant(out_id, this->getSymbol(), this->getFlags());
-  }
-};
-
-[[nodiscard]] inline llvm::APInt canonicalize(const llvm::APInt &value) {
-  if (value.isZero()) {
-    return llvm::APInt(1, 0);
-  }
-  return value.zextOrTrunc(value.getActiveBits());
-}
-
-[[nodiscard]] inline bool getIsCanonicalized(const llvm::APInt &value) {
-  const unsigned canonical_width = std::max(1u, value.getActiveBits());
-  return value.getBitWidth() == canonical_width;
-}
-
 inline void profileWordConstant(llvm::FoldingSetNodeID &out_id,
-                                const llvm::APInt &value) {
-  value.Profile(out_id);
+                                const llvm::APInt &word) {
+  word.Profile(out_id);
 }
-
-template <typename From, typename To>
-concept BitCastable = requires(From value) { std::bit_cast<To>(value); };
 
 struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::WordConstant;
 
-  const llvm::APInt _value;
+  llvm::APInt _word;
 
-  explicit RQ_ALWAYS_INLINE WordConstant(const llvm::APInt &value)
-      : Constant(rq::ConstantKind::WORD), _value(value) {
-    RQ_ASSERT(rq::getIsCanonicalized(value), "value not canonicalized");
-  }
+  explicit RQ_ALWAYS_INLINE WordConstant(llvm::APInt word)
+      : Constant(rq::ConstantKind::WORD), _word(word) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getValue() const {
-    return this->_value;
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getWord() const {
+    return this->_word;
   }
 
   template <typename TypeParam>
-  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam getAs() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam getAsInt() const {
     using Type = TypeParam;
     static_assert(!std::same_as<Type, float> && !std::same_as<Type, double> &&
                       !std::same_as<Type, long double>,
                   "platform float type");
-    RQ_ASSERT(this->_value.getBitWidth() <= sizeof(Type), "too big");
+    RQ_ASSERT(this->_word.getBitWidth() <= sizeof(Type), "too big");
     Type value;
     if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
                   std::unsigned_integral<Type>) {
-      value = static_cast<Type>(this->_value.getZExtValue());
+      value = static_cast<Type>(this->_word.getZExtValue());
     } else if constexpr (sizeof(Type) <= sizeof(std::int64_t) &&
                          std::integral<Type>) {
-      value = static_cast<Type>(this->_value.getSExtValue());
+      value = static_cast<Type>(this->_word.getSExtValue());
     } else if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
                          std::is_enum_v<Type> &&
                          std::unsigned_integral<std::underlying_type_t<Type>>) {
-      value = static_cast<Type>(this->_value.getZExtValue());
+      value = static_cast<Type>(this->_word.getZExtValue());
     } else if constexpr (sizeof(Type) <= sizeof(std::int64_t) &&
                          std::is_enum_v<Type> &&
                          std::integral<std::underlying_type_t<Type>>) {
-      value = static_cast<Type>(this->_value.getSExtValue());
-    } else if constexpr (sizeof(Type) <= sizeof(std::uint64_t) &&
-                         rq::BitCastable<std::uint64_t, Type>) {
-      value = std::bit_cast<Type>(this->_value.getZExtValue());
+      value = static_cast<Type>(this->_word.getSExtValue());
     } else {
-      std::memset(&value, 0, sizeof(Type));
-      std::memcpy(&value, this->_value.getRawData(), sizeof(Type));
+      static_assert(false, "not supported");
     }
     return value;
+  }
+
+  template <typename TypeParam>
+  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam
+  getAsFloat(const llvm::fltSemantics &semantics) {
+    llvm::APFloat float_(semantics, this->_word);
+    return float_;
   }
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
@@ -150,13 +95,14 @@ struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &out_id) const {
-    rq::profileWordConstant(out_id, this->_value);
+    rq::profileWordConstant(out_id, this->_word);
   }
 };
 
 inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
-                                 llvm::ArrayRef<rq::Constant *> data) {
-  for (const rq::Constant *constant_ptr : data) {
+                                 llvm::ArrayRef<rq::Constant *> array) {
+  out_id.AddInteger(array.size());
+  for (const rq::Constant *constant_ptr : array) {
     out_id.AddPointer(constant_ptr);
   }
 }
@@ -164,14 +110,14 @@ inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
 struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ArrayConstant;
 
-  llvm::ArrayRef<rq::Constant *> _data;
+  std::vector<rq::Constant *> _array;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant *> data)
-      : Constant(rq::ConstantKind::ARRAY), _data(data) {}
+  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant *> array)
+      : Constant(rq::ConstantKind::ARRAY), _array(array) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant *>
-  getData() const {
-    return this->_data;
+  getArray() const {
+    return this->_array;
   }
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
@@ -181,8 +127,81 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
-    rq::profileArrayConstant(out_id, this->_data);
+  inline void Profile(llvm::FoldingSetNodeID &out_id) {
+    rq::profileArrayConstant(out_id, this->getArray());
+  }
+};
+
+inline void profileDataArrayConstant(llvm::FoldingSetNodeID &out_id,
+                                     llvm::ArrayRef<std::byte> data_array) {
+  out_id.AddInteger(data_array.size());
+  for (std::byte byte : data_array) {
+    out_id.AddInteger(static_cast<std::uint8_t>(byte));
+  }
+}
+
+struct DataArrayConstant final : public rq::Constant,
+                                 public llvm::FoldingSetNode {
+  using Self = rq::DataArrayConstant;
+
+  std::vector<std::byte> _data_array;
+
+  explicit RQ_ALWAYS_INLINE
+  DataArrayConstant(llvm::ArrayRef<std::byte> data_array)
+      : Constant(rq::ConstantKind::DATA_ARRAY), _data_array(data_array) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<std::byte>
+  getDataArray() const {
+    return this->_data_array;
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id == rq::CONSTANT_OFFSET +
+                     rq::getUnderlying(rq::ConstantKind::DATA_ARRAY);
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) {
+    rq::profileDataArrayConstant(out_id, this->getDataArray());
+  }
+};
+
+inline void profileSymbolConstant(llvm::FoldingSetNodeID &out_id,
+                                  rq::ExpressionFlags flags,
+                                  const rq::Symbol &symbol) {
+  out_id.AddInteger(rq::getUnderlying(flags));
+  out_id.AddPointer(&symbol);
+}
+
+struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::SymbolConstant;
+
+  rq::ExpressionFlags _flags;
+  rq::Symbol *_symbol_ptr;
+
+  explicit RQ_ALWAYS_INLINE SymbolConstant(rq::ExpressionFlags flags,
+                                           rq::Symbol &symbol)
+      : Constant(rq::ConstantKind::SYMBOL), _flags(flags),
+        _symbol_ptr(&symbol) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
+    return this->_flags;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+    const rq::EntityId id = entity.getId();
+    return id ==
+           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) {
+    rq::profileSymbolConstant(out_id, this->getFlags(), this->getSymbol());
   }
 };
 
