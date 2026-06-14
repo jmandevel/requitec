@@ -721,12 +721,24 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
   NONE,
 
+  // address0 = source location (either rq::Expression or SOURCE_RANGE instruction)
+  // address1 = entity
+  DEBUG_STEP,
+
+  //address0 = start expression
+  //address1 = end expression
+  SOURCE_RANGE,
+
   // ARITHMETIC
+  // address0 - head
+  // address1 - tail
   ADD,
   SUBTRACT,
   MULTIPLY,
   DIVIDE,
   MODULUS,
+
+  // address0 - head
   NEGATE,
 
   LAST

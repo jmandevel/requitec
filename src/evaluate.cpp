@@ -11,6 +11,20 @@
 
 namespace rq {
 
+void BinaryInstructionFactory::append(rq::Entity &entity) {
+  if (this->_outer_ptr == nullptr) {
+    this->_outer_ptr = &entity;
+    return;
+  }
+  if (this->_last_ptr == nullptr) {
+    rq::BinaryInstruction &next = this->getContext().acquireBinaryExpression( )
+  }
+}
+[[nodiscard]] rq::BinaryInstruction &
+BinaryInstructionFactory::getOuter() {
+  return llvm::cast<rq::BinaryInstruction>(rq::dereferencePtr(this->_outer_ptr));
+}
+
 void FloatFolder::fold(const llvm::APFloat &value) {
   if (!this->getIsFolding()) {
     this->_is_folding = true;
@@ -448,8 +462,8 @@ Evaluator::evaluateArithmeticRvalue(bool is_static, rq::Opcode opcode,
       factory.append(entity);
     }
   } else if (final_ty_sy.getIsFloatType()) {
-    llvm::fltSemantics &semantics =
-        this->getContext().getLlvmFltSemantics(final_type_sy.getKind());
+    const llvm::fltSemantics &semantics =
+        this->getContext().getLlvmFltSemantics(final_ty_sy.getKind());
     rq::FloatFolder folder(opcode, semantics);
     for (rq::Rvalue &rvalue : rvalues) {
       rq::Rvalue folded = this->fold(rvalue, final_ty_sy);
@@ -474,14 +488,16 @@ Evaluator::evaluateArithmeticRvalue(bool is_static, rq::Opcode opcode,
         }
         if (folder.getIsFolding()) {
           llvm::APFloat float_ = folder.extract();
-          rq::WordConstant &constant = this->getContext().acquireWordConstant(float_);
+          rq::WordConstant &constant =
+              this->getContext().acquireWordConstant(float_);
           factory.append(constant);
         }
         factory.append(entity);
       }
     }
   }
-  rq::BinaryInstruction &instruction = factory.popOuter();
+  rq::BinaryInstruction &instruction =
+      rq::dereferencePtr(factory.getOuterPointer());
   return rq::Rvalue(final_ty_sy, instruction);
 }
 

@@ -193,6 +193,10 @@ struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
     return rq::dereferencePtr(this->_symbol_ptr);
   }
 
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();

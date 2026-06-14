@@ -6,47 +6,47 @@
 
 namespace rq {
 
-void ForestFactory::appendTree(rq::FactoryExpression &branch) {
+void ForestFactory::appendTree(rq::Expression &branch) {
   [[unlikely]] if (!this->getHasExpression()) {
     this->setExpression(branch);
     this->setLast(branch);
     return;
   }
-  rq::FactoryExpression &last = this->getLast();
+  rq::Expression &last = this->getLast();
   last.setNext(branch);
   this->setLast(branch);
 }
 
-void TreeFactory::startTree(rq::FactoryExpression &top) {
+void TreeFactory::startTree(rq::Expression &top) {
   RQ_ASSERT(!top.getHasNext(), "top must not have next");
   [[unlikely]] if (top.getHasBranch()) {
-    rq::FactoryExpression &branch = top.getBranch();
+    rq::Expression &branch = top.getBranch();
     RQ_ASSERT(!branch.getHasNext(), "branch must not have next");
     this->setLast(branch);
   }
   this->setExpression(top);
 }
 
-void TreeFactory::appendBranch(rq::FactoryExpression &branch) {
+void TreeFactory::appendBranch(rq::Expression &branch) {
   [[unlikely]] if (this->_last_ptr == nullptr) {
-    rq::FactoryExpression &expression = this->getExpression();
+    rq::Expression &expression = this->getExpression();
     expression.setBranch(branch);
     this->setLast(branch);
     return;
   }
-  rq::FactoryExpression &last = rq::dereferencePtr(this->_last_ptr);
+  rq::Expression &last = rq::dereferencePtr(this->_last_ptr);
   last.setNext(branch);
   this->setLast(branch);
 }
 
 void TreeFactory::finishExpression(const rq::Token &last_token) {
-  rq::FactoryExpression &expression = this->getExpression();
+  rq::Expression &expression = this->getExpression();
   expression.extendSourceOver(last_token);
 }
 
 void PrecedenceFactory::parseUnary(const rq::Token &token,
                                    rq::Keyword keyword) {
-  rq::FactoryExpression &expression = this->getContext().acquireExpression();
+  rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
   this->appendBranch(expression);
@@ -57,9 +57,9 @@ void PrecedenceFactory::parseUnary(const rq::Token &token,
 void PrecedenceFactory::parseAscribe(llvm::StringRef initial_source,
                                      rq::Keyword keyword) {
   if (this->getHasExpression()) {
-    rq::FactoryExpression &old_expression = this->getExpression();
+    rq::Expression &old_expression = this->getExpression();
     if (old_expression.getKeyword() != keyword) {
-      rq::FactoryExpression &new_expression = this->getContext().acquireExpression();
+      rq::Expression &new_expression = this->getContext().acquireExpression();
       new_expression.setKeyword(keyword);
       new_expression.setSource(old_expression);
       this->appendBranch(new_expression);
@@ -71,10 +71,10 @@ void PrecedenceFactory::parseAscribe(llvm::StringRef initial_source,
     }
     return;
   }
-  rq::FactoryExpression &expression = this->getContext().acquireExpression();
+  rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   if (this->getHasLast()) {
-    rq::FactoryExpression &last = this->getLast();
+    rq::Expression &last = this->getLast();
     expression.setSource(last);
     expression.setBranch(last);
   } else {
@@ -88,7 +88,7 @@ void PrecedenceFactory::parseAscribe(llvm::StringRef initial_source,
 
 void PrecedenceFactory::parseBinary(const rq::Token &token,
                                     rq::Keyword keyword) {
-  rq::FactoryExpression &new_expression = this->getContext().acquireExpression();
+  rq::Expression &new_expression = this->getContext().acquireExpression();
   new_expression.setKeyword(keyword);
   new_expression.setSource(this->getRecent(), token);
   this->appendBranch(new_expression);
@@ -99,7 +99,7 @@ void PrecedenceFactory::parseBinary(const rq::Token &token,
 
 void PrecedenceFactory::parseOuterBinary(const rq::Token &token,
                                          rq::Keyword keyword) {
-  rq::FactoryExpression &expression = this->getContext().acquireExpression();
+  rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(this->getOuter(), token);
   expression.setBranch(this->getOuter());
@@ -110,7 +110,7 @@ void PrecedenceFactory::parseOuterBinary(const rq::Token &token,
 
 void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
   if (this->getHasExpression()) {
-    rq::FactoryExpression &existing_expression = this->getExpression();
+    rq::Expression &existing_expression = this->getExpression();
     if (existing_expression.getKeyword() == keyword) {
       // the existing expression already has this keyword, so we can keep
       // appending to this one
@@ -120,7 +120,7 @@ void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
   }
   // need to make a new expression of this keyword because one does not exist
   // yet
-  rq::FactoryExpression &new_expression = this->getContext().acquireExpression();
+  rq::Expression &new_expression = this->getContext().acquireExpression();
   new_expression.setKeyword(keyword);
   new_expression.setSource(this->getRecent(), token);
   this->appendBranch(new_expression);
@@ -131,16 +131,16 @@ void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
 
 void PrecedenceFactory::parseSequenceBranch(const rq::Token &token,
                                             rq::Keyword keyword,
-                                            rq::FactoryExpression &rvalue) {
+                                            rq::Expression &rvalue) {
   this->parseNary(token, rq::Keyword::ARITHMETIC_SEQUENCE);
-  rq::FactoryExpression &step = this->getContext().acquireExpression();
+  rq::Expression &step = this->getContext().acquireExpression();
   step.setKeyword(keyword);
   step.setSource(token, rvalue);
   step.setBranch(rvalue);
   this->setRecent(step);
 }
 
-void PrecedenceFactory::appendBranch(rq::FactoryExpression &branch) {
+void PrecedenceFactory::appendBranch(rq::Expression &branch) {
   if (!this->getHasOuter()) {
     this->_outer_ptr = &branch;
   }
@@ -148,7 +148,7 @@ void PrecedenceFactory::appendBranch(rq::FactoryExpression &branch) {
     this->getLast().setNext(branch);
   }
   if (this->getHasExpression()) {
-    rq::FactoryExpression &expression = this->getExpression();
+    rq::Expression &expression = this->getExpression();
     if (!this->getHasLast()) {
       expression.setBranch(branch);
     }
@@ -159,17 +159,17 @@ void PrecedenceFactory::appendBranch(rq::FactoryExpression &branch) {
 
 void PrecedenceFactory::appendNullaryAttribute(const rq::Token &token,
                                                rq::Keyword keyword) {
-  rq::FactoryExpression &expression = this->getContext().acquireExpression();
+  rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
   this->appendBranch(expression);
 }
 
-void PrecedenceFactory::setRecent(rq::FactoryExpression &branch) {
+void PrecedenceFactory::setRecent(rq::Expression &branch) {
   rq::assignSingleValue(this->_recent_ptr, &branch);
 }
 
-void PrecedenceFactory::setOnlyRecent(rq::FactoryExpression &branch) {
+void PrecedenceFactory::setOnlyRecent(rq::Expression &branch) {
   this->_outer_ptr = nullptr;
   this->_expression_ptr = nullptr;
   this->_last_ptr = nullptr;
@@ -192,16 +192,16 @@ bool TokenRanger::getIsToken(rq::TokenKind kind) const {
 // NOTE:
 //  This is (mostly) a recursive descent parser.
 
-rq::FactoryExpression *RequiteParser::parseExpressions() {
+rq::Expression *RequiteParser::parseExpressions() {
   rq::ParseBranchesResult result = this->parseBranches(rq::TokenKind::NONE);
   return result.getFirstBranchPtr();
 }
 
 // EXPRESSION ATTRIBUTES
-rq::FactoryExpression &RequiteParser::parsePrecedence11() {
+rq::Expression &RequiteParser::parsePrecedence11() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
-    rq::FactoryExpression &expression = this->parsePrecedence10();
+    rq::Expression &expression = this->parsePrecedence10();
     if (this->getRanger().getIsDone()) {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
@@ -212,13 +212,13 @@ rq::FactoryExpression &RequiteParser::parsePrecedence11() {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
     }
-    rq::FactoryExpression &instantiation = this->getContext().acquireExpression();
+    rq::Expression &instantiation = this->getContext().acquireExpression();
     instantiation.setSource(expression);
     instantiation.setKeyword(rq::Keyword::INSTANTIATE_EXPRESSION_ATTRIBUTE);
     instantiation.setBranch(expression);
     if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
       this->getRanger().incrementToken(1);
-      rq::FactoryExpression &value = this->parseNonascribableExpression();
+      rq::Expression &value = this->parseNonascribableExpression();
       expression.setNext(value);
       instantiation.extendSourceOver(value);
     }
@@ -230,7 +230,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence11() {
 }
 
 // ASSIGNMENTS
-rq::FactoryExpression &RequiteParser::parsePrecedence10() {
+rq::Expression &RequiteParser::parsePrecedence10() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence9());
   while (!this->getRanger().getIsDone()) {
@@ -255,7 +255,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence10() {
 }
 
 // BINDINGS
-rq::FactoryExpression &RequiteParser::parsePrecedence9() {
+rq::Expression &RequiteParser::parsePrecedence9() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence8());
   while (!this->getRanger().getIsDone()) {
@@ -279,7 +279,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence9() {
 }
 
 // RANGES
-rq::FactoryExpression &RequiteParser::parsePrecedence8() {
+rq::Expression &RequiteParser::parsePrecedence8() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence7());
   while (!this->getRanger().getIsDone()) {
@@ -364,7 +364,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence8() {
 }
 
 // NARY LOGICAL
-rq::FactoryExpression &RequiteParser::parsePrecedence7() {
+rq::Expression &RequiteParser::parsePrecedence7() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence6());
   while (!this->getRanger().getIsDone()) {
@@ -393,7 +393,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence7() {
 }
 
 // NARY COMPARISON
-rq::FactoryExpression &RequiteParser::parsePrecedence6() {
+rq::Expression &RequiteParser::parsePrecedence6() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence5());
   while (!this->getRanger().getIsDone()) {
@@ -478,7 +478,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence6() {
 }
 
 // NARY MULTIPLICATIVE ARITHMETIC
-rq::FactoryExpression &RequiteParser::parsePrecedence5() {
+rq::Expression &RequiteParser::parsePrecedence5() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence4());
   while (!this->getRanger().getIsDone()) {
@@ -512,7 +512,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence5() {
 }
 
 // NARY ADDITIVE ARITHMETIC
-rq::FactoryExpression &RequiteParser::parsePrecedence4() {
+rq::Expression &RequiteParser::parsePrecedence4() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence3());
   while (!this->getRanger().getIsDone()) {
@@ -551,7 +551,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence4() {
 }
 
 // NARY AND BINARY BITWISE
-rq::FactoryExpression &RequiteParser::parsePrecedence3() {
+rq::Expression &RequiteParser::parsePrecedence3() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence2(false));
   while (!this->getRanger().getIsDone()) {
@@ -595,7 +595,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence3() {
 }
 
 // EARLY UNARY OPERATORS
-rq::FactoryExpression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
+rq::Expression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
     const rq::Token token = this->getRanger().getToken();
@@ -622,7 +622,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
 }
 
 // LATE UNARY OPERATORS (things get wierd here)
-rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
+rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   bool previous_horned = false;
   while (!this->getRanger().getIsDone()) {
@@ -632,17 +632,17 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       switch (kind) {
       case rq::TokenKind::BACKSLASH_OPERATOR: {
         this->getRanger().incrementToken(1);
-        rq::FactoryExpression &attribute = this->parseTypeAscribedExpression();
+        rq::Expression &attribute = this->parseTypeAscribedExpression();
         precedence_factory.parseAscribe(token.getSourceText(),
                                         rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
-        rq::FactoryExpression &instantiation = this->getContext().acquireExpression();
+        rq::Expression &instantiation = this->getContext().acquireExpression();
         instantiation.setSource(token, attribute);
         instantiation.setKeyword(rq::Keyword::INSTANTIATE_TYPE_ATTRIBUTE);
         instantiation.setBranch(attribute);
         const rq::Token after_token = this->getRanger().getToken();
         if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
           this->getRanger().incrementToken(1);
-          rq::FactoryExpression &value = this->parseNonascribableExpression();
+          rq::Expression &value = this->parseNonascribableExpression();
           attribute.setNext(value);
           instantiation.extendSourceOver(value);
         }
@@ -650,7 +650,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         continue;
       }
       case rq::TokenKind::ARROW_OPERATOR: {
-        rq::FactoryExpression &inference = this->getContext().acquireExpression();
+        rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
@@ -660,7 +660,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         continue;
       }
       case rq::TokenKind::THICK_ARROW_OPERATOR: {
-        rq::FactoryExpression &inference = this->getContext().acquireExpression();
+        rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
@@ -670,7 +670,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
-        rq::FactoryExpression &inference = this->getContext().acquireExpression();
+        rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
@@ -708,14 +708,14 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         if (is_type_ascribed) {
           break;
         }
-        rq::FactoryExpression &inference = this->getContext().acquireExpression();
+        rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
         inference.setSourceBefore(token);
         precedence_factory.appendBranch(inference);
         break;
       }
-      rq::FactoryExpression &expression = this->parsePrecedence0();
+      rq::Expression &expression = this->parsePrecedence0();
       precedence_factory.setRecent(expression);
       if (expression.getCanBeChainLink()) {
         precedence_factory.appendRecent();
@@ -765,8 +765,8 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
     case rq::TokenKind::LEFT_PARENTHESIS_GROUPING: {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      rq::FactoryExpression &callee = precedence_factory.getOuter();
-      rq::FactoryExpression &call = this->getContext().acquireExpression();
+      rq::Expression &callee = precedence_factory.getOuter();
+      rq::Expression &call = this->getContext().acquireExpression();
       call.setKeyword(rq::Keyword::CALL);
       call.setBranch(callee);
       rq::ParseBranchesResult result =
@@ -780,8 +780,8 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
     case rq::TokenKind::LEFT_BRACE_GROUPING: {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
-      rq::FactoryExpression &target = precedence_factory.getOuter();
-      rq::FactoryExpression &instantiation = this->getContext().acquireExpression();
+      rq::Expression &target = precedence_factory.getOuter();
+      rq::Expression &instantiation = this->getContext().acquireExpression();
       instantiation.setKeyword(rq::Keyword::INSTANTIATE_TEMPLATE);
       instantiation.setBranch(target);
       rq::ParseBranchesResult result =
@@ -802,7 +802,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
 }
 
 // BASE NODES
-rq::FactoryExpression &RequiteParser::parsePrecedence0() {
+rq::Expression &RequiteParser::parsePrecedence0() {
   const rq::Token token = this->getRanger().getToken();
   switch (token.getKind()) {
   case rq::TokenKind::LEFT_BRACKET_GROUPING:
@@ -827,7 +827,7 @@ rq::FactoryExpression &RequiteParser::parsePrecedence0() {
   this->getRanger().incrementToken(1);
   this->getContext().logErrorUnexpectedToken(token);
   this->setNotOk();
-  rq::FactoryExpression &error = this->getContext().acquireExpression();
+  rq::Expression &error = this->getContext().acquireExpression();
   error.setKeyword(rq::Keyword::ERROR);
   error.setSource(token);
   return error;
@@ -850,14 +850,14 @@ RequiteParser::parseBranches(rq::TokenKind end) {
     if (next_token.getKind() == rq::TokenKind::GREATER_OPERATOR) {
       this->getRanger().incrementToken(1);
       parameter_mark_found = true;
-      rq::FactoryExpression &mark = this->getContext().acquireExpression();
+      rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::NONPOSITIONAL_PARAMETERS_BEGIN);
       factory.appendTree(mark);
     } else if (next_token.getKind() == rq::TokenKind::PIPE_OPERATOR) {
       this->getRanger().incrementToken(1);
       parameter_mark_found = true;
-      rq::FactoryExpression &mark = this->getContext().acquireExpression();
+      rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::LOCKED_PARAMETERS_BEGIN);
       factory.appendTree(mark);
@@ -866,13 +866,13 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       return rq::ParseBranchesResult(factory.getExpressionPtr(), next_token,
                                      parameter_mark_found);
     }
-    rq::FactoryExpression &branch = this->parseAscribableExpression();
+    rq::Expression &branch = this->parseAscribableExpression();
     factory.appendTree(branch);
     const rq::Token after_token = this->getRanger().getToken();
     if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
       this->getRanger().incrementToken(1);
       parameter_mark_found = true;
-      rq::FactoryExpression &mark = this->getContext().acquireExpression();
+      rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
       factory.appendTree(mark);
@@ -918,10 +918,10 @@ rq::Keyword RequiteParser::parseKeyword() {
   return keyword;
 }
 
-rq::FactoryExpression &RequiteParser::parseEnclosedBracketExpression() {
+rq::Expression &RequiteParser::parseEnclosedBracketExpression() {
   const rq::Token left_token = this->getRanger().getToken();
   this->getRanger().incrementToken(1);
-  rq::FactoryExpression &expression = this->getContext().acquireExpression();
+  rq::Expression &expression = this->getContext().acquireExpression();
   const rq::Keyword keyword = this->parseKeyword();
   expression.setKeyword(keyword);
   rq::ParseBranchesResult result =
@@ -931,9 +931,9 @@ rq::FactoryExpression &RequiteParser::parseEnclosedBracketExpression() {
   return expression;
 }
 
-rq::FactoryExpression &RequiteParser::parseEnclosedBraceExpression() {
+rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
   const rq::Token first_token = this->getRanger().getToken();
-  rq::FactoryExpression &brace = this->getContext().acquireExpression();
+  rq::Expression &brace = this->getContext().acquireExpression();
   brace.setKeyword(rq::Keyword::INSTANTIATE_TUPLE);
   this->getRanger().incrementToken(1);
   rq::ParseBranchesResult result =
@@ -946,9 +946,9 @@ rq::FactoryExpression &RequiteParser::parseEnclosedBraceExpression() {
   return brace;
 }
 
-rq::FactoryExpression &RequiteParser::parseEnclosedParenthesisExpression() {
+rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   const rq::Token first_token = this->getRanger().getToken();
-  rq::FactoryExpression &parenthesis = this->getContext().acquireExpression();
+  rq::Expression &parenthesis = this->getContext().acquireExpression();
   parenthesis.setKeyword(rq::Keyword::UNSITUATED_PARENTHESIS_GROUP);
   this->getRanger().incrementToken(1);
   rq::ParseBranchesResult result =
@@ -957,7 +957,7 @@ rq::FactoryExpression &RequiteParser::parseEnclosedParenthesisExpression() {
   parenthesis.setBranch(result.getFirstBranchPtr());
   if (result.getFoundParameterMark() || !parenthesis.getHasBranch()) {
     parenthesis.changeKeyword(rq::Keyword::INSTANTIATE_SIGNATURE);
-    rq::FactoryExpression &return_type = this->parseAscribableExpression();
+    rq::Expression &return_type = this->parseAscribableExpression();
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
     } else {
@@ -967,11 +967,11 @@ rq::FactoryExpression &RequiteParser::parseEnclosedParenthesisExpression() {
   return parenthesis;
 }
 
-rq::FactoryExpression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
+rq::Expression &RequiteParser::parseLiteralOrMark(rq::Keyword keyword) {
   const rq::Token token = this->getRanger().getToken();
   RQ_ASSERT(token.getIsLiteral() || token.getCanBeMark(),
             "token is not literal or mark");
-  rq::FactoryExpression &identifier = this->getContext().acquireExpression();
+  rq::Expression &identifier = this->getContext().acquireExpression();
   identifier.setKeyword(keyword);
   identifier.setSource(token);
   this->getRanger().incrementToken(1);

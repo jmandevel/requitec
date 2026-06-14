@@ -740,7 +740,7 @@ struct ModuleFactory final {
   using Self = rq::ModuleFactory;
 
   rq::ModuleKind _module_kind{rq::ModuleKind::NONE};
-  rq::FactoryExpression *_expression_ptr{nullptr};
+  rq::Expression *_expression_ptr{nullptr};
   llvm::StringRef _path{};
   llvm::StringRef _buffer{};
   std::vector<rq::Token> _tokens{};
@@ -753,10 +753,10 @@ struct ModuleFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
   RQ_ALWAYS_INLINE void
-  setOrChangeExpression(rq::FactoryExpression *expression_ptr);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FactoryExpression *
+  setOrChangeExpression(rq::Expression *expression_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FactoryExpression *getExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
   [[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Token> &getTokens();

@@ -81,7 +81,7 @@ struct Context final : public rq::BumpPtrAllocator {
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
-  rq::FactoryExpression *_free_expression_ptr{nullptr};
+  rq::Expression *_free_expression_ptr{nullptr};
   rq::NullaryInstruction *_free_nullary_instruction_ptr{nullptr};
   rq::UnaryInstruction *_free_unary_instruction_ptr{nullptr};
   rq::BinaryInstruction *_free_binary_instruction_ptr{nullptr};
@@ -315,44 +315,44 @@ struct Context final : public rq::BumpPtrAllocator {
                                     const rq::Expression &expression);
   void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::Situation situation,
-                                     const rq::FactoryExpression &expression);
-  void logErrorIsFirst(const rq::FactoryExpression &mark);
-  void logErrorIsLast(const rq::FactoryExpression &mark);
-  void logErrorExpectedCommaSeparator(const rq::FactoryExpression &expression);
+                                     const rq::Expression &expression);
+  void logErrorIsFirst(const rq::Expression &mark);
+  void logErrorIsLast(const rq::Expression &mark);
+  void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
   void
-  logErrorExpectedSemicolonSeparator(const rq::FactoryExpression &expression);
+  logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
   void
-  logErrorExpressionShouldNeverOccur(const rq::FactoryExpression &expression);
-  void logErrorDuplicateParameterMark(const rq::FactoryExpression &mark);
-  void logErrorDuplicateAttribute(const rq::FactoryExpression &attribute);
+  logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorDuplicateParameterMark(const rq::Expression &mark);
+  void logErrorDuplicateAttribute(const rq::Expression &attribute);
   void logErrorNonpositionalBeginAfterPositionalEnd(
-      const rq::FactoryExpression &named_begin);
+      const rq::Expression &named_begin);
   void logErrorNonpositionalBeginAfterLockedBegin(
-      const rq::FactoryExpression &named_begin);
+      const rq::Expression &named_begin);
   void logErrorPositionalEndAfterLockedBegin(
-      const rq::FactoryExpression &named_begin);
+      const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
-                                   const rq::FactoryExpression &expression,
+                                   const rq::Expression &expression,
                                    unsigned count);
   void logErrorNotAtLeastBranchCount(rq::Situation situation,
-                                     const rq::FactoryExpression &expression,
+                                     const rq::Expression &expression,
                                      unsigned count);
   void logErrorTooManyBranchCount(rq::Situation situation,
-                                  const rq::FactoryExpression &expression,
+                                  const rq::Expression &expression,
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
-                                      const rq::FactoryExpression &branch);
+                                      const rq::Expression &branch);
   void
-  logErrorExpectedHeaderExpression(const rq::FactoryExpression &expresison);
+  logErrorExpectedHeaderExpression(const rq::Expression &expresison);
   void
-  logErrorUnexpectedHeaderExpression(const rq::FactoryExpression &expresison);
+  logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
   void
-  logErrorExpectedChainLinkExpression(const rq::FactoryExpression &expresison);
+  logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(
-      const rq::FactoryExpression &expresison);
+      const rq::Expression &expresison);
   void
-  logErrorNotDeterminateStaticValue(const rq::FactoryExpression &expression);
+  logErrorNotDeterminateStaticValue(const rq::Expression &expression);
   void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
                                           const rq::Expression &attribute);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
@@ -378,18 +378,18 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorUnexpectedRvalueType(const Expression &expression);
 
   [[nodiscard]] const llvm::fltSemantics &
-  getLlvmFloatSemantics(rq::SymbolKind kind);
+  getLlvmFltSemantics(rq::SymbolKind kind);
 
-  [[nodiscard]] rq::FactoryExpression &acquireExpression();
-  inline void discardExpression(rq::FactoryExpression &expression) {
+  [[nodiscard]] rq::Expression &acquireExpression();
+  inline void discardExpression(rq::Expression &expression) {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     expression.clear();
     expression._branch_ptr = this->_free_expression_ptr;
     this->_free_expression_ptr = &expression;
   }
-  [[nodiscard]] rq::FactoryExpression &
-  copyExpression(rq::FactoryExpression &expression);
+  [[nodiscard]] rq::Expression &
+  copyExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &
   acquireIntegerLiteralType() {
     return this->_integer_literal_type;

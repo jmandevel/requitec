@@ -62,11 +62,12 @@ struct BinaryInstructionFactory final {
 
   rq::Context* _context_ptr;
   rq::Opcode _opcode;
-  rq::BinaryInstruction *_outer_ptr{nullptr};
+  rq::Entity *_outer_ptr{nullptr};
   rq::BinaryInstruction *_last_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE BinaryInstructionFactory(rq::Context& context, rq::Opcode opcode)
-    : _context_ptr(&context), _opcode(opcode) {}
+    : _context_ptr(&context), _opcode(opcode) {
+    }
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context& getContext() const {
     return rq::dereferencePtr(this->_context_ptr);
@@ -74,7 +75,8 @@ struct BinaryInstructionFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context& getContext() {
     return rq::dereferencePtr(this->_context_ptr);
   }
-  void append(rq::Entity& entity);
+  void append(rq::Entity& entity, rq::Expression& expression);
+  [[nodiscard]] rq::Entity &popOuter();
 };
 
 struct FloatFolder final {
@@ -82,10 +84,10 @@ struct FloatFolder final {
 
   rq::Opcode _opcode;
   bool _is_folding : 1 = false;
-  llvm::fltSemantics *_semantics_ptr;
+  const llvm::fltSemantics *_semantics_ptr;
   llvm::APFloat _float;
 
-  FloatFolder(rq::Opcode opcode, llvm::fltSemantics &semantics)
+  FloatFolder(rq::Opcode opcode, const llvm::fltSemantics &semantics)
       : _opcode(opcode), _semantics_ptr(&semantics), _float(0.0f) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
@@ -96,9 +98,6 @@ struct FloatFolder final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::fltSemantics &
   getLlvmFltSemantics() const {
-    return rq::dereferencePtr(this->_semantics_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::fltSemantics &getLlvmFltSemantics() {
     return rq::dereferencePtr(this->_semantics_ptr);
   }
 
