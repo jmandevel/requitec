@@ -7,9 +7,22 @@
 #include <llvm/Support/AlignOf.h>
 #include <llvm/Support/Casting.h>
 
+#include <bit>
 #include <memory>
 
 namespace rq {
+
+enum class StaticValueKind {
+  NONE,
+  INT,
+  FLOAT,
+  SLICE,
+  ARRAY,
+  DATA_ARRAY,
+  SYMBOL,
+  EXPRESSION_ATTRIBUTE,
+  TYPE_ATTRIBUTE
+};
 
 struct StaticValue;
 
@@ -27,11 +40,11 @@ using StaticFloat = llvm::APFloat;
 
 using StaticArray = std::vector<rq::StaticValue>;
 
+using StaticDataArray = std::vector<std::byte>;
+
 struct StaticSymbol final {
   using Self = rq::StaticSymbol;
 };
-
-enum class StaticValueKind { NONE, SLICE, INT, FLOAT, ARRAY, SYMBOL };
 
 struct StaticValue final {
   using Self = rq::StaticValue;
@@ -39,15 +52,14 @@ struct StaticValue final {
 
   rq::StaticValueKind _kind = rq::StaticValueKind::NONE;
   llvm::AlignedCharArrayUnion<rq::StaticSlice, rq::StaticInt, rq::StaticFloat,
-                              rq::StaticArray>
+                              rq::StaticDataArray, rq::StaticArray,
+                              rq::ExpressionAttribute, rq::TypeAttribute>
       _data = {};
 
   explicit RQ_ALWAYS_INLINE StaticValue() = default;
   ~StaticValue() {
     switch (this->_kind) {
     case Kind::NONE:
-      break;
-    case Kind::SLICE:
       break;
     case Kind::INT: {
       rq::StaticInt &int_ = this->getInt();
@@ -57,10 +69,16 @@ struct StaticValue final {
       rq::StaticFloat &float_ = this->getFloat();
       std::destroy_at(&float_);
     } break;
+    case Kind::SLICE:
+      break;
     case Kind::ARRAY: {
       rq::StaticArray &array = this->getArray();
       std::destroy_at(&array);
     } break;
+    case Kind::DATA_ARRAY: {
+      rq::StaticDataArray &data_array = this->getDataArray();
+      std::destroy_at(&data_array);
+    }
     default:
       break;
     }
@@ -104,6 +122,17 @@ struct StaticValue final {
     return rq::dereferencePtr(
         std::launder(std::bit_cast<const rq::StaticArray *>(&this->_data)));
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticDataArray &getDataArray() {
+    RQ_ASSERT(this->_kind == Kind::DATA_ARRAY, "not data array");
+    return rq::dereferencePtr(
+        std::bit_cast<rq::StaticDataArray *>(&this->_data));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticDataArray &
+  getDataArray() const {
+    RQ_ASSERT(this->_kind == Kind::DATA_ARRAY, "not array array");
+    return rq::dereferencePtr(
+        std::launder(std::bit_cast<const rq::StaticDataArray *>(&this->_data)));
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticSymbol &getSymbol() {
     RQ_ASSERT(this->_kind == Kind::SYMBOL, "not symbol");
     return rq::dereferencePtr(std::bit_cast<rq::StaticSymbol *>(&this->_data));
@@ -112,6 +141,31 @@ struct StaticValue final {
     RQ_ASSERT(this->_kind == Kind::SYMBOL, "not symbol");
     return rq::dereferencePtr(
         std::launder(std::bit_cast<const rq::StaticSymbol *>(&this->_data)));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ExpressionAttribute &
+  getExpressionAttribute() const {
+    RQ_ASSERT(this->_kind == Kind::EXPRESSION_ATTRIBUTE,
+              "not expression attribute");
+    return rq::dereferencePtr(std::launder(
+        std::bit_cast<const rq::ExpressionAttribute *>(&this->_data)));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute &
+  getExpressionAttribute() {
+    RQ_ASSERT(this->_kind == Kind::EXPRESSION_ATTRIBUTE,
+              "not expression attribute");
+    return rq::dereferencePtr(std::launder(
+        std::bit_cast<rq::ExpressionAttribute *>(&this->_data)));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeAttribute &
+  getTypeAttribute() const {
+    RQ_ASSERT(this->_kind == Kind::TYPE_ATTRIBUTE, "not type attribute");
+    return rq::dereferencePtr(
+        std::launder(std::bit_cast<const rq::TypeAttribute *>(&this->_data)));
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute &getTypeAttribute() {
+    RQ_ASSERT(this->_kind == Kind::TYPE_ATTRIBUTE, "not type attribute");
+    return rq::dereferencePtr(
+        std::launder(std::bit_cast<rq::TypeAttribute *>(&this->_data)));
   }
 };
 
