@@ -3123,15 +3123,13 @@ struct ExpressionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  operator*() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
     return this->_expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  operator->() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
     return this->_expression_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
@@ -3150,8 +3148,7 @@ struct ConstExpressionIterator final {
   const rq::Expression *_expression_ptr = nullptr;
 
   ConstExpressionIterator() = default;
-  explicit ConstExpressionIterator(
-      const rq::Expression *expression_ptr)
+  explicit ConstExpressionIterator(const rq::Expression *expression_ptr)
       : _expression_ptr(expression_ptr) {}
   ConstExpressionIterator(const Self &) = default;
   ConstExpressionIterator(Self &&) = default;
@@ -3166,12 +3163,10 @@ struct ConstExpressionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
     return this->_expression_ptr != it._expression_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  operator*() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
     return rq::dereferencePtr(this->_expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  operator->() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
     return this->_expression_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
@@ -3476,8 +3471,7 @@ struct Expression final : public rq::Entity {
     }
     return rq::dereferencePtr(expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getLastNext() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastNext() const {
     const rq::Expression *expression_ptr = this;
     while (expression_ptr->getNextPtr() != nullptr) {
       expression_ptr = expression_ptr->getNextPtr();
@@ -3492,8 +3486,7 @@ struct Expression final : public rq::Entity {
     }
     return rq::dereferencePtr(expression_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getLastBranch() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLastBranch() const {
     RQ_ASSERT(this->getHasBranch(), "does not have branch");
     const rq::Expression *expression_ptr = this->getBranchPtr();
     while (expression_ptr->getNextPtr() != nullptr) {
@@ -3515,9 +3508,7 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression &branch) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = &branch;
-    return replaced_branch;
+    return rq::replaceValue(this->_branch_ptr, &branch);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceNext(rq::Expression &next) {
@@ -3527,9 +3518,7 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression *branch_ptr) {
-    rq::Expression &replaced_branch = this->getBranch();
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
+    return rq::replaceValue(this->_branch_ptr, branch_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceNext(rq::Expression *next_ptr) {
@@ -3539,9 +3528,7 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceBranchPtr(rq::Expression &branch) {
-    rq::Expression *replaced_branch = this->getBranchPtr();
-    this->_branch_ptr = &branch;
-    return replaced_branch;
+    return rq::replaceValuePtr(this->_branch_ptr, &branch);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression &next) {
@@ -3551,9 +3538,7 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceBranchPtr(rq::Expression *branch_ptr) {
-    rq::Expression *replaced_branch = this->getBranchPtr();
-    this->_branch_ptr = branch_ptr;
-    return replaced_branch;
+    return rq::replaceValuePtr(this->_branch_ptr, branch_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression *next_ptr) {
@@ -3568,15 +3553,10 @@ struct Expression final : public rq::Entity {
     return this->_next_ptr_flags.getPtr() != nullptr;
   }
   [[nodiscard]] inline rq::Expression &popBranch() {
-    RQ_ASSERT(this->_branch_ptr != nullptr, "does not have branch");
-    rq::Expression *old_branch_ptr = this->getBranchPtr();
-    this->_branch_ptr = nullptr;
-    return rq::dereferencePtr(old_branch_ptr);
+    return rq::popValue(this->_branch_ptr);
   }
   [[nodiscard]] inline rq::Expression *popBranchPtr() {
-    rq::Expression *old_branch_ptr = this->getBranchPtr();
-    this->_branch_ptr = nullptr;
-    return old_branch_ptr;
+    return rq::popValuePtr(this->_branch_ptr);
   }
   [[nodiscard]] inline rq::Expression &popNext() {
     RQ_ASSERT(this->getHasNext(), "does not have next");
@@ -3635,8 +3615,7 @@ struct Expression final : public rq::Entity {
     return *this;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator,
-                            rq::ExpressionIterator,
+      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getInclusiveNextSubrange() {
     return std::ranges::subrange(rq::ExpressionIterator(this),
@@ -3651,13 +3630,11 @@ struct Expression final : public rq::Entity {
                                  rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator,
-                            rq::ExpressionIterator,
+      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getNextSubrange() {
-    return std::ranges::subrange(
-        rq::ExpressionIterator(this->getNextPtr()),
-        rq::ExpressionIterator());
+    return std::ranges::subrange(rq::ExpressionIterator(this->getNextPtr()),
+                                 rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ConstExpressionIterator,
@@ -3669,13 +3646,11 @@ struct Expression final : public rq::Entity {
         rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator,
-                            rq::ExpressionIterator,
+      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
                             std::ranges::subrange_kind::unsized>
       getBranchSubrange() {
-    return std::ranges::subrange(
-        rq::ExpressionIterator(this->getBranchPtr()),
-        rq::ExpressionIterator());
+    return std::ranges::subrange(rq::ExpressionIterator(this->getBranchPtr()),
+                                 rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::ConstExpressionIterator,
@@ -3700,19 +3675,15 @@ rq::ExpressionIterator &ExpressionIterator::operator++() {
   return *this;
 }
 
-rq::ExpressionIterator ExpressionIterator::operator++(int) {
-  return ++*this;
-}
+rq::ExpressionIterator ExpressionIterator::operator++(int) { return ++*this; }
 
-rq::ConstExpressionIterator &
-ConstExpressionIterator::operator++() {
+rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
   this->_expression_ptr =
       rq::dereferencePtr(this->_expression_ptr).getNextPtr();
   return *this;
 }
 
-rq::ConstExpressionIterator
-ConstExpressionIterator::operator++(int) {
+rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
   return ++*this;
 }
 
