@@ -82,9 +82,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::Module *_source_module_ptr = nullptr;
   rq::Top _top{};
   rq::Expression *_free_expression_ptr{nullptr};
-  rq::NullaryInstruction *_free_nullary_instruction_ptr{nullptr};
-  rq::UnaryInstruction *_free_unary_instruction_ptr{nullptr};
-  rq::BinaryInstruction *_free_binary_instruction_ptr{nullptr};
+  rq::Instruction *_free_instruction_ptr{nullptr};
   rq::IntegerLiteral _integer_literal_type{};
   rq::FloatLiteral _float_literal_type{};
   rq::StringLiteral _string_literal_type{};
@@ -320,18 +318,15 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorIsLast(const rq::Expression &mark);
   void logErrorExpectedCommaSeparator(const rq::Expression &expression);
   void logErrorExpectedSeparatorOrRightBracket(const rq::Token &token);
-  void
-  logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
-  void
-  logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
+  void logErrorExpectedSemicolonSeparator(const rq::Expression &expression);
+  void logErrorExpressionShouldNeverOccur(const rq::Expression &expression);
   void logErrorDuplicateParameterMark(const rq::Expression &mark);
   void logErrorDuplicateAttribute(const rq::Expression &attribute);
   void logErrorNonpositionalBeginAfterPositionalEnd(
       const rq::Expression &named_begin);
-  void logErrorNonpositionalBeginAfterLockedBegin(
-      const rq::Expression &named_begin);
-  void logErrorPositionalEndAfterLockedBegin(
-      const rq::Expression &named_begin);
+  void
+  logErrorNonpositionalBeginAfterLockedBegin(const rq::Expression &named_begin);
+  void logErrorPositionalEndAfterLockedBegin(const rq::Expression &named_begin);
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
@@ -343,16 +338,11 @@ struct Context final : public rq::BumpPtrAllocator {
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
-  void
-  logErrorExpectedHeaderExpression(const rq::Expression &expresison);
-  void
-  logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
-  void
-  logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
-  void logErrorUnexpectedChainLinkExpression(
-      const rq::Expression &expresison);
-  void
-  logErrorNotDeterminateStaticValue(const rq::Expression &expression);
+  void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
   void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
                                           const rq::Expression &attribute);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
@@ -388,8 +378,7 @@ struct Context final : public rq::BumpPtrAllocator {
     expression._branch_ptr = this->_free_expression_ptr;
     this->_free_expression_ptr = &expression;
   }
-  [[nodiscard]] rq::Expression &
-  copyExpression(rq::Expression &expression);
+  [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteral &
   acquireIntegerLiteralType() {
     return this->_integer_literal_type;
@@ -950,101 +939,25 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
 
-  [[nodiscard]] inline rq::NullaryInstruction &
-  acquireNullaryInstruction(rq::Opcode opcode, rq::Expression &expression) {
-    if (this->_free_nullary_instruction_ptr == nullptr) {
-      rq::NullaryInstruction &instruction =
-          this->allocateValue<rq::NullaryInstruction>(opcode, &expression);
-      return instruction;
+  [[nodiscard]] inline rq::Instruction &acquireInstruction(rq::Opcode opcode) {
+    if (this->_free_instruction_ptr != nullptr) {
+      rq::Instruction &next_free =
+          rq::dereferencePtr(this->_free_instruction_ptr);
+      this->_free_instruction_ptr =
+          llvm::cast<rq::Instruction>(next_free._address0_ptr);
+      next_free._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
+      return next_free;
     }
-    rq::NullaryInstruction &instruction =
-        rq::dereferencePtr(this->_free_nullary_instruction_ptr);
-    this->_free_nullary_instruction_ptr =
-        std::bit_cast<rq::NullaryInstruction *>(instruction._expression_ptr);
-    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
-    instruction._expression_ptr = &expression;
-    return instruction;
-  }
-
-  [[nodiscard]] inline rq::UnaryInstruction &
-  acquireUnaryInstruction(rq::Opcode opcode, rq::Expression &expression,
-                          rq::Entity &address0) {
-    if (this->_free_unary_instruction_ptr == nullptr) {
-      rq::UnaryInstruction &instruction =
-          this->allocateValue<rq::UnaryInstruction>(opcode, &expression,
-                                                    address0);
-      return instruction;
-    }
-    rq::UnaryInstruction &instruction =
-        rq::dereferencePtr(this->_free_unary_instruction_ptr);
-    this->_free_unary_instruction_ptr =
-        std::bit_cast<rq::UnaryInstruction *>(instruction._expression_ptr);
-    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
-    instruction._expression_ptr = &expression;
-    instruction._address0_ptr = &address0;
-    return instruction;
-  }
-
-  [[nodiscard]] inline rq::BinaryInstruction &
-  acquireBinaryInstruction(rq::Opcode opcode, rq::Expression &expression,
-                           rq::Entity &address0, rq::Entity &address1) {
-    if (this->_free_binary_instruction_ptr == nullptr) {
-      rq::BinaryInstruction &instruction =
-          this->allocateValue<rq::BinaryInstruction>(opcode, &expression,
-                                                     address0, address1);
-      return instruction;
-    }
-    rq::BinaryInstruction &instruction =
-        rq::dereferencePtr(this->_free_binary_instruction_ptr);
-    this->_free_binary_instruction_ptr =
-        std::bit_cast<rq::BinaryInstruction *>(instruction._expression_ptr);
-    instruction._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
-    instruction._expression_ptr = &expression;
-    instruction._address0_ptr = &address0;
-    instruction._address1_ptr = &address1;
-    return instruction;
+    rq::Instruction &new_instruction =
+        this->allocateValue<rq::Instruction>(opcode);
+    return new_instruction;
   }
 
   inline void discardInstruction(rq::Instruction &instruction) {
-    if (llvm::isa<rq::NullaryInstruction>(instruction)) {
-      rq::NullaryInstruction &nullary =
-          llvm::cast<rq::NullaryInstruction>(instruction);
-      nullary._expression_ptr =
-          std::bit_cast<rq::Expression *>(this->_free_nullary_instruction_ptr);
-      this->_free_nullary_instruction_ptr = &nullary;
-      return;
-    }
-    if (llvm::isa<rq::UnaryInstruction>(instruction)) {
-      rq::UnaryInstruction &unary =
-          llvm::cast<rq::UnaryInstruction>(instruction);
-      if (llvm::isa<rq::Instruction>(unary.getAddress0())) {
-        rq::Instruction &address0 =
-            llvm::cast<rq::Instruction>(unary.getAddress0());
-        this->discardInstruction(address0);
-      }
-      unary._expression_ptr =
-          std::bit_cast<rq::Expression *>(this->_free_unary_instruction_ptr);
-      this->_free_unary_instruction_ptr = &unary;
-      return;
-    }
-    if (llvm::isa<rq::BinaryInstruction>(instruction)) {
-      rq::BinaryInstruction &binary =
-          llvm::cast<rq::BinaryInstruction>(instruction);
-      if (llvm::isa<rq::Instruction>(binary.getAddress0())) {
-        rq::Instruction &address0 =
-            llvm::cast<rq::Instruction>(binary.getAddress0());
-        this->discardInstruction(address0);
-      }
-      if (llvm::isa<rq::Instruction>(binary.getAddress1())) {
-        rq::Instruction &address1 =
-            llvm::cast<rq::Instruction>(binary.getAddress1());
-        this->discardInstruction(address1);
-      }
-      binary._expression_ptr =
-          std::bit_cast<rq::Expression *>(this->_free_binary_instruction_ptr);
-      this->_free_binary_instruction_ptr = &binary;
-      return;
-    }
+    RQ_ASSERT(!instruction.getHasAddress0(), "has address0");
+    RQ_ASSERT(!instruction.getHasAddress1(), "has address1");
+    instruction._address0_ptr = this->_free_instruction_ptr;
+    this->_free_instruction_ptr = &instruction;
   }
 };
 
