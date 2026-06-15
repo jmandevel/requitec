@@ -147,9 +147,6 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '.':
       switch (this->getRanger().getChar(1)) {
-      case '.':
-        this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
-        break;
       case '+':
         this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
         break;

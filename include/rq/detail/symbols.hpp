@@ -3379,21 +3379,23 @@ SymbolTable::findNamedList(llvm::StringRef name) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+    std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
                           std::ranges::subrange_kind::unsized>
     SymbolTable::getInclusiveFrameSubrange() {
-  return std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+  return std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
                                std::ranges::subrange_kind::unsized>(
-      rq::FrameIterator(this), rq::FrameIterator());
+      rq::SymbolTableIterator(this), rq::SymbolTableIterator());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+    std::ranges::subrange<rq::ConstSymbolTableIterator,
+                          rq::ConstSymbolTableIterator,
                           std::ranges::subrange_kind::unsized>
     SymbolTable::getInclusiveFrameSubrange() const {
-  return std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+  return std::ranges::subrange<rq::ConstSymbolTableIterator,
+                               rq::ConstSymbolTableIterator,
                                std::ranges::subrange_kind::unsized>(
-      rq::ConstFrameIterator(this), rq::ConstFrameIterator());
+      rq::ConstSymbolTableIterator(this), rq::ConstSymbolTableIterator());
 }
 
 [[nodiscard]] inline bool SymbolTable::classof(const rq::Entity *entity_ptr) {

@@ -2,7 +2,7 @@
 [function printf, (> format:?\[no_var][utf8], [variadic] vargs:[variadic_arguments_type]<)[void]];
 
 [main
-    ..printf("Hello, %s! I am %d.", [variadic_arguments "world", 30]);
+    printf("Hello, %s! I am %d.", [variadic_arguments "world", 30]);
 
     [result] := 0;
 ];

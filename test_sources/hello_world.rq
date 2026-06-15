@@ -1,7 +1,7 @@
 [import "std"];
 
 [main
-    ..std.print(line="Hello, world!");
+    std.print(line="Hello, world!");
 
     [result] := 0;
 ];

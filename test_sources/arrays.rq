@@ -4,7 +4,7 @@
     my_array : \[var] = [array 0, 1, 2, 3, 4].[of [least_signed_integer 64]];
     const_slice := my_array.[slice];
     
-    ..std.print(line=
+    std.print(line=
         "stats: size:" +> my_array.[type].[byte_size] +>
         " count:" +> my_array.[type].[element_count] +>
         " depth:" +> my_array.[type].[bit_depth] +>
@@ -13,9 +13,9 @@
         element = element * index.[cast element.[type]];
     ];
     [for my_array.[borrow], index:=[index], element:=[value], 
-        ..std.print(line="element " +> index +> " is " +> element +> "!");
+        std.print(line="element " +> index +> " is " +> element +> "!");
     ];
-    ..std.print(line="it starts with " +> my_array.[at 0] +> "!");
+    std.print(line="it starts with " +> my_array.[at 0] +> "!");
 
     [result] := 0;
 ];

@@ -6,7 +6,7 @@
     args :@?\[null_terminated][char]= [args];
 
     [for [args], arg:=[value], arg_i:=[index],
-        ..std.print(line=
+        std.print(line=
                 "arg_" +> arg_i + " is \"" +> arg +> "\""
             );
     ];

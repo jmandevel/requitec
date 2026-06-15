@@ -679,10 +679,6 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_ARRAY);
         continue;
       }
-      case rq::TokenKind::DOUBLE_DOT_OPERATOR:
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::MEMBER_OF_TOP);
-        continue;
       case rq::TokenKind::AT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token,

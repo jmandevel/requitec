@@ -6,7 +6,7 @@
         line:=[callsite].[line],
         column:=[callsite].[column]
     )[void],
-    ..std.print(line=
+    std.print(line=
         "snippet: \"" +> snippet +> "\"" +>
         " line: " +> line +>
         " column: " +> column);
@@ -14,8 +14,8 @@
 
 [main
     // this will print the following line to the terminal:
-    // snippet: "..printMe()" line: 18 column: 4
-    ..printMe();
+    // snippet: "printMe()" line: 18 column: 4
+    printMe();
 
     [result] := 0;
 ];

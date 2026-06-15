@@ -5,17 +5,17 @@
 
     [public]
     [function create, (> a:[signed_integer], b:[signed_integer] <)MyClass,
-      [result] := ..MyClass(var=a + b);
+      [result] := MyClass(var=a + b);
     ];  
 ];
 
 [main
     // create stack
-    my_stack :\[var]= ..std.StackList{..MyClass}();
+    my_stack :\[var]= std.StackList{MyClass}();
     
     // push back one element
     // emplace will call the function in the future with the given arguments forwarded
-    my_stack.pushBack(..MyClass.create(1, 2).[emplace]);
+    my_stack.pushBack(MyClass.create(1, 2).[emplace]);
 
     // remove the last element
     my_stack.popBack();

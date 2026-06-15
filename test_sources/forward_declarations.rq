@@ -2,14 +2,14 @@
 [function myForwardedAdd, (> a:[single], b:[single] <)[single],];
 
 // you have to write the signature again, and it has to be identical
-[implement_function ..myForwardedAdd, (> a:[single], b:[single] <)[single],
+[implement_function myForwardedAdd, (> a:[single], b:[single] <)[single],
     [result] := a + b;
 ];
 
 [main
-    ..std.print(
+    std.print(
         "the result is " +>
-        ..myForwardedAdd(
+        myForwardedAdd(
             1.0,
             2.0));
 

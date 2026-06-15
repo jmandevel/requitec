@@ -752,10 +752,8 @@ struct ModuleFactory final {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
-  RQ_ALWAYS_INLINE void
-  setOrChangeExpression(rq::Expression *expression_ptr);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getExpressionPtr() const;
+  RQ_ALWAYS_INLINE void setOrChangeExpression(rq::Expression *expression_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
@@ -1605,8 +1603,8 @@ struct SynonymType final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct FrameIterator final {
-  using Self = rq::FrameIterator;
+struct SymbolTableIterator final {
+  using Self = rq::SymbolTableIterator;
   using value_type = rq::SymbolTable;
   using reference = rq::SymbolTable &;
   using pointer = rq::SymbolTable *;
@@ -1615,12 +1613,12 @@ struct FrameIterator final {
 
   rq::SymbolTable *_symbol_table_ptr = nullptr;
 
-  FrameIterator() = default;
-  explicit FrameIterator(rq::SymbolTable *symbol_table_ptr)
+  SymbolTableIterator() = default;
+  explicit SymbolTableIterator(rq::SymbolTable *symbol_table_ptr)
       : _symbol_table_ptr(symbol_table_ptr) {}
-  FrameIterator(const Self &) = default;
-  FrameIterator(Self &&) = default;
-  ~FrameIterator() = default;
+  SymbolTableIterator(const Self &) = default;
+  SymbolTableIterator(Self &&) = default;
+  ~SymbolTableIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
@@ -1648,8 +1646,8 @@ struct FrameIterator final {
   }
 };
 
-struct ConstFrameIterator final {
-  using Self = rq::ConstFrameIterator;
+struct ConstSymbolTableIterator final {
+  using Self = rq::ConstSymbolTableIterator;
   using value_type = const rq::SymbolTable;
   using reference = const rq::SymbolTable &;
   using pointer = rq::SymbolTable *;
@@ -1658,12 +1656,12 @@ struct ConstFrameIterator final {
 
   const rq::SymbolTable *_symbol_table_ptr = nullptr;
 
-  ConstFrameIterator() = default;
-  explicit ConstFrameIterator(const rq::SymbolTable *symbol_table_ptr)
+  ConstSymbolTableIterator() = default;
+  explicit ConstSymbolTableIterator(const rq::SymbolTable *symbol_table_ptr)
       : _symbol_table_ptr(symbol_table_ptr) {}
-  ConstFrameIterator(const Self &) = default;
-  ConstFrameIterator(Self &&) = default;
-  ~ConstFrameIterator() = default;
+  ConstSymbolTableIterator(const Self &) = default;
+  ConstSymbolTableIterator(Self &&) = default;
+  ~ConstSymbolTableIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++();
@@ -1717,56 +1715,41 @@ struct SymbolTable : public rq::Symbol {
   findNamedList(llvm::StringRef name);
 
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::FrameIterator, rq::FrameIterator,
+      std::ranges::subrange<rq::SymbolTableIterator, rq::SymbolTableIterator,
                             std::ranges::subrange_kind::unsized>
       getInclusiveFrameSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstFrameIterator, rq::ConstFrameIterator,
+      std::ranges::subrange<rq::ConstSymbolTableIterator,
+                            rq::ConstSymbolTableIterator,
                             std::ranges::subrange_kind::unsized>
       getInclusiveFrameSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-rq::FrameIterator &FrameIterator::operator++() {
+rq::SymbolTableIterator &SymbolTableIterator::operator++() {
   rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsFrame()) {
-    this->_symbol_table_ptr = nullptr;
-  } else {
-    this->_symbol_table_ptr = table._containing_table_ptr;
-  }
+  this->_symbol_table_ptr = table._containing_table_ptr;
   return *this;
 }
 
-rq::FrameIterator FrameIterator::operator++(int) {
-  rq::FrameIterator temp = *this;
+rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
+  rq::SymbolTableIterator temp = *this;
   rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsFrame()) {
-    this->_symbol_table_ptr = nullptr;
-  } else {
-    this->_symbol_table_ptr = table._containing_table_ptr;
-  }
+  this->_symbol_table_ptr = table._containing_table_ptr;
   return temp;
 }
 
-rq::ConstFrameIterator &ConstFrameIterator::operator++() {
+rq::ConstSymbolTableIterator &ConstSymbolTableIterator::operator++() {
   const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsFrame()) {
-    this->_symbol_table_ptr = nullptr;
-  } else {
-    this->_symbol_table_ptr = table._containing_table_ptr;
-  }
+  this->_symbol_table_ptr = table._containing_table_ptr;
   return *this;
 }
 
-rq::ConstFrameIterator ConstFrameIterator::operator++(int) {
-  rq::ConstFrameIterator temp = *this;
+rq::ConstSymbolTableIterator ConstSymbolTableIterator::operator++(int) {
+  rq::ConstSymbolTableIterator temp = *this;
   const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  if (table.getIsFrame()) {
-    this->_symbol_table_ptr = nullptr;
-  } else {
-    this->_symbol_table_ptr = table._containing_table_ptr;
-  }
+  this->_symbol_table_ptr = table._containing_table_ptr;
   return temp;
 }
 

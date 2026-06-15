@@ -6,40 +6,40 @@
 [no_stable_address]
 [class MyPinned,];
 
-[extension_method takeReciever, ()[void]=>..MyPinned,
+[extension_method takeReciever, ()[void]=>MyPinned,
 
 ];
 
-[function takeArg, (pinned:..MyPinned<)[void],
+[function takeArg, (pinned:MyPinned<)[void],
 
 ];
 
-[function takeOrCopyArg, (pinned:..MyClass<)[void],
+[function takeOrCopyArg, (pinned:MyClass<)[void],
 
 ];
 
 [main
-  class :\[var]= ..MyClass();
+  class :\[var]= MyClass();
   copy := class;
   reference := class.[borrow];
   reference_to_var := class.\[var][borrow];
   pointer := class.[address];
   pointer_to_var := class.\[var][address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.\[var][borrow]->..std.extract();
+  non_destructive_move := class.\[var][borrow]->std.extract();
   destructive_move := class.[move];
   // class was dropped because it was moved out of
   class := destructive_move.[move]; /// move it back!
-  pinned :\[var]= ..MyPinned();
+  pinned :\[var]= MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address attribute
-  pinned.[take]->..takeReciever(); // taking is fine, because memory address is not changed.
+  pinned.[take]->takeReciever(); // taking is fine, because memory address is not changed.
   // both .[move] and .[take] invalidate the variable moved or taken from
   // .[take] is like a .[move] but passed as an arg or extended by a method. memory address is not garunteed to change (but it might).
   // .[move] is only for assigning directly to a variable, where memory address is garunteed to change.
-  ..takeArg(..MyPinned().[take]); // can also take into arg
+  takeArg(MyPinned().[take]); // can also take into arg
   // when a function takes something not borrowed, it can be copied or taken.
-  ..takeOrCopyArg(class); // this performs a shallow copy. class still exists.
-  ..takeOrCopyArg(class.[take]); // after this, class variable is invalidated.
+  takeOrCopyArg(class); // this performs a shallow copy. class still exists.
+  takeOrCopyArg(class.[take]); // after this, class variable is invalidated.
   // when something is taken into a call, it is assumed thing is destroyed/dropped within it, so its gone after.
   // sometimes compiler may turn .[take] to a shallow copy, so arg address is not necessarily the same!
   // other times when object is taken, compiler will pass object into function by address, so address remains same for the arg.

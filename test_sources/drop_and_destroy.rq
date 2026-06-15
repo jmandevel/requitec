@@ -4,16 +4,16 @@
 
 [class WithDestructor,
     [destructor
-        ..std.print(line="In destructor!");
+        std.print(line="In destructor!");
         [this].[drop];
     ];
 ];
 
 [main
-    a := ..WithoutDestructor();
-    b := ..WithoutDestructor();
-    c := ..WithDestructor();
-    d := ..WithDestructor();
+    a := WithoutDestructor();
+    b := WithoutDestructor();
+    c := WithDestructor();
+    d := WithDestructor();
 
     // after drop or destroy, variable is invalidated (can no longer be used)
     a.[drop]; 
@@ -27,8 +27,8 @@
     // d's destructor is called
     d.[destroy];
 
-    without := ..WithoutDestructor();
-    with := ..WithDestructor();
+    without := WithoutDestructor();
+    with := WithDestructor();
 
     // if type has no destructor, can do a shallow copy (copies byte for byte)
     copy := without; 

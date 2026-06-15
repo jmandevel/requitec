@@ -7,5 +7,5 @@
 ];
 
 [main
-    [result] := ..asSigned{[single]}(3.14);
+    [result] := asSigned{[single]}(3.14);
 ];

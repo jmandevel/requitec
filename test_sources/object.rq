@@ -30,13 +30,13 @@
 
 [main
 
-    a := ..MyClass();
-    b := ..MyClass(1, 2, 3);
-    c := ..MyClass.fromScalar(4);
+    a := MyClass();
+    b := MyClass(1, 2, 3);
+    c := MyClass.fromScalar(4);
 
-    ..std.print(line="a total:{a.[borrow].getTotal()}");
+    std.print(line="a total:{a.[borrow].getTotal()}");
 
-    added := ..MyClass.add(b, c);
+    added := MyClass.add(b, c);
 
     [result] := added.[borrow].getTotal();
 ];

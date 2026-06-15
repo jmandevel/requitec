@@ -10,7 +10,7 @@
 ];
 
 [main
-    a := ..divideSquare{[signed_integer]}(6, 2);
+    a := divideSquare{[signed_integer]}(6, 2);
     
     [result] := 0;
 ];

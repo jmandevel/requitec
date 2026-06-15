@@ -672,12 +672,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_reflect";
   case K::MEMBER_OF:
     return "_member_of";
-  case K::MEMBER_OF_TOP:
-    return "_member_of_top";
   case K::IGNORE:
     return "ignore";
   case K::IGNORE_OF:
     return "_ignore_of";
+  case K::BAKE:
+    return "bake";
+  case K::BAKE_OF:
+    return "_bake_of";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::BYTE_SIZE_OF:
@@ -1514,8 +1516,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::NAMESPACE;
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::MEMBER_OF_TOP:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::BAKE:
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::BAKE_OF:
+    return KF::RVALUE;
   case K::IGNORE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IGNORE_OF:
@@ -1865,6 +1869,8 @@ getDescription(rq::Situation situation) {
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
   // REFLECTIONS
+  case K::BAKE:
+    return K::BAKE_OF;
   case K::IGNORE:
     return K::IGNORE_OF;
   case K::BYTE_SIZE:

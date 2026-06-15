@@ -16,10 +16,10 @@
     my_array :5#[signed_integer]= [array 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
 
     // call extension method
-    my_array.[borrow]->..example.getElementCount().[ignore];
+    my_array.[borrow]->example.getElementCount().[ignore];
     
     // construct variable of type declared in same table as extension functions
-    foo := ..example.Foo();
+    foo := example.Foo();
 
     [result] := 0;
 ];

@@ -2,15 +2,15 @@
 
 [anchor]::A
 [static][for 0.<=10, num:=[value],
-    [static] varname :..std.String= ..std.format(text="VAR" +> num);
+    [static] varname :std.String= std.format(text="VAR" +> num);
     [flank]::A[global][capture]::{num:=num}
     varname.getSlice().[identify] :[signed_integer]= num;
 ];
 
 [main
     [static][for 0.<=10, num:=[value],
-        [static] varname :..std.String= ..std.format(text="VAR" +> num);
-        ..std.print(line=varname.getSlice() +> " is " +> ..(varname.getSlice().[identify]) +> "!");  
+        [static] varname :std.String= std.format(text="VAR" +> num);
+        std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
     [result] := 0;

@@ -402,7 +402,8 @@ enum class Keyword : rq::EntityId {
   // REFLECTIONS
   REFLECT,
   MEMBER_OF,
-  MEMBER_OF_TOP,
+  BAKE,
+  BAKE_OF,
   IGNORE,
   IGNORE_OF,
   BYTE_SIZE,

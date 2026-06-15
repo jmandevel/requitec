@@ -2,7 +2,7 @@
 
 [interface ISpeak,
     [method speak, ()[void]=>,
-        ..std.print(line="I don't speak.");
+        std.print(line="I don't speak.");
     ];
 ];
 
@@ -12,64 +12,64 @@
 
 [class Rat,
     [method squeak, ()[void]=>,
-        ..std.print(line="Squeak!");  
+        std.print(line="Squeak!");  
     ];
 ];
 
-[adapter ASpeak, ..Dog, ..ISpeak,
+[adapter ASpeak, Dog, ISpeak,
     [method speak, ()[void]=>,
-        ..std.print(line="Woof!");
+        std.print(line="Woof!");
     ];
 ];
 
-[adapter ASpeak, ..Cat, ..ISpeak,
+[adapter ASpeak, Cat, ISpeak,
     [method speak, ()[void]=>,
-        ..std.print(line="Meow!");
+        std.print(line="Meow!");
     ];
 ];
 
-[adapter ASpeak, ..Rat, ..ISpeak,
-    [use_method speak, ..Rat.squeak, ()[void]=>$];
+[adapter ASpeak, Rat, ISpeak,
+    [use_method speak, Rat.squeak, ()[void]=>$];
 ];
 
 [interface IGreet,
     [method greet, ()[void]=>,
-        ..std.print(line="I don't greet.");
+        std.print(line="I don't greet.");
     ];
 ];
 
-[adapter AGreet, ..Dog, ..IGreet,
+[adapter AGreet, Dog, IGreet,
     [method greet, ()[void]=>,
-        ..std.print(line="*wags tail*");
+        std.print(line="*wags tail*");
     ];
 ];
 
-[adapter ASpeak, ..Rat, ..ISpeak,
-    [use_method speak, ..rat.squeak, ()[void]=>];
+[adapter ASpeak, Rat, ISpeak,
+    [use_method speak, rat.squeak, ()[void]=>];
 ];
 
-[adapter AGreet, ..Rat, ..IGreet,
-    [use_method greet, ..Rat.squeak, ()[void]=>];
+[adapter AGreet, Rat, IGreet,
+    [use_method greet, Rat.squeak, ()[void]=>];
 ];
 
 [main
-    dog := ..Dog();
-    cat := ..Cat();
-    rat := ..Rat();
+    dog := Dog();
+    cat := Cat();
+    rat := Rat();
 
-    dog.[adapt ..ASpeak].speak();
-    dog.[adapt ..AGreet].greet();
-    cat.[adapt ..ASpeak].speak();
-    cat.[adapt ..AGreet].greet();
+    dog.[adapt ASpeak].speak();
+    dog.[adapt AGreet].greet();
+    cat.[adapt ASpeak].speak();
+    cat.[adapt AGreet].greet();
 
-    ..speakAndGreet(animal=dog.[compose ..ASpeak, ..AGreet]);
-    ..speakAndGreet(animal=cat.[compose ..ASpeak, ..AGreet]);
-    ..speakAndGreet(animal=rat.[compose ..ASpeak, ..AGreet]);
+    speakAndGreet(animal=dog.[compose ASpeak, AGreet]);
+    speakAndGreet(animal=cat.[compose ASpeak, AGreet]);
+    speakAndGreet(animal=rat.[compose ASpeak, AGreet]);
 
     [result] := 0;
 ];
 
-[function speakAndGreet, (> animal:[composition ..ISpeak, ..IGreet] <)[void],
-    animal.[decompose ..ISpeak].speak();
-    animal.[decompose ..IGreet].greet();
+[function speakAndGreet, (> animal:[composition ISpeak, IGreet] <)[void],
+    animal.[decompose ISpeak].speak();
+    animal.[decompose IGreet].greet();
 ];

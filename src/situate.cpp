@@ -1166,13 +1166,16 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::MEMBER_OF_TOP:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::IGNORE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
   case K::IGNORE_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::BAKE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::BAKE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::BYTE_SIZE:

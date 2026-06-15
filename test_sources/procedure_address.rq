@@ -8,21 +8,21 @@
 ];
 
 [main
-    // calling directly from ..myFunction
+    // calling directly from myFunction
     // default values are used
     // locked parameters cannot be set
     // parameter marks apply
-    a := ..myFunction();
-    b := ..myFunction(1.0);
-    b := ..myFunction(1.0, 2.0);
-    c := ..myFunction(1.0, positional_and_named);
-    d := ..myFunction(1.0, named=2.0);
-    e := ..myFunction(1.0, named=2.0, positional_and_named=3.0);
-    f := ..myFunction(1.0, 2.0, named=3.0);
-    g := ..myFunction(1.0, positional_and_named=2.0, named=3.0);
+    a := myFunction();
+    b := myFunction(1.0);
+    b := myFunction(1.0, 2.0);
+    c := myFunction(1.0, positional_and_named);
+    d := myFunction(1.0, named=2.0);
+    e := myFunction(1.0, named=2.0, positional_and_named=3.0);
+    f := myFunction(1.0, 2.0, named=3.0);
+    g := myFunction(1.0, positional_and_named=2.0, named=3.0);
 
-    // call from a pointer to ..myFunction
-    ptr := ..myFunction.[procedure_address];
+    // call from a pointer to myFunction
+    ptr := myFunction.[procedure_address];
     // default values are forgotten
     // locked parameters are unlocked
     // positional and name passing rules still respected
@@ -39,7 +39,7 @@
     [static] ProcedureType := Signature.[type];
 
     // .[procedure_address] returns a function pointer. Note need to make the ProcedureType a pointer with ?
-    other_ptr :?ProcedureType= ..myFunction.[procedure_address];
+    other_ptr :?ProcedureType= myFunction.[procedure_address];
 
     // you can use procedure_cast reflection to cast to different ptr type
     // arguments must be in the same order
@@ -54,7 +54,7 @@
             )[void]
         ).[type];
     
-    remix_ptr :?RemixType= ..myFunction.[procedure_address].[procedure_cast];
+    remix_ptr :?RemixType= myFunction.[procedure_address].[procedure_cast];
 
     // you can make positional passing order different than the underlying order by using [location] attribute
     // note that any arguments with [variadic] attribute are always in the last location even if no location is specified
@@ -70,7 +70,7 @@
             )[void]
         ).[type];
     
-    reordered_ptr :?ReorderType= ..myFunction.[procedure_address].[procedure_cast];
+    reordered_ptr :?ReorderType= myFunction.[procedure_address].[procedure_cast];
 
     [result] := 0;  
 ];

@@ -17,7 +17,7 @@
     [function create, 
         (placement:Placement<)\[var]UniquePtr{Type},
 
-        ptr := ..malloc(Type.[byte_size]).[cast ?\[var]Type];
+        ptr := malloc(Type.[byte_size]).[cast ?\[var]Type];
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
@@ -26,7 +26,7 @@
 
     [destructor         
         [this].ptr.[content].[inplace_destroy];
-        ..free([this].ptr);
+        free([this].ptr);
         [this].[drop];
     ];
 
@@ -42,8 +42,8 @@
 ];
 
 [main
-    uptr := ..UniquePtr{..NoAutoDrop}.create(
-            ..MyClass(3.14).[emplace]
+    uptr := UniquePtr{NoAutoDrop}.create(
+            MyClass(3.14).[emplace]
         );
     [result] := 0;
 ];
