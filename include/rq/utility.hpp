@@ -56,8 +56,9 @@ struct AssertException final : public std::logic_error {
 #define RQ_UNREACHABLE() std::unreachable()
 #endif
 
-#if !defined(_NDEBUG) 
-#define RQ_UNHANDLED_ERROR(reason) throw rq::AssertException("unhandled error", reason);
+#if !defined(_NDEBUG)
+#define RQ_UNHANDLED_ERROR(reason)                                             \
+  throw rq::AssertException("unhandled error", reason);
 #else
 #define RQ_UNHANDLED_ERROR() std::unreachable()
 #endif
@@ -121,11 +122,27 @@ RQ_ALWAYS_INLINE DestParam &replaceValue(
 }
 
 template <typename DestParam, typename SrcParam>
-RQ_ALWAYS_INLINE DestParam *replaceValuPtr(DestParam *&dest_ptr,
-                                           SrcParam *src_ptr) {
+RQ_ALWAYS_INLINE DestParam *replaceValuePtr(DestParam *&dest_ptr,
+                                            SrcParam *src_ptr) {
   DestParam *old_ptr = dest_ptr;
   dest_ptr = src_ptr;
   return old_ptr;
+}
+
+template <typename TypeParam>
+RQ_ALWAYS_INLINE TypeParam &popValue(
+    TypeParam *&src_ptr,
+    std::source_location source_location = std::source_location::current()) {
+  TypeParam *temp_ptr = src_ptr;
+  src_ptr = nullptr;
+  return rq::dereferencePtr(temp_ptr, source_location);
+}
+
+template <typename TypeParam>
+RQ_ALWAYS_INLINE TypeParam *popValuePtr(TypeParam *&src_ptr) {
+  TypeParam *temp_ptr = src_ptr;
+  src_ptr = nullptr;
+  return temp_ptr;
 }
 
 template <typename FlagsParam> struct is_flags final : std::false_type {};
