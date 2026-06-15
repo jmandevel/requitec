@@ -3589,32 +3589,6 @@ struct Expression final : public rq::Entity {
     this->_next_ptr_flags.setPtr(nullptr);
     return old_next_ptr;
   }
-  [[nodiscard]] inline rq::Expression &
-  changeNext(rq::Expression &new_next) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->getNextPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression &
-  changeNext(rq::Expression *new_next_ptr) {
-    RQ_ASSERT(this->getHasNext(), "does not have next");
-    rq::Expression *old_next_ptr = this->getNextPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return rq::dereferencePtr(old_next_ptr);
-  }
-  [[nodiscard]] inline rq::Expression *
-  changeNextPtr(rq::Expression &new_next) {
-    rq::Expression *old_next_ptr = this->getNextPtr();
-    this->_next_ptr_flags.setPtr(&new_next);
-    return old_next_ptr;
-  }
-  [[nodiscard]] inline rq::Expression *
-  changeNextPtr(rq::Expression *new_next_ptr) {
-    rq::Expression *old_next_ptr = this->getNextPtr();
-    this->_next_ptr_flags.setPtr(new_next_ptr);
-    return old_next_ptr;
-  }
   [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
     rq::Expression &branch = this->popBranch();
     if (this->getHasNext()) {
