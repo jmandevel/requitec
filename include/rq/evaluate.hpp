@@ -18,21 +18,33 @@ struct SymbolTable;
 struct Instruction;
 struct ExpressionFlagsFactory;
 
-struct Rvalue final {
-  using Self = rq::Rvalue;
+struct StaticRvalue final {
+  using Self = rq::StaticRvalue;
 
-  rq::Symbol *_type_ptr{nullptr};
-  rq::Entity *_entity_ptr{nullptr};
-  rq::StaticValue _temp{};
+  bool _is_numeric_literal_tree : 1;
+  rq::StaticValue _value;
+  rq::Symbol *_type_ptr;
 
-  explicit Rvalue() = default;
-  explicit Rvalue(rq::Symbol &type, rq::Entity &entity)
-      : _type_ptr(&type), _entity_ptr(&entity) {}
-  explicit Rvalue(rq::Symbol &type, rq::StaticValue &&temp)
-      : _type_ptr(&type), _temp(std::move(temp)) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const {
-    return this->_type_ptr != nullptr;
+  explicit RQ_ALWAYS_INLINE StaticRvalue(rq::Symbol &literal_type)
+      : _is_numeric_literal_tree(true), _value(), _type_ptr(&literal_type) {
+    RQ_ASSERT(literal_type.getIsLiteralType() &&
+                  literal_type.getIsNumericType(),
+              "not numeric literal type");
+  }
+  explicit RQ_ALWAYS_INLINE StaticRvalue(const rq::StaticValue &value,
+                                         rq::Symbol &value_type)
+      : _is_numeric_literal_tree(false), _value(value), _type_ptr(&value_type) {
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericLiteralTree() const {
+    return this->_is_numeric_literal_tree;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getValue() const {
+    RQ_ASSERT(!this->getIsNumericLiteralTree(), "no value");
+    return this->_value;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getValue() {
+    RQ_ASSERT(!this->getIsNumericLiteralTree(), "no value");
+    return this->_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const {
     return rq::dereferencePtr(this->_type_ptr);
@@ -40,77 +52,29 @@ struct Rvalue final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType() {
     return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const {
-    return rq::dereferencePtr(this->_entity_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity() {
-    return rq::dereferencePtr(this->_entity_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemp() const {
-    return this->_entity_ptr == nullptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getTemp() const {
-    return this->_temp;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getTemp() {
-    return this->_temp;
-  }
 };
 
-struct BinaryInstructionFactory final {
-  using Self = rq::BinaryInstructionFactory;
+struct DynamicRvalue final {
+  using Self = rq::DynamicRvalue;
 
-  rq::Context* _context_ptr;
-  rq::Opcode _opcode;
-  rq::Entity *_outer_ptr{nullptr};
-  rq::BinaryInstruction *_last_ptr{nullptr};
+  rq::Entity *_value_ptr;
+  rq::Symbol *_type_ptr;
 
-  explicit RQ_ALWAYS_INLINE BinaryInstructionFactory(rq::Context& context, rq::Opcode opcode)
-    : _context_ptr(&context), _opcode(opcode) {
-    }
+  explicit RQ_ALWAYS_INLINE DynamicRvalue(rq::Entity &value, rq::Symbol &type)
+      : _value_ptr(&value), _type_ptr(&type) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context& getContext() const {
-    return rq::dereferencePtr(this->_context_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const {
+    return rq::dereferencePtr(this->_value_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context& getContext() {
-    return rq::dereferencePtr(this->_context_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue() {
+    return rq::dereferencePtr(this->_value_ptr);
   }
-  void append(rq::Entity& entity, rq::Expression& expression);
-  [[nodiscard]] rq::Entity &popOuter();
-};
-
-struct FloatFolder final {
-  using Self = rq::FloatFolder;
-
-  rq::Opcode _opcode;
-  bool _is_folding : 1 = false;
-  const llvm::fltSemantics *_semantics_ptr;
-  llvm::APFloat _float;
-
-  FloatFolder(rq::Opcode opcode, const llvm::fltSemantics &semantics)
-      : _opcode(opcode), _semantics_ptr(&semantics), _float(0.0f) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
-    return this->_opcode;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const {
+    return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFolding() const {
-    return this->_is_folding;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType() {
+    return rq::dereferencePtr(this->_type_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::fltSemantics &
-  getLlvmFltSemantics() const {
-    return rq::dereferencePtr(this->_semantics_ptr);
-  }
-
-  void fold(const llvm::APFloat &value);
-  llvm::APFloat extract();
-};
-
-struct SignedIntegerFolder final {
-  using Self = rq::SignedIntegerFolder;
-};
-
-struct UnsignedIntegerFolder final {
-  using Self = rq::UnsignedIntegerFolder;
 };
 
 struct Evaluator final {
@@ -159,22 +123,20 @@ struct Evaluator final {
   void evaluate(rq::Method &meth);
   void evaluate(rq::ExtensionMethod &meth);
 
-  [[nodiscard]] rq::Rvalue evaluateRvalue(bool is_static,
-                                          rq::SymbolTable &table,
-                                          rq::Module &module,
-                                          rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression &
-  evaluateExpressionAttributes(rq::ExpressionFlagsFactory &out_factory,
-                               rq::SymbolTable &table, rq::Module &module,
-                               rq::Expression &outer_ex);
-  [[nodiscard]] rq::Rvalue
-  evaluateIdentifierLiteralRvalue(bool is_static, rq::SymbolTable &table,
+  [[nodiscard]] rq::StaticRvalue
+  evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+                       rq::Expression &rvalue_ex);
+  // etc
+
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
+                        rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicIdentifier(rq::SymbolTable &table, rq::Module &module,
+                            rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicArithmeticRvalue(rq::Opcode opcode, rq::SymbolTable &table,
                                   rq::Module &module,
                                   rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Rvalue evaluateArithmeticRvalue(bool is_static,
-                                                    rq::Opcode opcode,
-                                                    rq::SymbolTable &table,
-                                                    rq::Module &module,
-                                                    rq::Expression &rvalue_ex);
 };
 } // namespace rq
