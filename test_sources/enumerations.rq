@@ -9,9 +9,9 @@
 [main
     fruit := MyEnum.APPLE(3);
     [match fruit,
-        [with APPLE, apple:=[value].\[var][borrow], 
+        [case APPLE, apple:=[value].\[var][borrow], 
             apple = apple + 1;
-        ][with ORANGE, orange:=[value].\[var][borrow],
+        ][case ORANGE, orange:=[value].\[var][borrow],
             orange = orange * 2;
         ][default
             // do nothing!
@@ -19,11 +19,11 @@
     ];
     value :=
         [match fruit,
-            [with APPLE, apple:=[value], 
+            [case APPLE, apple:=[value], 
                 [out] := apple;
-            ][with ORANGE, orange:=[value],
+            ][case ORANGE, orange:=[value],
                 [out] := orange.[cast [signed_integer]];
-            ][with GRAPE, grape:=[value],
+            ][case GRAPE, grape:=[value],
                 [out] := grape.[cast [signed_integer]];
             ];
         ];

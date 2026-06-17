@@ -290,14 +290,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::METHOD:
     return "method";
-  case K::EXTENSION_METHOD:
-    return "extension_method";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
   case K::IMPLEMENT_METHOD:
     return "implement_method";
-  case K::IMPLEMENT_EXTENSION_METHOD:
-    return "implement_extension_method";
   case K::USE_FUNCTION:
     return "use_function";
   case K::USE_METHOD:
@@ -436,8 +432,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "switch";
   case K::CASE:
     return "case";
-  case K::WITH:
-    return "with";
   case K::DEFAULT:
     return "default";
   case K::FOR:
@@ -1127,13 +1121,9 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT;
   case K::METHOD:
     return KF::STATEMENT;
-  case K::EXTENSION_METHOD:
-    return KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
     return KF::STATEMENT;
   case K::IMPLEMENT_METHOD:
-    return KF::STATEMENT;
-  case K::IMPLEMENT_EXTENSION_METHOD:
     return KF::STATEMENT;
   case K::USE_FUNCTION:
     return KF::STATEMENT;
@@ -1272,9 +1262,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::SWITCH:
     return KF::STATEMENT | KF::RVALUE | KF::ARGUMENT;
   case K::CASE:
-    return KF::STATEMENT | KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
-           KF::FINISHING_CHAINLINK;
-  case K::WITH:
     return KF::STATEMENT | KF::STARTING_CHAINLINK | KF::CONTINUING_CHAINLINK |
            KF::FINISHING_CHAINLINK;
   case K::DEFAULT:

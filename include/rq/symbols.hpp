@@ -392,6 +392,7 @@ struct Symbol;
       template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedSubtype;
   struct Module;
   struct Import;
+  struct Conformity;
   struct WeightLevel;
     template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedWeightLevel;
   struct JuxtapositionalListItem;
@@ -800,6 +801,21 @@ struct Import final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getImported() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getImported();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Conformity final : public rq::Symbol {
+  using Self = rq::Conformity;
+
+  rq::Interface* _interface_ptr;
+  rq::Symbol* _type_ptr;
+
+  explicit RQ_ALWAYS_INLINE Conformity(rq::Interface &interface, rq::Symbol &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface& getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &getInterface();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol & getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

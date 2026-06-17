@@ -6,7 +6,7 @@
 [no_stable_address]
 [class MyPinned,];
 
-[extension_method takeReciever, ()[void]=>MyPinned,
+[method takeReciever, ()[void]=>MyPinned,
 
 ];
 

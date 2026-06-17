@@ -180,6 +180,10 @@ namespace rq {
   case S::IMPORT:
     return "Import";
 
+  // CONFORMITY
+  case S::CONFORMITY:
+    return "Conformity";
+
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
     return "ClassWeightLevel";
@@ -596,6 +600,10 @@ namespace rq {
   // IMPORTS
   case S::IMPORT:
     return SF::HAS_EXPRESSION_ATTRIBUTES;
+
+  // CONFORMITY
+  case S::CONFORMITY:
+    return SF::NONE;
 
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
@@ -1761,6 +1769,35 @@ Import::getExpressionFlags() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::IMPORT);
+}
+
+RQ_ALWAYS_INLINE Conformity::Conformity(rq::Interface &interface,
+                                        rq::Symbol &type)
+    : Symbol(rq::SymbolKind::CONFORMITY), _interface_ptr(&interface),
+      _type_ptr(&type) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
+Conformity::getInterface() const {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &Conformity::getInterface() {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &Conformity::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &Conformity::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] inline bool Conformity::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id ==
+         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CONFORMITY);
 }
 
 RQ_ALWAYS_INLINE

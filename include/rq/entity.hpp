@@ -164,10 +164,8 @@ enum class Keyword : rq::EntityId {
   MAIN,
   FUNCTION,
   METHOD,
-  EXTENSION_METHOD,
   IMPLEMENT_FUNCTION,
   IMPLEMENT_METHOD,
-  IMPLEMENT_EXTENSION_METHOD,
   USE_FUNCTION,
   USE_METHOD,
 
@@ -251,7 +249,6 @@ enum class Keyword : rq::EntityId {
   MATCH,
   SWITCH,
   CASE,
-  WITH,
   DEFAULT,
   FOR,
   WHILE,
@@ -575,6 +572,9 @@ enum class SymbolKind : rq::EntityId {
 
   // IMPORTS
   IMPORT,
+
+  // CONFORMITY
+  CONFORMITY,
 
   // WEIGHTS
   CLASS_WEIGHT_LEVEL,

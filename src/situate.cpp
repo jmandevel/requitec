@@ -779,10 +779,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateOneHeaderNaryStatementBranches(situation, expression,
                                                         S::RVALUE);
     break;
-  case K::WITH:
-    is_ok = this->situateTwoHeaderNaryStatementBranches(
-        situation, expression, S::RVALUE, S::STATEMENT);
-    break;
   case K::DEFAULT:
     is_ok = this->situateNaryStatementBranches(expression);
     break;
