@@ -88,7 +88,7 @@ struct Situator final {
   // function, function, class, enum, adapter
   [[nodiscard]] bool
   situateNameStatementHeaderStatementBranches(rq::Situation situation,
-                                              rq::Expression &expression);
+                                              rq::Expression &expression, rq::Situation name_situation);
   // switch, match, if, else_if, while, case, with, forward, backward
   [[nodiscard]] bool
   situateStatementHeaderStatementBranches(rq::Situation situation,
@@ -101,12 +101,9 @@ struct Situator final {
   [[nodiscard]] bool
   situateStatementMultiVingetteStatementBranches(rq::Situation situation,
                                             rq::Expression &expression);
-  // interface
+  // interface, namespace
   [[nodiscard]] bool stiuateNameStatementBranches(rq::Situation situation,
-                                                  rq::Expression &expression);
-  // namespace
-  [[nodiscard]] bool stiuateNamespaceStatementBranches(rq::Situation situation,
-                                                  rq::Expression &expression);
+                                                  rq::Expression &expression, rq::Situation name_situation);
 };
 
 } // namespace rq

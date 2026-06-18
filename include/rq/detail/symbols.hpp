@@ -869,7 +869,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasNone(flags, rq::SymbolFlags::SIMPLE_SYMBOL);
+  return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE_SYMBOL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind) {

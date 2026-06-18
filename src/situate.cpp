@@ -105,7 +105,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
     case S::ARGUMENT: {
-      if (!this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+      if (!this->situateBinaryValueBranches(situation, expression, S::NAME,
                                             S::RVALUE)) {
         is_ok = false;
         break;
@@ -535,7 +535,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::FUNCTION:
     is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression);
+                                                              expression, S::FUNCTION_NAME);
     break;
   case K::IMPLEMENT_FUNCTION:
     is_ok =
@@ -571,11 +571,11 @@ bool Situator::situateTree(rq::Situation situation,
   // DECLARED TYPES
   case K::CLASS:
     is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression);
+                                                              expression, S::NAME);
     break;
   case K::ENUMERATION:
     is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression);
+                                                              expression, S::NAME);
     break;
   case K::INTERFACE:
     is_ok =
@@ -583,7 +583,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ADAPTER:
     is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression);
+                                                              expression, S::NAME);
     break;
 
   // VALUES
@@ -804,7 +804,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::NAMESPACE: {
-    is_ok = this->stiuateNamespaceStatementBranches(situation, expression);
+    is_ok = this->stiuateNameStatementBranches(situation, expression, S::NAMESPACE);
     if (!is_ok) {
       break;
     }
@@ -1768,13 +1768,13 @@ bool Situator::situateStatementBranches(rq::Expression &expression) {
 }
 
 bool Situator::situateNameStatementHeaderStatementBranches(
-    rq::Situation situation, rq::Expression &expression) {
+    rq::Situation situation, rq::Expression &expression, rq::Situation name_situation) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (this->situateHeaderBranch(rq::Situation::NAME, branch0)) {
+  if (!this->situateHeaderBranch(name_situation, branch0)) {
     return false;
   }
   if (!branch0.getHasNext()) {
@@ -1797,7 +1797,7 @@ bool Situator::situateNameStatementHeaderStatementBranches(
     return false;
   }
   rq::Expression &header = rq::dereferencePtr(last_ptr);
-  if (this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
     return false;
   }
   for (rq::Expression &branch : header.getNextSubrange()) {
@@ -1829,7 +1829,7 @@ bool Situator::situateStatementHeaderStatementBranches(
     return false;
   }
   rq::Expression &header = rq::dereferencePtr(last_ptr);
-  if (this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
     return false;
   }
   for (rq::Expression &branch : header.getNextSubrange()) {
@@ -1907,7 +1907,7 @@ bool Situator::situateStatementMultiVingetteStatementBranches(
     return false;
   }
   rq::Expression &header = rq::dereferencePtr(last_ptr);
-  if (this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
     return false;
   }
   for (rq::Expression &branch : header.getNextSubrange()) {
@@ -1933,31 +1933,13 @@ bool Situator::situateStatementMultiVingetteStatementBranches(
 }
 
 bool Situator::stiuateNameStatementBranches(rq::Situation situation,
-                                            rq::Expression &expression) {
+                                            rq::Expression &expression, rq::Situation name_situation) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (this->situateHeaderBranch(rq::Situation::NAME, branch0)) {
-    return false;
-  }
-  for (rq::Expression &branch : branch0.getNextSubrange()) {
-    if (!this->situateStatementBranch(branch)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool Situator::stiuateNamespaceStatementBranches(rq::Situation situation,
-                                                 rq::Expression &expression) {
-  if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
-    return false;
-  }
-  rq::Expression &branch0 = expression.getBranch();
-  if (this->situateHeaderBranch(rq::Situation::NAMESPACE, branch0)) {
+  if (!this->situateHeaderBranch(name_situation, branch0)) {
     return false;
   }
   for (rq::Expression &branch : branch0.getNextSubrange()) {

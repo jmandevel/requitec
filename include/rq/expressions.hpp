@@ -730,12 +730,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_synonym_of";
   case K::CAPTURE_OF:
     return "_capture_of";
-    return "_is_ok_of";
   case K::AS_EXTENSION:
     return "_as_extension";
   case K::AS_EXTENSION_OF:
     return "_as_extension_of";
-    return "_reverse_of";
   case K::INCREMENT:
     return "increment";
   case K::INCREMENT_OF:
@@ -846,13 +844,14 @@ enum class KeywordFlags : std::uint32_t {
   BINDING = rq::getBit(15),
   NAME = rq::getBit(16),
   NAMESPACE = rq::getBit(17),
-  ASCRIPTION = rq::getBit(18),
-  EXPRESSION_ATTRIBUTE = rq::getBit(19),
-  TYPE_ATTRIBUTE = rq::getBit(20),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(21),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(22),
+  FUNCTION_NAME = rq::getBit(18),
+  ASCRIPTION = rq::getBit(19),
+  EXPRESSION_ATTRIBUTE = rq::getBit(20),
+  TYPE_ATTRIBUTE = rq::getBit(21),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(22),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(23),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
-                   PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
+                   PARAMETER | BINDING | NAME | NAMESPACE | FUNCTION_NAME | ASCRIPTION |
                    TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
@@ -880,7 +879,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::IDENTIFIER_LITERAL:
     return KF::LITERAL | KF::INTERNAL | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER | KF::NAME |
-           KF::NAMESPACE;
+           KF::NAMESPACE | KF::FUNCTION_NAME;
 
   // ERRORS
   case K::ERROR:
@@ -889,7 +888,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT | KF::LVALUE | KF::NAME |
-           KF::NAMESPACE | KF::ARITHMETIC_SEQUENCE_STEP |
+           KF::NAMESPACE | KF::FUNCTION_NAME | KF::ARITHMETIC_SEQUENCE_STEP |
            KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
@@ -943,7 +942,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::IDENTIFY:
     return KF::REFLECTION | KF::ASCRIPTION;
   case K::IDENTIFY_OF:
-    return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE;
+    return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE | KF::FUNCTION_NAME;
   case K::FORK:
     return KF::NONE;
 
@@ -1095,7 +1094,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::LOCKED_PARAMETERS_BEGIN:
     return KF::PARAMETER;
   case K::NONAME:
-    return KF::NAME | KF::LVALUE;
+    return KF::NAME | KF::LVALUE | KF::FUNCTION_NAME;
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -1501,7 +1500,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::CONVERGING | KF::STATEMENT | KF::RVALUE | KF::LVALUE |
            KF::REFLECTION | KF::ARGUMENT | KF::PARAMETER |
            KF::ARITHMETIC_SEQUENCE_STEP | KF::ARITHMETIC_SEQUENCE_CONDITION |
-           KF::NAMESPACE;
+           KF::NAMESPACE | KF::FUNCTION_NAME;
   case K::MEMBER_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BAKE:
@@ -1584,36 +1583,36 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::AS_EXTENSION_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::INCREMENT:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::INCREMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::DECREMENT:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DECREMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::WHILST:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::WHILST_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::ELEMENT:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::ELEMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::AT:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::AT_OF:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::DESTROY:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
     return KF::STATEMENT;
   case K::FORWARD:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
     return KF::RVALUE | KF::ARGUMENT;
   case K::FORWARD_OF:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BACKWARD:
-    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::BACKWARD_OF:
   case K::IS_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
@@ -1779,6 +1778,7 @@ enum class Situation : std::uint_fast8_t {
   BINDING,
   NAME,
   NAMESPACE,
+  FUNCTION_NAME,
   ASCRIPTION,
   EXPRESSION_ATTRIBUTE_INSTANTIATION,
   TYPE_ATTRIBUTE_INSTANTIATION,
@@ -1812,6 +1812,8 @@ getDescription(rq::Situation situation) {
     return "name expression";
   case S::NAMESPACE:
     return "namespace expression";
+  case S::FUNCTION_NAME:
+    return "function name expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::EXPRESSION_ATTRIBUTE_INSTANTIATION:
@@ -2038,6 +2040,11 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::NAMESPACE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFunctionName(rq::Keyword keyword) {
+  const rq::KeywordFlags flags = rq::getFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordFlags::FUNCTION_NAME);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordFlags::ASCRIPTION);
@@ -2097,6 +2104,8 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeName(keyword);
   case rq::Situation::NAMESPACE:
     return rq::getCanBeNamespace(keyword);
+  case rq::Situation::FUNCTION_NAME:
+    return rq::getCanBeFunctionName(keyword);
   case rq::Situation::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION:
@@ -3324,6 +3333,9 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNamespace() const {
     return rq::getCanBeNamespace(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFunctionName() const {
+    return rq::getCanBeFunctionName(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());
