@@ -704,7 +704,8 @@ namespace rq {
 
   // BUILTIN PROCEDURES
   case S::MAIN:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE| SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
+           SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
 
   // POLYMORPH ITEM
   case S::CLASS_TYPE:
@@ -723,8 +724,7 @@ namespace rq {
            SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
   case S::FUNCTION:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
@@ -3475,8 +3475,8 @@ RQ_ALWAYS_INLINE
 Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
            rq::Expression &expression, rq::ExpressionFlags flags,
            rq::Module &module)
-    : GlobalDeclaration(rq::SymbolKind::MAIN, containing_table, {}, hosting_table,
-                       expression, nullptr, flags, module) {}
+    : GlobalDeclaration(rq::SymbolKind::MAIN, containing_table, {},
+                        hosting_table, expression, nullptr, flags, module) {}
 
 [[nodiscard]] inline bool Main::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3618,15 +3618,16 @@ Adapter::getInterfacePtr() const {
 
 RQ_ALWAYS_INLINE
 Function::Function(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-                     llvm::StringRef name, rq::SymbolTable &hosting_table,
-                     rq::Expression &expression,
-                     rq::Expression &name_expression, rq::ExpressionFlags flags,
-                     rq::Module &module, rq::Polymorph &polymorph,
-                     rq::Template *template_ptr,
-                     rq::TemplateArgument *first_argument_ptr)
+                   llvm::StringRef name, rq::SymbolTable &hosting_table,
+                   rq::Expression &expression, rq::Expression &name_expression,
+                   rq::ExpressionFlags flags, rq::Module &module,
+                   rq::Polymorph &polymorph, rq::Template *template_ptr,
+                   rq::TemplateArgument *first_argument_ptr,
+                   rq::Keyword name_keyword)
     : Instance(kind, containing_table, name, hosting_table, expression,
                &name_expression, flags, module, polymorph, template_ptr,
-               first_argument_ptr) {}
+               first_argument_ptr),
+      _name_keyword(name_keyword) {}
 
 RQ_ALWAYS_INLINE
 void Function::setSignature(rq::Signature &signature) {
@@ -3642,11 +3643,14 @@ Function::getSignaturePtr() const {
   return this->_signature_ptr;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword Function::getNameKeyword() const {
+  return this->_name_keyword;
+}
+
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::FUNCTION);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::FUNCTION);
 }
 
 RQ_ALWAYS_INLINE

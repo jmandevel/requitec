@@ -1927,18 +1927,20 @@ struct Function : public rq::Instance {
   using Self = rq::Function;
 
   rq::Signature *_signature_ptr{nullptr};
+  rq::Keyword _name_keyword;
 
   explicit RQ_ALWAYS_INLINE
   Function(rq::SymbolKind kind, rq::SymbolTable &containing_table,
            llvm::StringRef name, rq::SymbolTable &hosting_table,
            rq::Expression &expression, rq::Expression &name_expression,
            rq::ExpressionFlags flags, rq::Module &module,
-           rq::Polymorph &polymorph, rq::Template *template_ptr,
-           rq::TemplateArgument *first_argument_ptr);
+           rq::Polymorph &polymorph, rq::Template *template_ptr, 
+           rq::TemplateArgument *first_argument_ptr, rq::Keyword name_keyword);
 
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getNameKeyword() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
