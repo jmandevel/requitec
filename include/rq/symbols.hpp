@@ -61,22 +61,20 @@ enum class SymbolFlags : std::uint64_t {
   INSTANCE = rq::getBit(27),
   GLOBAL_VARIABLE = rq::getBit(28),
   RANGER = rq::getBit(29),
-  PROCEDURE = rq::getBit(30),
-  TEMPLATE = rq::getBit(31),
-  POLYMORPH = rq::getBit(32),
+  TEMPLATE = rq::getBit(30),
+  POLYMORPH = rq::getBit(31),
 
   // SYMBOL DETAILS
-  IS_TYPE = rq::getBit(33),
-  IS_SIGNED_TYPE = rq::getBit(34),
-  IS_UNSIGNED_TYPE = rq::getBit(35),
-  IS_INTEGER_TYPE = rq::getBit(36),
-  IS_FLOAT_TYPE = rq::getBit(37),
-  IS_BINARY_TYPE = rq::getBit(38),
-  IS_BFLOAT_TYPE = rq::getBit(39),
-  IS_CODEUNIT_TYPE = rq::getBit(40),
-  HAS_EXPRESSION_ATTRIBUTES = rq::getBit(41),
-  IS_FRAME = rq::getBit(42),
-  IS_PROCEDURE_RELATED = rq::getBit(43)
+  IS_TYPE = rq::getBit(32),
+  IS_SIGNED_TYPE = rq::getBit(33),
+  IS_UNSIGNED_TYPE = rq::getBit(34),
+  IS_INTEGER_TYPE = rq::getBit(35),
+  IS_FLOAT_TYPE = rq::getBit(36),
+  IS_BINARY_TYPE = rq::getBit(37),
+  IS_BFLOAT_TYPE = rq::getBit(38),
+  IS_CODEUNIT_TYPE = rq::getBit(39),
+  HAS_EXPRESSION_ATTRIBUTES = rq::getBit(40),
+  IS_FRAME = rq::getBit(41),
 };
 
 template <> struct is_flags<rq::SymbolFlags> final : std::true_type {};
@@ -122,7 +120,6 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
@@ -137,13 +134,6 @@ getIsSymbolParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getHasExpressionAttributes(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedurePolymorph(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedureWeightLevel(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureInstance(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureTemplate(rq::SymbolKind kind);
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] consteval rq::SymbolKind getInstanceKind() {
@@ -175,29 +165,14 @@ template <rq::SymbolKind KIND_PARAM>
                        KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
                        KIND == S::GLOBAL_STATIC_VARIABLE) {
     return S::GLOBAL_STATIC_VARIABLE;
-  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::FORWARD_RANGER_TEMPLATE ||
-                       KIND == S::FORWARD_RANGER_POLYMORPH ||
-                       KIND == S::FORWARD_RANGER) {
-    return S::FORWARD_RANGER;
-  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
-                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
-                       KIND == S::BACKWARD_RANGER) {
-    return S::BACKWARD_RANGER;
   } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
                        KIND == S::FUNCTION_TEMPLATE ||
                        KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
     return S::FUNCTION;
-  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
-                       KIND == S::METHOD_TEMPLATE ||
-                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
-    return S::METHOD;
-  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
-                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
-                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
-                       KIND == S::EXTENSION_METHOD) {
-    return S::EXTENSION_METHOD;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION;
   } else {
     static_assert(false);
     return S::NONE;
@@ -234,29 +209,14 @@ template <rq::SymbolKind KIND_PARAM>
                        KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
                        KIND == S::GLOBAL_STATIC_VARIABLE) {
     return S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL;
-  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::FORWARD_RANGER_TEMPLATE ||
-                       KIND == S::FORWARD_RANGER_POLYMORPH ||
-                       KIND == S::FORWARD_RANGER) {
-    return S::FORWARD_RANGER_WEIGHT_LEVEL;
-  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
-                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
-                       KIND == S::BACKWARD_RANGER) {
-    return S::BACKWARD_RANGER_WEIGHT_LEVEL;
   } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
                        KIND == S::FUNCTION_TEMPLATE ||
                        KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
     return S::FUNCTION_WEIGHT_LEVEL;
-  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
-                       KIND == S::METHOD_TEMPLATE ||
-                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
-    return S::METHOD_WEIGHT_LEVEL;
-  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
-                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
-                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
-                       KIND == S::EXTENSION_METHOD) {
-    return S::EXTENSION_METHOD_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_WEIGHT_LEVEL;
   } else {
     static_assert(false);
     return S::NONE;
@@ -293,29 +253,14 @@ template <rq::SymbolKind KIND_PARAM>
                        KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
                        KIND == S::GLOBAL_STATIC_VARIABLE) {
     return S::GLOBAL_STATIC_VARIABLE_TEMPLATE;
-  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::FORWARD_RANGER_TEMPLATE ||
-                       KIND == S::FORWARD_RANGER_POLYMORPH ||
-                       KIND == S::FORWARD_RANGER) {
-    return S::FORWARD_RANGER_TEMPLATE;
-  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
-                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
-                       KIND == S::BACKWARD_RANGER) {
-    return S::BACKWARD_RANGER_TEMPLATE;
   } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
                        KIND == S::FUNCTION_TEMPLATE ||
                        KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
     return S::FUNCTION_TEMPLATE;
-  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
-                       KIND == S::METHOD_TEMPLATE ||
-                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
-    return S::METHOD_TEMPLATE;
-  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
-                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
-                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
-                       KIND == S::EXTENSION_METHOD) {
-    return S::EXTENSION_METHOD_TEMPLATE;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_TEMPLATE;
   } else {
     static_assert(false);
     return S::NONE;
@@ -351,29 +296,14 @@ template <rq::SymbolKind KIND>
                        KIND == S::GLOBAL_STATIC_VARIABLE_POLYMORPH ||
                        KIND == S::GLOBAL_STATIC_VARIABLE) {
     return S::GLOBAL_STATIC_VARIABLE_POLYMORPH;
-  } else if constexpr (KIND == S::FORWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::FORWARD_RANGER_TEMPLATE ||
-                       KIND == S::FORWARD_RANGER_POLYMORPH ||
-                       KIND == S::FORWARD_RANGER) {
-    return S::FORWARD_RANGER_POLYMORPH;
-  } else if constexpr (KIND == S::BACKWARD_RANGER_WEIGHT_LEVEL ||
-                       KIND == S::BACKWARD_RANGER_TEMPLATE ||
-                       KIND == S::BACKWARD_RANGER_POLYMORPH ||
-                       KIND == S::BACKWARD_RANGER) {
-    return S::BACKWARD_RANGER_POLYMORPH;
   } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
                        KIND == S::FUNCTION_TEMPLATE ||
                        KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
     return S::FUNCTION_POLYMORPH;
-  } else if constexpr (KIND == S::METHOD_WEIGHT_LEVEL ||
-                       KIND == S::METHOD_TEMPLATE ||
-                       KIND == S::METHOD_POLYMORPH || KIND == S::METHOD) {
-    return S::METHOD_POLYMORPH;
-  } else if constexpr (KIND == S::EXTENSION_METHOD_WEIGHT_LEVEL ||
-                       KIND == S::EXTENSION_METHOD_TEMPLATE ||
-                       KIND == S::EXTENSION_METHOD_POLYMORPH ||
-                       KIND == S::EXTENSION_METHOD) {
-    return S::EXTENSION_METHOD_POLYMORPH;
+  } else if constexpr (KIND == S::FUNCTION_WEIGHT_LEVEL ||
+                       KIND == S::FUNCTION_TEMPLATE ||
+                       KIND == S::FUNCTION_POLYMORPH || KIND == S::FUNCTION) {
+    return S::FUNCTION_POLYMORPH;
   } else {
     static_assert(false);
     return S::NONE;
@@ -433,20 +363,16 @@ struct Symbol;
     struct NamedTable;
       struct Namespace;
       struct GlobalDeclaration;
-        struct Destructor;
         struct Main;
         struct Instance;
           struct ClassType;
           struct EnumerationType;
           struct Interface;
           struct Adapter;
+          struct Function;
           struct GlobalVariable;
             struct GlobalDynamicVariable;
             struct GlobalStaticVariable;
-          struct Ranger;
-            template<rq::SymbolKind KIND_PARAM> struct DerivedRanger;
-          struct Procedure;
-            template<rq::SymbolKind KIND_PARAM> struct DerivedProcedure;
       struct Template;
         template<rq::SymbolKind KIND_PARAM> struct DerivedTemplate;
   struct Polymorph;
@@ -493,11 +419,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedurePolymorph() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureWeightLevel() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureInstance() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureTemplate() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -808,13 +729,14 @@ struct Import final : public rq::Symbol {
 struct Conformity final : public rq::Symbol {
   using Self = rq::Conformity;
 
-  rq::Interface* _interface_ptr;
-  rq::Symbol* _type_ptr;
+  rq::Interface *_interface_ptr;
+  rq::Symbol *_type_ptr;
 
-  explicit RQ_ALWAYS_INLINE Conformity(rq::Interface &interface, rq::Symbol &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface& getInterface() const;
+  explicit RQ_ALWAYS_INLINE Conformity(rq::Interface &interface,
+                                       rq::Symbol &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &getInterface() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &getInterface();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol & getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1538,11 +1460,11 @@ profileTupleType(llvm::FoldingSetNodeID &out_id,
 struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
   using Self = rq::PlacementType;
 
-  rq::Procedure *_procedure_ptr;
+  rq::Function *_function_ptr;
 
-  explicit RQ_ALWAYS_INLINE PlacementType(rq::Procedure &procedure);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &getProcedure() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &getProcedure();
+  explicit RQ_ALWAYS_INLINE PlacementType(rq::Function &function);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Function &getFunction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Function &getFunction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -1550,7 +1472,7 @@ struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
-                                       const rq::Procedure &procedure);
+                                       const rq::Function &function);
 
 // TODO composition factory
 
@@ -1896,24 +1818,8 @@ struct GlobalDeclaration : public rq::NamedTable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Destructor final : public rq::GlobalDeclaration {
-  using Self = rq::Destructor;
-
-  rq::Instruction *_instruction_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Destructor(rq::SymbolTable &containing_table,
-                                       rq::SymbolTable &hosting_table,
-                                       rq::Expression &expression,
-                                       rq::ExpressionFlags flags,
-                                       rq::Module &module);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
 struct Main final : public rq::GlobalDeclaration {
   using Self = rq::Main;
-
-  rq::Instruction *_instruction_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Main(rq::SymbolTable &containing_table,
                                  rq::SymbolTable &hosting_table,
@@ -2017,6 +1923,26 @@ struct Adapter final : public rq::Instance {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Function : public rq::Instance {
+  using Self = rq::Function;
+
+  rq::Signature *_signature_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE
+  Function(rq::SymbolKind kind, rq::SymbolTable &containing_table,
+           llvm::StringRef name, rq::SymbolTable &hosting_table,
+           rq::Expression &expression, rq::Expression &name_expression,
+           rq::ExpressionFlags flags, rq::Module &module,
+           rq::Polymorph &polymorph, rq::Template *template_ptr,
+           rq::TemplateArgument *first_argument_ptr);
+
+  RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct GlobalVariable : public rq::Instance {
   using Self = rq::GlobalVariable;
 
@@ -2082,101 +2008,6 @@ struct GlobalStaticVariable final : public rq::GlobalVariable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Ranger : public rq::Instance {
-  using Self = rq::Ranger;
-
-  rq::Expression *_reciever_type_expression_ptr;
-  rq::SymbolConstant *_reciever_type_ptr{nullptr};
-  rq::Expression *_element_type_expression_ptr;
-  rq::SymbolConstant *_element_type_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE
-  Ranger(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-         rq::SymbolTable &hosting_table, rq::Expression &expression,
-         rq::ExpressionFlags flags, rq::Module &module,
-         rq::Polymorph &polymorph, rq::Template *template_ptr,
-         rq::TemplateArgument *first_argument_ptr,
-         rq::Expression &reciever_type_expression,
-         rq::Expression &element_type_expression);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getRecieverTypeExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getRecieverTypeExpression();
-  RQ_ALWAYS_INLINE void setRecieverType(rq::SymbolConstant &reciever_type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-  getRecieverTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getRecieverTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-  getElementTypeExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getElementTypeExpression();
-  RQ_ALWAYS_INLINE void setElementType(rq::SymbolConstant &element);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-  getElementTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *getElementTypePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedRanger final : public rq::Ranger {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedRanger<KIND>;
-
-  explicit RQ_ALWAYS_INLINE
-  DerivedRanger(rq::SymbolTable &containing_table,
-                rq::SymbolTable &hosting_table, rq::Expression &expression,
-                rq::ExpressionFlags flags, rq::Module &module,
-                rq::Polymorph &polymorph, rq::Template *template_ptr,
-                rq::TemplateArgument *first_argument_ptr,
-                rq::Expression &reciever_type_expression,
-                rq::Expression &element_type_expression);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-using ForwardRanger = rq::DerivedRanger<rq::SymbolKind::FORWARD_RANGER>;
-using BackwardRanger = rq::DerivedRanger<rq::SymbolKind::BACKWARD_RANGER>;
-
-struct Procedure : public rq::Instance {
-  using Self = rq::Procedure;
-
-  rq::Signature *_signature_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE
-  Procedure(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-            llvm::StringRef name, rq::SymbolTable &hosting_table,
-            rq::Expression &expression, rq::Expression &name_expression,
-            rq::ExpressionFlags flags, rq::Module &module,
-            rq::Polymorph &polymorph, rq::Template *template_ptr,
-            rq::TemplateArgument *first_argument_ptr);
-
-  RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedProcedure final : public rq::Procedure {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = DerivedProcedure<KIND>;
-
-  explicit RQ_ALWAYS_INLINE
-  DerivedProcedure(rq::SymbolTable &containing_table, llvm::StringRef name,
-                   rq::SymbolTable &hosting_table, rq::Expression &expression,
-                   rq::Expression &name_expression, rq::ExpressionFlags flags,
-                   rq::Module &module, rq::Polymorph &polymorph,
-                   rq::Template *template_ptr,
-                   rq::TemplateArgument *first_argument_ptr);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-using Function = rq::DerivedProcedure<rq::SymbolKind::FUNCTION>;
-using Method = rq::DerivedProcedure<rq::SymbolKind::METHOD>;
-using ExtensionMethod = rq::DerivedProcedure<rq::SymbolKind::EXTENSION_METHOD>;
-
 template <rq::SymbolKind KIND_PARAM> struct derived_instance final {
   static_assert(false);
 };
@@ -2207,24 +2038,8 @@ struct derived_instance<rq::SymbolKind::GLOBAL_STATIC_VARIABLE> final {
   using Type = rq::GlobalStaticVariable;
 };
 
-template <> struct derived_instance<rq::SymbolKind::FORWARD_RANGER> final {
-  using Type = rq::ForwardRanger;
-};
-
-template <> struct derived_instance<rq::SymbolKind::BACKWARD_RANGER> final {
-  using Type = rq::BackwardRanger;
-};
-
 template <> struct derived_instance<rq::SymbolKind::FUNCTION> final {
   using Type = rq::Function;
-};
-
-template <> struct derived_instance<rq::SymbolKind::METHOD> final {
-  using Type = rq::Method;
-};
-
-template <> struct derived_instance<rq::SymbolKind::EXTENSION_METHOD> final {
-  using Type = rq::ExtensionMethod;
 };
 
 template <rq::SymbolKind KIND_PARAM>
@@ -2314,14 +2129,7 @@ using InterfaceTemplate =
 using AdapterTemplate = rq::DerivedTemplate<rq::SymbolKind::ADAPTER_TEMPLATE>;
 using GlobalDynamicVariableTemplate =
     rq::DerivedTemplate<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE>;
-using ForwardRangerTemplate =
-    rq::DerivedTemplate<rq::SymbolKind::FORWARD_RANGER_TEMPLATE>;
-using BackwardRangerTemplate =
-    rq::DerivedTemplate<rq::SymbolKind::BACKWARD_RANGER_TEMPLATE>;
 using FunctionTemplate = rq::DerivedTemplate<rq::SymbolKind::FUNCTION_TEMPLATE>;
-using MethodTemplate = rq::DerivedTemplate<rq::SymbolKind::METHOD_TEMPLATE>;
-using ExtensionMethodTemplate =
-    rq::DerivedTemplate<rq::SymbolKind::EXTENSION_METHOD_TEMPLATE>;
 
 struct WeightLevel : rq::Symbol {
   using Self = rq::WeightLevel;
@@ -2387,16 +2195,8 @@ using AdapterWeightLevel =
     rq::DerivedWeightLevel<rq::SymbolKind::ADAPTER_WEIGHT_LEVEL>;
 using GlobalDynamicVariableWeightLevel = rq::DerivedWeightLevel<
     rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL>;
-using ForwardRangerWeightLevel =
-    rq::DerivedWeightLevel<rq::SymbolKind::FORWARD_RANGER_WEIGHT_LEVEL>;
-using BackwardRangerWeightLevel =
-    rq::DerivedWeightLevel<rq::SymbolKind::BACKWARD_RANGER>;
 using FunctionWeightLevel =
     rq::DerivedWeightLevel<rq::SymbolKind::FUNCTION_WEIGHT_LEVEL>;
-using MethodWeightLevel =
-    rq::DerivedWeightLevel<rq::SymbolKind::METHOD_WEIGHT_LEVEL>;
-using ExtensionMethodWeightLevel =
-    rq::DerivedWeightLevel<rq::SymbolKind::EXTENSION_METHOD_WEIGHT_LEVEL>;
 
 struct Polymorph : public rq::Symbol {
   using Self = rq::Polymorph;
@@ -2481,26 +2281,13 @@ struct DerivedPolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-using ForwardRangerPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::FORWARD_RANGER_POLYMORPH>;
-using BackwardRangerPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::BACKWARD_RANGER_POLYMORPH>;
 using FunctionPolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::FUNCTION_POLYMORPH>;
-using MethodPolymorph = rq::DerivedPolymorph<rq::SymbolKind::METHOD_POLYMORPH>;
-using ExtensionMethodPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::EXTENSION_METHOD_POLYMORPH>;
 using ClassPolymorph = rq::DerivedPolymorph<rq::SymbolKind::CLASS_POLYMORPH>;
 using EnumerationPolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::ENUMERATION_POLYMORPH>;
 using InterfacePolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::INTERFACE_POLYMORPH>;
-using AdapterPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::ADAPTER_POLYMORPH>;
-using GlobalDynamicVariablePolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH>;
-using GlobalStaticVariablePolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::GLOBAL_STATIC_VARIABLE_POLYMORPH>;
 
 } // namespace rq
 

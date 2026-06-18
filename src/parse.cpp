@@ -666,7 +666,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::INITIALIZE_RECIEVER);
+        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_EXTENSION);
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
@@ -752,7 +752,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
-                                          rq::Keyword::INITIALIZE_RECIEVER);
+                                          rq::Keyword::INSTANTIATE_EXTENSION);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);

@@ -109,7 +109,6 @@ struct Evaluator final {
                            rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
-  void evaluate(rq::Destructor &destructor);
   void evaluate(rq::Main &main);
   void evaluate(rq::ClassType &class_);
   void evaluate(rq::EnumerationType &enum_);
@@ -117,11 +116,7 @@ struct Evaluator final {
   void evaluate(rq::Adapter &adapter);
   void evaluate(rq::GlobalDynamicVariable &var);
   void evaluate(rq::GlobalStaticVariable &var);
-  void evaluate(rq::ForwardRanger &ranger);
-  void evaluate(rq::BackwardRanger &ranger);
   void evaluate(rq::Function &func);
-  void evaluate(rq::Method &meth);
-  void evaluate(rq::ExtensionMethod &meth);
 
   [[nodiscard]] rq::StaticRvalue
   evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,

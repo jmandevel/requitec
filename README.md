@@ -26,7 +26,7 @@ Requite is a programming language that is designed to fill the same niche as C++
     * Low multiplicity
     * Lots of keywords
     * No reserved words
-    * Extension methods
+    * Extension functions
     * Named and positional function arguments
     * Deductive type inferencing
     * Consistent left-to-right associativity

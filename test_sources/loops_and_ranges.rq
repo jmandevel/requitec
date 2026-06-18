@@ -1,20 +1,26 @@
 [import "std"];
 
-[template]::{> variability:[var_attribute] <}
-[ranger]::$\variability[fast_signed_integer 32]
+[template]::{> element_variability:[var_attribute] <}
+[ranger]
 [class MyClassRanger,
-    { data:$10#[fast_signed_integer 32] <,| index:[unsigned_index]=0 },
+    { data:$\element_variability#[fast_signed_integer 32] ,index:[unsigned_index]=0 <},
 
-    [do
+    [function [increment], ()[void]=>$\[var],
         [this].index = [this].index + 1;
     ];
 
-    [whilst
+    [function [decrement], ()[void]=>$\[var],
+        [this].index = [this].index - 1;
+    ];
+
+    [function [whilst], ()[boolean]=>$,
         [result] := [this].index < [this].data.[element_count];
     ];
 
-    [element
-        [result] := [this].data.[at [this].index].[borrow];
+    [template]::{> return_variability:[var_attribute] <}
+    [constraint]::return_variability >= element_variability 
+    [function [element], ()$\return_variability[fast_signed_integer 32]=>$\return_variability,
+        [result] := [this].data.\return_variability[borrow].[at [this].index].\return_variability[borrow];
     ];
 ];
 
@@ -24,26 +30,13 @@
     <},
 
     [template]::{> variability:[var_attribute] <}
-    [forward_range $\variability[fast_signed_integer]..$\variability,
-        [result] := MyClassRanger{variability}( [this].data.[borrow] );
-    ];
-];
-
-[template]::{> variability:[var_attribute] <}
-[ranger]::$\variability[fast_signed_integer 32]
-[class MyClassReverseBackwardRanger,
-    { data:$10#[fast_signed_integer 32] <,|  index:[unsigned_index]=9 },
-
-    [do
-        [this].index = [this].index - 1;
+    [function [forward], ()MyClassRanger{variability}=>$\variability,
+        [result] := MyClassRanger( [this].data.\variability[borrow] , 0);
     ];
 
-    [whilst
-        [result] := [this].index < [this].data.[element_count];
-    ];
-
-    [element
-        [result] := [this].data.[at [this].index].[borrow];
+    [template]::{> variability:[var_attribute] <}
+    [function [backward], ()MyClassRanger{variability}=>$\variability,
+        [result] := MyClassRanger( [this].data.\variability[borrow] , 9);
     ];
 ];
 
@@ -53,8 +46,13 @@
     <},
 
     [template]::{> variability:[var_attribute] <}
-    [backward_range $\variability[fast_signed_integer]..$\variability,
-        [result] := MyClassReverseBackwardRanger{variability}( [this].data.[borrow] );
+    [function [forward], ()MyClassRanger{variability}=>&\variability,
+        [result] := MyClassRanger( [this].data.\variability[borrow] , 0);
+    ];
+
+    [template]::{> variability:[var_attribute] <}
+    [function [backward], ()MyClassRanger{variability}=>&\variability,
+        [result] := MyClassRanger( [this].data.\variability[borrow] , 9);
     ];
 ];
 
@@ -87,19 +85,19 @@
     ];
 
     // array element range
-    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow], value:=[value],     
+    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow].[forward], value:=[value],     
         std.print(line="value is " +> value);
     ];
 
     // forward ranger range
     class := MyClass();
-    [for class.[borrow], value:=[value], 
+    [for class.[borrow].[forward], value:=[value], 
         std.print(line="value is " +> value);
     ];
 
     // backward ranger range
     reverse_class := MyReverseClass();
-    [for reverse_class.[borrow].[reverse], value:=[value],
+    [for reverse_class.[borrow].[backward], value:=[value],
         std.print(line="value is " +> value);
     ];
 

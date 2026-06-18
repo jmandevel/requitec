@@ -6,7 +6,7 @@
 [no_stable_address]
 [class MyPinned,];
 
-[method takeReciever, ()[void]=>MyPinned,
+[function takeReciever, ()[void]=>MyPinned,
 
 ];
 
@@ -34,7 +34,7 @@
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address attribute
   pinned.[take]->takeReciever(); // taking is fine, because memory address is not changed.
   // both .[move] and .[take] invalidate the variable moved or taken from
-  // .[take] is like a .[move] but passed as an arg or extended by a method. memory address is not garunteed to change (but it might).
+  // .[take] is like a .[move] but passed as an arg or extended by a function. memory address is not garunteed to change (but it might).
   // .[move] is only for assigning directly to a variable, where memory address is garunteed to change.
   takeArg(MyPinned().[take]); // can also take into arg
   // when a function takes something not borrowed, it can be copied or taken.

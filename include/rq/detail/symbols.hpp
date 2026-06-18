@@ -197,16 +197,8 @@ namespace rq {
     return "GlobalDynamicVariableWeightLevel";
   case S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL:
     return "GlobalStaticVariableWeightLevel";
-  case S::FORWARD_RANGER_WEIGHT_LEVEL:
-    return "ForwardRangerWeightLevel";
-  case S::BACKWARD_RANGER_WEIGHT_LEVEL:
-    return "BackwardRangerWeightLevel";
   case S::FUNCTION_WEIGHT_LEVEL:
     return "FunctionWeightLevel";
-  case S::METHOD_WEIGHT_LEVEL:
-    return "MethodWeightLevel";
-  case S::EXTENSION_METHOD_WEIGHT_LEVEL:
-    return "ExtensionMethodWeightLevel";
 
   // JUXTAPOSITIONAL LIST
   case S::JUXTAPOSITIONAL_LIST_ITEM:
@@ -315,6 +307,8 @@ namespace rq {
     return "Namespace";
 
   // GLOBAL DECLARATION
+  case S::MAIN:
+    return "Main";
   case S::CLASS_TYPE:
     return "ClassType";
   case S::ENUMERATION_TYPE:
@@ -323,32 +317,14 @@ namespace rq {
     return "Interface";
   case S::ADAPTER:
     return "Adapter";
+  case S::FUNCTION:
+    return "Function";
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
     return "GlobalDynamicVariable";
   case S::GLOBAL_STATIC_VARIABLE:
     return "GlobalStaticVariable";
-
-  // CALLABLE
-  case S::DESTRUCTOR:
-    return "Destructor";
-  case S::MAIN:
-    return "Main";
-
-  // RANGERS
-  case S::FORWARD_RANGER:
-    return "ForwardRanger";
-  case S::BACKWARD_RANGER:
-    return "BackwardRanger";
-
-  // PROCEDURES
-  case S::FUNCTION:
-    return "Function";
-  case S::METHOD:
-    return "Method";
-  case S::EXTENSION_METHOD:
-    return "ExtensionMethod";
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
@@ -363,28 +339,12 @@ namespace rq {
     return "GlobalDynamicVariableTemplate";
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
     return "GlobalStaticVariableTemplate";
-  case S::FORWARD_RANGER_TEMPLATE:
-    return "ForwardRangerTemplate";
-  case S::BACKWARD_RANGER_TEMPLATE:
-    return "BackwardRangerTemplate";
   case S::FUNCTION_TEMPLATE:
     return "FunctionTemplate";
-  case S::METHOD_TEMPLATE:
-    return "MethodTemplate";
-  case S::EXTENSION_METHOD_TEMPLATE:
-    return "ExtensionMethodTemplate";
 
   // POLYMORPHS
-  case S::FORWARD_RANGER_POLYMORPH:
-    return "ForwardRangerPolymorph";
-  case S::BACKWARD_RANGER_POLYMORPH:
-    return "BackwardRangerPolymorph";
   case S::FUNCTION_POLYMORPH:
     return "FunctionPolymorph";
-  case S::METHOD_POLYMORPH:
-    return "MethodPolymorph";
-  case S::EXTENSION_METHOD_POLYMORPH:
-    return "ExtensionMethodPolymorph";
   case S::CLASS_POLYMORPH:
     return "ClassPolymorph";
   case S::ENUMERATION_POLYMORPH:
@@ -618,15 +578,7 @@ namespace rq {
     return SF::WEIGHT_LEVEL;
   case S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL:
     return SF::WEIGHT_LEVEL;
-  case S::FORWARD_RANGER_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
-  case S::BACKWARD_RANGER_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
   case S::FUNCTION_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
-  case S::METHOD_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
-  case S::EXTENSION_METHOD_WEIGHT_LEVEL:
     return SF::WEIGHT_LEVEL;
 
   // JUXTAPOSITIONAL LIST
@@ -750,13 +702,9 @@ namespace rq {
   case S::NAMESPACE:
     return SF::NAMED_TABLE | SF::SYMBOL_TABLE | SF::IS_FRAME;
 
-  // GLOBAL DECLARATION
-  case S::DESTRUCTOR:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+  // BUILTIN PROCEDURES
   case S::MAIN:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE |
-           SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::SYMBOL_TABLE| SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
 
   // POLYMORPH ITEM
   case S::CLASS_TYPE:
@@ -773,6 +721,10 @@ namespace rq {
   case S::ADAPTER:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+  case S::FUNCTION:
+    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
+           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::IS_FRAME;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
@@ -783,30 +735,6 @@ namespace rq {
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
            SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
-
-  // RANGERS
-  case S::FORWARD_RANGER:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
-  case S::BACKWARD_RANGER:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::RANGER | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
-
-  // PROCEDURES
-  case S::FUNCTION:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
-  case S::METHOD:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
-  case S::EXTENSION_METHOD:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::PROCEDURE | SF::HAS_EXPRESSION_ATTRIBUTES |
-           SF::IS_FRAME;
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
@@ -827,32 +755,12 @@ namespace rq {
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::FORWARD_RANGER_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::BACKWARD_RANGER_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
   case S::FUNCTION_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::METHOD_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
-  case S::EXTENSION_METHOD_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
            SF::HAS_EXPRESSION_ATTRIBUTES;
 
   // POLYMORPHS
-  case S::FORWARD_RANGER_POLYMORPH:
-    return SF::POLYMORPH;
-  case S::BACKWARD_RANGER_POLYMORPH:
-    return SF::POLYMORPH;
   case S::FUNCTION_POLYMORPH:
-    return SF::POLYMORPH;
-  case S::METHOD_POLYMORPH:
-    return SF::POLYMORPH;
-  case S::EXTENSION_METHOD_POLYMORPH:
     return SF::POLYMORPH;
   case S::CLASS_POLYMORPH:
     return SF::POLYMORPH;
@@ -914,7 +822,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
     return EF::ANCHOR | EF::STATIC;
   case S::CLASS_TYPE:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::PACK |
-           EF::DEPRECIATE | EF::EXPERIMENTAL | EF::STABLE_ADDRESS;
+           EF::DEPRECIATE | EF::EXPERIMENTAL | EF::STABLE_ADDRESS | EF::RANGER;
   case S::ENUMERATION_TYPE:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
@@ -930,19 +838,9 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   case S::GLOBAL_STATIC_VARIABLE:
     return EF::GLOBAL | EF::EXPORT | EF::STATIC | EF::CAPTURE | EF::DEPRECIATE |
            EF::EXPERIMENTAL;
-  case S::FORWARD_RANGER:
-    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
-  case S::BACKWARD_RANGER:
-    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
-  case S::DESTRUCTOR:
-    return EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL;
   case S::MAIN:
     return EF::CAPTURE | EF::MANGLE;
   case S::FUNCTION:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::MANGLE;
-  case S::METHOD:
-    return EF::OPAQUE | EF::PUBLIC | EF::CAPTURE | EF::INLINE | EF::MANGLE;
-  case S::EXTENSION_METHOD:
     return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::MANGLE;
   case S::CLASS_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::PACK | EF::DEPRECIATE |
@@ -959,19 +857,7 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
            EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::FORWARD_RANGER_TEMPLATE:
-    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::BACKWARD_RANGER_TEMPLATE:
-    return EF::PUBLIC | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
   case S::FUNCTION_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::METHOD_TEMPLATE:
-    return EF::PUBLIC | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::EXTENSION_METHOD_TEMPLATE:
     return EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
            EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
 
@@ -1146,11 +1032,6 @@ getIsGlobalDeclaration(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::RANGER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedure(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::PROCEDURE);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::TEMPLATE);
@@ -1211,39 +1092,6 @@ getHasExpressionAttributes(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::SymbolFlags::IS_FRAME);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureRelated(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedurePolymorph(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
-                                  rq::SymbolFlags::POLYMORPH);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedureWeightLevel(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
-                                  rq::SymbolFlags::WEIGHT_LEVEL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedureInstance(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
-                                  rq::SymbolFlags::INSTANCE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedureTemplate(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_PROCEDURE_RELATED |
-                                  rq::SymbolFlags::TEMPLATE);
 }
 
 RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
@@ -1431,26 +1279,6 @@ Symbol::getIsExpressionAttributeType() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrame() const {
   return rq::getIsFrame(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureRelated() const {
-  return rq::getIsProcedureRelated(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedurePolymorph() const {
-  return rq::getIsProcedurePolymorph(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureWeightLevel() const {
-  return rq::getIsProcedureWeightLevel(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureInstance() const {
-  return rq::getIsProcedureInstance(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsProcedureTemplate() const {
-  return rq::getIsProcedureTemplate(this->getKind());
 }
 
 [[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
@@ -3187,16 +3015,16 @@ profileTupleType(llvm::FoldingSetNodeID &out_id,
   out_id.AddPointer(first_parameter_ptr);
 }
 
-RQ_ALWAYS_INLINE PlacementType::PlacementType(rq::Procedure &procedure)
-    : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _procedure_ptr(&procedure) {}
+RQ_ALWAYS_INLINE PlacementType::PlacementType(rq::Function &function)
+    : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _function_ptr(&function) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Procedure &
-PlacementType::getProcedure() const {
-  return rq::dereferencePtr(this->_procedure_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Function &
+PlacementType::getFunction() const {
+  return rq::dereferencePtr(this->_function_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Procedure &PlacementType::getProcedure() {
-  return rq::dereferencePtr(this->_procedure_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Function &PlacementType::getFunction() {
+  return rq::dereferencePtr(this->_function_ptr);
 }
 
 [[nodiscard]] inline bool PlacementType::classof(const rq::Entity *entity_ptr) {
@@ -3207,12 +3035,12 @@ PlacementType::getProcedure() const {
 }
 
 inline void PlacementType::Profile(llvm::FoldingSetNodeID &out_id) const {
-  rq::profilePlacement(out_id, this->getProcedure());
+  rq::profilePlacement(out_id, this->getFunction());
 }
 
 RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &out_id,
-                                       const rq::Procedure &procedure) {
-  out_id.AddPointer(&procedure);
+                                       const rq::Function &function) {
+  out_id.AddPointer(&function);
 }
 
 RQ_ALWAYS_INLINE
@@ -3643,27 +3471,12 @@ GlobalDeclaration::classof(const rq::Entity *entity_ptr) {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE Destructor::Destructor(rq::SymbolTable &containing_table,
-                                        rq::SymbolTable &hosting_table,
-                                        rq::Expression &expression,
-                                        rq::ExpressionFlags flags,
-                                        rq::Module &module)
-    : GlobalDeclaration(rq::SymbolKind::DESTRUCTOR, containing_table, {},
-                        hosting_table, expression, nullptr, flags, module) {}
-
-[[nodiscard]] inline bool Destructor::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id ==
-         rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::DESTRUCTOR);
-}
-
 RQ_ALWAYS_INLINE
 Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
            rq::Expression &expression, rq::ExpressionFlags flags,
            rq::Module &module)
-    : GlobalDeclaration(rq::SymbolKind::DESTRUCTOR, containing_table, {},
-                        hosting_table, expression, nullptr, flags, module) {}
+    : GlobalDeclaration(rq::SymbolKind::MAIN, containing_table, {}, hosting_table,
+                       expression, nullptr, flags, module) {}
 
 [[nodiscard]] inline bool Main::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3804,6 +3617,39 @@ Adapter::getInterfacePtr() const {
 }
 
 RQ_ALWAYS_INLINE
+Function::Function(rq::SymbolKind kind, rq::SymbolTable &containing_table,
+                     llvm::StringRef name, rq::SymbolTable &hosting_table,
+                     rq::Expression &expression,
+                     rq::Expression &name_expression, rq::ExpressionFlags flags,
+                     rq::Module &module, rq::Polymorph &polymorph,
+                     rq::Template *template_ptr,
+                     rq::TemplateArgument *first_argument_ptr)
+    : Instance(kind, containing_table, name, hosting_table, expression,
+               &name_expression, flags, module, polymorph, template_ptr,
+               first_argument_ptr) {}
+
+RQ_ALWAYS_INLINE
+void Function::setSignature(rq::Signature &signature) {
+  rq::assignSingleValue(this->_signature_ptr, &signature);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *
+Function::getSignaturePtr() const {
+  return this->_signature_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *Function::getSignaturePtr() {
+  return this->_signature_ptr;
+}
+
+[[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET +
+                   rq::getUnderlying(rq::SymbolKind::FUNCTION);
+}
+
+RQ_ALWAYS_INLINE
 GlobalVariable::GlobalVariable(
     rq::SymbolKind kind, rq::SymbolTable &containing_table,
     llvm::StringRef name, rq::SymbolTable &hosting_table,
@@ -3919,155 +3765,6 @@ GlobalStaticVariable::classof(const rq::Entity *entity_ptr) {
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
                    rq::getUnderlying(rq::SymbolKind::GLOBAL_STATIC_VARIABLE);
-}
-
-RQ_ALWAYS_INLINE
-Ranger::Ranger(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-               rq::SymbolTable &hosting_table, rq::Expression &expression,
-               rq::ExpressionFlags flags, rq::Module &module,
-               rq::Polymorph &polymorph, rq::Template *template_ptr,
-               rq::TemplateArgument *first_argument_ptr,
-               rq::Expression &reciever_type_expression,
-               rq::Expression &element_type_expression)
-    : Instance(kind, containing_table, {}, hosting_table, expression, nullptr,
-               flags, module, polymorph, template_ptr, first_argument_ptr),
-      _reciever_type_expression_ptr(&reciever_type_expression),
-      _element_type_expression_ptr(&element_type_expression) {
-  RQ_ASSERT(rq::getIsRanger(kind), "not ranger");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-Ranger::getRecieverTypeExpression() const {
-  return rq::dereferencePtr(this->_reciever_type_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-Ranger::getRecieverTypeExpression() {
-  return rq::dereferencePtr(this->_reciever_type_expression_ptr);
-}
-
-RQ_ALWAYS_INLINE void
-Ranger::setRecieverType(rq::SymbolConstant &reciever_type) {
-  rq::assignSingleValue(this->_reciever_type_ptr, &reciever_type);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-Ranger::getRecieverTypePtr() const {
-  return this->_reciever_type_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *
-Ranger::getRecieverTypePtr() {
-  return this->_reciever_type_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-Ranger::getElementTypeExpression() const {
-  return rq::dereferencePtr(this->_element_type_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
-Ranger::getElementTypeExpression() {
-  return rq::dereferencePtr(this->_element_type_expression_ptr);
-}
-
-RQ_ALWAYS_INLINE void Ranger::setElementType(rq::SymbolConstant &element) {
-  rq::assignSingleValue(this->_element_type_ptr, &element);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant *
-Ranger::getElementTypePtr() const {
-  return this->_element_type_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant *Ranger::getElementTypePtr() {
-  return this->_element_type_ptr;
-}
-
-[[nodiscard]] inline bool Ranger::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsRanger(static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-template <rq::SymbolKind KIND_PARAM>
-RQ_ALWAYS_INLINE DerivedRanger<KIND_PARAM>::DerivedRanger(
-    rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
-    rq::Expression &expression, rq::ExpressionFlags flags, rq::Module &module,
-    rq::Polymorph &polymorph, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr,
-    rq::Expression &reciever_type_expression,
-    rq::Expression &element_type_expression)
-    : Ranger(KIND_PARAM, containing_table, hosting_table, expression, flags,
-             module, polymorph, template_ptr, first_argument_ptr,
-             reciever_type_expression, element_type_expression) {}
-
-template <rq::SymbolKind KIND_PARAM>
-[[nodiscard]] inline bool
-DerivedRanger<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
-}
-
-RQ_ALWAYS_INLINE
-Procedure::Procedure(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-                     llvm::StringRef name, rq::SymbolTable &hosting_table,
-                     rq::Expression &expression,
-                     rq::Expression &name_expression, rq::ExpressionFlags flags,
-                     rq::Module &module, rq::Polymorph &polymorph,
-                     rq::Template *template_ptr,
-                     rq::TemplateArgument *first_argument_ptr)
-    : Instance(kind, containing_table, name, hosting_table, expression,
-               &name_expression, flags, module, polymorph, template_ptr,
-               first_argument_ptr) {
-  RQ_ASSERT(rq::getIsProcedure(kind), "not procedure");
-}
-
-RQ_ALWAYS_INLINE
-void Procedure::setSignature(rq::Signature &signature) {
-  rq::assignSingleValue(this->_signature_ptr, &signature);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *
-Procedure::getSignaturePtr() const {
-  return this->_signature_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *Procedure::getSignaturePtr() {
-  return this->_signature_ptr;
-}
-
-[[nodiscard]] inline bool Procedure::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::EntityId id = entity.getId();
-  return rq::getIsProcedure(
-      static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
-}
-
-template <rq::SymbolKind KIND_PARAM>
-RQ_ALWAYS_INLINE DerivedProcedure<KIND_PARAM>::DerivedProcedure(
-    rq::SymbolTable &containing_table, llvm::StringRef name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::ExpressionFlags flags,
-    rq::Module &module, rq::Polymorph &polymorph, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr)
-    : Procedure(KIND_PARAM, containing_table, name, hosting_table, expression,
-                name_expression, flags, module, polymorph, template_ptr,
-                first_argument_ptr) {}
-
-template <rq::SymbolKind KIND_PARAM>
-[[nodiscard]] inline bool
-DerivedProcedure<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE

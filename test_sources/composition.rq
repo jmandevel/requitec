@@ -1,7 +1,7 @@
 [import "std"];
 
 [interface ISpeak,
-    [method speak, ()[void]=>,
+    [function speak, ()[void]=>,
         std.print(line="I don't speak.");
     ];
 ];
@@ -11,19 +11,19 @@
 [class Cat];
 
 [class Rat,
-    [method squeak, ()[void]=>,
+    [function squeak, ()[void]=>,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter ASpeak, ISpeak=>Dog,
-    [method speak, ()[void]=>,
+    [function speak, ()[void]=>,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter ASpeak, ISpeak=>Cat,
-    [method speak, ()[void]=>,
+    [function speak, ()[void]=>,
         std.print(line="Meow!");
     ];
 ];
@@ -33,13 +33,13 @@
 ];
 
 [interface IGreet,
-    [method greet, ()[void]=>,
+    [function greet, ()[void]=>,
         std.print(line="I don't greet.");
     ];
 ];
 
 [adapter AGreet, IGreet=>Dog,
-    [method greet, ()[void]=>,
+    [function greet, ()[void]=>,
         std.print(line="*wags tail*");
     ];
 ];

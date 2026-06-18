@@ -80,16 +80,16 @@ static constexpr std::size_t KEYWORD_COUNT =
   // APPLY
   case K::EXTEND:
     return "_extend";
-  case K::INITIALIZE_RECIEVER:
-    return "_initialize_reciever";
+  case K::INSTANTIATE_EXTENSION:
+    return "_instantiate_extension";
   case K::BINDING:
     return "_binding";
   case K::ASCRIBE_TYPE:
     return "_ascribe_type";
   case K::ASCRIBE_EXPRESSION:
     return "_ascribe_expression";
-  case K::ASCRIBE_ROOT_OF_VALUE:
-    return "_ascribe_root_of_value";
+  case K::ASCRIBE_RECIEVER:
+    return "_ascribe_reciever";
   case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
     return "_instantiate_expression_attribute";
   case K::INSTANTIATE_TYPE_ATTRIBUTE:
@@ -188,10 +188,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "data_address";
   case K::DATA_ADDRESS_OF:
     return "_data_address_of";
-  case K::AT:
-    return "at";
-  case K::AT_OF:
-    return "_at_of";
   case K::MOVE:
     return "move";
   case K::MOVE_OF:
@@ -278,26 +274,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "composition";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
-  case K::FORWARD_RANGER:
-    return "forward_ranger";
-  case K::BACKWARD_RANGER:
-    return "backward_ranger";
-  case K::DESTRUCTOR:
-    return "destructor";
   case K::MAIN:
     return "main";
   case K::FUNCTION:
     return "function";
-  case K::METHOD:
-    return "method";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
-  case K::IMPLEMENT_METHOD:
-    return "implement_method";
   case K::USE_FUNCTION:
     return "use_function";
-  case K::USE_METHOD:
-    return "use_method";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -586,6 +570,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_ensure";
   case K::ENSURE:
     return "ensure";
+  case K::NO_RANGER:
+    return "no_ranger";
+  case K::RANGER:
+    return "ranger";
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
@@ -650,6 +638,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "require_attribute";
   case K::ENSURE_ATTRIBUTE:
     return "ensure_attribute";
+  case K::RANGER_ATTRIBUTE:
+    return "ranger_attribute";
 
   // TYPE ATTRIBUTE TYPES
   case K::VAR_ATTRIBUTE:
@@ -745,10 +735,35 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_as_extension";
   case K::AS_EXTENSION_OF:
     return "_as_extension_of";
-  case K::REVERSE:
-    return "reverse";
-  case K::REVERSE_OF:
     return "_reverse_of";
+  case K::INCREMENT:
+    return "increment";
+  case K::INCREMENT_OF:
+    return "_increment_of";
+  case K::DECREMENT:
+    return "decrement";
+  case K::DECREMENT_OF:
+    return "_decrement_of";
+  case K::WHILST:
+    return "whilst";
+  case K::WHILST_OF:
+    return "_whilst_of";
+  case K::ELEMENT:
+    return "element";
+  case K::ELEMENT_OF:
+    return "_element_of";
+  case K::AT:
+    return "at";
+  case K::AT_OF:
+    return "_at_of";
+  case K::FORWARD:
+    return "forward";
+  case K::FORWARD_OF:
+    return "_forward_of";
+  case K::BACKWARD:
+    return "backward";
+  case K::BACKWARD_OF:
+    return "_backward_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -910,7 +925,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   // APPLY
   case K::EXTEND:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
-  case K::INITIALIZE_RECIEVER:
+  case K::INSTANTIATE_EXTENSION:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
@@ -919,7 +934,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::ASCRIPTION;
   case K::ASCRIBE_EXPRESSION:
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
-  case K::ASCRIBE_ROOT_OF_VALUE:
+  case K::ASCRIBE_RECIEVER:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
   case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
     return KF::NONE; // EXPRESSION_ATTRIBUTE_INSTANTIATION
@@ -1019,10 +1034,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DATA_ADDRESS_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::AT:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::AT_OF:
-    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::MOVE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::MOVE_OF:
@@ -1053,10 +1064,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::ADAPT_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::DESTROY:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::DESTROY_OF:
-    return KF::STATEMENT;
   case K::DROP:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DROP_OF:
@@ -1109,25 +1116,13 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
-  case K::FORWARD_RANGER:
-    return KF::STATEMENT;
-  case K::BACKWARD_RANGER:
-    return KF::STATEMENT;
-  case K::DESTRUCTOR:
-    return KF::STATEMENT;
   case K::MAIN:
     return KF::STATEMENT;
   case K::FUNCTION:
     return KF::STATEMENT;
-  case K::METHOD:
-    return KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
     return KF::STATEMENT;
-  case K::IMPLEMENT_METHOD:
-    return KF::STATEMENT;
   case K::USE_FUNCTION:
-    return KF::STATEMENT;
-  case K::USE_METHOD:
     return KF::STATEMENT;
 
   // CONTROL FLOW
@@ -1420,6 +1415,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ENSURE:
     return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::NO_RANGER:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+  case K::RANGER:
+    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
@@ -1483,6 +1482,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::REQUIRE_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::ENSURE_ATTRIBUTE:
+    return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
+  case K::RANGER_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
   // TYPE ATTRIBUTE TYPES
@@ -1582,10 +1583,38 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::AS_EXTENSION_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::REVERSE:
-    return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::REVERSE_OF:
+  case K::INCREMENT:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::INCREMENT_OF:
     return KF::RVALUE | KF::ARGUMENT;
+  case K::DECREMENT:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DECREMENT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::WHILST:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::WHILST_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::ELEMENT:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::ELEMENT_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::AT:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::AT_OF:
+    return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
+  case K::DESTROY:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::DESTROY_OF:
+    return KF::STATEMENT;
+  case K::FORWARD:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::FORWARD_OF:
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::BACKWARD:
+    return KF::NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+  case K::BACKWARD_OF:
   case K::IS_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_TYPE_OF:
@@ -1855,6 +1884,15 @@ getDescription(rq::Situation situation) {
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
+  // PROCEDURES
+  case K::INCREMENT:
+    return K::INCREMENT_OF;
+  case K::DECREMENT:
+    return K::DECREMENT_OF;
+  case K::WHILST:
+    return K::WHILST_OF;
+  case K::ELEMENT:
+    return K::ELEMENT_OF;
   // REFLECTIONS
   case K::BAKE:
     return K::BAKE_OF;
@@ -1896,8 +1934,6 @@ getDescription(rq::Situation situation) {
     return K::CAPTURE_OF;
   case K::AS_EXTENSION:
     return K::AS_EXTENSION_OF;
-  case K::REVERSE:
-    return K::REVERSE_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:
@@ -1941,7 +1977,7 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_TYPE:
     [[fallthrough]];
-  case rq::Keyword::ASCRIBE_ROOT_OF_VALUE:
+  case rq::Keyword::ASCRIBE_RECIEVER:
     return rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION;
   default:
     break;
@@ -2161,6 +2197,9 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   // ensure_attribute
   NO_ENSURE,
   ENSURE,
+  // ranger_attribute
+  NO_RANGER,
+  RANGER,
 
   LAST
 };
@@ -2258,6 +2297,10 @@ getName(rq::ExpressionAttribute attribute) {
     return "no_ensure";
   case EA::ENSURE:
     return "ensure";
+  case EA::NO_RANGER:
+    return "no_ranger";
+  case EA::RANGER:
+    return "ranger";
   case EA::LAST:
     break;
   }
@@ -2416,7 +2459,10 @@ enum class ExpressionFlags : std::uint_fast32_t {
   REQUIRE_MASK = REQUIRE,
 
   ENSURE = rq::getBit(22),
-  ENSURE_MASK = ENSURE
+  ENSURE_MASK = ENSURE,
+
+  RANGER = rq::getBit(23),
+  RANGER_MASK = RANGER
 };
 
 template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
@@ -2515,6 +2561,10 @@ getFlags(rq::ExpressionAttribute attribute) {
     return EF::NONE;
   case EA::ENSURE:
     return EF::ENSURE;
+  case EA::NO_RANGER:
+    return EF::NONE;
+  case EA::RANGER:
+    return EF::RANGER;
   case EA::LAST:
     break;
   }
@@ -2542,7 +2592,8 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
   REQUIRE_ATTRIBUTE,        // no_require vs require
-  ENSURE_ATTRIBUTE          // no_ensure vs ensure
+  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
+  RANGER_ATTRIBUTE          // no_ranger vs ranger
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
@@ -2590,6 +2641,8 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
     return "require_attribute";
   case EAK::ENSURE_ATTRIBUTE:
     return "ensure_attribute";
+  case EAK::RANGER_ATTRIBUTE:
+    return "ranger_attribute";
   }
   RQ_UNREACHABLE();
 }
@@ -2687,6 +2740,10 @@ getKind(rq::ExpressionAttribute attribute) {
     [[fallthrough]];
   case EA::ENSURE:
     return EAK::ENSURE_ATTRIBUTE;
+  case EA::NO_RANGER:
+    [[fallthrough]];
+  case EA::RANGER:
+    return EAK::RANGER_ATTRIBUTE;
   case EA::LAST:
     break;
   }

@@ -40,11 +40,6 @@ void Evaluator::evaluate(rq::Module &module) {
   this->evaluateGlobalScope(this->getContext().getTop(), module, first_ex);
 }
 
-void Evaluator::evaluate(rq::Destructor &destructor) {
-  std::ignore = destructor;
-  RQ_TODO_IMPLEMENTATION();
-}
-
 void Evaluator::evaluate(rq::Main &main) {
   std::ignore = main;
   RQ_TODO_IMPLEMENTATION();
@@ -77,28 +72,8 @@ void Evaluator::evaluate(rq::GlobalStaticVariable &var) {
   RQ_TODO_IMPLEMENTATION();
 }
 
-void Evaluator::evaluate(rq::ForwardRanger &ranger) {
-  std::ignore = ranger;
-  RQ_TODO_IMPLEMENTATION();
-}
-
-void Evaluator::evaluate(rq::BackwardRanger &ranger) {
-  std::ignore = ranger;
-  RQ_TODO_IMPLEMENTATION();
-}
-
 void Evaluator::evaluate(rq::Function &func) {
   std::ignore = func;
-  RQ_TODO_IMPLEMENTATION();
-}
-
-void Evaluator::evaluate(rq::Method &meth) {
-  std::ignore = meth;
-  RQ_TODO_IMPLEMENTATION();
-}
-
-void Evaluator::evaluate(rq::ExtensionMethod &meth) {
-  std::ignore = meth;
   RQ_TODO_IMPLEMENTATION();
 }
 

@@ -823,9 +823,9 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PlacementType &
-  acquirePlacementType(rq::Procedure &procedure) {
+  acquirePlacementType(rq::Function &function) {
     llvm::FoldingSetNodeID id;
-    rq::profilePlacement(id, procedure);
+    rq::profilePlacement(id, function);
     void *insert_pos;
     rq::PlacementType *found_ptr =
         this->_placement_types.FindNodeOrInsertPos(id, insert_pos);
@@ -834,7 +834,7 @@ struct Context final : public rq::BumpPtrAllocator {
       return found;
     }
     rq::PlacementType &created =
-        this->allocateValue<rq::PlacementType>(procedure);
+        this->allocateValue<rq::PlacementType>(function);
     this->_placement_types.InsertNode(&created, insert_pos);
     return created;
   }

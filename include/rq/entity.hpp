@@ -49,11 +49,11 @@ enum class Keyword : rq::EntityId {
 
   // APPLY
   EXTEND,
-  INITIALIZE_RECIEVER,
+  INSTANTIATE_EXTENSION,
   BINDING,
   ASCRIBE_TYPE,
   ASCRIBE_EXPRESSION,
-  ASCRIBE_ROOT_OF_VALUE,
+  ASCRIBE_RECIEVER,
   INSTANTIATE_EXPRESSION_ATTRIBUTE,
   INSTANTIATE_TYPE_ATTRIBUTE,
   // turn a string into an identifier
@@ -109,8 +109,6 @@ enum class Keyword : rq::EntityId {
   BORROW_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
-  AT,
-  AT_OF,
   MOVE,
   MOVE_OF,
   TAKE,
@@ -126,8 +124,6 @@ enum class Keyword : rq::EntityId {
   DECOMPOSE_OF,
   ADAPT,
   ADAPT_OF,
-  DESTROY,
-  DESTROY_OF,
   DROP,
   DROP_OF,
   INPLACE_DESTROY,
@@ -158,16 +154,10 @@ enum class Keyword : rq::EntityId {
   PLACEMENT,
   COMPOSITION,
   DEFAULT_VALUE_PARAMETER,
-  FORWARD_RANGER,
-  BACKWARD_RANGER,
-  DESTRUCTOR,
   MAIN,
   FUNCTION,
-  METHOD,
   IMPLEMENT_FUNCTION,
-  IMPLEMENT_METHOD,
   USE_FUNCTION,
-  USE_METHOD,
 
   // CONTROL FLOW
   RETURN,
@@ -196,7 +186,7 @@ enum class Keyword : rq::EntityId {
   DISCRIMINANT,
   // value returned from a block.
   OUT,
-  // reference to extended value of method or extension_method.
+  // reference to extended value of function or extension_function.
   THIS,
   // value returned from a function.
   RESULT,
@@ -351,6 +341,9 @@ enum class Keyword : rq::EntityId {
   // ensure_attribute
   NO_ENSURE,
   ENSURE,
+  // ranger_attribute
+  NO_RANGER,
+  RANGER,
 
   // TYPE ATTRIBUTES
   // var_attribute
@@ -389,6 +382,7 @@ enum class Keyword : rq::EntityId {
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
   REQUIRE_ATTRIBUTE,        // no_require vs require
   ENSURE_ATTRIBUTE,         // no_ensure vs ensure
+  RANGER_ATTRIBUTE,        // no_ranger vs ranger
 
   // TYPE ATTRIBUTE TYPES
   VAR_ATTRIBUTE,            // no_var vs var vs partial_var
@@ -440,8 +434,22 @@ enum class Keyword : rq::EntityId {
   CAPTURE_OF,
   AS_EXTENSION,
   AS_EXTENSION_OF,
-  REVERSE,
-  REVERSE_OF,
+  INCREMENT,
+  INCREMENT_OF,
+  DECREMENT,
+  DECREMENT_OF,
+  WHILST,
+  WHILST_OF,
+  ELEMENT,
+  ELEMENT_OF,
+  AT,
+  AT_OF,
+  DESTROY,
+  DESTROY_OF,
+  FORWARD,
+  FORWARD_OF,
+  BACKWARD,
+  BACKWARD_OF,
   IS_TYPE,
   IS_TYPE_OF,
   IS_RANGE_TYPE,
@@ -583,11 +591,7 @@ enum class SymbolKind : rq::EntityId {
   ADAPTER_WEIGHT_LEVEL,
   GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
   GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
-  FORWARD_RANGER_WEIGHT_LEVEL,
-  BACKWARD_RANGER_WEIGHT_LEVEL,
   FUNCTION_WEIGHT_LEVEL,
-  METHOD_WEIGHT_LEVEL,
-  EXTENSION_METHOD_WEIGHT_LEVEL,
 
   // JUXTAPOSITIONAL LIST
   JUXTAPOSITIONAL_LIST_ITEM,
@@ -657,7 +661,6 @@ enum class SymbolKind : rq::EntityId {
   NAMESPACE,
 
   // GLOBAL DECLARATION => named table => symbol table
-  DESTRUCTOR,
   MAIN,
 
   // INSTANCES => global declaration => named table => symbol table`
@@ -665,19 +668,11 @@ enum class SymbolKind : rq::EntityId {
   ENUMERATION_TYPE,
   INTERFACE,
   ADAPTER,
+  FUNCTION,
 
   // GLOBAL VARIABLE => instance => global declaration => named table => symbol table
   GLOBAL_DYNAMIC_VARIABLE,
   GLOBAL_STATIC_VARIABLE,
-
-  // RANGERS => instance => global declaration => named table => symbol table
-  FORWARD_RANGER,
-  BACKWARD_RANGER,
-
-  // PROCEDURES => instance => global declaration => symbol table
-  FUNCTION,
-  METHOD,
-  EXTENSION_METHOD,
 
   // TEMPLATES
   CLASS_TEMPLATE,
@@ -686,18 +681,10 @@ enum class SymbolKind : rq::EntityId {
   ADAPTER_TEMPLATE,
   GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   GLOBAL_STATIC_VARIABLE_TEMPLATE,
-  FORWARD_RANGER_TEMPLATE,
-  BACKWARD_RANGER_TEMPLATE,
   FUNCTION_TEMPLATE,
-  METHOD_TEMPLATE,
-  EXTENSION_METHOD_TEMPLATE,
 
   // POLYMORPHS
-  FORWARD_RANGER_POLYMORPH,
-  BACKWARD_RANGER_POLYMORPH,
   FUNCTION_POLYMORPH,
-  METHOD_POLYMORPH,
-  EXTENSION_METHOD_POLYMORPH,
   CLASS_POLYMORPH,
   ENUMERATION_POLYMORPH,
   INTERFACE_POLYMORPH,

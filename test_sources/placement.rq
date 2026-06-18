@@ -4,7 +4,7 @@
 [function malloc, (size:[unsigned_address]<)?\[var][void]];
 
 [opaque][mangle]::free
-[function free, (ptr:?\var[void]<)[void]];
+[function free, (ptr:?\[var][void]<)[void]];
 
 [template]::{Type:[symbol]<}
 [constraint]::(Type.[is_type])
@@ -24,7 +24,7 @@
         [this].ptr.[inplace_initialize placement.[invoke]];
     ];
 
-    [destructor         
+    [function [destroy], ()[void]=>,         
         [this].ptr.[content].[inplace_destroy];
         free([this].ptr);
         [this].[drop];
@@ -36,7 +36,7 @@
 [class MyClass,
     { val:[single] <}
 
-    [destructor
+    [function [destroy], ()[void]=>,
         [this].[drop];
     ];
 ];

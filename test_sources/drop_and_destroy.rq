@@ -1,39 +1,39 @@
 [import "std"];
 
-[class WithoutDestructor];
+[class WithoutDestroy];
 
-[class WithDestructor,
-    [destructor
-        std.print(line="In destructor!");
+[class WithDestroy,
+    [function [destroy], ()[void]=>,
+        std.print(line="In destroy!");
         [this].[drop];
     ];
 ];
 
 [main
-    a := WithoutDestructor();
-    b := WithoutDestructor();
-    c := WithDestructor();
-    d := WithDestructor();
+    a := WithoutDestroy();
+    b := WithoutDestroy();
+    c := WithDestroy();
+    d := WithDestroy();
 
     // after drop or destroy, variable is invalidated (can no longer be used)
     a.[drop]; 
 
-    // since b's type has no destructor, behaviour is same as b.[drop]
-    b.[destroy];
+    // since b's type has no destroy, behaviour is same as b.[drop]
+    b.[take].[destroy];
 
-    // even though c's type has a destructor, its not called
+    // even though c's type has a destroy, its not called
     c.[drop];
 
-    // d's destructor is called
-    d.[destroy];
+    // d's destroy is called
+    d.[take].[destroy];
 
-    without := WithoutDestructor();
-    with := WithDestructor();
+    without := WithoutDestroy();
+    with := WithDestroy();
 
-    // if type has no destructor, can do a shallow copy (copies byte for byte)
+    // if type has no destroy, can do a shallow copy (copies byte for byte)
     copy := without; 
 
-    // this results in a compile error if uncommented because cannot shallow copy types with destructors 
+    // this results in a compile error if uncommented because cannot shallow copy types with destroys 
     // other_copy := with;
 
     [result] := 0;

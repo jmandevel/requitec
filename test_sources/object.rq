@@ -13,7 +13,7 @@
     ];
 
     [public]
-    [method getTotal, ()[fast_signed_integer 32]=>$,
+    [function getTotal, ()[fast_signed_integer 32]=>$,
         [result] := [this].x + [this].y + [this].z;
     ];
 
