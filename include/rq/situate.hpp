@@ -34,7 +34,9 @@ struct Situator final {
                                         rq::Expression &branch);
   [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,
                                          rq::Expression &branch);
-  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);
+  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);  
+  [[nodiscard]] bool situateVignetteBranch(rq::Expression &branch);
+  [[nodiscard]] bool situateVignetteOrRvalueBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
                                               rq::Expression &expression);
   [[nodiscard]] bool
@@ -81,23 +83,30 @@ struct Situator final {
   situateNaryFromFirstParameterBranches(rq::Situation situation,
                                         rq::Expression &expression,
                                         rq::Expression &first_parameter);
-  [[nodiscard]] bool situateNaryStatementBranches(rq::Expression &expression);
+  // scope, block, else, default, main
+  [[nodiscard]] bool situateStatementBranches(rq::Expression &expression);
+  // function, function, class, enum, adapter
   [[nodiscard]] bool
-  situateOneHeaderNaryStatementBranches(rq::Situation situation,
-                                        rq::Expression &expression,
-                                        rq::Situation branch0_situation);
-  [[nodiscard]] bool situateTwoHeaderNaryStatementBranches(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation);
-  [[nodiscard]] bool situateThreeHeaderNaryStatementBranches(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation,
-      rq::Situation branch2_situation);
-  [[nodiscard]] bool situateNaryDifferentFirstHeaderNaryStatementBranches(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation header0_situation, rq::Situation headern_situation);
-  [[nodiscard]] bool situateNamedMemberProcedure(rq::Situation situation,
-                                                 rq::Expression &expression);
+  situateNameStatementHeaderStatementBranches(rq::Situation situation,
+                                              rq::Expression &expression);
+  // switch, match, if, else_if, while, case, with, forward, backward
+  [[nodiscard]] bool
+  situateStatementHeaderStatementBranches(rq::Situation situation,
+                                          rq::Expression &expression);
+  // weave
+  [[nodiscard]] bool
+  situateStatementVingetteStatementBranches(rq::Situation situation,
+                                            rq::Expression &expression);
+  // for
+  [[nodiscard]] bool
+  situateStatementMultiVingetteStatementBranches(rq::Situation situation,
+                                            rq::Expression &expression);
+  // interface
+  [[nodiscard]] bool stiuateNameStatementBranches(rq::Situation situation,
+                                                  rq::Expression &expression);
+  // namespace
+  [[nodiscard]] bool stiuateNamespaceStatementBranches(rq::Situation situation,
+                                                  rq::Expression &expression);
 };
 
 } // namespace rq

@@ -802,8 +802,8 @@ void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorMustHaveParameterMark(
-    rq::Situation situation, const rq::Expression &expression) {
+void Context::logErrorMustHaveParameterMark(rq::Situation situation,
+                                            const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have parameter mark",
@@ -822,8 +822,7 @@ void Context::logErrorIsLast(const rq::Expression &mark) {
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedCommaSeparator(
-    const rq::Expression &expression) {
+void Context::logErrorExpectedCommaSeparator(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceEnd(), rq::LogType::ERROR,
                    "expected comma separator after expression",
                    {expression.getLlvmSourceRange()}, {});
@@ -851,15 +850,13 @@ void Context::logErrorExpressionShouldNeverOccur(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateParameterMark(
-    const rq::Expression &mark) {
+void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
   this->logMessage(mark.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + mark.getName(),
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateAttribute(
-    const rq::Expression &attribute) {
+void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("duplicate ") + attribute.getName(),
                    {attribute.getLlvmSourceRange()}, {});
@@ -886,9 +883,9 @@ void Context::logErrorPositionalEndAfterLockedBegin(
                    {named_begin.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotExactBranchCount(
-    rq::Situation situation, const rq::Expression &expression,
-    unsigned count) {
+void Context::logErrorNotExactBranchCount(rq::Situation situation,
+                                          const rq::Expression &expression,
+                                          unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have exactly " +
@@ -896,9 +893,9 @@ void Context::logErrorNotExactBranchCount(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotAtLeastBranchCount(
-    rq::Situation situation, const rq::Expression &expression,
-    unsigned count) {
+void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
+                                            const rq::Expression &expression,
+                                            unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must have at least " +
@@ -906,9 +903,9 @@ void Context::logErrorNotAtLeastBranchCount(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorTooManyBranchCount(
-    rq::Situation situation, const rq::Expression &expression,
-    unsigned count) {
+void Context::logErrorTooManyBranchCount(rq::Situation situation,
+                                         const rq::Expression &expression,
+                                         unsigned count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must not have more than " +
@@ -916,25 +913,24 @@ void Context::logErrorTooManyBranchCount(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidBranchSituation(
-    rq::Situation situation, const rq::Expression &branch) {
+void Context::logErrorInvalidBranchSituation(rq::Situation situation,
+                                             const rq::Expression &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(branch.getName()) + " can not be " +
                        rq::getDescription(situation),
                    {branch.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorExpectedHeaderBranch(const rq::Expression &expresison) {
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " has no header branch",
+                   {expresison.getLlvmSourceRange()}, {});
+}
+
 void Context::logErrorExpectedHeaderExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not header",
-                   {expresison.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorUnexpectedHeaderExpression(
-    const rq::Expression &expresison) {
-  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is header",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
@@ -949,6 +945,13 @@ void Context::logErrorUnexpectedChainLinkExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expression.getName() + " is chain-link",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedStatementOrChainLinkExpression(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not statement or chain-link",
                    {expression.getLlvmSourceRange()}, {});
 }
 
@@ -1128,8 +1131,7 @@ Context::getLlvmFltSemantics(rq::SymbolKind kind) {
 
 rq::Expression &Context::acquireExpression() {
   if (this->_free_expression_ptr == nullptr) {
-    rq::Expression &new_expression =
-        this->allocateValue<rq::Expression>();
+    rq::Expression &new_expression = this->allocateValue<rq::Expression>();
     return new_expression;
   }
   rq::Expression &unused_expression =
@@ -1140,8 +1142,7 @@ rq::Expression &Context::acquireExpression() {
   return unused_expression;
 }
 
-rq::Expression &
-Context::copyExpression(rq::Expression &expression) {
+rq::Expression &Context::copyExpression(rq::Expression &expression) {
   rq::Expression &new_expression = this->acquireExpression();
   if (expression.getHasBranch()) {
     new_expression.setBranch(this->copyExpression(expression.getBranch()));
