@@ -3,8 +3,8 @@
 #include <rq/entity.hpp>
 #include <rq/utility.hpp>
 
-#include <llvm/Support/Casting.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/Casting.h>
 
 namespace rq {
 
@@ -18,6 +18,11 @@ namespace rq {
     return "DEBUG_STEP";
   case O::SOURCE_RANGE:
     return "SOURCE_RANGE";
+
+  case O::STATEMENT:
+    return "STATEMENT";
+  case O::ASSIGN:
+    return "ASSIGN";
 
   // ARITHMETIC
   case O::ADD:
@@ -53,6 +58,11 @@ template <> struct is_flags<rq::OpcodeFlags> : std::true_type {};
   case O::DEBUG_STEP:
     return OF::NONE;
   case O::SOURCE_RANGE:
+    return OF::NONE;
+
+  case O::STATEMENT:
+    return OF::NONE;
+  case O::ASSIGN:
     return OF::NONE;
 
   // ARITHMETIC
@@ -111,7 +121,7 @@ struct Instruction final : public rq::Entity {
     return this->_address0_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *getAddress1Ptr() const {
-    return this->_address1_ptr;  
+    return this->_address1_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *getAddress1Ptr() {
     return this->_address1_ptr;
@@ -152,16 +162,16 @@ struct Instruction final : public rq::Entity {
   replaceAddress1Ptr(rq::Entity *address1_ptr) {
     return rq::replaceValuePtr(this->_address1_ptr, address1_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity& popAddress0() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0() {
     return rq::popValue(this->_address0_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity& popAddress1() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress1() {
     return rq::popValue(this->_address1_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity* popAddress0Ptr() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr() {
     return rq::popValuePtr(this->_address0_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity* popAddress1Ptr() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress1Ptr() {
     return rq::popValuePtr(this->_address1_ptr);
   }
 

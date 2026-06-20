@@ -8,6 +8,7 @@
 #include <llvm/Support/Casting.h>
 
 #include <bit>
+#include <cstdint>
 #include <memory>
 
 namespace rq {
@@ -42,8 +43,14 @@ using StaticArray = std::vector<rq::StaticValue>;
 
 using StaticDataArray = std::vector<std::byte>;
 
+struct Symbol;
+enum class TypeFlags : std::uint_fast8_t;
+
 struct StaticSymbol final {
   using Self = rq::StaticSymbol;
+
+  rq::TypeFlags flags;
+  rq::Symbol *symbol_ptr;
 };
 
 struct StaticValue final {
@@ -57,6 +64,10 @@ struct StaticValue final {
       _data = {};
 
   explicit RQ_ALWAYS_INLINE StaticValue() = default;
+  RQ_ALWAYS_INLINE StaticValue(const rq::StaticSymbol &symbol)
+      : _kind(rq::StaticValueKind::SYMBOL) {
+    this->getSymbol() = symbol;
+  }
   ~StaticValue() {
     switch (this->_kind) {
     case Kind::NONE:
@@ -153,8 +164,8 @@ struct StaticValue final {
   getExpressionAttribute() {
     RQ_ASSERT(this->_kind == Kind::EXPRESSION_ATTRIBUTE,
               "not expression attribute");
-    return rq::dereferencePtr(std::launder(
-        std::bit_cast<rq::ExpressionAttribute *>(&this->_data)));
+    return rq::dereferencePtr(
+        std::launder(std::bit_cast<rq::ExpressionAttribute *>(&this->_data)));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeAttribute &
   getTypeAttribute() const {

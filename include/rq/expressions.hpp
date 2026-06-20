@@ -851,8 +851,8 @@ enum class KeywordFlags : std::uint32_t {
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(22),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(23),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
-                   PARAMETER | BINDING | NAME | NAMESPACE | FUNCTION_NAME | ASCRIPTION |
-                   TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
+                   PARAMETER | BINDING | NAME | NAMESPACE | FUNCTION_NAME |
+                   ASCRIPTION | TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -942,7 +942,8 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::IDENTIFY:
     return KF::REFLECTION | KF::ASCRIPTION;
   case K::IDENTIFY_OF:
-    return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE | KF::FUNCTION_NAME;
+    return KF::NAME | KF::RVALUE | KF::LVALUE | KF::ARGUMENT | KF::NAMESPACE |
+           KF::FUNCTION_NAME;
   case K::FORK:
     return KF::NONE;
 
@@ -2765,6 +2766,9 @@ struct ExpressionFlagsFactory final {
   using PtrMap =
       llvm::SmallDenseMap<rq::ExpressionAttributeKind, ExpressionList>;
 
+#if !defined(_NDEBUG)
+  rq::Keyword _keyword{rq::Keyword::NONE};
+#endif
   rq::ExpressionFlags _flags{};
   PtrMap _ptr_map{};
 
@@ -3437,11 +3441,17 @@ struct Expression final : public rq::Entity {
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_id == rq::getUnderlying(rq::Keyword::NONE),
               "keyword must not already be set");
+#if !defined(_NDEBUG)
+    this->_debug_keyword = keyword;
+#endif
     this->_id = rq::getUnderlying(keyword);
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_id != rq::getUnderlying(rq::Keyword::NONE),
               "keyword must already be set");
+#if !defined(_NDEBUG)
+    this->_debug_keyword = keyword;
+#endif
     this->_id = rq::getUnderlying(keyword);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {

@@ -155,10 +155,10 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::PlacementType> _placement_types{};
   llvm::FoldingSet<rq::CompositionComponent> _composition_components{};
   llvm::FoldingSet<rq::CompositionType> _composition_types{};
-  llvm::FoldingSet<rq::WordConstant> _word_constants{};
-  llvm::FoldingSet<rq::ArrayConstant> _array_constants{};
-  llvm::FoldingSet<rq::DataArrayConstant> _data_array_constants{};
-  llvm::FoldingSet<rq::SymbolConstant> _symbol_constants{};
+  llvm::FoldingSet<rq::ConstantWord> _word_constants{};
+  llvm::FoldingSet<rq::ConstantArray> _array_constants{};
+  llvm::FoldingSet<rq::ConstantDataArray> _data_array_constants{};
+  llvm::FoldingSet<rq::ConstantSymbol> _symbol_constants{};
 
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
@@ -625,7 +625,7 @@ struct Context final : public rq::BumpPtrAllocator {
             synonym_id));
   }
   [[nodiscard]] inline rq::ArraySubtype &
-  acquireArraySubtype(rq::SymbolConstant &child, std::uint64_t count) {
+  acquireArraySubtype(rq::ConstantSymbol &child, std::uint64_t count) {
     llvm::FoldingSetNodeID id;
     rq::profileArraySubtype(id, child, count);
     void *insert_pos;
@@ -641,7 +641,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::UncountedSubtype &
-  acquireUncountedSubtype(rq::SymbolKind kind, rq::SymbolConstant &child) {
+  acquireUncountedSubtype(rq::SymbolKind kind, rq::ConstantSymbol &child) {
     llvm::FoldingSetNodeID id;
     rq::profileUncountedSubtype(id, kind, child);
     void *insert_pos;
@@ -657,22 +657,22 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ReferenceSubtype &
-  acquireReferenceSubtype(rq::SymbolConstant &child) {
+  acquireReferenceSubtype(rq::ConstantSymbol &child) {
     return llvm::cast<rq::ReferenceSubtype>(this->acquireUncountedSubtype(
         rq::SymbolKind::REFERENCE_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PointerSubtype &
-  acquirePointerSubtype(rq::SymbolConstant &child) {
+  acquirePointerSubtype(rq::ConstantSymbol &child) {
     return llvm::cast<rq::PointerSubtype>(
         this->acquireUncountedSubtype(rq::SymbolKind::POINTER_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceSubtype &
-  acquireSliceSubtype(rq::SymbolConstant &child) {
+  acquireSliceSubtype(rq::ConstantSymbol &child) {
     return llvm::cast<rq::SliceSubtype>(
         this->acquireUncountedSubtype(rq::SymbolKind::SLICE_SUBTYPE, child));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceCountArraySubtype &
-  acquireInferenceCountArraySubtype(rq::SymbolConstant &child) {
+  acquireInferenceCountArraySubtype(rq::ConstantSymbol &child) {
     return llvm::cast<rq::InferenceCountArraySubtype>(
         this->acquireUncountedSubtype(
             rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child));
@@ -703,7 +703,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] inline rq::ArithmeticSequenceType &
-  acquireArithmeticSequenceType(rq::SymbolKind kind, rq::SymbolConstant &child,
+  acquireArithmeticSequenceType(rq::SymbolKind kind, rq::ConstantSymbol &child,
                                 rq::ArithmeticSequenceCondition condition,
                                 rq::ArithmeticSequenceStep step) {
     llvm::FoldingSetNodeID id;
@@ -722,7 +722,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalType &
-  acquireArithmeticIntervalType(rq::SymbolConstant &child,
+  acquireArithmeticIntervalType(rq::ConstantSymbol &child,
                                 rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::ArithmeticIntervalType>(
         this->acquireArithmeticSequenceType(
@@ -730,7 +730,7 @@ struct Context final : public rq::BumpPtrAllocator {
             rq::ArithmeticSequenceStep::NONE));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceType &
-  acquireInfiniteArithmeticSequenceType(rq::SymbolConstant &child,
+  acquireInfiniteArithmeticSequenceType(rq::ConstantSymbol &child,
                                         rq::ArithmeticSequenceStep step) {
     return llvm::cast<rq::InfiniteArithmeticSequenceType>(
         this->acquireArithmeticSequenceType(
@@ -739,7 +739,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceType &
   acquireFiniteArithmeticSequenceType(
-      rq::SymbolConstant &child, rq::ArithmeticSequenceStep step,
+      rq::ConstantSymbol &child, rq::ArithmeticSequenceStep step,
       rq::ArithmeticSequenceCondition condition) {
     return llvm::cast<rq::FiniteArithmeticSequenceType>(
         this->acquireArithmeticSequenceType(
@@ -748,7 +748,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] inline rq::TypeParameter &
   acquireTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                       llvm::StringRef name, rq::SymbolConstant &type,
+                       llvm::StringRef name, rq::ConstantSymbol &type,
                        unsigned location, bool is_positional) {
     llvm::FoldingSetNodeID id;
     rq::profileTypeParameter(id, kind, next_ptr, name, type, location,
@@ -767,7 +767,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
   acquireProcedureParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
-                            rq::SymbolConstant &type, unsigned location,
+                            rq::ConstantSymbol &type, unsigned location,
                             bool is_positional) {
     return llvm::cast<rq::ProcedureParameter>(this->acquireTypeParameter(
         rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr, name, type, location,
@@ -775,7 +775,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
   acquireTupleParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
-                        rq::SymbolConstant &type, unsigned location,
+                        rq::ConstantSymbol &type, unsigned location,
                         bool is_positional) {
     return llvm::cast<rq::TupleParameter>(
         this->acquireTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr,
@@ -784,8 +784,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] inline rq::ProcedureType &acquireProcedureType(
       rq::ProcedureParameter *first_parameter_ptr, unsigned parameter_count,
       unsigned positional_parameter_count,
-      unsigned nonpositional_parameter_count, rq::SymbolConstant &return_type,
-      rq::SymbolConstant *reciever_type_ptr) {
+      unsigned nonpositional_parameter_count, rq::ConstantSymbol &return_type,
+      rq::ConstantSymbol *reciever_type_ptr) {
     llvm::FoldingSetNodeID id;
     rq::profileProcedureType(id, first_parameter_ptr, return_type,
                              reciever_type_ptr);
@@ -872,70 +872,70 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WordConstant &
-  acquireWordConstant(const llvm::APInt &word) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantWord &
+  acquireConstantWord(const llvm::APInt &word) {
     llvm::FoldingSetNodeID id;
-    rq::profileWordConstant(id, word);
+    rq::profileConstantWord(id, word);
     void *insert_pos;
-    rq::WordConstant *found_ptr =
+    rq::ConstantWord *found_ptr =
         this->_word_constants.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::WordConstant &found = rq::dereferencePtr(found_ptr);
+      rq::ConstantWord &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::WordConstant &created = this->allocateValue<rq::WordConstant>(word);
+    rq::ConstantWord &created = this->allocateValue<rq::ConstantWord>(word);
     this->_word_constants.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WordConstant &
-  acquireWordConstant(llvm::APFloat float_) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantWord &
+  acquireConstantWord(llvm::APFloat float_) {
     llvm::APInt word = float_.bitcastToAPInt();
-    return this->acquireWordConstant(word);
+    return this->acquireConstantWord(word);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConstant &
-  acquireArrayConstant(llvm::ArrayRef<rq::Constant *> array) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray &
+  acquireConstantArray(llvm::ArrayRef<rq::Constant *> array) {
     llvm::FoldingSetNodeID id;
-    rq::profileArrayConstant(id, array);
+    rq::profileConstantArray(id, array);
     void *insert_pos;
-    rq::ArrayConstant *found_ptr =
+    rq::ConstantArray *found_ptr =
         this->_array_constants.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::ArrayConstant &found = rq::dereferencePtr(found_ptr);
+      rq::ConstantArray &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::ArrayConstant &created = this->allocateValue<rq::ArrayConstant>(array);
+    rq::ConstantArray &created = this->allocateValue<rq::ConstantArray>(array);
     this->_array_constants.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DataArrayConstant &
-  acquireDataArrayConstant(llvm::ArrayRef<std::byte> data_array) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDataArray &
+  acquireConstantDataArray(llvm::ArrayRef<std::byte> data_array) {
     llvm::FoldingSetNodeID id;
-    rq::profileDataArrayConstant(id, data_array);
+    rq::profileConstantDataArray(id, data_array);
     void *insert_pos;
-    rq::DataArrayConstant *found_ptr =
+    rq::ConstantDataArray *found_ptr =
         this->_data_array_constants.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::DataArrayConstant &found = rq::dereferencePtr(found_ptr);
+      rq::ConstantDataArray &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::DataArrayConstant &created =
-        this->allocateValue<rq::DataArrayConstant>(data_array);
+    rq::ConstantDataArray &created =
+        this->allocateValue<rq::ConstantDataArray>(data_array);
     this->_data_array_constants.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &
-  acquireSymbolConstant(rq::ExpressionFlags flags, rq::Symbol &symbol) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &
+  acquireConstantSymbol(rq::TypeFlags flags, rq::Symbol &symbol) {
     llvm::FoldingSetNodeID id;
-    rq::profileSymbolConstant(id, flags, symbol);
+    rq::profileConstantSymbol(id, flags, symbol);
     void *insert_pos;
-    rq::SymbolConstant *found_ptr =
+    rq::ConstantSymbol *found_ptr =
         this->_symbol_constants.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::SymbolConstant &found = rq::dereferencePtr(found_ptr);
+      rq::ConstantSymbol &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::SymbolConstant &created =
-        this->allocateValue<rq::SymbolConstant>(flags, symbol);
+    rq::ConstantSymbol &created =
+        this->allocateValue<rq::ConstantSymbol>(flags, symbol);
     this->_symbol_constants.InsertNode(&created, insert_pos);
     return created;
   }

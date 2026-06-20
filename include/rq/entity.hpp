@@ -2,6 +2,8 @@
 
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/Hashing.h>
+
 #include <cstdint>
 
 namespace rq {
@@ -382,7 +384,7 @@ enum class Keyword : rq::EntityId {
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
   REQUIRE_ATTRIBUTE,        // no_require vs require
   ENSURE_ATTRIBUTE,         // no_ensure vs ensure
-  RANGER_ATTRIBUTE,        // no_ranger vs ranger
+  RANGER_ATTRIBUTE,         // no_ranger vs ranger
 
   // TYPE ATTRIBUTE TYPES
   VAR_ATTRIBUTE,            // no_var vs var vs partial_var
@@ -660,9 +662,6 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // GLOBAL DECLARATION => named table => symbol table
-  MAIN,
-
   // INSTANCES => global declaration => named table => symbol table`
   CLASS_TYPE,
   ENUMERATION_TYPE,
@@ -670,7 +669,8 @@ enum class SymbolKind : rq::EntityId {
   ADAPTER,
   FUNCTION,
 
-  // GLOBAL VARIABLE => instance => global declaration => named table => symbol table
+  // GLOBAL VARIABLE => instance => global declaration => named table => symbol
+  // table
   GLOBAL_DYNAMIC_VARIABLE,
   GLOBAL_STATIC_VARIABLE,
 
@@ -709,16 +709,16 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
   NONE,
 
-  // address0 = source location (either rq::Expression or SOURCE_RANGE instruction)
-  // address1 = entity
+  // address0 = source location (either rq::Expression or SOURCE_RANGE
+  // instruction) address1 = entity
   DEBUG_STEP,
 
-  //address0 = start expression
-  //address1 = end expression
+  // address0 = start expression
+  // address1 = end expression
   SOURCE_RANGE,
 
   // address0 = head
-  // address1 = tail 
+  // address1 = tail
   STATEMENT,
 
   ASSIGN,
@@ -752,8 +752,27 @@ struct Entity {
   using Self = rq::Entity;
 
   rq::EntityId _id;
+#if !defined(_NDEBUG)
+  rq::Keyword _debug_keyword{rq::Keyword::NONE};
+  rq::SymbolKind _debug_symbol_kind{rq::SymbolKind::NONE};
+  rq::ConstantKind _debug_constant_kind{rq::ConstantKind::NONE};
+  rq::Opcode _debug_opcode{rq::Opcode::NONE};
+#endif
 
-  explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {}
+  explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {
+#if !defined(_NDEBUG)
+    if (id < rq::SYMBOL_OFFSET) {
+      this->_debug_keyword = static_cast<rq::Keyword>(id);
+    } else if (id < rq::CONSTANT_OFFSET) {
+      this->_debug_symbol_kind = static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET);
+    } else if (id < rq::OPCODE_OFFSET) {
+      this->_debug_constant_kind =
+          static_cast<rq::ConstantKind>(id - rq::CONSTANT_OFFSET);
+    } else {
+      this->_debug_opcode = static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET);
+    }
+#endif
+  }
   Entity(const Self &) = delete;
   Entity(Self &&) = delete;
   ~Entity() = default;
@@ -790,3 +809,9 @@ struct Entity {
 };
 
 } // namespace rq
+
+namespace llvm {
+RQ_ALWAYS_INLINE llvm::hash_code hash_value(const rq::Keyword &value) {
+  return llvm::hash_value(rq::getUnderlying(value));
+}
+} // namespace llvm

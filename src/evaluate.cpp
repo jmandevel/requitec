@@ -55,9 +55,11 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   for (rq::Expression &branch_ex : first_ex.getInclusiveNextSubrange()) {
     switch (branch_ex.getKeyword()) {
     case K::MAIN: {
-      rq::Main &main = this->getContext().allocateValue<rq::Main>(
-          table, table, branch_ex, rq::ExpressionFlags::NONE, module);
-      table.addUnamedMember(this->getContext(), main);
+      rq::Name name(K::MAIN);
+      rq::Function &func = this->getContext().allocateValue<rq::Function>(
+          table, name, table, branch_ex, nullptr, rq::ExpressionFlags::NONE,
+          module, nullptr, nullptr);
+      table.addMember(this->getContext(), name, func);
       break;
     }
     default:
@@ -67,13 +69,14 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
 }
 
 [[nodiscard]] rq::Instruction *
-Evaluator::evaluateLocalScope(rq::SymbolTable &table, rq::Module &module,
-                              rq::Expression &first_ex) {
+Evaluator::evaluateLocalScope(rq::Function &function, rq::SymbolTable &table,
+                              rq::Module &module, rq::Expression &first_ex) {
+  std::ignore = function;
   std::ignore = table;
   std::ignore = module;
   using K = rq::Keyword;
   using O = rq::Opcode;
-  using S = rq::SymbolKind;
+  // using S = rq::SymbolKind;
   rq::InstructionConsFactory factory(this->getContext(), O::STATEMENT);
   for (rq::Expression &state_ex : first_ex.getInclusiveNextSubrange()) {
     switch (state_ex.getKeyword()) {
@@ -108,14 +111,19 @@ Evaluator::evaluateLocalScope(rq::SymbolTable &table, rq::Module &module,
 
 void Evaluator::evaluateAllModuleSymbols(rq::Module &module) {
   rq::Top &top = this->getContext().getTop();
-  for (rq::Symbol &symbol : top.getUnamedMemberList()) {
-    if (llvm::isa<rq::Main>(symbol)) {
-      rq::Main &main = llvm::cast<rq::Main>(symbol);
-      if (main.getModule() != module) {
-        continue;
-      }
-      if (!main.getIsEvaluated()) {
-        this->evaluate(main);
+  for (auto &kvp : top.getSymbolListSubrange()) {
+    rq::BumpPtrList<rq::Symbol> &list = kvp.getSecond();
+    for (rq::Symbol &symbol : list) {
+      if (llvm::isa<rq::FunctionPolymorph>(symbol)) {
+        rq::FunctionPolymorph &poly = llvm::cast<rq::FunctionPolymorph>(symbol);
+        for (rq::Function &function : poly.getDerivedInstanceSubrange()) {
+          if (function.getModule() != module) {
+            continue;
+          }
+          if (!function.getIsEvaluated()) {
+            this->evaluate(function);
+          }
+        }
       }
     }
   }
@@ -128,21 +136,6 @@ void Evaluator::evaluate(rq::Module &module) {
   }
   rq::Expression &first_ex = top_ex.getBranch();
   this->evaluateGlobalScope(this->getContext().getTop(), module, first_ex);
-}
-
-void Evaluator::evaluate(rq::Main &main) {
-  rq::Expression &ex = main.getExpression();
-  if (!ex.getHasBranch()) {
-    return;
-  }
-  rq::Expression &statement0 = ex.getBranch();
-  rq::Instruction *inst_ptr =
-      this->evaluateLocalScope(main, main.getModule(), statement0);
-  if (inst_ptr == nullptr) {
-    return;
-  }
-  rq::Instruction &inst = rq::dereferencePtr(inst_ptr);
-  main.setInstruction(inst);
 }
 
 void Evaluator::evaluate(rq::ClassType &class_) {
@@ -173,8 +166,20 @@ void Evaluator::evaluate(rq::GlobalStaticVariable &var) {
 }
 
 void Evaluator::evaluate(rq::Function &func) {
-  std::ignore = func;
-  RQ_TODO_IMPLEMENTATION();
+  rq::Expression &ex = func.getExpression();
+  if (!ex.getHasBranch()) {
+    return;
+  }
+  if (func.getName().getKeyword() == rq::Keyword::MAIN) {
+    rq::Expression &statement0 = ex.getBranch();
+    rq::Instruction *inst_ptr =
+        this->evaluateLocalScope(func, func, func.getModule(), statement0);
+    if (inst_ptr == nullptr) {
+      return;
+    }
+    rq::Instruction &inst = rq::dereferencePtr(inst_ptr);
+    func.setInstructions(inst);
+  }
 }
 
 [[nodiscard]] rq::Symbol *Evaluator::evaluateLvalue(rq::SymbolTable &table,
@@ -191,12 +196,24 @@ void Evaluator::evaluate(rq::Function &func) {
     if (type_type != this->getContext().acquireSymbolType()) {
       RQ_UNHANDLED_ERROR("not type");
     }
+    rq::StaticSymbol static_sy = type_rvalue.getValue().getSymbol();
+    rq::ConstantSymbol &type = this->getContext().acquireConstantSymbol(
+        static_sy.flags, rq::dereferencePtr(static_sy.symbol_ptr));
     // TODO check type matches procedure type
     // TODO check result not already initialized
     // TODO guarantee not initialize result in lower scope then ascend
     switch (var_ex.getKeyword()) {
     case K::RESULT: {
-      return &this->getContext().acquireResultValue();
+      rq::Name name(K::RESULT);
+      auto found = table.lookupList(name);
+      if (!found.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("result already initialized");
+      }
+      rq::LocalDynamicVariable &result =
+          this->getContext().allocateValue<rq::LocalDynamicVariable>(
+              name, table, table, module, rq::ExpressionFlags::NONE, type);
+      table.addMember(this->getContext(), name, result);
+      return &result;
     }
     default:
       RQ_UNREACHABLE();
@@ -205,6 +222,27 @@ void Evaluator::evaluate(rq::Function &func) {
   default:
     RQ_UNREACHABLE();
   }
+}
+
+[[nodiscard]] rq::StaticRvalue
+Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+                                rq::Expression &rvalue_ex) {
+  std::ignore = table;
+  std::ignore = module;
+  using K = rq::Keyword;
+  switch (rvalue_ex.getKeyword()) {
+  case K::SIGNED_INTEGER: {
+    if (rvalue_ex.getHasBranch()) {
+      RQ_TODO_IMPLEMENTATION();
+    }
+    rq::Symbol &symbol = this->getContext().acquireSignedIntegerType();
+    rq::Symbol &type = this->getContext().acquireSymbolType();
+    return rq::StaticRvalue(rq::StaticSymbol{{}, &symbol}, type);
+  }
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] rq::DynamicRvalue

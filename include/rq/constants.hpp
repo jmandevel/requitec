@@ -35,17 +35,17 @@ struct Constant : public rq::Entity {
 struct Symbol;
 enum class TypeFlags : std::uint_fast8_t;
 
-inline void profileWordConstant(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantWord(llvm::FoldingSetNodeID &out_id,
                                 const llvm::APInt &word) {
   word.Profile(out_id);
 }
 
-struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
-  using Self = rq::WordConstant;
+struct ConstantWord final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::ConstantWord;
 
   llvm::APInt _word;
 
-  explicit RQ_ALWAYS_INLINE WordConstant(llvm::APInt word)
+  explicit RQ_ALWAYS_INLINE ConstantWord(llvm::APInt word)
       : Constant(rq::ConstantKind::WORD), _word(word) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getWord() const {
@@ -95,11 +95,11 @@ struct WordConstant final : public rq::Constant, public llvm::FoldingSetNode {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &out_id) const {
-    rq::profileWordConstant(out_id, this->_word);
+    rq::profileConstantWord(out_id, this->_word);
   }
 };
 
-inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantArray(llvm::FoldingSetNodeID &out_id,
                                  llvm::ArrayRef<rq::Constant *> array) {
   out_id.AddInteger(array.size());
   for (const rq::Constant *constant_ptr : array) {
@@ -107,12 +107,12 @@ inline void profileArrayConstant(llvm::FoldingSetNodeID &out_id,
   }
 }
 
-struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
-  using Self = rq::ArrayConstant;
+struct ConstantArray final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::ConstantArray;
 
   std::vector<rq::Constant *> _array;
 
-  explicit RQ_ALWAYS_INLINE ArrayConstant(llvm::ArrayRef<rq::Constant *> array)
+  explicit RQ_ALWAYS_INLINE ConstantArray(llvm::ArrayRef<rq::Constant *> array)
       : Constant(rq::ConstantKind::ARRAY), _array(array) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Constant *>
@@ -128,11 +128,11 @@ struct ArrayConstant final : public rq::Constant, public llvm::FoldingSetNode {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileArrayConstant(out_id, this->getArray());
+    rq::profileConstantArray(out_id, this->getArray());
   }
 };
 
-inline void profileDataArrayConstant(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantDataArray(llvm::FoldingSetNodeID &out_id,
                                      llvm::ArrayRef<std::byte> data_array) {
   out_id.AddInteger(data_array.size());
   for (std::byte byte : data_array) {
@@ -140,14 +140,14 @@ inline void profileDataArrayConstant(llvm::FoldingSetNodeID &out_id,
   }
 }
 
-struct DataArrayConstant final : public rq::Constant,
+struct ConstantDataArray final : public rq::Constant,
                                  public llvm::FoldingSetNode {
-  using Self = rq::DataArrayConstant;
+  using Self = rq::ConstantDataArray;
 
   std::vector<std::byte> _data_array;
 
   explicit RQ_ALWAYS_INLINE
-  DataArrayConstant(llvm::ArrayRef<std::byte> data_array)
+  ConstantDataArray(llvm::ArrayRef<std::byte> data_array)
       : Constant(rq::ConstantKind::DATA_ARRAY), _data_array(data_array) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<std::byte>
@@ -163,29 +163,29 @@ struct DataArrayConstant final : public rq::Constant,
   }
 
   inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileDataArrayConstant(out_id, this->getDataArray());
+    rq::profileConstantDataArray(out_id, this->getDataArray());
   }
 };
 
-inline void profileSymbolConstant(llvm::FoldingSetNodeID &out_id,
-                                  rq::ExpressionFlags flags,
+inline void profileConstantSymbol(llvm::FoldingSetNodeID &out_id,
+                                  rq::TypeFlags flags,
                                   const rq::Symbol &symbol) {
   out_id.AddInteger(rq::getUnderlying(flags));
   out_id.AddPointer(&symbol);
 }
 
-struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
-  using Self = rq::SymbolConstant;
+struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
+  using Self = rq::ConstantSymbol;
 
-  rq::ExpressionFlags _flags;
+  rq::TypeFlags _flags;
   rq::Symbol *_symbol_ptr;
 
-  explicit RQ_ALWAYS_INLINE SymbolConstant(rq::ExpressionFlags flags,
+  explicit RQ_ALWAYS_INLINE ConstantSymbol(rq::TypeFlags flags,
                                            rq::Symbol &symbol)
       : Constant(rq::ConstantKind::SYMBOL), _flags(flags),
         _symbol_ptr(&symbol) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
     return this->_flags;
   }
 
@@ -205,7 +205,7 @@ struct SymbolConstant final : public rq::Constant, public llvm::FoldingSetNode {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileSymbolConstant(out_id, this->getFlags(), this->getSymbol());
+    rq::profileConstantSymbol(out_id, this->getFlags(), this->getSymbol());
   }
 };
 

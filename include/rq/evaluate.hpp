@@ -138,12 +138,12 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::SymbolTable &table,
+  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::Function &function,
+                                                    rq::SymbolTable &table,
                                                     rq::Module &module,
                                                     rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
-  void evaluate(rq::Main &main);
   void evaluate(rq::ClassType &class_);
   void evaluate(rq::EnumerationType &enum_);
   void evaluate(rq::Interface &interface);
