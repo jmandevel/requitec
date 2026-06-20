@@ -1,4 +1,5 @@
 #pragma once
+#include <rq/entity.hpp>
 #include <rq/generational_arena.hpp>
 #include <rq/static_value.hpp>
 #include <rq/utility.hpp>
@@ -77,6 +78,36 @@ struct DynamicRvalue final {
   }
 };
 
+struct InstructionConsFactory final {
+  using Self = rq::InstructionConsFactory;
+
+  rq::Context *_constext_ptr;
+  rq::Opcode _opcode;
+  rq::Entity *_outer_ptr{nullptr};
+  rq::Instruction *_last_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE InstructionConsFactory(rq::Context &context,
+                                                   rq::Opcode opcode);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
+    return this->_opcode;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
+    return rq::dereferencePtr(this->_constext_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
+    return rq::dereferencePtr(this->_constext_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getOuter() const {
+    return rq::dereferencePtr(this->_outer_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getOuter() {
+    return rq::dereferencePtr(this->_outer_ptr);
+  }
+
+  void append(rq::Entity &entity);
+};
+
 struct Evaluator final {
   using Self = rq::Evaluator;
 
@@ -107,6 +138,9 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
+  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::SymbolTable &table,
+                                                    rq::Module &module,
+                                                    rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
   void evaluate(rq::Main &main);
@@ -118,6 +152,10 @@ struct Evaluator final {
   void evaluate(rq::GlobalStaticVariable &var);
   void evaluate(rq::Function &func);
 
+  [[nodiscard]] rq::Symbol *evaluateLvalue(rq::SymbolTable &table,
+                                           rq::Module &module,
+                                           rq::Expression &lvalue_ex);
+
   [[nodiscard]] rq::StaticRvalue
   evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
                        rq::Expression &rvalue_ex);
@@ -126,12 +164,6 @@ struct Evaluator final {
   [[nodiscard]] rq::DynamicRvalue
   evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicIdentifier(rq::SymbolTable &table, rq::Module &module,
-                            rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicArithmeticRvalue(rq::Opcode opcode, rq::SymbolTable &table,
-                                  rq::Module &module,
-                                  rq::Expression &rvalue_ex);
+  // etc
 };
 } // namespace rq

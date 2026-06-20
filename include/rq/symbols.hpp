@@ -420,6 +420,8 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame() const;
 
+    [[nodiscard]] inline bool getIsComplete() const;
+
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
@@ -936,6 +938,7 @@ struct LocalVariable : public rq::LocalDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getExpressionFlags() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolConstant &getType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &getType();
+  RQ_ALWAYS_INLINE void completeType(rq::SymbolConstant& type);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1821,10 +1824,16 @@ struct GlobalDeclaration : public rq::NamedTable {
 struct Main final : public rq::GlobalDeclaration {
   using Self = rq::Main;
 
+  rq::Instruction* _instruction_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE Main(rq::SymbolTable &containing_table,
                                  rq::SymbolTable &hosting_table,
                                  rq::Expression &expression,
                                  rq::ExpressionFlags flags, rq::Module &module);
+
+  RQ_ALWAYS_INLINE void setInstruction(rq::Instruction& instruction);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction& getInstruction() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction& getInstruction();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

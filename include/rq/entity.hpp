@@ -717,9 +717,15 @@ enum class Opcode : rq::EntityId {
   //address1 = end expression
   SOURCE_RANGE,
 
+  // address0 = head
+  // address1 = tail 
+  STATEMENT,
+
+  ASSIGN,
+
   // ARITHMETIC
-  // address0 - head
-  // address1 - tail
+  // address0 = head
+  // address1 = tail
   ADD,
   SUBTRACT,
   MULTIPLY,

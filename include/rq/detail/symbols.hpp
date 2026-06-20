@@ -1281,6 +1281,20 @@ Symbol::getIsExpressionAttributeType() const {
   return rq::getIsFrame(this->getKind());
 }
 
+[[nodiscard]] inline bool Symbol::getIsComplete() const {
+  if (llvm::isa<rq::InferenceType>(*this)) {
+    return false;
+  }
+  if (llvm::isa<rq::InferenceCountArraySubtype>(*this)) {
+    return false;
+  }
+  if (llvm::isa<rq::Subtype>(*this)) {
+    const rq::Subtype &subtype = llvm::cast<rq::Subtype>(*this);
+    return subtype.getChild().getSymbol().getIsComplete();
+  }
+  return true;
+}
+
 [[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
@@ -1939,6 +1953,12 @@ LocalVariable::getType() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolConstant &LocalVariable::getType() {
   return rq::dereferencePtr(this->_type_ptr);
+}
+
+RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::SymbolConstant &type) {
+  RQ_ASSERT(!this->getType().getSymbol().getIsComplete(), "already complete");
+  RQ_ASSERT(type.getSymbol().getIsComplete(), "not complete");
+  this->_type_ptr = &type;
 }
 
 [[nodiscard]] inline bool LocalVariable::classof(const rq::Entity *entity_ptr) {
@@ -3477,6 +3497,19 @@ Main::Main(rq::SymbolTable &containing_table, rq::SymbolTable &hosting_table,
            rq::Module &module)
     : GlobalDeclaration(rq::SymbolKind::MAIN, containing_table, {},
                         hosting_table, expression, nullptr, flags, module) {}
+
+RQ_ALWAYS_INLINE void Main::setInstruction(rq::Instruction &instruction) {
+  rq::assignSingleValue(this->_instruction_ptr, &instruction);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
+Main::getInstruction() const {
+  return rq::dereferencePtr(this->_instruction_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Main::getInstruction() {
+  return rq::dereferencePtr(this->_instruction_ptr);
+}
 
 [[nodiscard]] inline bool Main::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
