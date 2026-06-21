@@ -68,15 +68,16 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   }
 }
 
-[[nodiscard]] rq::Instruction *
-Evaluator::evaluateLocalScope(rq::Function &function, rq::SymbolTable &table,
-                              rq::Module &module, rq::Expression &first_ex) {
+[[nodiscard]] rq::Instruction *Evaluator::evaluateLocalScope(
+    rq::Function &function, rq::ConstantSymbol &result_type,
+    rq::SymbolTable &table, rq::Module &module, rq::Expression &first_ex) {
   std::ignore = function;
   std::ignore = table;
   std::ignore = module;
+  std::ignore = result_type;
   using K = rq::Keyword;
   using O = rq::Opcode;
-  // using S = rq::SymbolKind;
+  //using S = rq::SymbolKind;
   rq::InstructionConsFactory factory(this->getContext(), O::STATEMENT);
   for (rq::Expression &state_ex : first_ex.getInclusiveNextSubrange()) {
     switch (state_ex.getKeyword()) {
@@ -85,17 +86,23 @@ Evaluator::evaluateLocalScope(rq::Function &function, rq::SymbolTable &table,
       rq::Expression &rvalue_ex = lvalue_ex.getNext();
       rq::DynamicRvalue rvalue =
           this->evaluateDynamicRvalue(table, module, rvalue_ex);
-      rq::Symbol *lvalue_ptr = this->evaluateLvalue(table, module, lvalue_ex);
-      if (lvalue_ptr == nullptr) {
-        RQ_UNHANDLED_ERROR("lvalue error");
+      if (rvalue.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("error");
       }
-      rq::Symbol &lvalue = rq::dereferencePtr(lvalue_ptr);
-      // rq::Symbol &rvalue_ty = rvalue.getType();
-      // TODO determine final type
-      // TODO fold rvalue
+      rq::DynamicLvalue lvalue =
+          this->evaluateDynamicLvalue(result_type, table, module, lvalue_ex);
+      if (lvalue.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("error");
+      }
+      //if (!lvalue.getType().getSymbol().getIsComplete()) {
+      //  rq::ConstantSymbol &complete_type = this->deduceType(lvalue.getType(), rvalue.getType());
+      //}
+      if (rvalue.getType().getIsLiteralType()) {
+        rvalue = this->foldDynamicRvalue(rvalue, lvalue.getType().getSymbol());
+      }
       rq::Instruction &inst =
           this->getContext().acquireInstruction(rq::Opcode::ASSIGN);
-      inst.setAddress0(lvalue);
+      inst.setAddress0(lvalue.getSymbol());
       inst.setAddress1(rvalue.getValue());
       factory.append(inst);
       break;
@@ -171,9 +178,11 @@ void Evaluator::evaluate(rq::Function &func) {
     return;
   }
   if (func.getName().getKeyword() == rq::Keyword::MAIN) {
+    rq::ConstantSymbol &result_type = this->getContext().acquireConstantSymbol(
+        {}, this->getContext().acquireSignedIntegerType());
     rq::Expression &statement0 = ex.getBranch();
-    rq::Instruction *inst_ptr =
-        this->evaluateLocalScope(func, func, func.getModule(), statement0);
+    rq::Instruction *inst_ptr = this->evaluateLocalScope(
+        func, result_type, func, func.getModule(), statement0);
     if (inst_ptr == nullptr) {
       return;
     }
@@ -182,9 +191,10 @@ void Evaluator::evaluate(rq::Function &func) {
   }
 }
 
-[[nodiscard]] rq::Symbol *Evaluator::evaluateLvalue(rq::SymbolTable &table,
-                                                    rq::Module &module,
-                                                    rq::Expression &lvalue_ex) {
+[[nodiscard]] rq::DynamicLvalue
+Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
+                                 rq::SymbolTable &table, rq::Module &module,
+                                 rq::Expression &lvalue_ex) {
   using K = rq::Keyword;
   switch (lvalue_ex.getKeyword()) {
   case K::BINDING: {
@@ -199,9 +209,6 @@ void Evaluator::evaluate(rq::Function &func) {
     rq::StaticSymbol static_sy = type_rvalue.getValue().getSymbol();
     rq::ConstantSymbol &type = this->getContext().acquireConstantSymbol(
         static_sy.flags, rq::dereferencePtr(static_sy.symbol_ptr));
-    // TODO check type matches procedure type
-    // TODO check result not already initialized
-    // TODO guarantee not initialize result in lower scope then ascend
     switch (var_ex.getKeyword()) {
     case K::RESULT: {
       rq::Name name(K::RESULT);
@@ -209,19 +216,23 @@ void Evaluator::evaluate(rq::Function &func) {
       if (!found.getIsEmpty()) {
         RQ_UNHANDLED_ERROR("result already initialized");
       }
+      if (type.getSymbol() != result_type.getSymbol()) {
+        RQ_UNHANDLED_ERROR("invalid result type");
+      }
       rq::LocalDynamicVariable &result =
           this->getContext().allocateValue<rq::LocalDynamicVariable>(
               name, table, table, module, rq::ExpressionFlags::NONE, type);
       table.addMember(this->getContext(), name, result);
-      return &result;
+      return rq::DynamicLvalue(result, type);
     }
     default:
       RQ_UNREACHABLE();
     }
   }
   default:
-    RQ_UNREACHABLE();
+    break;
   }
+  RQ_UNREACHABLE();
 }
 
 [[nodiscard]] rq::StaticRvalue
@@ -259,6 +270,44 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   }
   default:
     break;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] rq::DynamicRvalue
+Evaluator::foldDynamicRvalue(rq::DynamicRvalue rvalue, rq::Symbol &actual_ty) {
+  if (actual_ty.getIsIntegerType()) {
+    const unsigned depth = this->getContext().getDepth(actual_ty);
+    const bool is_signed = actual_ty.getIsSignedType();
+    rq::Entity &value = rvalue.getValue();
+    llvm::APSInt folder(depth, is_signed);
+    this->foldDynamicInteger(folder, value);
+    rq::ConstantWord &word = this->getContext().acquireConstantWord(
+        static_cast<llvm::APInt>(folder));
+    return rq::DynamicRvalue(word, actual_ty);
+  }
+  RQ_UNREACHABLE();
+}
+
+void Evaluator::foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity &value) {
+  using K = rq::Keyword;
+  if (llvm::isa<rq::Expression>(value)) {
+    rq::Expression &ex = llvm::cast<rq::Expression>(value);
+    switch (ex.getKeyword()) {
+    case K::INTEGER_LITERAL: {
+      llvm::APInt term(inout_int.getBitWidth(), 0);
+      rq::NumericResultCode code =
+          rq::getNumericValue(ex.getSourceText(), term);
+      if (code != rq::NumericResultCode::OK) {
+        RQ_UNHANDLED_ERROR("error parsing integer literal");
+      }
+      inout_int = term;
+      return;
+    }
+    default:
+      break;
+    }
+    RQ_UNREACHABLE();
   }
   RQ_UNREACHABLE();
 }

@@ -3187,18 +3187,6 @@ RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::SymbolKind kind,
   RQ_ASSERT(rq::getIsSymbolTable(kind), "not symbol table");
 }
 
-inline void SymbolTable::release() {
-  for (auto &kvp : this->_member_map) {
-    for (rq::Symbol &symbol : kvp.second) {
-      if (llvm::isa<rq::SymbolTable>(symbol)) {
-        rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(symbol);
-        table.release();
-      }
-    }
-  }
-  std::destroy_at(&this->_member_map);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
 SymbolTable::getContainingTablePtr() const {
   return this->_containing_table_ptr;

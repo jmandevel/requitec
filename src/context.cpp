@@ -631,6 +631,17 @@ bool Context::emitObject(llvm::StringRef path) {
   return true;
 }
 
+[[nodiscard]] unsigned Context::getDepth(rq::Symbol &symbol) {
+  using S = rq::SymbolKind;
+  switch (symbol.getKind()) {
+  case S::SIGNED_INTEGER_TYPE:
+    return 32;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
 void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {
   llvm::Twine message =
       llvm::Twine("invalid utf-8 codeunit \"") + rq::getUtf8Name(c) + "\"";

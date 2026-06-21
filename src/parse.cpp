@@ -936,7 +936,7 @@ rq::Expression &RequiteParser::parseEnclosedBraceExpression() {
       this->parseBranches(rq::TokenKind::RIGHT_BRACE_GROUPING);
   brace.setSource(first_token, result.getLastToken());
   brace.setBranch(result.getFirstBranchPtr());
-  if (result.getFoundParameterMark()) {
+  if (result.getFoundParameterMark() || !brace.getHasBranch()) {
     brace.changeKeyword(rq::Keyword::INSTANTIATE_LAYOUT);
   }
   return brace;

@@ -29,7 +29,7 @@ struct NextIterator final {
 
   NextIterator() = default;
   explicit RQ_ALWAYS_INLINE NextIterator(Base *cur_ptr)
-      : _cur_ptr(llvm::cast<Element>(cur_ptr)) {}
+      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {}
   NextIterator(const Self &) = default;
   NextIterator(Self &&) = default;
   ~NextIterator() = default;
@@ -37,13 +37,13 @@ struct NextIterator final {
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++() {
     this->_cur_ptr =
-        llvm::cast<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return *this;
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     rq::NextIterator<Element> temp = *this;
     this->_cur_ptr =
-        llvm::cast<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return temp;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
@@ -151,7 +151,7 @@ struct ConstNextIterator final {
 
   ConstNextIterator() = default;
   explicit RQ_ALWAYS_INLINE ConstNextIterator(const Base *cur_ptr)
-      : _cur_ptr(llvm::cast<Element>(cur_ptr)) {}
+      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {}
   ConstNextIterator(const Self &) = default;
   ConstNextIterator(Self &&) = default;
   ~ConstNextIterator() = default;
@@ -159,13 +159,13 @@ struct ConstNextIterator final {
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++() {
     this->_cur_ptr =
-        llvm::cast<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return *this;
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     rq::NextIterator<Element> temp = *this;
     this->_cur_ptr =
-        llvm::cast<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return temp;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {

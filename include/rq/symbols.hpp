@@ -1688,7 +1688,6 @@ struct SymbolTable : public rq::Symbol {
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind,
                                         rq::SymbolTable *containing_table_ptr);
 
-  inline void release();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
   getContainingTablePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainingTablePtr();

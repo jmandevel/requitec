@@ -22,29 +22,28 @@ struct ExpressionFlagsFactory;
 struct StaticRvalue final {
   using Self = rq::StaticRvalue;
 
-  bool _is_numeric_literal_tree : 1;
+  bool _is_literal : 1;
   rq::StaticValue _value;
   rq::Symbol *_type_ptr;
 
   explicit RQ_ALWAYS_INLINE StaticRvalue(rq::Symbol &literal_type)
-      : _is_numeric_literal_tree(true), _value(), _type_ptr(&literal_type) {
-    RQ_ASSERT(literal_type.getIsLiteralType() &&
-                  literal_type.getIsNumericType(),
-              "not numeric literal type");
+      : _is_literal(true), _value(), _type_ptr(&literal_type) {
+    RQ_ASSERT(literal_type.getIsNumericType(),
+              "not literal type");
   }
   explicit RQ_ALWAYS_INLINE StaticRvalue(const rq::StaticValue &value,
                                          rq::Symbol &value_type)
-      : _is_numeric_literal_tree(false), _value(value), _type_ptr(&value_type) {
+      : _is_literal(false), _value(value), _type_ptr(&value_type) {
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericLiteralTree() const {
-    return this->_is_numeric_literal_tree;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
+    return this->_is_literal;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue &getValue() const {
-    RQ_ASSERT(!this->getIsNumericLiteralTree(), "no value");
+    RQ_ASSERT(!this->getIsLiteral(), "is literal");
     return this->_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue &getValue() {
-    RQ_ASSERT(!this->getIsNumericLiteralTree(), "no value");
+    RQ_ASSERT(!this->getIsLiteral(), "is literal");
     return this->_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const {
@@ -58,12 +57,16 @@ struct StaticRvalue final {
 struct DynamicRvalue final {
   using Self = rq::DynamicRvalue;
 
-  rq::Entity *_value_ptr;
-  rq::Symbol *_type_ptr;
+  rq::Entity *_value_ptr{nullptr};
+  rq::Symbol *_type_ptr{nullptr};
 
+  explicit RQ_ALWAYS_INLINE DynamicRvalue() = default;
   explicit RQ_ALWAYS_INLINE DynamicRvalue(rq::Entity &value, rq::Symbol &type)
       : _value_ptr(&value), _type_ptr(&type) {}
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_value_ptr == nullptr;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const {
     return rq::dereferencePtr(this->_value_ptr);
   }
@@ -74,6 +77,33 @@ struct DynamicRvalue final {
     return rq::dereferencePtr(this->_type_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType() {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
+};
+
+struct DynamicLvalue final {
+  using Self = rq::DynamicLvalue;
+
+  rq::Symbol* _symbol_ptr{nullptr};
+  rq::ConstantSymbol *_type_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE DynamicLvalue() = default;
+  explicit RQ_ALWAYS_INLINE DynamicLvalue(rq::Symbol& symbol, rq::ConstantSymbol& type)
+    : _symbol_ptr(&symbol), _type_ptr(&type) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_symbol_ptr == nullptr;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol & getSymbol() const {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
+    return rq::dereferencePtr(this->_symbol_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const {
+    return rq::dereferencePtr(this->_type_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType() {
     return rq::dereferencePtr(this->_type_ptr);
   }
 };
@@ -138,7 +168,7 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::Function &function,
+  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::Function &function, rq::ConstantSymbol& result_type,
                                                     rq::SymbolTable &table,
                                                     rq::Module &module,
                                                     rq::Expression &first_ex);
@@ -152,7 +182,7 @@ struct Evaluator final {
   void evaluate(rq::GlobalStaticVariable &var);
   void evaluate(rq::Function &func);
 
-  [[nodiscard]] rq::Symbol *evaluateLvalue(rq::SymbolTable &table,
+  [[nodiscard]] rq::DynamicLvalue evaluateDynamicLvalue(rq::ConstantSymbol& result_type, rq::SymbolTable &table,
                                            rq::Module &module,
                                            rq::Expression &lvalue_ex);
 
@@ -164,6 +194,9 @@ struct Evaluator final {
   [[nodiscard]] rq::DynamicRvalue
   evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &rvalue_ex);
+
+  [[nodiscard]] rq::DynamicRvalue foldDynamicRvalue(rq::DynamicRvalue rvalue, rq::Symbol& actual_type);
+  void foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity& value);
   // etc
 };
 } // namespace rq

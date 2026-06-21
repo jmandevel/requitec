@@ -165,7 +165,6 @@ struct Context final : public rq::BumpPtrAllocator {
   Context(const Self &) = delete;
   Context(Self &&) = delete;
   inline ~Context() {
-    this->_top.release();
     for (auto &ct : this->_word_constants) {
       std::destroy_at(&ct);
     }
@@ -258,6 +257,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
+  [[nodiscard]] unsigned getDepth(rq::Symbol& symbol);
   RQ_ALWAYS_INLINE void logMessage(llvm::Twine twine) {
     llvm::outs() << twine << "\n";
   }
