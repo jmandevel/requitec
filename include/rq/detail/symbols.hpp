@@ -3717,8 +3717,22 @@ RQ_ALWAYS_INLINE void Function::setMangledName(llvm::StringRef mangle) {
   this->_mangled_name = mangle;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Function::getMangledName() const {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+Function::getMangledName() const {
   return this->_mangled_name;
+}
+
+RQ_ALWAYS_INLINE void Function::setLlvmFunction(llvm::Function &llvm_function) {
+  rq::assignSingleValue(this->_llvm_function_ptr, &llvm_function);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::Function *
+Function::getLlvmFunctionPtr() const {
+  return this->_llvm_function_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::Function *Function::getLlvmFunctionPtr() {
+  return this->_llvm_function_ptr;
 }
 
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {

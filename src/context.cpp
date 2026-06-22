@@ -15,6 +15,7 @@
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/FileSystem.h>
@@ -345,7 +346,7 @@ bool Context::evaluateSourceModule() {
 
 bool Context::buildLlvmIr() {
   rq::LlvmIrBuilder builder(*this);
-  // builder.buildLlvmIr();
+  builder.buildLlvmIr();
   return builder.getIsOk();
 }
 
@@ -631,15 +632,39 @@ bool Context::emitObject(llvm::StringRef path) {
   return true;
 }
 
-[[nodiscard]] unsigned Context::getDepth(rq::Symbol &symbol) {
+[[nodiscard]] llvm::Type *Context::getLlvmTypePtr(rq::Symbol &symbol) {
   using S = rq::SymbolKind;
   switch (symbol.getKind()) {
-  case S::SIGNED_INTEGER_TYPE:
-    return 32;
+  case S::SIGNED_INTEGER_TYPE: {
+    unsigned best_size =
+        this->getLlvmModule().getDataLayout().getPointerSizeInBits();
+    return this->getLlvmIrBuilder().getIntNTy(best_size);
+  }
+  case S::SIGNATURE: {
+    rq::Signature &sig = llvm::cast<rq::Signature>(symbol);
+    if (sig.getFirstParameterPtr() != nullptr) {
+      RQ_TODO_IMPLEMENTATION();
+    }
+    llvm::Type *llvm_result_ty_ptr =
+        this->getLlvmTypePtr(sig.getReturnType().getSymbol());
+    if (llvm_result_ty_ptr == nullptr) {
+      return nullptr;
+    }
+    return llvm::FunctionType::get(llvm_result_ty_ptr, false);
+  }
   default:
     break;
   }
   RQ_UNREACHABLE();
+}
+
+[[nodiscard]] unsigned Context::getDepth(rq::Symbol &symbol) {
+  llvm::Type *llvm_ty_ptr = this->getLlvmTypePtr(symbol);
+  if (llvm_ty_ptr == nullptr) {
+    return 0;
+  }
+  llvm::Type &llvm_ty = rq::dereferencePtr(llvm_ty_ptr);
+  return llvm_ty.getIntegerBitWidth();
 }
 
 void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {

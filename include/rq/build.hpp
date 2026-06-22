@@ -2,11 +2,15 @@
 
 #include <rq/utility.hpp>
 
+#include <llvm/IR/IRBuilder.h>
+
+#include <memory>
+
 namespace rq {
 
 struct Context;
 struct Module;
-struct Procedure;
+struct Function;
 
 struct LlvmIrBuilder final {
   using Self = rq::LlvmIrBuilder;
@@ -14,8 +18,10 @@ struct LlvmIrBuilder final {
   rq::Context *_context_ptr;
   bool _is_ok{true};
 
+
   LlvmIrBuilder(rq::Context &context)
-      : _context_ptr(&context){}
+      : _context_ptr(&context) {
+      }
   LlvmIrBuilder(const Self &) = delete;
   LlvmIrBuilder(Self &&) = delete;
   ~LlvmIrBuilder() = default;
@@ -30,7 +36,7 @@ struct LlvmIrBuilder final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   void buildLlvmIr();
-  void buildProcedure(rq::Procedure& procedure);
+  void build(rq::Function& function);
 };
 
 } // namespace rq

@@ -31,6 +31,10 @@
 #include <utility>
 #include <vector>
 
+namespace llvm {
+struct Type;
+}
+
 namespace rq {
 
 struct Token;
@@ -257,7 +261,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
-  [[nodiscard]] unsigned getDepth(rq::Symbol& symbol);
+  [[nodiscard]] llvm::Type *getLlvmTypePtr(rq::Symbol &symbol);
+  [[nodiscard]] unsigned getDepth(rq::Symbol &symbol);
   RQ_ALWAYS_INLINE void logMessage(llvm::Twine twine) {
     llvm::outs() << twine << "\n";
   }
@@ -342,7 +347,8 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorUnexpectedChainLinkExpression(const rq::Expression &expresison);
-  void logErrorExpectedStatementOrChainLinkExpression(const rq::Expression &expresison);
+  void logErrorExpectedStatementOrChainLinkExpression(
+      const rq::Expression &expresison);
   void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
   void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
                                           const rq::Expression &attribute);
