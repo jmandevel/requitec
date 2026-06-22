@@ -2762,9 +2762,8 @@ getKind(rq::ExpressionAttribute attribute) {
 
 struct ExpressionFlagsFactory final {
   using Self = rq::ExpressionFlagsFactory;
-  using ExpressionList = llvm::SmallVector<const rq::Expression *, 1>;
   using PtrMap =
-      llvm::SmallDenseMap<rq::ExpressionAttributeKind, ExpressionList>;
+      llvm::SmallDenseMap<rq::ExpressionAttributeKind, rq::Expression*>;
 
 #if !defined(_NDEBUG)
   rq::Keyword _keyword{rq::Keyword::NONE};
@@ -2785,19 +2784,25 @@ struct ExpressionFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
-  inline void addFlag(rq::ExpressionAttribute attribute,
-                      const rq::Expression *expression_ptr) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getExpressionPtr(rq::ExpressionAttributeKind kind) {
+    auto it = this->_ptr_map.find(kind);
+    if (it == this->_ptr_map.end()) {
+      return nullptr;
+    }
+    return it->getSecond();
+  }
+  [[nodiscard]] inline bool addFlag(rq::ExpressionAttribute attribute,
+                      rq::Expression *expression_ptr) {
     const rq::ExpressionFlags flag = rq::getFlags(attribute);
     this->_flags |= flag;
     const rq::ExpressionAttributeKind kind = rq::getKind(attribute);
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
-      ExpressionList list;
-      list.push_back(expression_ptr);
-      this->_ptr_map.emplace_or_assign(kind, std::move(list));
+      this->_ptr_map.emplace_or_assign(kind, expression_ptr);
     } else {
-      it->getSecond().push_back(expression_ptr);
+      return false;
     }
+    return true;
   }
 };
 

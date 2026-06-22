@@ -22,19 +22,26 @@ struct ExpressionFlagsFactory;
 struct StaticRvalue final {
   using Self = rq::StaticRvalue;
 
-  bool _is_literal : 1;
-  rq::StaticValue _value;
-  rq::Symbol *_type_ptr;
+  bool _is_empty : 1 {true};
+  bool _is_literal : 1 {false};
+  rq::StaticValue _value{};
+  rq::Symbol *_type_ptr{nullptr};
 
+  explicit RQ_ALWAYS_INLINE StaticRvalue() = default;
   explicit RQ_ALWAYS_INLINE StaticRvalue(rq::Symbol &literal_type)
-      : _is_literal(true), _value(), _type_ptr(&literal_type) {
-    RQ_ASSERT(literal_type.getIsNumericType(),
-              "not literal type");
+      : _is_empty(false), _is_literal(true), _value(),
+        _type_ptr(&literal_type) {
+    RQ_ASSERT(literal_type.getIsNumericType(), "not literal type");
   }
   explicit RQ_ALWAYS_INLINE StaticRvalue(const rq::StaticValue &value,
                                          rq::Symbol &value_type)
-      : _is_literal(false), _value(value), _type_ptr(&value_type) {
+      : _is_empty(false), _is_literal(false), _value(value),
+        _type_ptr(&value_type) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_is_empty;
   }
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
     return this->_is_literal;
   }
@@ -84,17 +91,18 @@ struct DynamicRvalue final {
 struct DynamicLvalue final {
   using Self = rq::DynamicLvalue;
 
-  rq::Symbol* _symbol_ptr{nullptr};
+  rq::Symbol *_symbol_ptr{nullptr};
   rq::ConstantSymbol *_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE DynamicLvalue() = default;
-  explicit RQ_ALWAYS_INLINE DynamicLvalue(rq::Symbol& symbol, rq::ConstantSymbol& type)
-    : _symbol_ptr(&symbol), _type_ptr(&type) {}
+  explicit RQ_ALWAYS_INLINE DynamicLvalue(rq::Symbol &symbol,
+                                          rq::ConstantSymbol &type)
+      : _symbol_ptr(&symbol), _type_ptr(&type) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
     return this->_symbol_ptr == nullptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol & getSymbol() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
     return rq::dereferencePtr(this->_symbol_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol() {
@@ -168,10 +176,10 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Instruction *evaluateLocalScope(rq::Function &function, rq::ConstantSymbol& result_type,
-                                                    rq::SymbolTable &table,
-                                                    rq::Module &module,
-                                                    rq::Expression &first_ex);
+  [[nodiscard]] rq::Instruction *
+  evaluateLocalScope(rq::Function &function, rq::ConstantSymbol &result_type,
+                     rq::SymbolTable &table, rq::Module &module,
+                     rq::Expression &first_ex);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);
@@ -182,9 +190,9 @@ struct Evaluator final {
   void evaluate(rq::GlobalStaticVariable &var);
   void evaluate(rq::Function &func);
 
-  [[nodiscard]] rq::DynamicLvalue evaluateDynamicLvalue(rq::ConstantSymbol& result_type, rq::SymbolTable &table,
-                                           rq::Module &module,
-                                           rq::Expression &lvalue_ex);
+  [[nodiscard]] rq::DynamicLvalue
+  evaluateDynamicLvalue(rq::ConstantSymbol &result_type, rq::SymbolTable &table,
+                        rq::Module &module, rq::Expression &lvalue_ex);
 
   [[nodiscard]] rq::StaticRvalue
   evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
@@ -195,8 +203,13 @@ struct Evaluator final {
   evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &rvalue_ex);
 
-  [[nodiscard]] rq::DynamicRvalue foldDynamicRvalue(rq::DynamicRvalue rvalue, rq::Symbol& actual_type);
-  void foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity& value);
+  [[nodiscard]] rq::DynamicRvalue foldDynamicRvalue(rq::DynamicRvalue rvalue,
+                                                    rq::Symbol &actual_type);
+
+  void foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity &value);
   // etc
+
+  rq::Name evaluateName(rq::SymbolTable &table, rq::Module &module,
+                        rq::Expression &name_ex);
 };
 } // namespace rq

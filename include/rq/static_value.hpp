@@ -68,6 +68,10 @@ struct StaticValue final {
       : _kind(rq::StaticValueKind::SYMBOL) {
     this->getSymbol() = symbol;
   }
+  RQ_ALWAYS_INLINE StaticValue(const rq::ExpressionAttribute &attribute)
+      : _kind(rq::StaticValueKind::EXPRESSION_ATTRIBUTE) {
+    this->getExpressionAttribute() = attribute;
+  }
   ~StaticValue() {
     switch (this->_kind) {
     case Kind::NONE:

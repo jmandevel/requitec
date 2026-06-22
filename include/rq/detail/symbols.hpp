@@ -3655,11 +3655,25 @@ Function::Function(rq::SymbolTable &containing_table, rq::Name name,
                    rq::SymbolTable &hosting_table, rq::Expression &expression,
                    rq::Expression *name_expression_ptr,
                    rq::ExpressionFlags flags, rq::Module &module,
+                   rq::Expression *first_body_expression_ptr,
                    rq::Template *template_ptr,
-                   rq::TemplateArgument *first_argument_ptr)
+                   rq::TemplateArgument *first_argument_ptr,
+                   rq::Expression *mangle_expression_ptr)
     : Instance(rq::SymbolKind::FUNCTION, containing_table, name, hosting_table,
                expression, name_expression_ptr, flags, module, template_ptr,
-               first_argument_ptr) {}
+               first_argument_ptr),
+      _first_body_expression_ptr(first_body_expression_ptr),
+      _mangle_expression_ptr(mangle_expression_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Function::getFirstBodyExpressionPtr() const {
+  return this->_first_body_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+Function::getFirstBodyExpressionPtr() {
+  return this->_first_body_expression_ptr;
+}
 
 RQ_ALWAYS_INLINE
 void Function::setSignature(rq::Signature &signature) {
@@ -3686,6 +3700,25 @@ Function::getInstructions() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Function::getInstructions() {
   return rq::dereferencePtr(this->_instructions_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Function::getMangleExpressionPtr() const {
+  return this->_mangle_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+Function::getMangleExpressionPtr() {
+  return this->_mangle_expression_ptr;
+}
+
+RQ_ALWAYS_INLINE void Function::setMangledName(llvm::StringRef mangle) {
+  RQ_ASSERT(this->_mangled_name.empty(), "already set");
+  this->_mangled_name = mangle;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Function::getMangledName() const {
+  return this->_mangled_name;
 }
 
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
