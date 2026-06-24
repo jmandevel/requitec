@@ -10,21 +10,20 @@ namespace rq {
 
 struct Context;
 struct Module;
+struct SymbolTable;
 struct Function;
+struct Instruction;
 
-struct LlvmIrBuilder final {
-  using Self = rq::LlvmIrBuilder;
+struct Builder final {
+  using Self = rq::Builder;
 
   rq::Context *_context_ptr;
   bool _is_ok{true};
 
-
-  LlvmIrBuilder(rq::Context &context)
-      : _context_ptr(&context) {
-      }
-  LlvmIrBuilder(const Self &) = delete;
-  LlvmIrBuilder(Self &&) = delete;
-  ~LlvmIrBuilder() = default;
+  Builder(rq::Context &context) : _context_ptr(&context) {}
+  Builder(const Self &) = delete;
+  Builder(Self &&) = delete;
+  ~Builder() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
@@ -36,7 +35,12 @@ struct LlvmIrBuilder final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   void buildLlvmIr();
-  void build(rq::Function& function);
+  void build(rq::Function &function);
+  void buildScope(rq::Function &func, rq::SymbolTable &scope,
+                  rq::Instruction &instructions, llvm::BasicBlock &llvm_bb,
+                  llvm::BasicBlock &llvm_exit_bb,
+                  llvm::Value *llvm_reciever_ptr, llvm::Value *llvm_result_ptr,
+                  llvm::Value *llvm_out_ptr);
 };
 
 } // namespace rq

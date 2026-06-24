@@ -1991,6 +1991,21 @@ RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
     : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags, type) {}
 
+RQ_ALWAYS_INLINE void
+LocalDynamicVariable::setLlvmLocation(llvm::AllocaInst &llvm_location) {
+  rq::assignSingleValue(this->_llvm_location_ptr, &llvm_location);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *
+LocalDynamicVariable::getLlvmLocationPtr() const {
+  return this->_llvm_location_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *
+LocalDynamicVariable::getLlvmLocationPtr() {
+  return this->_llvm_location_ptr;
+}
+
 [[nodiscard]] inline bool
 LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3693,13 +3708,13 @@ RQ_ALWAYS_INLINE void Function::setInstructions(rq::Instruction &instructions) {
   rq::assignSingleValue(this->_instructions_ptr, &instructions);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
-Function::getInstructions() const {
-  return rq::dereferencePtr(this->_instructions_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
+Function::getInstructionsPtr() const {
+  return this->_instructions_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Function::getInstructions() {
-  return rq::dereferencePtr(this->_instructions_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *Function::getInstructionsPtr() {
+  return this->_instructions_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *

@@ -1001,13 +1001,27 @@ struct LocalVariable : public rq::LocalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+} // namespace rq
+
+namespace llvm {
+struct Value;
+}
+
+namespace rq {
+
 struct LocalDynamicVariable final : public rq::LocalVariable {
   using Self = rq::LocalDynamicVariable;
+
+  llvm::Value *_llvm_location{nullptr};
 
   explicit RQ_ALWAYS_INLINE
   LocalDynamicVariable(rq::Name name, rq::SymbolTable &containing_table,
                        rq::SymbolTable &hosting_table, rq::Module &module,
                        rq::ExpressionFlags flags, rq::ConstantSymbol &type);
+
+  RQ_ALWAYS_INLINE void setLlvmLocation(llvm::Value& llvm_location);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *getLlvmLocationPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *getLlvmLocationPtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1981,7 +1995,7 @@ struct Function : public rq::Instance {
   rq::Instruction *_instructions_ptr{nullptr};
   rq::Expression *_mangle_expression_ptr;
   llvm::StringRef _mangled_name{};
-  llvm::Function* _llvm_function_ptr{nullptr};
+  llvm::Function *_llvm_function_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
   Function(rq::SymbolTable &containing_table, rq::Name name,
@@ -1997,16 +2011,18 @@ struct Function : public rq::Instance {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
   RQ_ALWAYS_INLINE void setInstructions(rq::Instruction &instructions);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &getInstructions() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &getInstructions();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
+  getInstructionsPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionsPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getMangleExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getMangleExpressionPtr();
   RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef mangle);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
-  RQ_ALWAYS_INLINE void setLlvmFunction(llvm::Function& llvm_function);
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Function* getLlvmFunctionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Function* getLlvmFunctionPtr();
+  RQ_ALWAYS_INLINE void setLlvmFunction(llvm::Function &llvm_function);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Function *
+  getLlvmFunctionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Function *getLlvmFunctionPtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

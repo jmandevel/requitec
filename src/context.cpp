@@ -345,7 +345,7 @@ bool Context::evaluateSourceModule() {
 }
 
 bool Context::buildLlvmIr() {
-  rq::LlvmIrBuilder builder(*this);
+  rq::Builder builder(*this);
   builder.buildLlvmIr();
   return builder.getIsOk();
 }
@@ -636,8 +636,7 @@ bool Context::emitObject(llvm::StringRef path) {
   using S = rq::SymbolKind;
   switch (symbol.getKind()) {
   case S::SIGNED_INTEGER_TYPE: {
-    unsigned best_size =
-        this->getLlvmModule().getDataLayout().getPointerSizeInBits();
+    unsigned best_size = this->getDefaultIntegerDepth();
     return this->getLlvmIrBuilder().getIntNTy(best_size);
   }
   case S::SIGNATURE: {
@@ -658,6 +657,10 @@ bool Context::emitObject(llvm::StringRef path) {
   RQ_UNREACHABLE();
 }
 
+[[nodiscard]] unsigned Context::getDefaultIntegerDepth() const {
+  return this->getLlvmModule().getDataLayout().getPointerSizeInBits();
+}
+
 [[nodiscard]] unsigned Context::getDepth(rq::Symbol &symbol) {
   llvm::Type *llvm_ty_ptr = this->getLlvmTypePtr(symbol);
   if (llvm_ty_ptr == nullptr) {
@@ -665,6 +668,10 @@ bool Context::emitObject(llvm::StringRef path) {
   }
   llvm::Type &llvm_ty = rq::dereferencePtr(llvm_ty_ptr);
   return llvm_ty.getIntegerBitWidth();
+}
+
+[[nodiscard]] bool Context::getIsSret(rq::Symbol &symbol) {
+  return this->getDepth(symbol) > this->getDefaultIntegerDepth();
 }
 
 void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {
