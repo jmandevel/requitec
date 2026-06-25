@@ -64,7 +64,10 @@ void Builder::build(rq::Function &func) {
   llvm::BasicBlock &llvm_exit_bb = rq::dereferencePtr(llvm_exit_bb_ptr);
   llvm::Argument *arg_it = llvm_func.arg_begin();
   llvm::Value *llvm_result_ptr = nullptr;
-  if (return_type.getSymbol().getKind() != rq::SymbolKind::VOID_TYPE) {
+  if (return_type.getSymbol().getKind() == rq::SymbolKind::VOID_TYPE) {
+    this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_exit_bb);
+    this->getContext().getLlvmIrBuilder().CreateRetVoid();
+  } else {
     if (this->getContext().getIsSret(return_type.getSymbol())) {
       llvm_result_ptr = arg_it++;
       this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_exit_bb);
@@ -81,22 +84,27 @@ void Builder::build(rq::Function &func) {
       this->getContext().getLlvmIrBuilder().CreateRet(llvm_result_ptr);
     }
   }
-  llvm::Value *llvm_reciever_ptr = nullptr;
+  llvm::Value *llvm_this_ptr = nullptr;
   if (sig.getRecieverTypePtr() != nullptr) {
-    llvm_reciever_ptr = arg_it++;
+    llvm_this_ptr = arg_it++;
   }
   // TODO arguments
-  this->buildScope(func, func, instructions, llvm_entry_bb, llvm_exit_bb,
-                   llvm_reciever_ptr, llvm_result_ptr, nullptr);
+  const bool has_jump =
+      this->buildScope(func, func, instructions, llvm_entry_bb, llvm_exit_bb,
+                       llvm_this_ptr, llvm_result_ptr, nullptr);
+  if (!has_jump) {
+    this->getContext().getLlvmIrBuilder().CreateBr(&llvm_exit_bb);
+  }
 }
 
-void Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
-                         rq::Instruction &instructions,
-                         llvm::BasicBlock &llvm_bb,
-                         llvm::BasicBlock &llvm_exit_bb,
-                         llvm::Value *llvm_reciever_ptr,
-                         llvm::Value *llvm_result_ptr,
-                         llvm::Value *llvm_out_ptr) {
+[[nodiscard]] bool
+Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
+                    rq::Instruction &instructions, llvm::BasicBlock &llvm_bb,
+                    llvm::BasicBlock &llvm_exit_bb, llvm::Value *llvm_this_ptr,
+                    llvm::Value *llvm_result_ptr, llvm::Value *llvm_out_ptr) {
+  std::ignore = llvm_exit_bb;
+  using O = rq::Opcode;
+  using K = rq::Keyword;
   llvm::Function &llvm_func = rq::dereferencePtr(func.getLlvmFunctionPtr());
   this->getContext().getLlvmIrBuilder().SetInsertPointPastAllocas(&llvm_func);
   for (auto &kvp : scope.getSymbolListSubrange()) {
@@ -105,11 +113,11 @@ void Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
       if (llvm::isa<rq::LocalDynamicVariable>(symbol)) {
         rq::LocalDynamicVariable &var =
             llvm::cast<rq::LocalDynamicVariable>(symbol);
-        if (var.getName().getKeyword() == rq::Keyword::RESULT) {
+        if (var.getName().getKeyword() == K::RESULT) {
           var.setLlvmLocation(rq::dereferencePtr(llvm_result_ptr));
           continue;
         }
-        if (var.getName().getKeyword() == rq::Keyword::OUT) {
+        if (var.getName().getKeyword() == K::OUT) {
           var.setLlvmLocation(rq::dereferencePtr(llvm_out_ptr));
           continue;
         }
@@ -131,6 +139,58 @@ void Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
     }
   }
   this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_bb);
+  for (rq::Entity &entity : instructions.getDottedSubrange<O::STATEMENT>()) {
+    rq::Instruction &instruction = llvm::cast<rq::Instruction>(entity);
+    switch (instruction.getOpcode()) {
+    case O::ASSIGN: {
+      rq::Entity &lvalue = instruction.getAddress0();
+      rq::Entity &rvalue = instruction.getAddress1();
+      llvm::Value *llvm_location_ptr =
+          this->buildLocation(lvalue, llvm_this_ptr);
+      if (llvm_location_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("invalid location");
+      }
+      llvm::Value *llvm_rvalue_ptr = this->buildRvalue(rvalue, llvm_this_ptr);
+      if (llvm_rvalue_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("invalid rvalue");
+      }
+      this->getContext().getLlvmIrBuilder().CreateStore(
+          llvm_rvalue_ptr, llvm_location_ptr, false);
+      break;
+    }
+    default:
+      RQ_UNREACHABLE();
+    }
+  }
+  return false;
+}
+
+[[nodiscard]] llvm::Value *Builder::buildLocation(rq::Entity &lvalue,
+                                                  llvm::Value *llvm_this_ptr) {}
+
+[[nodiscard]] llvm::Value *Builder::buildRvalue(rq::Entity &rvalue,
+                                                rq::Symbol &type,
+                                                llvm::Value *llvm_this_ptr) {
+  std::ignore = llvm_this_ptr;
+  using C = rq::ConstantKind;
+  if (llvm::isa<rq::ConstantWord>(rvalue)) {
+    rq::ConstantWord &word = llvm::cast<rq::ConstantWord>(rvalue);
+    if (type.getIsIntegerType()) {
+      llvm::Type *llvm_type_ptr = this->getContext().getLlvmTypePtr(type);
+      if (llvm_type_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("llvm error");
+      }
+      llvm::Type &llvm_type = rq::dereferencePtr(llvm_type_ptr);
+      return llvm::ConstantInt::get(&llvm_type, word.getWord());
+    } else if (type.getIsFloatType()) {
+      const llvm::fltSemantics &llvm_semantics =
+          this->getContext().getLlvmFltSemantics(type.getKind());
+      llvm::APFloat llvm_float = word.getAsFloat(llvm_semantics);
+      return llvm::ConstantFP::get(this->getContext().getLlvmContext(),
+                                   llvm_float);
+    }
+  }
+  RQ_UNREACHABLE();
 }
 
 } // namespace rq

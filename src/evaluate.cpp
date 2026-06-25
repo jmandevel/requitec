@@ -12,11 +12,11 @@
 namespace rq {
 
 RQ_ALWAYS_INLINE
-InstructionConsFactory::InstructionConsFactory(rq::Context &context,
+DottedInstructionFactory::DottedInstructionFactory(rq::Context &context,
                                                rq::Opcode opcode)
     : _constext_ptr(&context), _opcode(opcode) {}
 
-void InstructionConsFactory::append(rq::Entity &entity) {
+void DottedInstructionFactory::append(rq::Entity &entity) {
   if (this->_outer_ptr == nullptr) {
     this->_outer_ptr = &entity;
     return;
@@ -112,7 +112,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   using K = rq::Keyword;
   using O = rq::Opcode;
   // using S = rq::SymbolKind;
-  rq::InstructionConsFactory factory(this->getContext(), O::STATEMENT);
+  rq::DottedInstructionFactory factory(this->getContext(), O::STATEMENT);
   for (rq::Expression &state_ex : first_ex.getInclusiveNextSubrange()) {
     switch (state_ex.getKeyword()) {
     case K::ASSIGN: {

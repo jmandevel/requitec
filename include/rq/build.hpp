@@ -13,6 +13,8 @@ struct Module;
 struct SymbolTable;
 struct Function;
 struct Instruction;
+struct Entity;
+struct Symbol;
 
 struct Builder final {
   using Self = rq::Builder;
@@ -36,11 +38,13 @@ struct Builder final {
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }
   void buildLlvmIr();
   void build(rq::Function &function);
-  void buildScope(rq::Function &func, rq::SymbolTable &scope,
+  [[nodiscard]] bool buildScope(rq::Function &func, rq::SymbolTable &scope,
                   rq::Instruction &instructions, llvm::BasicBlock &llvm_bb,
                   llvm::BasicBlock &llvm_exit_bb,
-                  llvm::Value *llvm_reciever_ptr, llvm::Value *llvm_result_ptr,
+                  llvm::Value *llvm_this_ptr, llvm::Value *llvm_result_ptr,
                   llvm::Value *llvm_out_ptr);
+  [[nodiscard]] llvm::Value* buildLocation(rq::Entity& lvalue, llvm::Value* llvm_this_ptr);
+  [[nodiscard]] llvm::Value* buildRvalue(rq::Entity& rvalue, rq::Symbol& type, llvm::Value* llvm_this_ptr);
 };
 
 } // namespace rq

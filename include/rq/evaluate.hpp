@@ -116,15 +116,15 @@ struct DynamicLvalue final {
   }
 };
 
-struct InstructionConsFactory final {
-  using Self = rq::InstructionConsFactory;
+struct DottedInstructionFactory final {
+  using Self = rq::DottedInstructionFactory;
 
   rq::Context *_constext_ptr;
   rq::Opcode _opcode;
   rq::Entity *_outer_ptr{nullptr};
   rq::Instruction *_last_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE InstructionConsFactory(rq::Context &context,
+  explicit RQ_ALWAYS_INLINE DottedInstructionFactory(rq::Context &context,
                                                    rq::Opcode opcode);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {

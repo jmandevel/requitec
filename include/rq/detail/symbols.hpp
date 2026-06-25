@@ -1992,7 +1992,7 @@ RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
                     containing_table, hosting_table, module, flags, type) {}
 
 RQ_ALWAYS_INLINE void
-LocalDynamicVariable::setLlvmLocation(llvm::AllocaInst &llvm_location) {
+LocalDynamicVariable::setLlvmLocation(llvm::Value &llvm_location) {
   rq::assignSingleValue(this->_llvm_location_ptr, &llvm_location);
 }
 

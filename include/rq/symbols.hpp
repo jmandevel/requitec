@@ -1012,7 +1012,7 @@ namespace rq {
 struct LocalDynamicVariable final : public rq::LocalVariable {
   using Self = rq::LocalDynamicVariable;
 
-  llvm::Value *_llvm_location{nullptr};
+  llvm::Value *_llvm_location_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
   LocalDynamicVariable(rq::Name name, rq::SymbolTable &containing_table,

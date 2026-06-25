@@ -80,8 +80,7 @@ struct ConstantWord final : public rq::Constant, public llvm::FoldingSetNode {
     return value;
   }
 
-  template <typename TypeParam>
-  [[nodiscard]] RQ_ALWAYS_INLINE TypeParam
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat
   getAsFloat(const llvm::fltSemantics &semantics) {
     llvm::APFloat float_(semantics, this->_word);
     return float_;
