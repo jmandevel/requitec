@@ -14,7 +14,7 @@ Requite is a statically typed systems programming langauge with an orthogonal sy
 [import "std"];
 
 [main
-    ..std.print(line="Hello, world!");
+    std.print(line="Hello, world!");
 ];
 ```
 
