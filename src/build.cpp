@@ -81,7 +81,10 @@ void Builder::build(rq::Function &func) {
       llvm_result_ptr = this->getContext().getLlvmIrBuilder().CreateAlloca(
           llvm_return_type_ptr, nullptr, "result");
       this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_exit_bb);
-      this->getContext().getLlvmIrBuilder().CreateRet(llvm_result_ptr);
+      llvm::Value *llvm_result_value_ptr =
+          this->getContext().getLlvmIrBuilder().CreateLoad(llvm_return_type_ptr,
+                                                           llvm_result_ptr);
+      this->getContext().getLlvmIrBuilder().CreateRet(llvm_result_value_ptr);
     }
   }
   llvm::Value *llvm_this_ptr = nullptr;
@@ -145,17 +148,17 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
     case O::ASSIGN: {
       rq::Entity &lvalue = instruction.getAddress0();
       rq::Entity &rvalue = instruction.getAddress1();
-      llvm::Value *llvm_location_ptr =
-          this->buildLocation(lvalue, llvm_this_ptr);
-      if (llvm_location_ptr == nullptr) {
+      rq::LocationResult location = this->buildLocation(lvalue, llvm_this_ptr);
+      if (location.getIsEmpty()) {
         RQ_UNHANDLED_ERROR("invalid location");
       }
-      llvm::Value *llvm_rvalue_ptr = this->buildRvalue(rvalue, llvm_this_ptr);
+      llvm::Value *llvm_rvalue_ptr = this->buildRvalue(
+          rvalue, location.getType().getSymbol(), llvm_this_ptr);
       if (llvm_rvalue_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("invalid rvalue");
       }
       this->getContext().getLlvmIrBuilder().CreateStore(
-          llvm_rvalue_ptr, llvm_location_ptr, false);
+          llvm_rvalue_ptr, &location.getLlvmValue(), false);
       break;
     }
     default:
@@ -165,14 +168,22 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
   return false;
 }
 
-[[nodiscard]] llvm::Value *Builder::buildLocation(rq::Entity &lvalue,
-                                                  llvm::Value *llvm_this_ptr) {}
+[[nodiscard]] rq::LocationResult
+Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
+  std::ignore = llvm_this_ptr;
+  if (llvm::isa<rq::LocalDynamicVariable>(lvalue)) {
+    rq::LocalDynamicVariable &var =
+        llvm::cast<rq::LocalDynamicVariable>(lvalue);
+    return rq::LocationResult(var.getType(),
+                              rq::dereferencePtr(var.getLlvmLocationPtr()));
+  }
+  RQ_UNREACHABLE();
+}
 
 [[nodiscard]] llvm::Value *Builder::buildRvalue(rq::Entity &rvalue,
                                                 rq::Symbol &type,
                                                 llvm::Value *llvm_this_ptr) {
   std::ignore = llvm_this_ptr;
-  using C = rq::ConstantKind;
   if (llvm::isa<rq::ConstantWord>(rvalue)) {
     rq::ConstantWord &word = llvm::cast<rq::ConstantWord>(rvalue);
     if (type.getIsIntegerType()) {
