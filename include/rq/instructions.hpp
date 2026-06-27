@@ -186,18 +186,17 @@ struct Instruction final : public rq::Entity {
   }
 };
 
-template <rq::Opcode OPCODE_PARAM>
-DottedInstructionIterator<OPCODE_PARAM>::DottedInstructionIterator(
-    rq::Entity *entity_ptr)
-    : _entity_ptr(entity_ptr) {}
+RQ_ALWAYS_INLINE
+DottedInstructionIterator::DottedInstructionIterator(rq::Entity *entity_ptr,
+                                                     rq::Opcode opcode)
+    : _entity_ptr(entity_ptr), _opcode(opcode) {}
 
-template <rq::Opcode OPCODE_PARAM>
-RQ_ALWAYS_INLINE rq::DottedInstructionIterator<OPCODE_PARAM> &
-DottedInstructionIterator<OPCODE_PARAM>::operator++() {
+RQ_ALWAYS_INLINE rq::DottedInstructionIterator &
+DottedInstructionIterator::operator++() {
   rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
   if (llvm::isa<rq::Instruction>(entity)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
-    if (inst.getOpcode() == OPCODE_PARAM) {
+    if (inst.getOpcode() == this->_opcode) {
       this->_entity_ptr = inst.getAddress1Ptr();
       return *this;
     }
@@ -206,68 +205,92 @@ DottedInstructionIterator<OPCODE_PARAM>::operator++() {
   return *this;
 }
 
-template <rq::Opcode OPCODE_PARAM>
-RQ_ALWAYS_INLINE rq::DottedInstructionIterator<OPCODE_PARAM>
-DottedInstructionIterator<OPCODE_PARAM>::operator++(int) {
-  rq::DottedInstructionIterator<OPCODE_PARAM> temp = *this;
+RQ_ALWAYS_INLINE rq::DottedInstructionIterator
+DottedInstructionIterator::operator++(int) {
+  rq::DottedInstructionIterator temp = *this;
   ++(*this);
   return temp;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-DottedInstructionIterator<OPCODE_PARAM>::operator==(const Self &it) const {
+DottedInstructionIterator::operator==(const Self &it) const {
   return this->_entity_ptr == it._entity_ptr;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-DottedInstructionIterator<OPCODE_PARAM>::operator!=(const Self &it) const {
+DottedInstructionIterator::operator!=(const Self &it) const {
   return this->_entity_ptr != it._entity_ptr;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
-DottedInstructionIterator<OPCODE_PARAM>::operator*() {
-  return rq::dereferencePtr(this->_entity_ptr);
+DottedInstructionIterator::operator*() {
+  rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0();
+    }
+  }
+  return entity;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
-DottedInstructionIterator<OPCODE_PARAM>::operator*() const {
-  return rq::dereferencePtr(this->_entity_ptr);
-}
-
-template <rq::Opcode OPCODE_PARAM>
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *
-DottedInstructionIterator<OPCODE_PARAM>::operator->() {
-  return this->_entity_ptr;
-}
-
-template <rq::Opcode OPCODE_PARAM>
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *
-DottedInstructionIterator<OPCODE_PARAM>::operator->() const {
-  return this->_entity_ptr;
-}
-
-template <rq::Opcode OPCODE_PARAM>
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-DottedInstructionIterator<OPCODE_PARAM>::getIsDone() const {
-  return this->_entity_ptr == nullptr;
-}
-
-template <rq::Opcode OPCODE_PARAM>
-ConstDottedInstructionIterator<OPCODE_PARAM>::ConstDottedInstructionIterator(
-    const rq::Entity *entity_ptr)
-    : _entity_ptr(entity_ptr) {}
-
-template <rq::Opcode OPCODE_PARAM>
-RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator<OPCODE_PARAM> &
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator++() {
+DottedInstructionIterator::operator*() const {
   const rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
   if (llvm::isa<rq::Instruction>(entity)) {
     const rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
-    if (inst.getOpcode() == OPCODE_PARAM) {
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0();
+    }
+  }
+  return entity;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *
+DottedInstructionIterator::operator->() {
+  if (this->_entity_ptr == nullptr) {
+    return nullptr;
+  }
+  rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0Ptr();
+    }
+  }
+  return &entity;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *
+DottedInstructionIterator::operator->() const {
+  if (this->_entity_ptr == nullptr) {
+    return nullptr;
+  }
+  const rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    const rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0Ptr();
+    }
+  }
+  return &entity;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+DottedInstructionIterator::getIsDone() const {
+  return this->_entity_ptr == nullptr;
+}
+
+RQ_ALWAYS_INLINE ConstDottedInstructionIterator::ConstDottedInstructionIterator(
+    const rq::Entity *entity_ptr, rq::Opcode opcode)
+    : _entity_ptr(entity_ptr), _opcode(opcode) {}
+
+RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator &
+ConstDottedInstructionIterator::operator++() {
+  const rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    const rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
       this->_entity_ptr = inst.getAddress1Ptr();
       return *this;
     }
@@ -276,41 +299,52 @@ ConstDottedInstructionIterator<OPCODE_PARAM>::operator++() {
   return *this;
 }
 
-template <rq::Opcode OPCODE_PARAM>
-RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator<OPCODE_PARAM>
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator++(int) {
-  rq::ConstDottedInstructionIterator<OPCODE_PARAM> temp = *this;
+RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator
+ConstDottedInstructionIterator::operator++(int) {
+  rq::ConstDottedInstructionIterator temp = *this;
   ++(*this);
   return temp;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator==(const Self &it) const {
+ConstDottedInstructionIterator::operator==(const Self &it) const {
   return this->_entity_ptr == it._entity_ptr;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator!=(const Self &it) const {
+ConstDottedInstructionIterator::operator!=(const Self &it) const {
   return this->_entity_ptr != it._entity_ptr;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator*() const {
-  return rq::dereferencePtr(this->_entity_ptr);
+ConstDottedInstructionIterator::operator*() const {
+  const rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    const rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0();
+    }
+  }
+  return entity;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *
-ConstDottedInstructionIterator<OPCODE_PARAM>::operator->() const {
-  return this->_entity_ptr;
+ConstDottedInstructionIterator::operator->() const {
+  if (this->_entity_ptr == nullptr) {
+    return nullptr;
+  }
+  const rq::Entity &entity = rq::dereferencePtr(this->_entity_ptr);
+  if (llvm::isa<rq::Instruction>(entity)) {
+    const rq::Instruction &inst = llvm::cast<rq::Instruction>(entity);
+    if (inst.getOpcode() == this->_opcode) {
+      return inst.getAddress0Ptr();
+    }
+  }
+  return &entity;
 }
 
-template <rq::Opcode OPCODE_PARAM>
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ConstDottedInstructionIterator<OPCODE_PARAM>::getIsDone() const {
+ConstDottedInstructionIterator::getIsDone() const {
   return this->_entity_ptr == nullptr;
 }
 

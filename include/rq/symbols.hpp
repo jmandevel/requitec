@@ -399,6 +399,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] inline const rq::Expression *getDerivedExpressionPtr() const;
   [[nodiscard]] inline rq::Expression *getDerivedExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObliqueLiteralType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType() const;
@@ -420,7 +421,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpressionAttributes() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame() const;
 
-  [[nodiscard]] inline bool getIsComplete() const;
+  [[nodiscard]] inline bool getIsCompleteType() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

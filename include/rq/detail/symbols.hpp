@@ -1218,6 +1218,18 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsLiteralType(this->getKind());
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsObliqueLiteralType() const {
+  if (rq::getIsLiteralType(this->getKind())) {
+    return true;
+  }
+  if (llvm::isa<rq::Subtype>(*this)) {
+    const rq::Subtype &subtype = llvm::cast<rq::Subtype>(*this);
+    return subtype.getChild().getSymbol().getIsObliqueLiteralType();
+  }
+  return false;
+}
+
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() const {
   return rq::getIsContextual(this->getKind());
 }
@@ -1295,7 +1307,7 @@ Symbol::getIsExpressionAttributeType() const {
   return rq::getIsFrame(this->getKind());
 }
 
-[[nodiscard]] inline bool Symbol::getIsComplete() const {
+[[nodiscard]] inline bool Symbol::getIsCompleteType() const {
   if (llvm::isa<rq::InferenceType>(*this)) {
     return false;
   }
@@ -1304,7 +1316,7 @@ Symbol::getIsExpressionAttributeType() const {
   }
   if (llvm::isa<rq::Subtype>(*this)) {
     const rq::Subtype &subtype = llvm::cast<rq::Subtype>(*this);
-    return subtype.getChild().getSymbol().getIsComplete();
+    return subtype.getChild().getSymbol().getIsCompleteType();
   }
   return true;
 }
@@ -1969,8 +1981,8 @@ LocalVariable::getType() const {
 }
 
 RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::ConstantSymbol &type) {
-  RQ_ASSERT(!this->getType().getSymbol().getIsComplete(), "already complete");
-  RQ_ASSERT(type.getSymbol().getIsComplete(), "not complete");
+  RQ_ASSERT(!this->getType().getSymbol().getIsCompleteType(), "already complete");
+  RQ_ASSERT(type.getSymbol().getIsCompleteType(), "not complete");
   this->_type_ptr = &type;
 }
 

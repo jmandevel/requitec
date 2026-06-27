@@ -13,7 +13,7 @@ namespace rq {
 
 RQ_ALWAYS_INLINE
 DottedInstructionFactory::DottedInstructionFactory(rq::Context &context,
-                                               rq::Opcode opcode)
+                                                   rq::Opcode opcode)
     : _constext_ptr(&context), _opcode(opcode) {}
 
 void DottedInstructionFactory::append(rq::Entity &entity) {
@@ -79,8 +79,8 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Name name(K::MAIN);
       rq::Expression *body_ex_ptr = unascribed_ex.getBranchPtr();
       rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          table, name, table, unascribed_ex, nullptr, factory.getFlags(), module,
-          body_ex_ptr, nullptr, nullptr, nullptr);
+          table, name, table, unascribed_ex, nullptr, factory.getFlags(),
+          module, body_ex_ptr, nullptr, nullptr, nullptr);
       table.addMember(this->getContext(), name, func);
       break;
     }
@@ -89,8 +89,8 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Expression *body_ex_ptr = name_ex.getNextPtr();
       rq::Name name = this->evaluateName(table, module, name_ex);
       rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          table, name, table, unascribed_ex, nullptr, factory.getFlags(), module,
-          body_ex_ptr, nullptr, nullptr,
+          table, name, table, unascribed_ex, nullptr, factory.getFlags(),
+          module, body_ex_ptr, nullptr, nullptr,
           factory.getExpressionPtr(
               rq::ExpressionAttributeKind::MANGLE_ATTRIBUTE));
       table.addMember(this->getContext(), name, func);
@@ -128,14 +128,24 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       if (lvalue.getIsEmpty()) {
         RQ_UNHANDLED_ERROR("error");
       }
-      // TODO type deduction
-      if (rvalue.getType().getIsLiteralType()) {
-        rvalue = this->foldDynamicRvalue(rvalue, lvalue.getType().getSymbol());
+      rq::Symbol *type_ptr =
+          this->completeType(lvalue.getType().getSymbol(), rvalue.getType());
+      if (type_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("type not determined");
       }
+      rq::Symbol &type = rq::dereferencePtr(type_ptr);
+      if (type != lvalue.getType().getSymbol()) {
+        rq::LocalDynamicVariable &var =
+            llvm::cast<rq::LocalDynamicVariable>(lvalue.getSymbol());
+        rq::ConstantSymbol &type_ct = this->getContext().acquireConstantSymbol(
+            lvalue.getType().getFlags(), type);
+        var.completeType(type_ct);
+      }
+      rq::Entity &folded_rv = this->foldDynamicRvalue(rvalue.getValue(), type);
       rq::Instruction &inst =
           this->getContext().acquireInstruction(rq::Opcode::ASSIGN);
       inst.setAddress0(lvalue.getSymbol());
-      inst.setAddress1(rvalue.getValue());
+      inst.setAddress1(folded_rv);
       factory.append(inst);
       break;
     }
@@ -209,8 +219,10 @@ void Evaluator::evaluate(rq::Function &func) {
     return;
   }
   if (func.getMangleExpressionPtr() != nullptr) {
-    rq::Expression& mangle_ex = rq::dereferencePtr(func.getMangleExpressionPtr());
-    rq::Name mangle = this->evaluateName(func.getHostingTable(), func.getModule(), mangle_ex);
+    rq::Expression &mangle_ex =
+        rq::dereferencePtr(func.getMangleExpressionPtr());
+    rq::Name mangle =
+        this->evaluateName(func.getHostingTable(), func.getModule(), mangle_ex);
     if (mangle.getText().empty()) {
       RQ_UNHANDLED_ERROR("invalid name");
     }
@@ -218,7 +230,7 @@ void Evaluator::evaluate(rq::Function &func) {
   }
   rq::Expression &statement0 =
       rq::dereferencePtr(func.getFirstBodyExpressionPtr());
-  rq::Expression* body_ptr = &statement0;
+  rq::Expression *body_ptr = &statement0;
   if (func.getName().getKeyword() != rq::Keyword::MAIN) {
     if (statement0.getIsStatement()) {
       // TODO static statements before signature
@@ -230,7 +242,8 @@ void Evaluator::evaluate(rq::Function &func) {
     if (sig_rv.getIsEmpty()) {
       RQ_UNHANDLED_ERROR("invalid rvalue");
     }
-    rq::Symbol& sig_sy = rq::dereferencePtr(sig_rv.getValue().getSymbol().symbol_ptr);
+    rq::Symbol &sig_sy =
+        rq::dereferencePtr(sig_rv.getValue().getSymbol().symbol_ptr);
     if (!llvm::isa<rq::Signature>(sig_sy)) {
       RQ_UNHANDLED_ERROR("expected sig");
     }
@@ -241,11 +254,11 @@ void Evaluator::evaluate(rq::Function &func) {
   if (body_ptr == nullptr) {
     return;
   }
-  rq::Expression& body = rq::dereferencePtr(body_ptr);
+  rq::Expression &body = rq::dereferencePtr(body_ptr);
   rq::ConstantSymbol &result_type = this->getContext().acquireConstantSymbol(
       {}, this->getContext().acquireSignedIntegerType());
-  rq::Instruction *inst_ptr = this->evaluateLocalScope(
-      func, result_type, func, func.getModule(), body);
+  rq::Instruction *inst_ptr =
+      this->evaluateLocalScope(func, result_type, func, func.getModule(), body);
   if (inst_ptr == nullptr) {
     return;
   }
@@ -357,11 +370,28 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   std::ignore = table;
   std::ignore = module;
   using K = rq::Keyword;
+  using O = rq::Opcode;
   switch (rvalue_ex.getKeyword()) {
   case K::INTEGER_LITERAL: {
     rq::Entity &value = rvalue_ex;
     rq::Symbol &type = this->getContext().acquireIntegerLiteralType();
     return rq::DynamicRvalue(value, type);
+  }
+  case K::ADD: {
+    return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
+                                                 O::ADD);
+  }
+  case K::SUBTRACT: {
+    return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
+                                                 O::SUBTRACT);
+  }
+  case K::MULTIPLY: {
+    return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
+                                                 O::MULTIPLY);
+  }
+  case K::MODULUS: {
+    return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
+                                                 O::MODULUS);
   }
   default:
     break;
@@ -369,46 +399,103 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] rq::DynamicRvalue
-Evaluator::foldDynamicRvalue(rq::DynamicRvalue rvalue, rq::Symbol &actual_ty) {
-  if (actual_ty.getIsIntegerType()) {
-    const unsigned depth = this->getContext().getDepth(actual_ty);
-    const bool is_signed = actual_ty.getIsSignedType();
-    rq::Entity &value = rvalue.getValue();
-    llvm::APSInt folder(depth, is_signed);
-    this->foldDynamicInteger(folder, value);
-    rq::ConstantWord &word = this->getContext().acquireConstantWord(
-        static_cast<llvm::APInt>(folder));
-    return rq::DynamicRvalue(word, actual_ty);
+[[nodiscard]] rq::DynamicRvalue Evaluator::evaluateDynamicArithmeticRvalue(
+    rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
+    rq::Opcode opcode) {
+  using S = rq::SymbolKind;
+  rq::Symbol *type_ptr = nullptr;
+  rq::DottedInstructionFactory factory(this->getContext(), opcode);
+  for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
+    rq::DynamicRvalue branch_rv =
+        this->evaluateDynamicRvalue(table, module, branch_ex);
+    factory.append(branch_rv.getValue());
+    if (branch_rv.getIsEmpty()) {
+      RQ_UNHANDLED_ERROR("empty branch rv");
+    }
+    if (branch_rv.getType().getIsLiteralType()) {
+      if (branch_rv.getType().getKind() == S::INTEGER_LITERAL_TYPE) {
+        if (type_ptr == nullptr) {
+          type_ptr = &this->getContext().acquireIntegerLiteralType();
+        }
+      } else if (branch_rv.getType().getKind() == S::FLOAT_LITERAL_TYPE) {
+        type_ptr = &this->getContext().acquireFloatLiteralType();
+      } else {
+        RQ_UNHANDLED_ERROR("not arithmitic literal type");
+      }
+      continue;
+    }
+    if (type_ptr != nullptr) {
+      rq::Symbol &prev_type = rq::dereferencePtr(type_ptr);
+      if (prev_type.getKind() == S::FLOAT_LITERAL_TYPE &&
+          branch_rv.getType().getIsIntegerType()) {
+        RQ_UNHANDLED_ERROR("float literal implicit cast to integer");
+      }
+      if (!prev_type.getIsLiteralType() &&
+          !branch_rv.getType().getIsLiteralType() &&
+          branch_rv.getType() != prev_type) {
+        RQ_UNHANDLED_ERROR("no implicit conversion");
+      }
+    }
+    type_ptr = &branch_rv.getType();
   }
-  RQ_UNREACHABLE();
+  rq::Entity &rvalue = factory.getOuter();
+  rq::Symbol &type = rq::dereferencePtr(type_ptr);
+  return rq::DynamicRvalue(rvalue, type);
 }
 
-void Evaluator::foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity &value) {
+[[nodiscard]] rq::Entity &Evaluator::foldDynamicRvalue(rq::Entity &rvalue,
+                                                       rq::Symbol &type) {
   using K = rq::Keyword;
-  if (llvm::isa<rq::Expression>(value)) {
-    rq::Expression &ex = llvm::cast<rq::Expression>(value);
-    switch (ex.getKeyword()) {
+  using O = rq::Opcode;
+  // TODO actually fold instead of spamming constants
+  if (llvm::isa<rq::Expression>(rvalue)) {
+    rq::Expression &rvalue_ex = llvm::cast<rq::Expression>(rvalue);
+    switch (rvalue_ex.getKeyword()) {
     case K::INTEGER_LITERAL: {
-      llvm::APInt term(inout_int.getBitWidth(), 0);
+      const unsigned depth = this->getContext().getDepth(type);
+      llvm::APInt term(depth, 0);
       rq::NumericResultCode code =
-          rq::getNumericValue(ex.getSourceText(), term);
+          rq::getNumericValue(rvalue_ex.getSourceText(), term);
       if (code != rq::NumericResultCode::OK) {
         RQ_UNHANDLED_ERROR("error parsing integer literal");
       }
-      inout_int = term;
-      return;
+      rq::ConstantWord &word = this->getContext().acquireConstantWord(term);
+      return word;
     }
     default:
       break;
     }
-    RQ_UNREACHABLE();
+  }
+  if (llvm::isa<rq::Instruction>(rvalue)) {
+    rq::Instruction& inst = llvm::cast<rq::Instruction>(rvalue);
+    switch (inst.getOpcode()) {
+      case O::ADD: 
+        [[fallthrough]];
+      case O::SUBTRACT:
+        [[fallthrough]];
+      case O::MULTIPLY:
+        [[fallthrough]];
+      case O::DIVIDE:
+        [[fallthrough]];
+      case O::MODULUS: {
+        rq::Entity& old_address0 = inst.popAddress0();
+        rq::Entity& new_address0 = this->foldDynamicRvalue(old_address0, type);
+        inst.setAddress0(new_address0);
+        rq::Entity& old_address1 = inst.popAddress1();
+        rq::Entity& new_address1 = this->foldDynamicRvalue(old_address1, type);
+        inst.setAddress1(new_address1);
+        return inst;
+      }
+      default:
+        break;
+    }
   }
   RQ_UNREACHABLE();
 }
 
-rq::Name Evaluator::evaluateName(rq::SymbolTable &table, rq::Module &module,
-                                 rq::Expression &name_ex) {
+[[nodiscard]] rq::Name Evaluator::evaluateName(rq::SymbolTable &table,
+                                               rq::Module &module,
+                                               rq::Expression &name_ex) {
   std::ignore = table;
   std::ignore = module;
   using K = rq::Keyword;
@@ -423,6 +510,122 @@ rq::Name Evaluator::evaluateName(rq::SymbolTable &table, rq::Module &module,
     break;
   }
   RQ_UNREACHABLE();
+}
+
+[[nodiscard]] rq::Symbol *Evaluator::completeType(rq::Symbol &to_type,
+                                                  rq::Symbol &from_type) {
+  RQ_ASSERT(from_type.getIsCompleteType(), "from not complete");
+  using S = rq::SymbolKind;
+  if (to_type == from_type) {
+    return &from_type;
+  }
+  if (to_type.getKind() == S::INFERENCE_TYPE) {
+    return &this->deliteralizeType(from_type);
+  }
+  if (llvm::isa<rq::InferenceCountArraySubtype>(to_type)) {
+    if (!llvm::isa<rq::ArraySubtype>(from_type)) {
+      RQ_UNHANDLED_ERROR("expected array type");
+    }
+    rq::InferenceCountArraySubtype &to_inf_array =
+        llvm::cast<rq::InferenceCountArraySubtype>(to_type);
+    rq::ArraySubtype &from_array = llvm::cast<rq::ArraySubtype>(from_type);
+    rq::Symbol *child_ptr = this->completeType(
+        to_inf_array.getChild().getSymbol(), from_array.getChild().getSymbol());
+    if (child_ptr == nullptr) {
+      return nullptr;
+    }
+    rq::Symbol &child = rq::dereferencePtr(child_ptr);
+    rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
+        to_inf_array.getChild().getFlags(), child);
+    rq::ArraySubtype &array =
+        this->getContext().acquireArraySubtype(child_ct, from_array.getCount());
+    return &array;
+  }
+  if (llvm::isa<rq::UncountedSubtype>(to_type)) {
+    if (to_type.getKind() != from_type.getKind()) {
+      RQ_UNHANDLED_ERROR("subtype mismatch");
+    }
+    rq::UncountedSubtype &to_subtype =
+        llvm::cast<rq::UncountedSubtype>(to_type);
+    rq::UncountedSubtype &from_subtype =
+        llvm::cast<rq::UncountedSubtype>(from_type);
+    rq::Symbol *child_ptr = this->completeType(
+        to_subtype.getChild().getSymbol(), from_subtype.getChild().getSymbol());
+    if (child_ptr == nullptr) {
+      return nullptr;
+    }
+    rq::Symbol &child = rq::dereferencePtr(child_ptr);
+    rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
+        to_subtype.getChild().getFlags(), child);
+    rq::UncountedSubtype &subtype = this->getContext().acquireUncountedSubtype(
+        to_subtype.getKind(), child_ct);
+    return &subtype;
+  }
+  if (llvm::isa<rq::ArraySubtype>(to_type)) {
+    if (!llvm::isa<rq::ArraySubtype>(from_type)) {
+      RQ_UNHANDLED_ERROR("not array");
+    }
+    rq::ArraySubtype &to_array = llvm::cast<rq::ArraySubtype>(to_type);
+    rq::ArraySubtype &from_array = llvm::cast<rq::ArraySubtype>(from_type);
+    if (to_array.getCount() != from_array.getCount()) {
+      RQ_UNHANDLED_ERROR("count mismatch");
+    }
+    rq::Symbol *child_ptr = this->completeType(
+        to_array.getChild().getSymbol(), from_array.getChild().getSymbol());
+    if (child_ptr == nullptr) {
+      return nullptr;
+    }
+    rq::Symbol &child = rq::dereferencePtr(child_ptr);
+    rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
+        to_array.getChild().getFlags(), child);
+    rq::ArraySubtype &subtype =
+        this->getContext().acquireArraySubtype(child_ct, to_array.getCount());
+    return &subtype;
+  }
+  return &this->deliteralizeType(from_type);
+}
+
+[[nodiscard]] rq::Symbol &Evaluator::deliteralizeType(rq::Symbol &type) {
+  using S = rq::SymbolKind;
+  using TF = rq::TypeFlags;
+  if (type.getKind() == S::INTEGER_LITERAL_TYPE) {
+    return this->getContext().acquireSignedIntegerType();
+  }
+  if (type.getKind() == S::FLOAT_LITERAL_TYPE) {
+    return this->getContext().acquireSingleType();
+  }
+  if (type.getKind() == S::STRING_LITERAL_TYPE) {
+    rq::Symbol &child = this->getContext().acquireCharType();
+    rq::ConstantSymbol &child_ct =
+        this->getContext().acquireConstantSymbol(TF::NONE, child);
+    rq::SliceSubtype &slice = this->getContext().acquireSliceSubtype(child_ct);
+    return slice;
+  }
+  if (type.getKind() == S::CODEUNIT_LITERAL_TYPE) {
+    rq::Symbol &type = this->getContext().acquireCharType();
+    return type;
+  }
+  if (llvm::isa<rq::UncountedSubtype>(type)) {
+    rq::UncountedSubtype &uc_subtype = llvm::cast<rq::UncountedSubtype>(type);
+    rq::Symbol &child =
+        this->deliteralizeType(uc_subtype.getChild().getSymbol());
+    rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
+        uc_subtype.getChild().getFlags(), child);
+    rq::UncountedSubtype &new_subtype =
+        this->getContext().acquireUncountedSubtype(uc_subtype.getKind(),
+                                                   child_ct);
+    return new_subtype;
+  }
+  if (llvm::isa<rq::ArraySubtype>(type)) {
+    rq::ArraySubtype &array = llvm::cast<rq::ArraySubtype>(type);
+    rq::Symbol &child = this->deliteralizeType(array.getChild().getSymbol());
+    rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
+        array.getChild().getFlags(), child);
+    rq::ArraySubtype &new_array =
+        this->getContext().acquireArraySubtype(child_ct, array.getCount());
+    return new_array;
+  }
+  RQ_TODO_IMPLEMENTATION();
 }
 
 } // namespace rq

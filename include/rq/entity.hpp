@@ -750,9 +750,8 @@ constexpr rq::EntityId OPCODE_OFFSET =
 
 struct Entity;
 
-template <rq::Opcode OPCODE_PARAM> struct DottedInstructionIterator final {
-  static constexpr rq::Opcode OPCODE = OPCODE_PARAM;
-  using Self = rq::DottedInstructionIterator<OPCODE>;
+struct DottedInstructionIterator final {
+  using Self = rq::DottedInstructionIterator;
   using value_type = rq::Entity;
   using reference = rq::Entity &;
   using pointer = rq::Entity *;
@@ -760,16 +759,17 @@ template <rq::Opcode OPCODE_PARAM> struct DottedInstructionIterator final {
   using iterator_category = std::forward_iterator_tag;
 
   rq::Entity *_entity_ptr{nullptr};
+  rq::Opcode _opcode{rq::Opcode::NONE};
 
   DottedInstructionIterator() = default;
-  explicit DottedInstructionIterator(rq::Entity *entity_ptr);
+  explicit DottedInstructionIterator(rq::Entity *entity_ptr, rq::Opcode opcode);
   DottedInstructionIterator(const Self &) = default;
   DottedInstructionIterator(Self &&) = default;
   ~DottedInstructionIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE rq::DottedInstructionIterator<OPCODE_PARAM> &operator++();
-  RQ_ALWAYS_INLINE rq::DottedInstructionIterator<OPCODE_PARAM> operator++(int);
+  RQ_ALWAYS_INLINE rq::DottedInstructionIterator &operator++();
+  RQ_ALWAYS_INLINE rq::DottedInstructionIterator operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &operator*();
@@ -778,10 +778,8 @@ template <rq::Opcode OPCODE_PARAM> struct DottedInstructionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
-
-template <rq::Opcode OPCODE_PARAM> struct ConstDottedInstructionIterator final {
-  static constexpr rq::Opcode OPCODE = OPCODE_PARAM;
-  using Self = rq::ConstDottedInstructionIterator<OPCODE>;
+struct ConstDottedInstructionIterator final {
+  using Self = rq::ConstDottedInstructionIterator;
   using value_type = const rq::Entity;
   using reference = const rq::Entity &;
   using pointer = rq::Entity *;
@@ -789,16 +787,17 @@ template <rq::Opcode OPCODE_PARAM> struct ConstDottedInstructionIterator final {
   using iterator_category = std::forward_iterator_tag;
 
   const rq::Entity *_entity_ptr = nullptr;
+  rq::Opcode _opcode{rq::Opcode::NONE};
 
   ConstDottedInstructionIterator() = default;
-  explicit ConstDottedInstructionIterator(const rq::Entity *entity_ptr);
+  explicit ConstDottedInstructionIterator(const rq::Entity *entity_ptr, rq::Opcode opcode);
   ConstDottedInstructionIterator(const Self &) = default;
   ConstDottedInstructionIterator(Self &&) = default;
   ~ConstDottedInstructionIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator<OPCODE_PARAM> &operator++();
-  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator<OPCODE_PARAM> operator++(int);
+  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator &operator++();
+  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &operator*() const;
@@ -861,22 +860,20 @@ struct Entity {
     return this->_id >= rq::OPCODE_OFFSET;
   }
 
-  template <rq::Opcode OPCODE_PARAM>
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getDottedSubrange() {
-    return std::ranges::subrange<rq::DottedInstructionIterator<OPCODE_PARAM>,
-                                 rq::DottedInstructionIterator<OPCODE_PARAM>,
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getDottedSubrange(rq::Opcode opcode) {
+    return std::ranges::subrange<rq::DottedInstructionIterator,
+                                 rq::DottedInstructionIterator,
                                  std::ranges::subrange_kind::unsized>(
-        rq::DottedInstructionIterator<OPCODE_PARAM>(this),
-        rq::DottedInstructionIterator<OPCODE_PARAM>());
+        rq::DottedInstructionIterator(this, opcode),
+        rq::DottedInstructionIterator());
   }
-  template <rq::Opcode OPCODE_PARAM>
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getConstDottedSubrange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE auto getConstDottedSubrange(rq::Opcode opcode) const {
     return std::ranges::subrange<
-        rq::ConstDottedInstructionIterator<OPCODE_PARAM>,
-        rq::ConstDottedInstructionIterator<OPCODE_PARAM>,
+        rq::ConstDottedInstructionIterator,
+        rq::ConstDottedInstructionIterator,
         std::ranges::subrange_kind::unsized>(
-        rq::ConstDottedInstructionIterator<OPCODE_PARAM>(this),
-        rq::ConstDottedInstructionIterator<OPCODE_PARAM>());
+        rq::ConstDottedInstructionIterator(this, opcode),
+        rq::ConstDottedInstructionIterator());
   }
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {

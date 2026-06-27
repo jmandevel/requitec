@@ -125,7 +125,7 @@ struct DottedInstructionFactory final {
   rq::Instruction *_last_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE DottedInstructionFactory(rq::Context &context,
-                                                   rq::Opcode opcode);
+                                                     rq::Opcode opcode);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
     return this->_opcode;
@@ -203,13 +203,16 @@ struct Evaluator final {
   evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &rvalue_ex);
 
-  [[nodiscard]] rq::DynamicRvalue foldDynamicRvalue(rq::DynamicRvalue rvalue,
-                                                    rq::Symbol &actual_type);
+  [[nodiscard]] rq::DynamicRvalue evaluateDynamicArithmeticRvalue(
+    rq::SymbolTable& table, rq::Module& module, rq::Expression &rvalue_ex, rq::Opcode opcode);
 
-  void foldDynamicInteger(llvm::APSInt &inout_int, rq::Entity &value);
-  // etc
+  [[nodiscard]] rq::Entity& foldDynamicRvalue(rq::Entity& rvalue, rq::Symbol& type);
 
-  rq::Name evaluateName(rq::SymbolTable &table, rq::Module &module,
+  [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &name_ex);
+
+  [[nodiscard]] rq::Symbol* completeType(rq::Symbol& to_type, rq::Symbol& from_type);
+
+  [[nodiscard]] rq::Symbol& deliteralizeType(rq::Symbol& type);
 };
 } // namespace rq
