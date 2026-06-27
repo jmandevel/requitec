@@ -18,40 +18,6 @@ Requite is a statically typed systems programming langauge with an orthogonal sy
 ];
 ```
 
-## Language Goals
-
-Requite is a programming language that is designed to fill the same niche as C++. However, it has a number of design goals that make it uniquely suited for systems programming. Not all of these goals are fully implemented yet.
-
-1. Focus on Readability
-    * Low multiplicity
-    * Lots of keywords
-    * No reserved words
-    * Extension functions
-    * Named and positional function arguments
-    * Deductive type inferencing
-    * Consistent left-to-right associativity
-2. Expected Behaviour
-    * Strong type system
-    * No optimizations with side effects
-    * Consistent move semantics
-    * No implicit conversions
-    * No operator overloads
-    * Absolute symbol paths
-    * No exceptions
-3. Powerful features
-    * Easy reflection
-    * Code evaluation
-    * Compile-time code execution
-    * Value-holding enumerations
-    * Range based looping
-4. Safe Defaults
-    * Constant values by default
-    * Private object members by default
-    * No-discard returns by default
-5. Easy Interoperability with C
-    * Explicit mangled names
-    * Can include and utilize C headers
-
 ## How it Works
 
 The requitec compiler is an LLVM front-end application written in C++. All source code for the front-end is contained within this repository. While language specific functionality is handled within this project, all back-end functionality related to generating machine code for specific target machines is handled by LLVM.
