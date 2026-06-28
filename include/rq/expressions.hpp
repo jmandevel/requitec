@@ -3742,7 +3742,7 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
-    return id >= rq::KEYWORD_OFFSET || id < rq::SYMBOL_OFFSET;
+    return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
   }
 };
 

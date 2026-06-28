@@ -201,6 +201,24 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       return llvm::ConstantFP::get(this->getContext().getLlvmContext(),
                                    llvm_float);
     }
+    RQ_UNREACHABLE();
+  } else if (llvm::isa<rq::LocalDynamicVariable>(rvalue)) {
+    rq::LocalDynamicVariable &var =
+        llvm::cast<rq::LocalDynamicVariable>(rvalue);
+    llvm::Value &llvm_location = rq::dereferencePtr(var.getLlvmLocationPtr());
+    llvm::Type *llvm_type_ptr =
+        this->getContext().getLlvmTypePtr(var.getType().getSymbol());
+    if (llvm_type_ptr == nullptr) {
+      RQ_UNHANDLED_ERROR("llvm error");
+    }
+    llvm::Type &llvm_type = rq::dereferencePtr(llvm_type_ptr);
+    llvm::Value *llvm_value_ptr = this->getContext().getLlvmIrBuilder().CreateLoad(
+        &llvm_type, &llvm_location);
+    if (llvm_value_ptr == nullptr) {
+      RQ_UNHANDLED_ERROR("llvm error");
+    }
+    llvm::Value& llvm_value = rq::dereferencePtr(llvm_value_ptr);
+    return &llvm_value;
   } else if (llvm::isa<rq::Instruction>(rvalue)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
     switch (inst.getOpcode()) {

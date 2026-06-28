@@ -387,6 +387,12 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     rq::Symbol &type = this->getContext().acquireIntegerLiteralType();
     return rq::DynamicRvalue(value, type);
   }
+  case K::IDENTIFIER_LITERAL: {
+    rq::Name name{rvalue_ex.getSourceText()};
+    rq::DynamicRvalue rvalue =
+        this->evaluateDynamicIdentifierRvalue(table, module, name);
+    return rvalue;
+  }
   case K::ADD: {
     return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
                                                  O::ADD);
@@ -473,7 +479,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
       return word;
     }
     default:
-      break;
+      RQ_UNREACHABLE();
     }
   }
   if (llvm::isa<rq::Instruction>(rvalue)) {
@@ -497,9 +503,31 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
       return inst;
     }
     default:
-      break;
+      RQ_UNREACHABLE();
     }
   }
+  return rvalue;
+}
+
+[[nodiscard]] rq::DynamicRvalue
+Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
+                                           rq::Module &module, rq::Name name) {
+  auto list = table.lookupList(name);
+  if (list.getIsEmpty()) {
+    RQ_UNHANDLED_ERROR("no symbol of name");
+  }
+  if (list.getHasTail()) {
+    RQ_UNHANDLED_ERROR("name collision");
+  }
+  rq::Symbol &symbol = list.getHead();
+  if (llvm::isa<rq::LocalDynamicVariable>(symbol)) {
+    rq::LocalDynamicVariable &var =
+        llvm::cast<rq::LocalDynamicVariable>(symbol);
+    rq::Symbol &type = var.getType().getSymbol();
+    rq::DynamicRvalue rvalue(var, type);
+    return rvalue;
+  }
+  std::ignore = module;
   RQ_UNREACHABLE();
 }
 

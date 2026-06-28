@@ -208,6 +208,8 @@ struct Evaluator final {
 
   [[nodiscard]] rq::Entity& foldDynamicRvalue(rq::Entity& rvalue, rq::Symbol& type);
 
+  [[nodiscard]] rq::DynamicRvalue evaluateDynamicIdentifierRvalue(rq::SymbolTable& table, rq::Module& module, rq::Name name);
+
   [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &name_ex);
 
