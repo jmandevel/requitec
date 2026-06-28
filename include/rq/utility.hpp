@@ -58,7 +58,7 @@ struct AssertException final : public std::logic_error {
 
 #if !defined(_NDEBUG)
 #define RQ_UNHANDLED_ERROR(reason)                                             \
-  throw rq::AssertException("unhandled error", reason);
+  throw rq::AssertException("RQ_UNHANDLED_ERROR(\"" #reason "\")", #reason);
 #else
 #define RQ_UNHANDLED_ERROR() std::unreachable()
 #endif
