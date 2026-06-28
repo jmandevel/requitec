@@ -184,7 +184,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EQUAL:
     [[fallthrough]];
   case K::NOT_EQUAL:
-    is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
     break;
 
   // APPLY
