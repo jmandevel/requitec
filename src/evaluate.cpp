@@ -282,6 +282,8 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
       RQ_UNHANDLED_ERROR("not type");
     }
     rq::StaticSymbol static_sy = type_rvalue.getValue().getSymbol();
+    static_sy.symbol_ptr = this->completeType(
+        rq::dereferencePtr(static_sy.symbol_ptr), result_type.getSymbol());
     rq::ConstantSymbol &type = this->getContext().acquireConstantSymbol(
         static_sy.flags, rq::dereferencePtr(static_sy.symbol_ptr));
     switch (var_ex.getKeyword()) {
@@ -323,6 +325,11 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       RQ_TODO_IMPLEMENTATION();
     }
     rq::Symbol &symbol = this->getContext().acquireSignedIntegerType();
+    rq::Symbol &type = this->getContext().acquireSymbolType();
+    return rq::StaticRvalue(rq::StaticSymbol{{}, &symbol}, type);
+  }
+  case K::INFERENCE: {
+    rq::Symbol &symbol = this->getContext().acquireInferenceType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
     return rq::StaticRvalue(rq::StaticSymbol{{}, &symbol}, type);
   }
@@ -467,27 +474,27 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     }
   }
   if (llvm::isa<rq::Instruction>(rvalue)) {
-    rq::Instruction& inst = llvm::cast<rq::Instruction>(rvalue);
+    rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
     switch (inst.getOpcode()) {
-      case O::ADD: 
-        [[fallthrough]];
-      case O::SUBTRACT:
-        [[fallthrough]];
-      case O::MULTIPLY:
-        [[fallthrough]];
-      case O::DIVIDE:
-        [[fallthrough]];
-      case O::MODULUS: {
-        rq::Entity& old_address0 = inst.popAddress0();
-        rq::Entity& new_address0 = this->foldDynamicRvalue(old_address0, type);
-        inst.setAddress0(new_address0);
-        rq::Entity& old_address1 = inst.popAddress1();
-        rq::Entity& new_address1 = this->foldDynamicRvalue(old_address1, type);
-        inst.setAddress1(new_address1);
-        return inst;
-      }
-      default:
-        break;
+    case O::ADD:
+      [[fallthrough]];
+    case O::SUBTRACT:
+      [[fallthrough]];
+    case O::MULTIPLY:
+      [[fallthrough]];
+    case O::DIVIDE:
+      [[fallthrough]];
+    case O::MODULUS: {
+      rq::Entity &old_address0 = inst.popAddress0();
+      rq::Entity &new_address0 = this->foldDynamicRvalue(old_address0, type);
+      inst.setAddress0(new_address0);
+      rq::Entity &old_address1 = inst.popAddress1();
+      rq::Entity &new_address1 = this->foldDynamicRvalue(old_address1, type);
+      inst.setAddress1(new_address1);
+      return inst;
+    }
+    default:
+      break;
     }
   }
   RQ_UNREACHABLE();
@@ -625,7 +632,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
         this->getContext().acquireArraySubtype(child_ct, array.getCount());
     return new_array;
   }
-  RQ_TODO_IMPLEMENTATION();
+  return type;
 }
 
 } // namespace rq
