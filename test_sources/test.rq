@@ -1,3 +1,4 @@
-[main
-    [result] := 0;
+[mangle]::main
+[function main, ()[signed_integer],
+    [result] := 7 + 1;
 ];
