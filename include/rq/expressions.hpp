@@ -2765,9 +2765,6 @@ struct ExpressionFlagsFactory final {
   using PtrMap =
       llvm::SmallDenseMap<rq::ExpressionAttributeKind, rq::Expression*>;
 
-#if !defined(_NDEBUG)
-  rq::Keyword _keyword{rq::Keyword::NONE};
-#endif
   rq::ExpressionFlags _flags{};
   PtrMap _ptr_map{};
 
