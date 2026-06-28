@@ -455,6 +455,24 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
                                                  O::MODULUS);
   }
+  case K::NEGATE: {
+    rq::Expression &negate_rv_ex = rvalue_ex.getBranch();
+    rq::DynamicRvalue negate_rv =
+        this->evaluateDynamicRvalue(table, module, negate_rv_ex);
+    if (negate_rv.getIsEmpty()) {
+      return rq::DynamicRvalue();
+    }
+    if (!negate_rv.getType().getIsFloatType() &&
+        !negate_rv.getType().getIsIntegerType()) {
+      RQ_UNHANDLED_ERROR("invalid negate type");
+    }
+    if (negate_rv.getType().getIsUnsignedType()) {
+      RQ_UNHANDLED_ERROR("not signed");
+    }
+    rq::Instruction &negate = this->getContext().acquireInstruction(O::NEGATE);
+    negate.setAddress0(negate_rv.getValue());
+    return rq::DynamicRvalue(negate, negate_rv.getType());
+  }
   case K::TRUE: {
     unsigned depth = this->getContext().getByteDepth();
     llvm::APInt llvm_boolean = llvm::APInt(depth, 1, false);
@@ -560,6 +578,12 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
       rq::Entity &old_address1 = inst.popAddress1();
       rq::Entity &new_address1 = this->foldDynamicRvalue(old_address1, type);
       inst.setAddress1(new_address1);
+      return inst;
+    }
+    case O::NEGATE: {
+      rq::Entity &old_address0 = inst.popAddress0();
+      rq::Entity &new_address0 = this->foldDynamicRvalue(old_address0, type);
+      inst.setAddress0(new_address0);
       return inst;
     }
     default:

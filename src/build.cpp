@@ -338,6 +338,28 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         }
       }
     }
+    case O::NEGATE: {
+      rq::Entity &address0 = inst.getAddress0();
+      llvm::Value *llvm_rvalue_ptr =
+          this->buildRvalue(address0, type, llvm_this_ptr);
+      if (llvm_rvalue_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("llvm error");
+      }
+      llvm::Value & llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
+      llvm::Value *llvm_negate_ptr = nullptr;
+      if (type.getIsIntegerType()) {
+        llvm_negate_ptr = this->getContext().getLlvmIrBuilder().CreateNeg(&llvm_rvalue);
+      } else if (type.getIsFloatType()) {
+        llvm_negate_ptr = this->getContext().getLlvmIrBuilder().CreateFNeg(&llvm_rvalue);
+      } else {
+        RQ_UNREACHABLE();
+      }
+      if (llvm_negate_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("llvm error");
+      }
+      llvm::Value &llvm_negate = rq::dereferencePtr(llvm_negate_ptr);
+      return &llvm_negate;
+    }
     default:
       RQ_UNREACHABLE();
     }

@@ -1,5 +1,5 @@
 [mangle]::main
 [function main, ()[signed_integer],
-    var := 12;
-    [result] := 7 + var;
+    my_negative_number := -1;
+    [result] := 0;
 ];
