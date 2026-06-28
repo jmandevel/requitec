@@ -375,12 +375,12 @@ rq::Expression &RequiteParser::parsePrecedence7() {
     switch (token.getKind()) {
     case rq::TokenKind::DOWN_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_AND);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_OR);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     case rq::TokenKind::UP_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_OR);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_AND);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     default:
