@@ -50,7 +50,7 @@ void Evaluator::evaluateSourceModule() {
 void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                                     rq::Expression &first_ex) {
   using K = rq::Keyword;
-  rq::ExpressionFlagsFactory factory{};
+  rq::LowFlagsFactory factory{};
   for (rq::Expression &branch_ex : first_ex.getInclusiveNextSubrange()) {
     rq::Expression *unascribed_ex_ptr = nullptr;
     if (branch_ex.getKeyword() == K::ASCRIBE_EXPRESSION) {
@@ -61,11 +61,10 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
         rq::Expression *attrib_br_ex_ptr = attrib_rv_ex.getNextPtr();
         rq::StaticRvalue attrib_rv =
             this->evaluateStaticRvalue(table, module, attrib_rv_ex);
-        if (!attrib_rv.getType().getIsExpressionAttributeType()) {
-          RQ_UNHANDLED_ERROR("not expression attribute");
+        if (!attrib_rv.getType().getIsLowAttributeType()) {
+          RQ_UNHANDLED_ERROR("not low attribute");
         }
-        rq::ExpressionAttribute attrib =
-            attrib_rv.getValue().getExpressionAttribute();
+        rq::LowAttribute attrib = attrib_rv.getValue().getLowAttribute();
         if (!factory.addFlag(attrib, attrib_br_ex_ptr)) {
           RQ_UNHANDLED_ERROR("duplicate attribute of kind");
         }
@@ -80,7 +79,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Expression *body_ex_ptr = unascribed_ex.getBranchPtr();
       rq::Function &func = this->getContext().allocateValue<rq::Function>(
           table, name, table, unascribed_ex, nullptr, factory.getFlags(),
-          module, body_ex_ptr, nullptr, nullptr, nullptr);
+          module, body_ex_ptr, nullptr, nullptr, nullptr, nullptr, nullptr);
       table.addMember(this->getContext(), name, func);
       break;
     }
@@ -89,10 +88,11 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Expression *body_ex_ptr = name_ex.getNextPtr();
       rq::Name name = this->evaluateName(table, module, name_ex);
       rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          table, name, table, unascribed_ex, nullptr, factory.getFlags(),
+          table, name, table, unascribed_ex, &name_ex, factory.getFlags(),
           module, body_ex_ptr, nullptr, nullptr,
-          factory.getExpressionPtr(
-              rq::ExpressionAttributeKind::MANGLE_ATTRIBUTE));
+          factory.getExpressionPtr(rq::LowAttributeKind::MANGLE_ATTRIBUTE),
+          nullptr, nullptr);
+      ;
       table.addMember(this->getContext(), name, func);
       break;
     }
@@ -271,7 +271,27 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
                                  rq::SymbolTable &table, rq::Module &module,
                                  rq::Expression &lvalue_ex) {
   using K = rq::Keyword;
+  using TF = rq::HighFlags;
   switch (lvalue_ex.getKeyword()) {
+  case K::IDENTIFIER_LITERAL: {
+    rq::Name name = this->evaluateName(table, module, lvalue_ex);
+    auto list = table.lookupList(name);
+    if (list.getIsEmpty()) {
+      RQ_UNHANDLED_ERROR("no symbol of name");
+    }
+    if (list.getHasTail()) {
+      RQ_UNHANDLED_ERROR("name collision");
+    }
+    rq::Symbol &symbol = list.getHead();
+    if (llvm::isa<rq::LocalDynamicVariable>(symbol)) {
+      rq::LocalDynamicVariable &var =
+          llvm::cast<rq::LocalDynamicVariable>(symbol);
+      if (rq::getHasNone(var.getType().getFlags(), TF::VAR)) {
+        RQ_UNHANDLED_ERROR("assigning to constant variable");
+      }
+      return rq::DynamicLvalue(var, var.getType());
+    }
+  }
   case K::BINDING: {
     rq::Expression &var_ex = lvalue_ex.getBranch();
     rq::Expression &type_ex = var_ex.getNext();
@@ -301,7 +321,7 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
       }
       rq::LocalDynamicVariable &var =
           this->getContext().allocateValue<rq::LocalDynamicVariable>(
-              name, table, table, module, rq::ExpressionFlags::NONE, type);
+              name, table, table, module, rq::LowFlags::NONE, type);
       table.addMember(this->getContext(), name, var);
       return rq::DynamicLvalue(var, type);
     }
@@ -322,27 +342,54 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
   std::ignore = module;
   using K = rq::Keyword;
   using S = rq::SymbolKind;
-  switch (rvalue_ex.getKeyword()) {
+  rq::HighFlagsFactory factory{};
+  rq::Expression *unascribed_ex_ptr = nullptr;
+  if (rvalue_ex.getKeyword() == K::ASCRIBE_TYPE) {
+    rq::Expression &unascribed_ex = rvalue_ex.getBranch();
+    unascribed_ex_ptr = &unascribed_ex;
+    for (rq::Expression &attrib_ex : unascribed_ex.getNextSubrange()) {
+      rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
+      rq::Expression *attrib_br_ex_ptr = attrib_rv_ex.getNextPtr();
+      rq::StaticRvalue attrib_rv =
+          this->evaluateStaticRvalue(table, module, attrib_rv_ex);
+      if (!attrib_rv.getType().getIsHighAttributeType()) {
+        RQ_UNHANDLED_ERROR("not high attribute");
+      }
+      rq::HighAttribute attrib = attrib_rv.getValue().getHighAttribute();
+      if (!factory.addFlag(attrib, attrib_br_ex_ptr)) {
+        RQ_UNHANDLED_ERROR("duplicate attribute of kind");
+      }
+    }
+  } else {
+    unascribed_ex_ptr = &rvalue_ex;
+  }
+  rq::Expression &unascribed_ex = rq::dereferencePtr(unascribed_ex_ptr);
+  switch (unascribed_ex.getKeyword()) {
   case K::SIGNED_INTEGER: {
     if (rvalue_ex.getHasBranch()) {
       RQ_TODO_IMPLEMENTATION();
     }
     rq::Symbol &symbol = this->getContext().acquireSignedIntegerType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{{}, &symbol}, type);
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol}, type);
   }
   case K::INFERENCE: {
     rq::Symbol &symbol = this->getContext().acquireInferenceType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{{}, &symbol}, type);
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol}, type);
   }
   case K::MANGLE: {
-    rq::ExpressionAttribute value = rq::ExpressionAttribute::MANGLE;
+    rq::LowAttribute value = rq::LowAttribute::MANGLE;
     rq::Symbol &type = this->getContext().acquireMangleAttributeType();
     return rq::StaticRvalue(value, type);
   }
+  case K::VAR: {
+    rq::HighAttribute value = rq::HighAttribute::VAR;
+    rq::Symbol &type = this->getContext().acquireVarAttributeType();
+    return rq::StaticRvalue(value, type);
+  }
   case K::INSTANTIATE_SIGNATURE: {
-    rq::Expression &return_ex = rvalue_ex.getBranch();
+    rq::Expression &return_ex = unascribed_ex.getBranch();
     if (return_ex.getHasNext()) {
       // TODO parameters
       RQ_TODO_IMPLEMENTATION();
@@ -363,8 +410,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     rq::ConstantSymbol &return_ct = this->getContext().acquireConstantSymbol(
         return_rv.getValue().getSymbol().flags, return_sy);
     rq::Signature &sig = this->getContext().allocateValue<rq::Signature>(
-        nullptr, 0, 0, 0, rvalue_ex, 0, module, return_ct, nullptr, nullptr,
-        nullptr);
+        nullptr, 0, 0, 0, rvalue_ex, 0, module, return_ct, nullptr);
     return rq::StaticRvalue(rq::StaticSymbol({}, &sig),
                             this->getContext().acquireSymbolType());
   }
@@ -629,7 +675,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
 
 [[nodiscard]] rq::Symbol &Evaluator::deliteralizeType(rq::Symbol &type) {
   using S = rq::SymbolKind;
-  using TF = rq::TypeFlags;
+  using TF = rq::HighFlags;
   if (type.getKind() == S::INTEGER_LITERAL_TYPE) {
     return this->getContext().acquireSignedIntegerType();
   }

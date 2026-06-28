@@ -1562,7 +1562,7 @@ getCsvQuotedValueText(char codeunit) {
   case 0xE9:
     return "\\E9\\";
   case 0xEA:
-    return "\\EA\\";
+    return "\\LA\\";
   case 0xEB:
     return "\\EB\\";
   case 0xEC:

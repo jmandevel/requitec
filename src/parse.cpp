@@ -197,7 +197,7 @@ rq::Expression *RequiteParser::parseExpressions() {
   return result.getFirstBranchPtr();
 }
 
-// EXPRESSION ATTRIBUTES
+// LOW ATTRIBUTES
 rq::Expression &RequiteParser::parsePrecedence11() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
@@ -214,7 +214,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     }
     rq::Expression &instantiation = this->getContext().acquireExpression();
     instantiation.setSource(expression);
-    instantiation.setKeyword(rq::Keyword::INSTANTIATE_EXPRESSION_ATTRIBUTE);
+    instantiation.setKeyword(rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE);
     instantiation.setBranch(expression);
     if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
       this->getRanger().incrementToken(1);
@@ -637,7 +637,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
                                         rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
         rq::Expression &instantiation = this->getContext().acquireExpression();
         instantiation.setSource(token, attribute);
-        instantiation.setKeyword(rq::Keyword::INSTANTIATE_TYPE_ATTRIBUTE);
+        instantiation.setKeyword(rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE);
         instantiation.setBranch(attribute);
         const rq::Token after_token = this->getRanger().getToken();
         if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {

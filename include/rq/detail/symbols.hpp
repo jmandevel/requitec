@@ -48,7 +48,7 @@ namespace rq {
   case S::NO_RETURN_TYPE:
     return "NoReturnType";
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   case S::ANCHOR_ATTRIBUTE_TYPE:
     return "AnchorAttributeType";
   case S::OPAQUE_ATTRIBUTE_TYPE:
@@ -90,7 +90,7 @@ namespace rq {
   case S::ENSURE_ATTRIBUTE_TYPE:
     return "EnsureAttributeType";
 
-  // TYPE ATTRIBUTES
+  // HIGH ATTRIBUTES
   case S::VAR_ATTRIBUTE_TYPE:
     return "VarAttributeType";
   case S::VOLATILE_ATTRIBUTE_TYPE:
@@ -407,57 +407,57 @@ namespace rq {
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_TYPE |
            SF::IS_TYPE;
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   case S::ANCHOR_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::OPAQUE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::GLOBAL_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::ACCESS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::PARTIAL_MUTATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::STATIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::CAPTURE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::INLINE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::MANGLE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::PACK_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::BRANCH_TREND_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::SUPPORT_STATUS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::STABLE_ADDRESS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::VARIADIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::LOCATION_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::TEMPLATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::CONSTRAINT_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::WEIGHT_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::EXPRESSION_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
 
-  // TYPE ATTRIBUTES
+  // HIGH ATTRIBUTES
   case S::VAR_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::VOLATILE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::ATOMIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::NULL_TERMINATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::REQUIRE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
   case S::ENSURE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::TYPE_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
 
   // REFLECTIVE
   case S::SYMBOL_TYPE:
@@ -557,7 +557,7 @@ namespace rq {
 
   // IMPORTS
   case S::IMPORT:
-    return SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::HAS_LOW_ATTRIBUTES;
 
   // CONFORMITY
   case S::CONFORMITY:
@@ -599,15 +599,13 @@ namespace rq {
   case S::ANCHOR:
     return SF::LOCAL_DECLARATION;
   case S::ENUMERATOR:
-    return SF::LOCAL_DECLARATION | SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::LOCAL_DECLARATION | SF::HAS_LOW_ATTRIBUTES;
 
   // LOCAL VARIABLES
   case S::LOCAL_DYNAMIC_VARIABLE:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
   case S::LOCAL_STATIC_VARIABLE:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
     return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
   case S::PROCEDURE_ARGUMENT:
@@ -657,44 +655,31 @@ namespace rq {
 
   // LOCAL STATEMENTS
   case S::IF_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::ELSE_IF_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::ELSE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::MATCH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::SWITCH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::CASE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::WITH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::DEFAULT_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::FOR_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::WHILE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::SPIN_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::WEAVE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
   case S::SCOPE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
 
   // NAMED TABLES
   case S::NAMESPACE:
@@ -703,54 +688,52 @@ namespace rq {
   // POLYMORPH ITEM
   case S::CLASS_TYPE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_LOW_ATTRIBUTES |
            SF::IS_FRAME;
   case S::ENUMERATION_TYPE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_EXPRESSION_ATTRIBUTES |
+           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_LOW_ATTRIBUTES |
            SF::IS_FRAME;
   case S::INTERFACE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
   case S::ADAPTER:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
   case S::FUNCTION:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_EXPRESSION_ATTRIBUTES | SF::IS_FRAME;
+           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE:
     return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::ENUMERATION_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::INTERFACE_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::ADAPTER_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
   case S::FUNCTION_TEMPLATE:
     return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_EXPRESSION_ATTRIBUTES;
+           SF::HAS_LOW_ATTRIBUTES;
 
   // POLYMORPHS
   case S::FUNCTION_POLYMORPH:
@@ -774,11 +757,10 @@ namespace rq {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ExpressionFlags
-getValidExpressionFlags(rq::SymbolKind kind) {
-  RQ_ASSERT(rq::getHasExpressionAttributes(kind), "has no attributes");
+[[nodiscard]] inline rq::LowFlags getValidLowFlags(rq::SymbolKind kind) {
+  RQ_ASSERT(rq::getHasLowAttributes(kind), "has no attributes");
   using S = rq::SymbolKind;
-  using EF = rq::ExpressionFlags;
+  using EF = rq::LowFlags;
   switch (kind) {
   case S::IMPORT:
     return EF::EXPORT;
@@ -883,16 +865,15 @@ getValidExpressionFlags(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::CONTEXTUAL_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsExpressionAttributeType(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::EXPRESSION_ATTRIBUTE_TYPE);
+  return rq::getHasAll(flags, rq::SymbolFlags::LOW_ATTRIBUTE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsTypeAttributeType(rq::SymbolKind kind) {
+getIsHighAttributeType(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::TYPE_ATTRIBUTE_TYPE);
+  return rq::getHasAll(flags, rq::SymbolFlags::HIGH_ATTRIBUTE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind) {
@@ -1074,10 +1055,9 @@ getIsGlobalDeclaration(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolFlags::IS_CODEUNIT_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getHasExpressionAttributes(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLowAttributes(rq::SymbolKind kind) {
   const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_EXPRESSION_ATTRIBUTES);
+  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LOW_ATTRIBUTES);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind) {
@@ -1127,29 +1107,28 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
   return rq::getFlags(this->getKind());
 }
 
-[[nodiscard]] inline rq::ExpressionFlags
-Symbol::getDerivedExpressionFlags() const {
+[[nodiscard]] inline rq::LowFlags Symbol::getDerivedLowFlags() const {
   if (llvm::isa<rq::Import>(*this)) {
     const rq::Import &import = llvm::cast<rq::Import>(*this);
-    return import.getExpressionFlags();
+    return import.getLowFlags();
   }
   if (llvm::isa<rq::LocalVariable>(*this)) {
     const rq::LocalVariable &local = llvm::cast<rq::LocalVariable>(*this);
-    return local.getExpressionFlags();
+    return local.getLowFlags();
   }
   if (llvm::isa<rq::SymbolParameter>(*this)) {
     const rq::SymbolParameter &parameter =
         llvm::cast<rq::SymbolParameter>(*this);
-    return parameter.getExpressionFlags();
+    return parameter.getLowFlags();
   }
   if (llvm::isa<rq::LocalStatement>(*this)) {
     const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
-    return statement.getExpressionFlags();
+    return statement.getLowFlags();
   }
   if (llvm::isa<rq::GlobalDeclaration>(*this)) {
     const rq::GlobalDeclaration &decl =
         llvm::cast<rq::GlobalDeclaration>(*this);
-    return decl.getExpressionFlags();
+    return decl.getLowFlags();
   }
   return {};
 }
@@ -1229,7 +1208,6 @@ Symbol::getDerivedExpressionPtr() const {
   return false;
 }
 
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() const {
   return rq::getIsContextual(this->getKind());
 }
@@ -1242,13 +1220,12 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsContextualType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Symbol::getIsExpressionAttributeType() const {
-  return rq::getIsExpressionAttributeType(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLowAttributeType() const {
+  return rq::getIsLowAttributeType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTypeAttributeType() const {
-  return rq::getIsTypeAttributeType(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsHighAttributeType() const {
+  return rq::getIsHighAttributeType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() const {
@@ -1299,8 +1276,8 @@ Symbol::getIsExpressionAttributeType() const {
   return rq::getIsCodeunitType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasExpressionAttributes() const {
-  return rq::getHasExpressionAttributes(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getHasLowAttributes() const {
+  return rq::getHasLowAttributes(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrame() const {
@@ -1596,8 +1573,7 @@ Module::getExpression() const {
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MODULE);
 }
 
-RQ_ALWAYS_INLINE Import::Import(rq::ExpressionFlags flags,
-                                rq::Expression &expression,
+RQ_ALWAYS_INLINE Import::Import(rq::LowFlags flags, rq::Expression &expression,
                                 rq::Module &imported, rq::Module &module)
     : Symbol(rq::SymbolKind::IMPORT), _expression_flags(flags),
       _expression_ptr(&expression), _imported_ptr(&imported),
@@ -1612,8 +1588,7 @@ Import::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-Import::getExpressionFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags Import::getLowFlags() const {
   return this->_expression_flags;
 }
 
@@ -1959,15 +1934,13 @@ RQ_ALWAYS_INLINE
 LocalVariable::LocalVariable(rq::SymbolKind kind, rq::Name name,
                              rq::SymbolTable &containing_table,
                              rq::SymbolTable &hosting_table, rq::Module &module,
-                             rq::ExpressionFlags flags,
-                             rq::ConstantSymbol &type)
+                             rq::LowFlags flags, rq::ConstantSymbol &type)
     : LocalDeclaration(kind, name, containing_table, hosting_table, module),
       _expression_flags(flags), _type_ptr(&type) {
   RQ_ASSERT(rq::getIsLocalVariable(kind), "not local variable");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-LocalVariable::getExpressionFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags LocalVariable::getLowFlags() const {
   return this->_expression_flags;
 }
 
@@ -1981,7 +1954,8 @@ LocalVariable::getType() const {
 }
 
 RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::ConstantSymbol &type) {
-  RQ_ASSERT(!this->getType().getSymbol().getIsCompleteType(), "already complete");
+  RQ_ASSERT(!this->getType().getSymbol().getIsCompleteType(),
+            "already complete");
   RQ_ASSERT(type.getSymbol().getIsCompleteType(), "not complete");
   this->_type_ptr = &type;
 }
@@ -1998,8 +1972,8 @@ RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::ConstantSymbol &type) {
 
 RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags, rq::ConstantSymbol &type)
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::ConstantSymbol &type)
     : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags, type) {}
 
@@ -2028,9 +2002,8 @@ LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags, rq::ConstantSymbol &type,
-    rq::Gendex<rq::StaticValue> value)
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::ConstantSymbol &type, rq::Gendex<rq::StaticValue> value)
     : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags, type),
       _value(value) {}
@@ -2055,9 +2028,8 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags, rq::ConstantSymbol &type, rq::Entity &value,
-    rq::LayoutParameter &parameter)
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::ConstantSymbol &type, rq::Entity &value, rq::LayoutParameter &parameter)
     : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
                     hosting_table, module, flags, type),
       _value_ptr(&value), _parameter_ptr(&parameter) {}
@@ -2091,9 +2063,8 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module,
-    rq::ExpressionFlags flags, rq::ConstantSymbol &type,
-    rq::ProcedureParameter &parameter)
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::ConstantSymbol &type, rq::ProcedureParameter &parameter)
     : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
                     hosting_table, module, flags, type),
       _parameter_ptr(&parameter) {}
@@ -2157,9 +2128,9 @@ RQ_ALWAYS_INLINE
 SymbolParameter::SymbolParameter(
     rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::ExpressionFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked, rq::Expression &expression,
-    rq::Expression &name_expression, rq::Expression &type_expression,
+    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
+    rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : Parameter(kind, next_ptr, name, type), _is_positional(is_positional),
       _is_nonpositional(is_nonpositional), _is_locked(is_locked),
@@ -2171,8 +2142,8 @@ SymbolParameter::SymbolParameter(
   RQ_ASSERT(rq::getIsSymbolParameter(kind), "not symbol parameter");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-SymbolParameter::getExpressionFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags
+SymbolParameter::getLowFlags() const {
   return this->_expression_flags;
 }
 
@@ -2272,9 +2243,9 @@ SymbolParameter::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::ExpressionFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked, rq::Expression &expression,
-    rq::Expression &name_expression, rq::Expression &type_expression,
+    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
+    rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::SIGNATURE_PARAMETER, next_ptr, name, type,
                       hosting_table, expression_flags, is_positional,
@@ -2302,9 +2273,9 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::ExpressionFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked, rq::Expression &expression,
-    rq::Expression &name_expression, rq::Expression &type_expression,
+    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
+    rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::LAYOUT_PARAMETER, next_ptr, name, type,
                       hosting_table, expression_flags, is_positional,
@@ -2621,16 +2592,12 @@ RQ_ALWAYS_INLINE Signature::Signature(
     unsigned positional_parameter_count, unsigned nonpositional_parameter_count,
     rq::Expression &expression, unsigned locked_parameter_count,
     rq::Module &module, rq::ConstantSymbol &return_type,
-    rq::ConstantSymbol *reciever_type_ptr,
-    rq::Expression *precondition_expression_ptr,
-    rq::Expression *postcondition_expression_ptr)
+    rq::ConstantSymbol *reciever_type_ptr)
     : SymbolParameterList(rq::SymbolKind::SIGNATURE, first_parameter_ptr,
                           parameter_count, positional_parameter_count,
                           nonpositional_parameter_count, expression,
                           locked_parameter_count, module),
-      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr),
-      _precondition_expression_ptr(precondition_expression_ptr),
-      _postcondition_expression_ptr(postcondition_expression_ptr) {}
+      _return_type_ptr(&return_type), _reciever_type_ptr(reciever_type_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
 Signature::getReturnType() const {
@@ -2649,26 +2616,6 @@ Signature::getRecieverTypePtr() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
 Signature::getRecieverTypePtr() {
   return this->_reciever_type_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-Signature::getPreconditionExpressionPtr() const {
-  return this->_precondition_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-Signature::getPreconditionExpressionPtr() {
-  return this->_precondition_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-Signature::getPostconditionExpressionPtr() const {
-  return this->_postcondition_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-Signature::getPostconditionExpressionPtr() {
-  return this->_postcondition_expression_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
@@ -3352,7 +3299,7 @@ RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}
 
 RQ_ALWAYS_INLINE LocalStatement::LocalStatement(
     rq::SymbolKind kind, rq::SymbolTable &containing_table,
-    rq::Expression &expression, rq::ExpressionFlags flags, rq::Module &module)
+    rq::Expression &expression, rq::LowFlags flags, rq::Module &module)
     : SymbolTable(kind, &containing_table), _expression_ptr(&expression),
       _expression_flags(flags), _module_ptr(&module) {
   RQ_ASSERT(rq::getIsLocalStatement(kind), "not local statement");
@@ -3367,7 +3314,7 @@ LocalStatement::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] rq::ExpressionFlags LocalStatement::getExpressionFlags() const {
+[[nodiscard]] rq::LowFlags LocalStatement::getLowFlags() const {
   return this->_expression_flags;
 }
 
@@ -3394,7 +3341,7 @@ LocalStatement::classof(const rq::Entity *entity_ptr) {
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedLocalStatement<KIND_PARAM>::DerivedLocalStatement(
     rq::SymbolTable &containing_table, rq::Expression &expression,
-    rq::ExpressionFlags flags, rq::Module &module)
+    rq::LowFlags flags, rq::Module &module)
     : LocalStatement(KIND_PARAM, containing_table, expression, flags, module) {}
 
 template <rq::SymbolKind KIND_PARAM>
@@ -3450,8 +3397,7 @@ RQ_ALWAYS_INLINE
 GlobalDeclaration::GlobalDeclaration(
     rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression *name_expression_ptr, rq::ExpressionFlags flags,
-    rq::Module &module)
+    rq::Expression *name_expression_ptr, rq::LowFlags flags, rq::Module &module)
     : NamedTable(kind, containing_table, name),
       _hosting_table_ptr(&hosting_table), _expression_ptr(&expression),
       _name_expression_ptr(name_expression_ptr), _flags(flags),
@@ -3508,8 +3454,8 @@ GlobalDeclaration::getNameExpressionPtr() {
   return this->_name_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags
-GlobalDeclaration::getExpressionFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags
+GlobalDeclaration::getLowFlags() const {
   return this->_flags;
 }
 
@@ -3544,9 +3490,8 @@ RQ_ALWAYS_INLINE
 Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                    rq::Name name, rq::SymbolTable &hosting_table,
                    rq::Expression &expression,
-                   rq::Expression *name_expression_ptr,
-                   rq::ExpressionFlags flags, rq::Module &module,
-                   rq::Template *template_ptr,
+                   rq::Expression *name_expression_ptr, rq::LowFlags flags,
+                   rq::Module &module, rq::Template *template_ptr,
                    rq::TemplateArgument *first_argument_ptr)
     : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
                         name_expression_ptr, flags, module),
@@ -3604,7 +3549,7 @@ Instance::getFirstTemplateArgumentPtr() {
 RQ_ALWAYS_INLINE
 ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
                      rq::SymbolTable &hosting_table, rq::Expression &expression,
-                     rq::Expression &name_expression, rq::ExpressionFlags flags,
+                     rq::Expression &name_expression, rq::LowFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::CLASS_TYPE, containing_table, name,
@@ -3621,9 +3566,8 @@ ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
 RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::ExpressionFlags flags,
-    rq::Module &module, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr)
+    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::ENUMERATION_TYPE, containing_table, name,
                hosting_table, expression, &name_expression, flags, module,
                template_ptr, first_argument_ptr) {}
@@ -3639,7 +3583,7 @@ EnumerationType::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE
 Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
                      rq::SymbolTable &hosting_table, rq::Expression &expression,
-                     rq::Expression &name_expression, rq::ExpressionFlags flags,
+                     rq::Expression &name_expression, rq::LowFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::INTERFACE, containing_table, name, hosting_table,
@@ -3655,7 +3599,7 @@ Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
 RQ_ALWAYS_INLINE
 Adapter::Adapter(rq::SymbolTable &containing_table, rq::Name name,
                  rq::SymbolTable &hosting_table, rq::Expression &expression,
-                 rq::Expression &name_expression, rq::ExpressionFlags flags,
+                 rq::Expression &name_expression, rq::LowFlags flags,
                  rq::Module &module, rq::Template *template_ptr,
                  rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::ADAPTER, containing_table, name, hosting_table,
@@ -3680,17 +3624,21 @@ Adapter::getInterfacePtr() const {
 RQ_ALWAYS_INLINE
 Function::Function(rq::SymbolTable &containing_table, rq::Name name,
                    rq::SymbolTable &hosting_table, rq::Expression &expression,
-                   rq::Expression *name_expression_ptr,
-                   rq::ExpressionFlags flags, rq::Module &module,
+                   rq::Expression *name_expression_ptr, rq::LowFlags flags,
+                   rq::Module &module,
                    rq::Expression *first_body_expression_ptr,
                    rq::Template *template_ptr,
                    rq::TemplateArgument *first_argument_ptr,
-                   rq::Expression *mangle_expression_ptr)
+                   rq::Expression *mangle_expression_ptr,
+                   rq::Expression *precondition_expression_ptr,
+                   rq::Expression *postcondition_expression_ptr)
     : Instance(rq::SymbolKind::FUNCTION, containing_table, name, hosting_table,
                expression, name_expression_ptr, flags, module, template_ptr,
                first_argument_ptr),
       _first_body_expression_ptr(first_body_expression_ptr),
-      _mangle_expression_ptr(mangle_expression_ptr) {}
+      _mangle_expression_ptr(mangle_expression_ptr),
+      _precondition_expression_ptr(precondition_expression_ptr),
+      _postcondition_expression_ptr(postcondition_expression_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
 Function::getFirstBodyExpressionPtr() const {
@@ -3762,6 +3710,26 @@ Function::getLlvmFunctionPtr() const {
   return this->_llvm_function_ptr;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Function::getPreconditionExpressionPtr() const {
+  return this->_precondition_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+Function::getPreconditionExpressionPtr() {
+  return this->_precondition_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Function::getPostconditionExpressionPtr() const {
+  return this->_postcondition_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+Function::getPostconditionExpressionPtr() {
+  return this->_postcondition_expression_ptr;
+}
+
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
@@ -3769,15 +3737,12 @@ Function::getLlvmFunctionPtr() const {
 }
 
 RQ_ALWAYS_INLINE
-GlobalVariable::GlobalVariable(rq::SymbolKind kind,
-                               rq::SymbolTable &containing_table, rq::Name name,
-                               rq::SymbolTable &hosting_table,
-                               rq::Expression &expression,
-                               rq::Expression &name_expression,
-                               rq::ExpressionFlags flags, rq::Module &module,
-                               rq::Template *template_ptr,
-                               rq::TemplateArgument *first_argument_ptr,
-                               rq::Expression *initial_value_expression_ptr)
+GlobalVariable::GlobalVariable(
+    rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
+    rq::SymbolTable &hosting_table, rq::Expression &expression,
+    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
+    rq::Expression *initial_value_expression_ptr)
     : Instance(kind, containing_table, name, hosting_table, expression,
                &name_expression, flags, module, template_ptr,
                first_argument_ptr),
@@ -3823,9 +3788,8 @@ GlobalVariable::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE GlobalDynamicVariable::GlobalDynamicVariable(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::ExpressionFlags flags,
-    rq::Module &module, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr,
+    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, containing_table,
                      name, hosting_table, expression, name_expression, flags,
@@ -3858,9 +3822,8 @@ GlobalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE GlobalStaticVariable::GlobalStaticVariable(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::ExpressionFlags flags,
-    rq::Module &module, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr,
+    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, containing_table,
                      name, hosting_table, expression, name_expression, flags,
@@ -3892,7 +3855,7 @@ RQ_ALWAYS_INLINE
 Template::Template(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                    rq::Name name, rq::SymbolTable &hosting_table,
                    rq::Expression &expression, rq::Expression &name_expression,
-                   rq::ExpressionFlags flags, rq::Module &module,
+                   rq::LowFlags flags, rq::Module &module,
                    rq::Expression &layout_expression,
                    rq::Expression *constraint_expression_ptr,
                    rq::Expression *weight_expression_ptr, unsigned weight)
@@ -3964,8 +3927,8 @@ template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedTemplate<KIND_PARAM>::DerivedTemplate(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::ExpressionFlags flags,
-    rq::Module &module, rq::Expression &layout_expression,
+    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &layout_expression,
     rq::Expression *constraint_expression_ptr,
     rq::Expression *weight_expression_ptr, unsigned weight)
     : Template(KIND_PARAM, containing_table, name, hosting_table, expression,

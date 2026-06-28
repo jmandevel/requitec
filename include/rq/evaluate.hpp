@@ -17,7 +17,7 @@ struct Module;
 struct Expression;
 struct SymbolTable;
 struct Instruction;
-struct ExpressionFlagsFactory;
+struct LowFlagsFactory;
 
 struct StaticRvalue final {
   using Self = rq::StaticRvalue;

@@ -21,8 +21,8 @@ enum class StaticValueKind {
   ARRAY,
   DATA_ARRAY,
   SYMBOL,
-  EXPRESSION_ATTRIBUTE,
-  TYPE_ATTRIBUTE
+  LOW_ATTRIBUTE,
+  HIGH_ATTRIBUTE
 };
 
 struct StaticValue;
@@ -44,12 +44,12 @@ using StaticArray = std::vector<rq::StaticValue>;
 using StaticDataArray = std::vector<std::byte>;
 
 struct Symbol;
-enum class TypeFlags : std::uint_fast8_t;
+enum class HighFlags : std::uint_fast8_t;
 
 struct StaticSymbol final {
   using Self = rq::StaticSymbol;
 
-  rq::TypeFlags flags;
+  rq::HighFlags flags;
   rq::Symbol *symbol_ptr;
 };
 
@@ -60,7 +60,7 @@ struct StaticValue final {
   rq::StaticValueKind _kind = rq::StaticValueKind::NONE;
   llvm::AlignedCharArrayUnion<rq::StaticSlice, rq::StaticInt, rq::StaticFloat,
                               rq::StaticDataArray, rq::StaticArray,
-                              rq::ExpressionAttribute, rq::TypeAttribute>
+                              rq::LowAttribute, rq::HighAttribute>
       _data = {};
 
   explicit RQ_ALWAYS_INLINE StaticValue() = default;
@@ -68,9 +68,13 @@ struct StaticValue final {
       : _kind(rq::StaticValueKind::SYMBOL) {
     this->getSymbol() = symbol;
   }
-  RQ_ALWAYS_INLINE StaticValue(const rq::ExpressionAttribute &attribute)
-      : _kind(rq::StaticValueKind::EXPRESSION_ATTRIBUTE) {
-    this->getExpressionAttribute() = attribute;
+  RQ_ALWAYS_INLINE StaticValue(const rq::LowAttribute &attribute)
+      : _kind(rq::StaticValueKind::LOW_ATTRIBUTE) {
+    this->getLowAttribute() = attribute;
+  }
+  RQ_ALWAYS_INLINE StaticValue(const rq::HighAttribute &attribute)
+      : _kind(rq::StaticValueKind::HIGH_ATTRIBUTE) {
+    this->getHighAttribute() = attribute;
   }
   ~StaticValue() {
     switch (this->_kind) {
@@ -157,30 +161,30 @@ struct StaticValue final {
     return rq::dereferencePtr(
         std::launder(std::bit_cast<const rq::StaticSymbol *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ExpressionAttribute &
-  getExpressionAttribute() const {
-    RQ_ASSERT(this->_kind == Kind::EXPRESSION_ATTRIBUTE,
-              "not expression attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LowAttribute &
+  getLowAttribute() const {
+    RQ_ASSERT(this->_kind == Kind::LOW_ATTRIBUTE,
+              "not low attribute");
     return rq::dereferencePtr(std::launder(
-        std::bit_cast<const rq::ExpressionAttribute *>(&this->_data)));
+        std::bit_cast<const rq::LowAttribute *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute &
-  getExpressionAttribute() {
-    RQ_ASSERT(this->_kind == Kind::EXPRESSION_ATTRIBUTE,
-              "not expression attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowAttribute &
+  getLowAttribute() {
+    RQ_ASSERT(this->_kind == Kind::LOW_ATTRIBUTE,
+              "not low attribute");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<rq::ExpressionAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<rq::LowAttribute *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeAttribute &
-  getTypeAttribute() const {
-    RQ_ASSERT(this->_kind == Kind::TYPE_ATTRIBUTE, "not type attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::HighAttribute &
+  getHighAttribute() const {
+    RQ_ASSERT(this->_kind == Kind::HIGH_ATTRIBUTE, "not high attribute");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<const rq::TypeAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<const rq::HighAttribute *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute &getTypeAttribute() {
-    RQ_ASSERT(this->_kind == Kind::TYPE_ATTRIBUTE, "not type attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighAttribute &getHighAttribute() {
+    RQ_ASSERT(this->_kind == Kind::HIGH_ATTRIBUTE, "not high attribute");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<rq::TypeAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<rq::HighAttribute *>(&this->_data)));
   }
 };
 

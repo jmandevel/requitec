@@ -56,8 +56,8 @@ enum class Keyword : rq::EntityId {
   ASCRIBE_TYPE,
   ASCRIBE_EXPRESSION,
   ASCRIBE_RECIEVER,
-  INSTANTIATE_EXPRESSION_ATTRIBUTE,
-  INSTANTIATE_TYPE_ATTRIBUTE,
+  INSTANTIATE_LOW_ATTRIBUTE,
+  INSTANTIATE_HIGH_ATTRIBUTE,
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,
@@ -276,7 +276,7 @@ enum class Keyword : rq::EntityId {
   UNREACHABLE,
   ASSUME,
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
@@ -337,17 +337,11 @@ enum class Keyword : rq::EntityId {
   // weight_attribute
   NO_WEIGHT,
   WEIGHT,
-  // require_attribute
-  NO_REQUIRE,
-  REQUIRE,
-  // ensure_attribute
-  NO_ENSURE,
-  ENSURE,
   // ranger_attribute
   NO_RANGER,
   RANGER,
 
-  // TYPE ATTRIBUTES
+  // HIGH ATTRIBUTES
   // var_attribute
   NO_VAR,
   VAR,
@@ -361,8 +355,14 @@ enum class Keyword : rq::EntityId {
   // null_terminate_attribute
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
+  // require_attribute
+  NO_REQUIRE,
+  REQUIRE,
+  // ensure_attribute
+  NO_ENSURE,
+  ENSURE,
 
-  // EXPRESSION ATTRIBUTE TYPES
+  // LOW ATTRIBUTE TYPES
   ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
   OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
   FLANK_ATTRIBUTE,          // no_flank vs flank
@@ -382,15 +382,15 @@ enum class Keyword : rq::EntityId {
   TEMPLATE_ATTRIBUTE,       // no_template vs template
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
-  REQUIRE_ATTRIBUTE,        // no_require vs require
-  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
   RANGER_ATTRIBUTE,         // no_ranger vs ranger
 
-  // TYPE ATTRIBUTE TYPES
+  // HIGH ATTRIBUTE TYPES
   VAR_ATTRIBUTE,            // no_var vs var vs partial_var
   VOLATILE_ATTRIBUTE,       // no_volatile vs volatile
   ATOMIC_ATTRIBUTE,         // no_atomic vs atomic
   NULL_TERMINATE_ATTRIBUTE, // no_null_terminate vs null_terminate
+  REQUIRE_ATTRIBUTE,        // no_require vs require
+  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
 
   // REFLECTIONS
   REFLECT,
@@ -474,10 +474,10 @@ enum class Keyword : rq::EntityId {
   IS_STRING_TYPE_OF,
   IS_CODEUNIT_TYPE,
   IS_CODEUNIT_TYPE_OF,
-  IS_EXPRESSION_ATTRIBUTE_TYPE,
-  IS_EXPRESSION_ATTRIBUTE_TYPE_OF,
-  IS_TYPE_ATTRIBUTE_TYPE,
-  IS_TYPE_ATTRIBUTE_TYPE_OF,
+  IS_LOW_ATTRIBUTE_TYPE,
+  IS_LOW_ATTRIBUTE_TYPE_OF,
+  IS_HIGH_ATTRIBUTE_TYPE,
+  IS_HIGH_ATTRIBUTE_TYPE_OF,
 
   LAST
 };
@@ -506,7 +506,7 @@ enum class SymbolKind : rq::EntityId {
   VOID_TYPE,
   NO_RETURN_TYPE,
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   ANCHOR_ATTRIBUTE_TYPE,
   OPAQUE_ATTRIBUTE_TYPE,
   GLOBAL_ATTRIBUTE_TYPE,
@@ -525,14 +525,14 @@ enum class SymbolKind : rq::EntityId {
   TEMPLATE_ATTRIBUTE_TYPE,
   CONSTRAINT_ATTRIBUTE_TYPE,
   WEIGHT_ATTRIBUTE_TYPE,
-  REQUIRE_ATTRIBUTE_TYPE,
-  ENSURE_ATTRIBUTE_TYPE,
 
-  // TYPE ATTRIBUTES
+  // HIGH ATTRIBUTES
   VAR_ATTRIBUTE_TYPE,
   VOLATILE_ATTRIBUTE_TYPE,
   ATOMIC_ATTRIBUTE_TYPE,
   NULL_TERMINATE_ATTRIBUTE_TYPE,
+  REQUIRE_ATTRIBUTE_TYPE,
+  ENSURE_ATTRIBUTE_TYPE,
 
   // REFLECTIVE
   SYMBOL_TYPE,

@@ -90,10 +90,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_expression";
   case K::ASCRIBE_RECIEVER:
     return "_ascribe_reciever";
-  case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
-    return "_instantiate_expression_attribute";
-  case K::INSTANTIATE_TYPE_ATTRIBUTE:
-    return "_instantiate_type_attribute";
+  case K::INSTANTIATE_LOW_ATTRIBUTE:
+    return "_instantiate_low_attribute";
+  case K::INSTANTIATE_HIGH_ATTRIBUTE:
+    return "_instantiate_high_attribute";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -479,7 +479,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::ASSUME:
     return "assume";
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   case K::NO_ANCHOR:
     return "no_anchor";
   case K::ANCHOR:
@@ -595,7 +595,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::NULL_TERMINATE:
     return "null_terminate";
 
-  // EXPRESSION ATTRIBUTE TYPES
+  // LOW ATTRIBUTE TYPES
   case K::ANCHOR_ATTRIBUTE:
     return "anchor_attribute";
   case K::OPAQUE_ATTRIBUTE:
@@ -641,7 +641,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::RANGER_ATTRIBUTE:
     return "ranger_attribute";
 
-  // TYPE ATTRIBUTE TYPES
+  // HIGH ATTRIBUTE TYPES
   case K::VAR_ATTRIBUTE:
     return "var_attribute";
   case K::VOLATILE_ATTRIBUTE:
@@ -806,13 +806,13 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_codeunit_type";
   case K::IS_CODEUNIT_TYPE_OF:
     return "_is_codeunit_type_of";
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
-    return "is_expression_attribute_type";
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF:
-    return "_is_expression_attribute_type_of";
-  case K::IS_TYPE_ATTRIBUTE_TYPE:
+  case K::IS_LOW_ATTRIBUTE_TYPE:
+    return "is_low_attribute_type";
+  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
+    return "_is_low_attribute_type_of";
+  case K::IS_HIGH_ATTRIBUTE_TYPE:
     return "is_type_attribute_type";
-  case K::IS_TYPE_ATTRIBUTE_TYPE_OF:
+  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
     return "_is_type_attribute_type_of";
 
   case K::LAST:
@@ -846,13 +846,13 @@ enum class KeywordFlags : std::uint32_t {
   NAMESPACE = rq::getBit(17),
   FUNCTION_NAME = rq::getBit(18),
   ASCRIPTION = rq::getBit(19),
-  EXPRESSION_ATTRIBUTE = rq::getBit(20),
-  TYPE_ATTRIBUTE = rq::getBit(21),
+  LOW_ATTRIBUTE = rq::getBit(20),
+  HIGH_ATTRIBUTE = rq::getBit(21),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(22),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(23),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | FUNCTION_NAME |
-                   ASCRIPTION | TYPE_ATTRIBUTE | EXPRESSION_ATTRIBUTE |
+                   ASCRIPTION | HIGH_ATTRIBUTE | LOW_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -935,10 +935,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
   case K::ASCRIBE_RECIEVER:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
-  case K::INSTANTIATE_EXPRESSION_ATTRIBUTE:
-    return KF::NONE; // EXPRESSION_ATTRIBUTE_INSTANTIATION
-  case K::INSTANTIATE_TYPE_ATTRIBUTE:
-    return KF::NONE; // TYPE_ATTRIBUTE_INSTANTIATION
+  case K::INSTANTIATE_LOW_ATTRIBUTE:
+    return KF::NONE; // LOW_ATTRIBUTE_INSTANTIATION
+  case K::INSTANTIATE_HIGH_ATTRIBUTE:
+    return KF::NONE; // HIGH_ATTRIBUTE_INSTANTIATION
   case K::IDENTIFY:
     return KF::REFLECTION | KF::ASCRIPTION;
   case K::IDENTIFY_OF:
@@ -1323,124 +1323,124 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::ASSUME:
     return KF::STATEMENT;
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   case K::NO_ANCHOR:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ANCHOR:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_OPAQUE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::OPAQUE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_FLANK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::FLANK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_GLOBAL:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::GLOBAL:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ACCESS:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPORT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PUBLIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PARTIAL_MUTATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIAL_MUTATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_STATIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STATIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_CAPTURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CAPTURE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT |
-           KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT | KF::REFLECTION |
+           KF::UNIVERSALIZABLE;
   case K::NO_INLINE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::INLINE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_MANGLE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::MANGLE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_PACK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PACK:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_BRANCH_TREND:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LIKELY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::UNLIKELY:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_SUPPORT_STATUS:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::DEPRECIATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPERIMENTAL:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_STABLE_ADDRESS:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::STABLE_ADDRESS:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_VARIADIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VARIADIC:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_LOCATION:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::LOCATION:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_TEMPLATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::TEMPLATE:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_CONSTRAINT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::CONSTRAINT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_WEIGHT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::WEIGHT:
-    return KF::EXPRESSION_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_REQUIRE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::REQUIRE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ENSURE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ENSURE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_RANGER:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::RANGER:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VAR:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::PARTIAL_VAR:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_VOLATILE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::VOLATILE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_ATOMIC:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::ATOMIC:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_NULL_TERMINATE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NULL_TERMINATE:
-    return KF::TYPE_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
+    return KF::HIGH_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
 
-  // EXPRESSION ATTRIBUTE TYPES
+  // LOW ATTRIBUTE TYPES
   case K::ANCHOR_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::OPAQUE_ATTRIBUTE:
@@ -1486,7 +1486,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::RANGER_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
 
-  // TYPE ATTRIBUTE TYPES
+  // HIGH ATTRIBUTE TYPES
   case K::VAR_ATTRIBUTE:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::VOLATILE_ATTRIBUTE:
@@ -1659,13 +1659,13 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::IS_CODEUNIT_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
+  case K::IS_LOW_ATTRIBUTE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF:
+  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::IS_TYPE_ATTRIBUTE_TYPE:
+  case K::IS_HIGH_ATTRIBUTE_TYPE:
     return KF::REFLECTION | KF::UNIVERSALIZABLE;
-  case K::IS_TYPE_ATTRIBUTE_TYPE_OF:
+  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
     return KF::RVALUE | KF::ARGUMENT;
 
   case K::LAST:
@@ -1756,15 +1756,14 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordFlags::FINISHING_CHAINLINK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttribute(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::TYPE_ATTRIBUTE);
+  return rq::getHasAll(flags, rq::KeywordFlags::HIGH_ATTRIBUTE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsExpressionAttribute(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttribute(rq::Keyword keyword) {
   const rq::KeywordFlags flags = rq::getFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordFlags::EXPRESSION_ATTRIBUTE);
+  return rq::getHasAll(flags, rq::KeywordFlags::LOW_ATTRIBUTE);
 }
 
 enum class Situation : std::uint_fast8_t {
@@ -1781,8 +1780,8 @@ enum class Situation : std::uint_fast8_t {
   NAMESPACE,
   FUNCTION_NAME,
   ASCRIPTION,
-  EXPRESSION_ATTRIBUTE_INSTANTIATION,
-  TYPE_ATTRIBUTE_INSTANTIATION,
+  LOW_ATTRIBUTE_INSTANTIATION,
+  HIGH_ATTRIBUTE_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE
 };
 
@@ -1817,10 +1816,10 @@ getDescription(rq::Situation situation) {
     return "function name expression";
   case S::ASCRIPTION:
     return "ascription expression";
-  case S::EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return "expression attribute instantiation";
-  case S::TYPE_ATTRIBUTE_INSTANTIATION:
-    return "type attribute instantiation";
+  case S::LOW_ATTRIBUTE_INSTANTIATION:
+    return "low attribute instantiation";
+  case S::HIGH_ATTRIBUTE_INSTANTIATION:
+    return "high attribute instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   }
@@ -1959,10 +1958,10 @@ getDescription(rq::Situation situation) {
     return K::IS_STRING_TYPE_OF;
   case K::IS_CODEUNIT_TYPE:
     return K::IS_CODEUNIT_TYPE_OF;
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
-    return K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF;
-  case K::IS_TYPE_ATTRIBUTE_TYPE:
-    return K::IS_TYPE_ATTRIBUTE_TYPE_OF;
+  case K::IS_LOW_ATTRIBUTE_TYPE:
+    return K::IS_LOW_ATTRIBUTE_TYPE_OF;
+  case K::IS_HIGH_ATTRIBUTE_TYPE:
+    return K::IS_HIGH_ATTRIBUTE_TYPE_OF;
   default:
     break;
   }
@@ -1975,13 +1974,13 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
   case rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_EXPRESSION:
-    return rq::Situation::EXPRESSION_ATTRIBUTE_INSTANTIATION;
+    return rq::Situation::LOW_ATTRIBUTE_INSTANTIATION;
   case rq::Keyword::UNSITUATED_ASCRIBE_TYPE:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_TYPE:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_RECIEVER:
-    return rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION;
+    return rq::Situation::HIGH_ATTRIBUTE_INSTANTIATION;
   default:
     break;
   }
@@ -2052,13 +2051,13 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeExpressionAttributeInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_EXPRESSION_ATTRIBUTE;
+getCanBeLowAttributeInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeTypeAttributeInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_TYPE_ATTRIBUTE;
+getCanBeHighAttributeInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2109,10 +2108,10 @@ getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
     return rq::getCanBeFunctionName(keyword);
   case rq::Situation::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
-  case rq::Situation::TYPE_ATTRIBUTE_INSTANTIATION:
-    return rq::getCanBeTypeAttributeInstantiation(keyword);
-  case rq::Situation::EXPRESSION_ATTRIBUTE_INSTANTIATION:
-    return rq::getCanBeExpressionAttributeInstantiation(keyword);
+  case rq::Situation::HIGH_ATTRIBUTE_INSTANTIATION:
+    return rq::getCanBeHighAttributeInstantiation(keyword);
+  case rq::Situation::LOW_ATTRIBUTE_INSTANTIATION:
+    return rq::getCanBeLowAttributeInstantiation(keyword);
   case rq::Situation::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceTypeStage(keyword);
   }
@@ -2142,7 +2141,7 @@ enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, ARM };
   return "error chain";
 }
 
-enum class ExpressionAttribute : std::uint_fast8_t {
+enum class LowAttribute : std::uint_fast8_t {
   NONE,
   // anchor_attribute
   NO_ANCHOR,
@@ -2214,198 +2213,196 @@ enum class ExpressionAttribute : std::uint_fast8_t {
   LAST
 };
 
-[[nodiscard]] inline llvm::StringRef
-getName(rq::ExpressionAttribute attribute) {
+[[nodiscard]] inline llvm::StringRef getName(rq::LowAttribute attribute) {
   using namespace rq;
-  using EA = ExpressionAttribute;
+  using LA = LowAttribute;
   switch (attribute) {
-  case EA::NONE:
+  case LA::NONE:
     return "none";
-  case EA::NO_ANCHOR:
+  case LA::NO_ANCHOR:
     return "no_anchor";
-  case EA::ANCHOR:
+  case LA::ANCHOR:
     return "anchor";
-  case EA::NO_OPAQUE:
+  case LA::NO_OPAQUE:
     return "no_opaque";
-  case EA::OPAQUE:
+  case LA::OPAQUE:
     return "opaque";
-  case EA::NO_GLOBAL:
+  case LA::NO_GLOBAL:
     return "no_global";
-  case EA::GLOBAL:
+  case LA::GLOBAL:
     return "global";
-  case EA::NO_ACCESS:
+  case LA::NO_ACCESS:
     return "no_access";
-  case EA::EXPORT:
+  case LA::EXPORT:
     return "export";
-  case EA::PUBLIC:
+  case LA::PUBLIC:
     return "public";
-  case EA::NO_PARTIAL_MUTATE:
+  case LA::NO_PARTIAL_MUTATE:
     return "no_partial_mutate";
-  case EA::PARTIAL_MUTATE:
+  case LA::PARTIAL_MUTATE:
     return "partial_mutate";
-  case EA::NO_STATIC:
+  case LA::NO_STATIC:
     return "no_static";
-  case EA::STATIC:
+  case LA::STATIC:
     return "static";
-  case EA::NO_CAPTURE:
+  case LA::NO_CAPTURE:
     return "no_capture";
-  case EA::CAPTURE:
+  case LA::CAPTURE:
     return "capture";
-  case EA::NO_INLINE:
+  case LA::NO_INLINE:
     return "no_inline";
-  case EA::INLINE:
+  case LA::INLINE:
     return "inline";
-  case EA::NO_MANGLE:
+  case LA::NO_MANGLE:
     return "no_mangle";
-  case EA::MANGLE:
+  case LA::MANGLE:
     return "mangle";
-  case EA::NO_PACK:
+  case LA::NO_PACK:
     return "no_pack";
-  case EA::PACK:
+  case LA::PACK:
     return "pack";
-  case EA::NO_BRANCH_TREND:
+  case LA::NO_BRANCH_TREND:
     return "no_branch_trend";
-  case EA::LIKELY:
+  case LA::LIKELY:
     return "likely";
-  case EA::UNLIKELY:
+  case LA::UNLIKELY:
     return "unlikely";
-  case EA::NO_SUPPORT_STATUS:
+  case LA::NO_SUPPORT_STATUS:
     return "no_support_status";
-  case EA::DEPRECIATE:
+  case LA::DEPRECIATE:
     return "depreciate";
-  case EA::EXPERIMENTAL:
+  case LA::EXPERIMENTAL:
     return "experimental";
-  case EA::NO_STABLE_ADDRESS:
+  case LA::NO_STABLE_ADDRESS:
     return "no_stable_address";
-  case EA::STABLE_ADDRESS:
+  case LA::STABLE_ADDRESS:
     return "stable_address";
-  case EA::NO_VARIADIC:
+  case LA::NO_VARIADIC:
     return "no_variadic";
-  case EA::VARIADIC:
+  case LA::VARIADIC:
     return "variadic";
-  case EA::NO_LOCATION:
+  case LA::NO_LOCATION:
     return "no_location";
-  case EA::LOCATION:
+  case LA::LOCATION:
     return "location";
-  case EA::NO_TEMPLATE:
+  case LA::NO_TEMPLATE:
     return "no_template";
-  case EA::TEMPLATE:
+  case LA::TEMPLATE:
     return "template";
-  case EA::NO_CONSTRAINT:
+  case LA::NO_CONSTRAINT:
     return "no_constraint";
-  case EA::CONSTRAINT:
+  case LA::CONSTRAINT:
     return "constraint";
-  case EA::NO_WEIGHT:
+  case LA::NO_WEIGHT:
     return "no_weight";
-  case EA::WEIGHT:
+  case LA::WEIGHT:
     return "weight";
-  case EA::NO_REQUIRE:
+  case LA::NO_REQUIRE:
     return "no_require";
-  case EA::REQUIRE:
+  case LA::REQUIRE:
     return "require";
-  case EA::NO_ENSURE:
+  case LA::NO_ENSURE:
     return "no_ensure";
-  case EA::ENSURE:
+  case LA::ENSURE:
     return "ensure";
-  case EA::NO_RANGER:
+  case LA::NO_RANGER:
     return "no_ranger";
-  case EA::RANGER:
+  case LA::RANGER:
     return "ranger";
-  case EA::LAST:
+  case LA::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ExpressionAttribute
-getExpressionAttribute(rq::Keyword keyword) {
+[[nodiscard]] inline rq::LowAttribute getLowAttribute(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using EA = ExpressionAttribute;
+  using LA = LowAttribute;
   switch (keyword) {
   case K::NO_ANCHOR:
-    return EA::NO_ANCHOR;
+    return LA::NO_ANCHOR;
   case K::ANCHOR:
-    return EA::ANCHOR;
+    return LA::ANCHOR;
   case K::NO_OPAQUE:
-    return EA::OPAQUE;
+    return LA::OPAQUE;
   case K::NO_GLOBAL:
-    return EA::NO_GLOBAL;
+    return LA::NO_GLOBAL;
   case K::GLOBAL:
-    return EA::GLOBAL;
+    return LA::GLOBAL;
   case K::NO_ACCESS:
-    return EA::NO_ACCESS;
+    return LA::NO_ACCESS;
   case K::EXPORT:
-    return EA::EXPORT;
+    return LA::EXPORT;
   case K::PUBLIC:
-    return EA::PUBLIC;
+    return LA::PUBLIC;
   case K::NO_PARTIAL_MUTATE:
-    return EA::NO_PARTIAL_MUTATE;
+    return LA::NO_PARTIAL_MUTATE;
   case K::PARTIAL_MUTATE:
-    return EA::PARTIAL_MUTATE;
+    return LA::PARTIAL_MUTATE;
   case K::NO_STATIC:
-    return EA::NO_STATIC;
+    return LA::NO_STATIC;
   case K::STATIC:
-    return EA::STATIC;
+    return LA::STATIC;
   case K::NO_CAPTURE:
-    return EA::NO_CAPTURE;
+    return LA::NO_CAPTURE;
   case K::CAPTURE:
-    return EA::CAPTURE;
+    return LA::CAPTURE;
   case K::NO_INLINE:
-    return EA::NO_INLINE;
+    return LA::NO_INLINE;
   case K::INLINE:
-    return EA::INLINE;
+    return LA::INLINE;
   case K::NO_MANGLE:
-    return EA::NO_MANGLE;
+    return LA::NO_MANGLE;
   case K::MANGLE:
-    return EA::MANGLE;
+    return LA::MANGLE;
   case K::NO_PACK:
-    return EA::NO_PACK;
+    return LA::NO_PACK;
   case K::PACK:
-    return EA::PACK;
+    return LA::PACK;
   case K::NO_BRANCH_TREND:
-    return EA::NO_BRANCH_TREND;
+    return LA::NO_BRANCH_TREND;
   case K::LIKELY:
-    return EA::LIKELY;
+    return LA::LIKELY;
   case K::UNLIKELY:
-    return EA::UNLIKELY;
+    return LA::UNLIKELY;
   case K::NO_SUPPORT_STATUS:
-    return EA::NO_SUPPORT_STATUS;
+    return LA::NO_SUPPORT_STATUS;
   case K::DEPRECIATE:
-    return EA::DEPRECIATE;
+    return LA::DEPRECIATE;
   case K::EXPERIMENTAL:
-    return EA::EXPERIMENTAL;
+    return LA::EXPERIMENTAL;
   case K::NO_STABLE_ADDRESS:
-    return EA::NO_STABLE_ADDRESS;
+    return LA::NO_STABLE_ADDRESS;
   case K::STABLE_ADDRESS:
-    return EA::STABLE_ADDRESS;
+    return LA::STABLE_ADDRESS;
   case K::NO_VARIADIC:
-    return EA::NO_VARIADIC;
+    return LA::NO_VARIADIC;
   case K::VARIADIC:
-    return EA::VARIADIC;
+    return LA::VARIADIC;
   case K::NO_LOCATION:
-    return EA::NO_LOCATION;
+    return LA::NO_LOCATION;
   case K::LOCATION:
-    return EA::LOCATION;
+    return LA::LOCATION;
   case K::NO_TEMPLATE:
-    return EA::NO_TEMPLATE;
+    return LA::NO_TEMPLATE;
   case K::TEMPLATE:
-    return EA::TEMPLATE;
+    return LA::TEMPLATE;
   case K::NO_CONSTRAINT:
-    return EA::NO_CONSTRAINT;
+    return LA::NO_CONSTRAINT;
   case K::CONSTRAINT:
-    return EA::CONSTRAINT;
+    return LA::CONSTRAINT;
   case K::NO_WEIGHT:
-    return EA::NO_WEIGHT;
+    return LA::NO_WEIGHT;
   case K::WEIGHT:
-    return EA::WEIGHT;
+    return LA::WEIGHT;
   default:
     break;
   }
-  return EA::NONE;
+  return LA::NONE;
 }
 
-enum class ExpressionFlags : std::uint_fast32_t {
+enum class LowFlags : std::uint_fast32_t {
   NONE = 0,
 
   ANCHOR = rq::getBit(0),
@@ -2475,113 +2472,112 @@ enum class ExpressionFlags : std::uint_fast32_t {
   RANGER_MASK = RANGER
 };
 
-template <> struct is_flags<rq::ExpressionFlags> : std::true_type {};
+template <> struct is_flags<rq::LowFlags> : std::true_type {};
 
-[[nodiscard]] inline rq::ExpressionFlags
-getFlags(rq::ExpressionAttribute attribute) {
+[[nodiscard]] inline rq::LowFlags getFlags(rq::LowAttribute attribute) {
   using namespace rq;
-  using EA = ExpressionAttribute;
-  using EF = ExpressionFlags;
+  using LA = LowAttribute;
+  using EF = LowFlags;
   switch (attribute) {
-  case EA::NONE:
+  case LA::NONE:
     return EF::NONE;
-  case EA::NO_ANCHOR:
+  case LA::NO_ANCHOR:
     return EF::NONE;
-  case EA::ANCHOR:
+  case LA::ANCHOR:
     return EF::ANCHOR;
-  case EA::NO_OPAQUE:
+  case LA::NO_OPAQUE:
     return EF::NONE;
-  case EA::OPAQUE:
+  case LA::OPAQUE:
     return EF::OPAQUE;
-  case EA::NO_GLOBAL:
+  case LA::NO_GLOBAL:
     return EF::NONE;
-  case EA::GLOBAL:
+  case LA::GLOBAL:
     return EF::GLOBAL;
-  case EA::NO_ACCESS:
+  case LA::NO_ACCESS:
     return EF::NONE;
-  case EA::EXPORT:
+  case LA::EXPORT:
     return EF::EXPORT;
-  case EA::PUBLIC:
+  case LA::PUBLIC:
     return EF::PUBLIC;
-  case EA::NO_PARTIAL_MUTATE:
+  case LA::NO_PARTIAL_MUTATE:
     return EF::NONE;
-  case EA::PARTIAL_MUTATE:
+  case LA::PARTIAL_MUTATE:
     return EF::PARTIAL_MUTATE;
-  case EA::NO_STATIC:
+  case LA::NO_STATIC:
     return EF::NONE;
-  case EA::STATIC:
+  case LA::STATIC:
     return EF::STATIC;
-  case EA::NO_CAPTURE:
+  case LA::NO_CAPTURE:
     return EF::NONE;
-  case EA::CAPTURE:
+  case LA::CAPTURE:
     return EF::CAPTURE;
-  case EA::NO_INLINE:
+  case LA::NO_INLINE:
     return EF::NONE;
-  case EA::INLINE:
+  case LA::INLINE:
     return EF::INLINE;
-  case EA::NO_MANGLE:
+  case LA::NO_MANGLE:
     return EF::NONE;
-  case EA::MANGLE:
+  case LA::MANGLE:
     return EF::MANGLE;
-  case EA::NO_PACK:
+  case LA::NO_PACK:
     return EF::NONE;
-  case EA::PACK:
+  case LA::PACK:
     return EF::PACK;
-  case EA::NO_BRANCH_TREND:
+  case LA::NO_BRANCH_TREND:
     return EF::NONE;
-  case EA::LIKELY:
+  case LA::LIKELY:
     return EF::LIKELY;
-  case EA::UNLIKELY:
+  case LA::UNLIKELY:
     return EF::UNLIKELY;
-  case EA::NO_SUPPORT_STATUS:
+  case LA::NO_SUPPORT_STATUS:
     return EF::NONE;
-  case EA::DEPRECIATE:
+  case LA::DEPRECIATE:
     return EF::DEPRECIATE;
-  case EA::EXPERIMENTAL:
+  case LA::EXPERIMENTAL:
     return EF::EXPERIMENTAL;
-  case EA::NO_STABLE_ADDRESS:
+  case LA::NO_STABLE_ADDRESS:
     return EF::NONE;
-  case EA::STABLE_ADDRESS:
+  case LA::STABLE_ADDRESS:
     return EF::STABLE_ADDRESS;
-  case EA::NO_VARIADIC:
+  case LA::NO_VARIADIC:
     return EF::NONE;
-  case EA::VARIADIC:
+  case LA::VARIADIC:
     return EF::VARIADIC;
-  case EA::NO_LOCATION:
+  case LA::NO_LOCATION:
     return EF::NONE;
-  case EA::LOCATION:
+  case LA::LOCATION:
     return EF::LOCATION;
-  case EA::NO_TEMPLATE:
+  case LA::NO_TEMPLATE:
     return EF::NONE;
-  case EA::TEMPLATE:
+  case LA::TEMPLATE:
     return EF::TEMPLATE;
-  case EA::NO_CONSTRAINT:
+  case LA::NO_CONSTRAINT:
     return EF::NONE;
-  case EA::CONSTRAINT:
+  case LA::CONSTRAINT:
     return EF::CONSTRAINT;
-  case EA::NO_WEIGHT:
+  case LA::NO_WEIGHT:
     return EF::NONE;
-  case EA::WEIGHT:
+  case LA::WEIGHT:
     return EF::WEIGHT;
-  case EA::NO_REQUIRE:
+  case LA::NO_REQUIRE:
     return EF::NONE;
-  case EA::REQUIRE:
+  case LA::REQUIRE:
     return EF::REQUIRE;
-  case EA::NO_ENSURE:
+  case LA::NO_ENSURE:
     return EF::NONE;
-  case EA::ENSURE:
+  case LA::ENSURE:
     return EF::ENSURE;
-  case EA::NO_RANGER:
+  case LA::NO_RANGER:
     return EF::NONE;
-  case EA::RANGER:
+  case LA::RANGER:
     return EF::RANGER;
-  case EA::LAST:
+  case LA::LAST:
     break;
   }
   return EF::NONE;
 }
 
-enum class ExpressionAttributeKind : std::uint_fast8_t {
+enum class LowAttributeKind : std::uint_fast8_t {
   NONE,
   ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
   OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
@@ -2606,193 +2602,192 @@ enum class ExpressionAttributeKind : std::uint_fast8_t {
   RANGER_ATTRIBUTE          // no_ranger vs ranger
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::ExpressionAttributeKind kind) {
-  using EAK = rq::ExpressionAttributeKind;
+[[nodiscard]] inline llvm::StringRef getName(rq::LowAttributeKind kind) {
+  using LAK = rq::LowAttributeKind;
   switch (kind) {
-  case EAK::NONE:
+  case LAK::NONE:
     break;
-  case EAK::ANCHOR_ATTRIBUTE:
+  case LAK::ANCHOR_ATTRIBUTE:
     return "anchor_attribute";
-  case EAK::OPAQUE_ATTRIBUTE:
+  case LAK::OPAQUE_ATTRIBUTE:
     return "opaque_attribute";
-  case EAK::GLOBAL_ATTRIBUTE:
+  case LAK::GLOBAL_ATTRIBUTE:
     return "global_attribute";
-  case EAK::ACCESS_ATTRIBUTE:
+  case LAK::ACCESS_ATTRIBUTE:
     return "access_attribute";
-  case EAK::PARTIAL_MUTATE_ATTRIBUTE:
+  case LAK::PARTIAL_MUTATE_ATTRIBUTE:
     return "partial_mutate_attribute";
-  case EAK::STATIC_ATTRIBUTE:
+  case LAK::STATIC_ATTRIBUTE:
     return "static_attribute";
-  case EAK::CAPTURE_ATTRIBUTE:
+  case LAK::CAPTURE_ATTRIBUTE:
     return "capture_attribute";
-  case EAK::INLINE_ATTRIBUTE:
+  case LAK::INLINE_ATTRIBUTE:
     return "inline_attribute";
-  case EAK::MANGLE_ATTRIBUTE:
+  case LAK::MANGLE_ATTRIBUTE:
     return "mangle_attribute";
-  case EAK::PACK_ATTRIBUTE:
+  case LAK::PACK_ATTRIBUTE:
     return "pack_attribute";
-  case EAK::BRANCH_TREND_ATTRIBUTE:
+  case LAK::BRANCH_TREND_ATTRIBUTE:
     return "branch_trend_attribute";
-  case EAK::SUPPORT_STATUS_ATTRIBUTE:
+  case LAK::SUPPORT_STATUS_ATTRIBUTE:
     return "support_status_attribute";
-  case EAK::STABLE_ADDRESS_ATTRIBUTE:
+  case LAK::STABLE_ADDRESS_ATTRIBUTE:
     return "stable_address_attribute";
-  case EAK::VARIADIC_ATTRIBUTE:
+  case LAK::VARIADIC_ATTRIBUTE:
     return "variadic_attribute";
-  case EAK::LOCATION_ATTRIBUTE:
+  case LAK::LOCATION_ATTRIBUTE:
     return "location_attribute";
-  case EAK::TEMPLATE_ATTRIBUTE:
+  case LAK::TEMPLATE_ATTRIBUTE:
     return "template_attribute";
-  case EAK::CONSTRAINT_ATTRIBUTE:
+  case LAK::CONSTRAINT_ATTRIBUTE:
     return "constraint_attribute";
-  case EAK::WEIGHT_ATTRIBUTE:
+  case LAK::WEIGHT_ATTRIBUTE:
     return "weight_attribute";
-  case EAK::REQUIRE_ATTRIBUTE:
+  case LAK::REQUIRE_ATTRIBUTE:
     return "require_attribute";
-  case EAK::ENSURE_ATTRIBUTE:
+  case LAK::ENSURE_ATTRIBUTE:
     return "ensure_attribute";
-  case EAK::RANGER_ATTRIBUTE:
+  case LAK::RANGER_ATTRIBUTE:
     return "ranger_attribute";
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ExpressionAttributeKind
-getKind(rq::ExpressionAttribute attribute) {
-  using EA = rq::ExpressionAttribute;
-  using EAK = rq::ExpressionAttributeKind;
+[[nodiscard]] inline rq::LowAttributeKind getKind(rq::LowAttribute attribute) {
+  using LA = rq::LowAttribute;
+  using LAK = rq::LowAttributeKind;
   switch (attribute) {
-  case EA::NONE:
-    return EAK::NONE;
-  case EA::NO_ANCHOR:
+  case LA::NONE:
+    return LAK::NONE;
+  case LA::NO_ANCHOR:
     [[fallthrough]];
-  case EA::ANCHOR:
-    return EAK::ANCHOR_ATTRIBUTE;
-  case EA::NO_OPAQUE:
+  case LA::ANCHOR:
+    return LAK::ANCHOR_ATTRIBUTE;
+  case LA::NO_OPAQUE:
     [[fallthrough]];
-  case EA::OPAQUE:
-    return EAK::OPAQUE_ATTRIBUTE;
-  case EA::NO_GLOBAL:
+  case LA::OPAQUE:
+    return LAK::OPAQUE_ATTRIBUTE;
+  case LA::NO_GLOBAL:
     [[fallthrough]];
-  case EA::GLOBAL:
-    return EAK::GLOBAL_ATTRIBUTE;
-  case EA::NO_ACCESS:
+  case LA::GLOBAL:
+    return LAK::GLOBAL_ATTRIBUTE;
+  case LA::NO_ACCESS:
     [[fallthrough]];
-  case EA::EXPORT:
+  case LA::EXPORT:
     [[fallthrough]];
-  case EA::PUBLIC:
-    return EAK::ACCESS_ATTRIBUTE;
-  case EA::NO_PARTIAL_MUTATE:
+  case LA::PUBLIC:
+    return LAK::ACCESS_ATTRIBUTE;
+  case LA::NO_PARTIAL_MUTATE:
     [[fallthrough]];
-  case EA::PARTIAL_MUTATE:
-    return EAK::PARTIAL_MUTATE_ATTRIBUTE;
-  case EA::NO_STATIC:
+  case LA::PARTIAL_MUTATE:
+    return LAK::PARTIAL_MUTATE_ATTRIBUTE;
+  case LA::NO_STATIC:
     [[fallthrough]];
-  case EA::STATIC:
-    return EAK::STATIC_ATTRIBUTE;
-  case EA::NO_CAPTURE:
+  case LA::STATIC:
+    return LAK::STATIC_ATTRIBUTE;
+  case LA::NO_CAPTURE:
     [[fallthrough]];
-  case EA::CAPTURE:
-    return EAK::CAPTURE_ATTRIBUTE;
-  case EA::NO_INLINE:
+  case LA::CAPTURE:
+    return LAK::CAPTURE_ATTRIBUTE;
+  case LA::NO_INLINE:
     [[fallthrough]];
-  case EA::INLINE:
-    return EAK::INLINE_ATTRIBUTE;
-  case EA::NO_MANGLE:
+  case LA::INLINE:
+    return LAK::INLINE_ATTRIBUTE;
+  case LA::NO_MANGLE:
     [[fallthrough]];
-  case EA::MANGLE:
-    return EAK::MANGLE_ATTRIBUTE;
-  case EA::NO_PACK:
+  case LA::MANGLE:
+    return LAK::MANGLE_ATTRIBUTE;
+  case LA::NO_PACK:
     [[fallthrough]];
-  case EA::PACK:
-    return EAK::PACK_ATTRIBUTE;
-  case EA::NO_BRANCH_TREND:
+  case LA::PACK:
+    return LAK::PACK_ATTRIBUTE;
+  case LA::NO_BRANCH_TREND:
     [[fallthrough]];
-  case EA::LIKELY:
+  case LA::LIKELY:
     [[fallthrough]];
-  case EA::UNLIKELY:
-    return EAK::BRANCH_TREND_ATTRIBUTE;
-  case EA::NO_SUPPORT_STATUS:
+  case LA::UNLIKELY:
+    return LAK::BRANCH_TREND_ATTRIBUTE;
+  case LA::NO_SUPPORT_STATUS:
     [[fallthrough]];
-  case EA::DEPRECIATE:
+  case LA::DEPRECIATE:
     [[fallthrough]];
-  case EA::EXPERIMENTAL:
-    return EAK::SUPPORT_STATUS_ATTRIBUTE;
-  case EA::NO_STABLE_ADDRESS:
+  case LA::EXPERIMENTAL:
+    return LAK::SUPPORT_STATUS_ATTRIBUTE;
+  case LA::NO_STABLE_ADDRESS:
     [[fallthrough]];
-  case EA::STABLE_ADDRESS:
-    return EAK::STABLE_ADDRESS_ATTRIBUTE;
-  case EA::NO_VARIADIC:
+  case LA::STABLE_ADDRESS:
+    return LAK::STABLE_ADDRESS_ATTRIBUTE;
+  case LA::NO_VARIADIC:
     [[fallthrough]];
-  case EA::VARIADIC:
-    return EAK::VARIADIC_ATTRIBUTE;
-  case EA::NO_LOCATION:
+  case LA::VARIADIC:
+    return LAK::VARIADIC_ATTRIBUTE;
+  case LA::NO_LOCATION:
     [[fallthrough]];
-  case EA::LOCATION:
-    return EAK::LOCATION_ATTRIBUTE;
-  case EA::NO_TEMPLATE:
+  case LA::LOCATION:
+    return LAK::LOCATION_ATTRIBUTE;
+  case LA::NO_TEMPLATE:
     [[fallthrough]];
-  case EA::TEMPLATE:
-    return EAK::TEMPLATE_ATTRIBUTE;
-  case EA::NO_CONSTRAINT:
+  case LA::TEMPLATE:
+    return LAK::TEMPLATE_ATTRIBUTE;
+  case LA::NO_CONSTRAINT:
     [[fallthrough]];
-  case EA::CONSTRAINT:
-    return EAK::CONSTRAINT_ATTRIBUTE;
-  case EA::NO_WEIGHT:
+  case LA::CONSTRAINT:
+    return LAK::CONSTRAINT_ATTRIBUTE;
+  case LA::NO_WEIGHT:
     [[fallthrough]];
-  case EA::WEIGHT:
-    return EAK::WEIGHT_ATTRIBUTE;
-  case EA::NO_REQUIRE:
+  case LA::WEIGHT:
+    return LAK::WEIGHT_ATTRIBUTE;
+  case LA::NO_REQUIRE:
     [[fallthrough]];
-  case EA::REQUIRE:
-    return EAK::REQUIRE_ATTRIBUTE;
-  case EA::NO_ENSURE:
+  case LA::REQUIRE:
+    return LAK::REQUIRE_ATTRIBUTE;
+  case LA::NO_ENSURE:
     [[fallthrough]];
-  case EA::ENSURE:
-    return EAK::ENSURE_ATTRIBUTE;
-  case EA::NO_RANGER:
+  case LA::ENSURE:
+    return LAK::ENSURE_ATTRIBUTE;
+  case LA::NO_RANGER:
     [[fallthrough]];
-  case EA::RANGER:
-    return EAK::RANGER_ATTRIBUTE;
-  case EA::LAST:
+  case LA::RANGER:
+    return LAK::RANGER_ATTRIBUTE;
+  case LA::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-struct ExpressionFlagsFactory final {
-  using Self = rq::ExpressionFlagsFactory;
-  using PtrMap =
-      llvm::SmallDenseMap<rq::ExpressionAttributeKind, rq::Expression*>;
+struct LowFlagsFactory final {
+  using Self = rq::LowFlagsFactory;
+  using PtrMap = llvm::SmallDenseMap<rq::LowAttributeKind, rq::Expression *>;
 
-  rq::ExpressionFlags _flags{};
+  rq::LowFlags _flags{};
   PtrMap _ptr_map{};
 
-  ExpressionFlagsFactory() = default;
-  ExpressionFlagsFactory(const Self &) = delete;
-  ExpressionFlagsFactory(Self &&) = delete;
-  ~ExpressionFlagsFactory() = default;
+  LowFlagsFactory() = default;
+  LowFlagsFactory(const Self &) = delete;
+  LowFlagsFactory(Self &&) = delete;
+  ~LowFlagsFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags getFlags() const {
     return this->_flags;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getExpressionPtr(rq::ExpressionAttributeKind kind) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+  getExpressionPtr(rq::LowAttributeKind kind) {
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
       return nullptr;
     }
     return it->getSecond();
   }
-  [[nodiscard]] inline bool addFlag(rq::ExpressionAttribute attribute,
-                      rq::Expression *expression_ptr) {
-    const rq::ExpressionFlags flag = rq::getFlags(attribute);
+  [[nodiscard]] inline bool addFlag(rq::LowAttribute attribute,
+                                    rq::Expression *expression_ptr) {
+    const rq::LowFlags flag = rq::getFlags(attribute);
     this->_flags |= flag;
-    const rq::ExpressionAttributeKind kind = rq::getKind(attribute);
+    const rq::LowAttributeKind kind = rq::getKind(attribute);
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
       this->_ptr_map.emplace_or_assign(kind, expression_ptr);
@@ -2803,7 +2798,7 @@ struct ExpressionFlagsFactory final {
   }
 };
 
-enum class TypeAttribute : std::uint_fast8_t {
+enum class HighAttribute : std::uint_fast8_t {
   NONE,
   NO_VAR,
   VAR,
@@ -2816,64 +2811,64 @@ enum class TypeAttribute : std::uint_fast8_t {
   NULL_TERMINATE
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::TypeAttribute attribute) {
+[[nodiscard]] inline llvm::StringRef getName(rq::HighAttribute attribute) {
   using namespace rq;
-  using TA = TypeAttribute;
+  using HA = HighAttribute;
   switch (attribute) {
-  case TA::NONE:
+  case HA::NONE:
     return "none";
-  case TA::NO_VAR:
+  case HA::NO_VAR:
     return "no_var";
-  case TA::VAR:
+  case HA::VAR:
     return "var";
-  case TA::PARTIAL_VAR:
+  case HA::PARTIAL_VAR:
     return "partial_var";
-  case TA::NO_VOLATILE:
+  case HA::NO_VOLATILE:
     return "no_volatile";
-  case TA::VOLATILE:
+  case HA::VOLATILE:
     return "volatile";
-  case TA::NO_ATOMIC:
+  case HA::NO_ATOMIC:
     return "no_atomic";
-  case TA::ATOMIC:
+  case HA::ATOMIC:
     return "atomic";
-  case TA::NO_NULL_TERMINATE:
+  case HA::NO_NULL_TERMINATE:
     return "no_null_terminate";
-  case TA::NULL_TERMINATE:
+  case HA::NULL_TERMINATE:
     return "null_terminate";
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::TypeAttribute getTypeAttribute(rq::Keyword keyword) {
+[[nodiscard]] inline rq::HighAttribute getHighAttribute(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using TA = TypeAttribute;
+  using HA = HighAttribute;
   switch (keyword) {
   case K::NO_VAR:
-    return TA::NO_VAR;
+    return HA::NO_VAR;
   case K::VAR:
-    return TA::VAR;
+    return HA::VAR;
   case K::PARTIAL_VAR:
-    return TA::PARTIAL_VAR;
+    return HA::PARTIAL_VAR;
   case K::NO_VOLATILE:
-    return TA::NO_VOLATILE;
+    return HA::NO_VOLATILE;
   case K::VOLATILE:
-    return TA::VOLATILE;
+    return HA::VOLATILE;
   case K::NO_ATOMIC:
-    return TA::NO_ATOMIC;
+    return HA::NO_ATOMIC;
   case K::ATOMIC:
-    return TA::ATOMIC;
+    return HA::ATOMIC;
   case K::NO_NULL_TERMINATE:
-    return TA::NO_NULL_TERMINATE;
+    return HA::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
-    return TA::NULL_TERMINATE;
+    return HA::NULL_TERMINATE;
   default:
     break;
   }
-  return TA::NONE;
+  return HA::NONE;
 }
 
-enum class TypeFlags : std::uint_fast8_t {
+enum class HighFlags : std::uint_fast8_t {
   NONE = 0,
 
   VAR = rq::getBit(0),
@@ -2890,38 +2885,38 @@ enum class TypeFlags : std::uint_fast8_t {
   NULL_TERMINATE_MASK = NULL_TERMINATE,
 };
 
-template <> struct is_flags<TypeFlags> : std::true_type {};
+template <> struct is_flags<HighFlags> : std::true_type {};
 
-[[nodiscard]] inline rq::TypeFlags getFlags(rq::TypeAttribute attribute) {
+[[nodiscard]] inline rq::HighFlags getFlags(rq::HighAttribute attribute) {
   using namespace rq;
-  using TA = TypeAttribute;
-  using TF = TypeFlags;
+  using HA = HighAttribute;
+  using TF = HighFlags;
   switch (attribute) {
-  case TA::NONE:
+  case HA::NONE:
     return TF::NONE;
-  case TA::NO_VAR:
+  case HA::NO_VAR:
     return TF::NONE;
-  case TA::VAR:
+  case HA::VAR:
     return TF::VAR;
-  case TA::PARTIAL_VAR:
+  case HA::PARTIAL_VAR:
     return TF::PARTIAL_VAR;
-  case TA::NO_VOLATILE:
+  case HA::NO_VOLATILE:
     return TF::NONE;
-  case TA::VOLATILE:
+  case HA::VOLATILE:
     return TF::VOLATILE;
-  case TA::NO_ATOMIC:
+  case HA::NO_ATOMIC:
     return TF::NONE;
-  case TA::ATOMIC:
+  case HA::ATOMIC:
     return TF::ATOMIC;
-  case TA::NO_NULL_TERMINATE:
+  case HA::NO_NULL_TERMINATE:
     return TF::NONE;
-  case TA::NULL_TERMINATE:
+  case HA::NULL_TERMINATE:
     return TF::NULL_TERMINATE;
   }
   RQ_UNREACHABLE();
 }
 
-enum class TypeAttributeKind : std::uint_fast8_t {
+enum class HighAttributeKind : std::uint_fast8_t {
   NONE,
   VAR_ATTRIBUTE,
   VOLATILE_ATTRIBUTE,
@@ -2929,86 +2924,92 @@ enum class TypeAttributeKind : std::uint_fast8_t {
   NULL_TERMINATE_ATTRIBUTE
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::TypeAttributeKind kind) {
-  using TAK = rq::TypeAttributeKind;
+[[nodiscard]] inline llvm::StringRef getName(rq::HighAttributeKind kind) {
+  using HAK = rq::HighAttributeKind;
   switch (kind) {
-  case TAK::NONE:
+  case HAK::NONE:
     return "none";
-  case TAK::VAR_ATTRIBUTE:
+  case HAK::VAR_ATTRIBUTE:
     return "var_attribute";
-  case TAK::VOLATILE_ATTRIBUTE:
+  case HAK::VOLATILE_ATTRIBUTE:
     return "volatile_attribute";
-  case TAK::ATOMIC_ATTRIBUTE:
+  case HAK::ATOMIC_ATTRIBUTE:
     return "atomic_attribute";
-  case TAK::NULL_TERMINATE_ATTRIBUTE:
+  case HAK::NULL_TERMINATE_ATTRIBUTE:
     return "null_terminate_attribute";
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::TypeAttributeKind
-getKind(rq::TypeAttribute attribute) {
-  using TA = rq::TypeAttribute;
-  using TAK = rq::TypeAttributeKind;
+[[nodiscard]] inline rq::HighAttributeKind
+getKind(rq::HighAttribute attribute) {
+  using HA = rq::HighAttribute;
+  using HAK = rq::HighAttributeKind;
   switch (attribute) {
-  case TA::NONE:
-    return TAK::NONE;
-  case TA::NO_VAR:
+  case HA::NONE:
+    return HAK::NONE;
+  case HA::NO_VAR:
     [[fallthrough]];
-  case TA::VAR:
+  case HA::VAR:
     [[fallthrough]];
-  case TA::PARTIAL_VAR:
-    return TAK::VAR_ATTRIBUTE;
-  case TA::NO_VOLATILE:
+  case HA::PARTIAL_VAR:
+    return HAK::VAR_ATTRIBUTE;
+  case HA::NO_VOLATILE:
     [[fallthrough]];
-  case TA::VOLATILE:
-    return TAK::VOLATILE_ATTRIBUTE;
-  case TA::NO_ATOMIC:
+  case HA::VOLATILE:
+    return HAK::VOLATILE_ATTRIBUTE;
+  case HA::NO_ATOMIC:
     [[fallthrough]];
-  case TA::ATOMIC:
-    return TAK::ATOMIC_ATTRIBUTE;
-  case TA::NO_NULL_TERMINATE:
+  case HA::ATOMIC:
+    return HAK::ATOMIC_ATTRIBUTE;
+  case HA::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case TA::NULL_TERMINATE:
-    return TAK::NULL_TERMINATE_ATTRIBUTE;
+  case HA::NULL_TERMINATE:
+    return HAK::NULL_TERMINATE_ATTRIBUTE;
   }
   RQ_UNREACHABLE();
 }
 
-struct TypeFlagsFactory final {
-  using Self = rq::TypeFlagsFactory;
-  using ExpressionList = llvm::SmallVector<const rq::Expression *, 1>;
-  using PtrMap = llvm::SmallDenseMap<rq::TypeAttributeKind, ExpressionList>;
+struct HighFlagsFactory final {
+  using Self = rq::HighFlagsFactory;
+  using PtrMap = llvm::SmallDenseMap<rq::HighAttributeKind, rq::Expression *>;
 
-  rq::TypeFlags _flags{};
+  rq::HighFlags _flags{};
   PtrMap _ptr_map{};
 
-  TypeFlagsFactory() = default;
-  TypeFlagsFactory(const Self &) = delete;
-  TypeFlagsFactory(Self &&) = delete;
-  ~TypeFlagsFactory() = default;
+  HighFlagsFactory() = default;
+  HighFlagsFactory(const Self &) = delete;
+  HighFlagsFactory(Self &&) = delete;
+  ~HighFlagsFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighFlags getFlags() const {
     return this->_flags;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
-  inline void addFlag(rq::TypeAttribute attribute,
-                      const rq::Expression *expression_ptr) {
-    const rq::TypeFlags flag = rq::getFlags(attribute);
-    this->_flags |= flag;
-    const rq::TypeAttributeKind kind = rq::getKind(attribute);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+  getExpressionPtr(rq::HighAttributeKind kind) {
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
-      ExpressionList list;
-      list.push_back(expression_ptr);
-      this->_ptr_map.emplace_or_assign(kind, std::move(list));
-    } else {
-      it->getSecond().push_back(expression_ptr);
+      return nullptr;
     }
+    return it->getSecond();
+  }
+  [[nodiscard]] inline bool addFlag(rq::HighAttribute attribute,
+                                    rq::Expression *expression_ptr) {
+    const rq::HighFlags flag = rq::getFlags(attribute);
+    this->_flags |= flag;
+    const rq::HighAttributeKind kind = rq::getKind(attribute);
+    auto it = this->_ptr_map.find(kind);
+    if (it == this->_ptr_map.end()) {
+      this->_ptr_map.emplace_or_assign(kind, expression_ptr);
+    } else {
+      return false;
+    }
+    return true;
   }
 };
 
@@ -3295,11 +3296,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
     return rq::getCanBeFinishingChainLink(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeAttribute() const {
-    return rq::getIsTypeAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttribute() const {
+    return rq::getIsHighAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpressionAttribute() const {
-    return rq::getIsExpressionAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttribute() const {
+    return rq::getIsLowAttribute(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
     return rq::getUniversalized(this->getKeyword());
@@ -3347,12 +3348,12 @@ struct Expression final : public rq::Entity {
     return rq::getCanBeAscription(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeExpressionAttributeInstantiation() const {
-    return rq::getCanBeExpressionAttributeInstantiation(this->getKeyword());
+  getCanBeLowAttributeInstantiation() const {
+    return rq::getCanBeLowAttributeInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeTypeAttributeInstantiation() const {
-    return rq::getCanBeTypeAttributeInstantiation(this->getKeyword());
+  getCanBeHighAttributeInstantiation() const {
+    return rq::getCanBeHighAttributeInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeArithmeticSequenceTypeStage() const {
@@ -3372,12 +3373,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
     return rq::getIsEvaluatableName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionAttribute
-  getExpressionAttribute() const {
-    return rq::getExpressionAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowAttribute getLowAttribute() const {
+    return rq::getLowAttribute(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeAttribute getTypeAttribute() const {
-    return rq::getTypeAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighAttribute getHighAttribute() const {
+    return rq::getHighAttribute(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");

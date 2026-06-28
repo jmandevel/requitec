@@ -352,7 +352,7 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorExpectedStatementOrChainLinkExpression(
       const rq::Expression &expresison);
   void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
-  void logErrorInvalidExpressionAttribute(const rq::Expression &unascribed,
+  void logErrorInvalidLowAttribute(const rq::Expression &unascribed,
                                           const rq::Expression &attribute);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
                                          const rq::Expression &attribute);
@@ -690,7 +690,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return this->allocateValue<rq::Module>(std::move(factory));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Import &
-  acquireImport(rq::ExpressionFlags flags, rq::Expression &expression,
+  acquireImport(rq::LowFlags flags, rq::Expression &expression,
                 rq::Module &module, rq::Module &imported) {
     return this->allocateValue<rq::Import>(flags, expression, module, imported);
   }
@@ -932,7 +932,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &
-  acquireConstantSymbol(rq::TypeFlags flags, rq::Symbol &symbol) {
+  acquireConstantSymbol(rq::HighFlags flags, rq::Symbol &symbol) {
     llvm::FoldingSetNodeID id;
     rq::profileConstantSymbol(id, flags, symbol);
     void *insert_pos;

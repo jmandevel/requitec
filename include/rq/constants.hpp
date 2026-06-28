@@ -33,7 +33,7 @@ struct Constant : public rq::Entity {
 };
 
 struct Symbol;
-enum class TypeFlags : std::uint_fast8_t;
+enum class HighFlags : std::uint_fast8_t;
 
 inline void profileConstantWord(llvm::FoldingSetNodeID &out_id,
                                 const llvm::APInt &word) {
@@ -167,7 +167,7 @@ struct ConstantDataArray final : public rq::Constant,
 };
 
 inline void profileConstantSymbol(llvm::FoldingSetNodeID &out_id,
-                                  rq::TypeFlags flags,
+                                  rq::HighFlags flags,
                                   const rq::Symbol &symbol) {
   out_id.AddInteger(rq::getUnderlying(flags));
   out_id.AddPointer(&symbol);
@@ -176,15 +176,15 @@ inline void profileConstantSymbol(llvm::FoldingSetNodeID &out_id,
 struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ConstantSymbol;
 
-  rq::TypeFlags _flags;
+  rq::HighFlags _flags;
   rq::Symbol *_symbol_ptr;
 
-  explicit RQ_ALWAYS_INLINE ConstantSymbol(rq::TypeFlags flags,
+  explicit RQ_ALWAYS_INLINE ConstantSymbol(rq::HighFlags flags,
                                            rq::Symbol &symbol)
       : Constant(rq::ConstantKind::SYMBOL), _flags(flags),
         _symbol_ptr(&symbol) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeFlags getFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighFlags getFlags() const {
     return this->_flags;
   }
 

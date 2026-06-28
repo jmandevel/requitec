@@ -1,4 +1,3 @@
-
 #include <rq/context.hpp>
 #include <rq/options.hpp>
 

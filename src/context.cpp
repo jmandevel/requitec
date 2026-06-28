@@ -515,12 +515,12 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
 
 // static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
 //   json.beginArray("attributes");
-//   using EA = rq::ExpressionAttribute;
-//   using EF = rq::ExpressionFlags;
-//   EF flags = symbol.getDerivedExpressionFlags();
-//   for (unsigned attribute_i = static_cast<unsigned>(EA::NONE) + 1;
-//        attribute_i < static_cast<unsigned>(EA::LAST); attribute_i++) {
-//     EA attribute = static_cast<EA>(attribute_i);
+//   using LA = rq::LowAttribute;
+//   using EF = rq::LowFlags;
+//   EF flags = symbol.getDerivedLowFlags();
+//   for (unsigned attribute_i = static_cast<unsigned>(LA::NONE) + 1;
+//        attribute_i < static_cast<unsigned>(LA::LAST); attribute_i++) {
+//     LA attribute = static_cast<LA>(attribute_i);
 //     EF attribute_flags = rq::getFlags(attribute);
 //     if (rq::getHasAll(flags, attribute_flags)) {
 //       json.emitString(rq::getName(attribute));
@@ -1005,7 +1005,7 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidExpressionAttribute(
+void Context::logErrorInvalidLowAttribute(
     const rq::Expression &unascribed, const rq::Expression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
                    attribute.getName() +

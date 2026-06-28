@@ -154,12 +154,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSITUATED_ASCRIBE_EXPRESSION:
     is_ok = this->situateUnsituatedAscribeExpression(
         situation, expression, 2, K::ASCRIBE_EXPRESSION,
-        S::EXPRESSION_ATTRIBUTE_INSTANTIATION, situation);
+        S::LOW_ATTRIBUTE_INSTANTIATION, situation);
     break;
   case K::UNSITUATED_ASCRIBE_TYPE:
     is_ok = this->situateUnsituatedAscribeExpression(
         situation, expression, 2, K::ASCRIBE_TYPE,
-        S::TYPE_ATTRIBUTE_INSTANTIATION, situation);
+        S::HIGH_ATTRIBUTE_INSTANTIATION, situation);
     break;
 
   // LOGICAL
@@ -200,18 +200,18 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ASCRIBE_TYPE:
     is_ok = this->situateNaryDifferentFirstValueBranches(
-        situation, expression, 2, situation, S::TYPE_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
     break;
   case K::ASCRIBE_EXPRESSION:
     is_ok = this->situateNaryDifferentFirstValueBranches(
         situation, expression, 2, situation,
-        S::EXPRESSION_ATTRIBUTE_INSTANTIATION);
+        S::LOW_ATTRIBUTE_INSTANTIATION);
     break;
   case K::ASCRIBE_RECIEVER:
     is_ok = this->situateNaryDifferentFirstValueBranches(
-        situation, expression, 2, situation, S::TYPE_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
     break;
-  case K::INSTANTIATE_EXPRESSION_ATTRIBUTE: {
+  case K::INSTANTIATE_LOW_ATTRIBUTE: {
     if (!expression.getHasBranch()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        1);
@@ -237,7 +237,7 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
     }
   } break;
-  case K::INSTANTIATE_TYPE_ATTRIBUTE:
+  case K::INSTANTIATE_HIGH_ATTRIBUTE:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::IDENTIFY:
@@ -861,7 +861,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
-  // EXPRESSION ATTRIBUTES
+  // LOW ATTRIBUTES
   case K::NO_ANCHOR:
     [[fallthrough]];
   case K::ANCHOR:
@@ -957,7 +957,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RANGER:
     [[fallthrough]];
 
-  // TYPE ATTRIBUTES
+  // HIGH ATTRIBUTES
   case K::NO_VAR:
     [[fallthrough]];
   case K::VAR:
@@ -977,7 +977,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NULL_TERMINATE:
     [[fallthrough]];
 
-  // EXPRESSION ATTRIBUTE TYPES
+  // LOW ATTRIBUTE TYPES
   case K::ANCHOR_ATTRIBUTE:
     [[fallthrough]];
   case K::OPAQUE_ATTRIBUTE:
@@ -1023,7 +1023,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RANGER_ATTRIBUTE:
     [[fallthrough]];
 
-    // TYPE ATTRIBUTE TYPES
+    // HIGH ATTRIBUTE TYPES
   case K::VAR_ATTRIBUTE:
     [[fallthrough]];
   case K::VOLATILE_ATTRIBUTE:
@@ -1314,16 +1314,16 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IS_CODEUNIT_TYPE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE:
+  case K::IS_LOW_ATTRIBUTE_TYPE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::IS_EXPRESSION_ATTRIBUTE_TYPE_OF:
+  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::IS_TYPE_ATTRIBUTE_TYPE:
+  case K::IS_HIGH_ATTRIBUTE_TYPE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::IS_TYPE_ATTRIBUTE_TYPE_OF:
+  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
