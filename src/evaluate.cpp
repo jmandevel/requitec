@@ -287,20 +287,23 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
     rq::ConstantSymbol &type = this->getContext().acquireConstantSymbol(
         static_sy.flags, rq::dereferencePtr(static_sy.symbol_ptr));
     switch (var_ex.getKeyword()) {
+    case K::IDENTIFIER_LITERAL:
+      [[fallthrough]];
     case K::RESULT: {
-      rq::Name name(K::RESULT);
+      rq::Name name = this->evaluateName(table, module, var_ex);
       auto found = table.lookupList(name);
       if (!found.getIsEmpty()) {
-        RQ_UNHANDLED_ERROR("result already initialized");
+        RQ_UNHANDLED_ERROR("var of name already initialized");
       }
-      if (type.getSymbol() != result_type.getSymbol()) {
+      if (var_ex.getKeyword() == K::RESULT &&
+          type.getSymbol() != result_type.getSymbol()) {
         RQ_UNHANDLED_ERROR("invalid result type");
       }
-      rq::LocalDynamicVariable &result =
+      rq::LocalDynamicVariable &var =
           this->getContext().allocateValue<rq::LocalDynamicVariable>(
               name, table, table, module, rq::ExpressionFlags::NONE, type);
-      table.addMember(this->getContext(), name, result);
-      return rq::DynamicLvalue(result, type);
+      table.addMember(this->getContext(), name, var);
+      return rq::DynamicLvalue(var, type);
     }
     default:
       RQ_UNREACHABLE();
@@ -511,6 +514,10 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     llvm::StringRef text =
         this->getContext().saveString(name_ex.getSourceText());
     rq::Name name(text);
+    return name;
+  }
+  case K::RESULT: {
+    rq::Name name{name_ex.getKeyword()};
     return name;
   }
   default:
