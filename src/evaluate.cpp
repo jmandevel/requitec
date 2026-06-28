@@ -445,7 +445,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   }
   case K::LOGICAL_OR: {
     return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
-                                              O::LOGICAL_AND);
+                                              O::LOGICAL_OR);
   }
   case K::LOGICAL_COMPLEMENT: {
     rq::Expression &comp_rv_ex = rvalue_ex.getBranch();
@@ -497,15 +497,13 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     return rq::DynamicRvalue(negate, negate_rv.getType());
   }
   case K::TRUE: {
-    unsigned depth = this->getContext().getByteDepth();
-    llvm::APInt llvm_boolean = llvm::APInt(depth, 1, false);
+    llvm::APInt llvm_boolean = llvm::APInt(1, 1u, false);
     rq::Entity &value = this->getContext().acquireConstantWord(llvm_boolean);
     rq::Symbol &type = this->getContext().acquireBooleanType();
     return rq::DynamicRvalue(value, type);
   }
   case K::FALSE: {
-    unsigned depth = this->getContext().getByteDepth();
-    llvm::APInt llvm_boolean = llvm::APInt(depth, 0u, false);
+    llvm::APInt llvm_boolean = llvm::APInt(1, 0u, false);
     rq::Entity &value = this->getContext().acquireConstantWord(llvm_boolean);
     rq::Symbol &type = this->getContext().acquireBooleanType();
     return rq::DynamicRvalue(value, type);

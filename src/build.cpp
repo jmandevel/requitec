@@ -157,6 +157,13 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
       if (llvm_rvalue_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("invalid rvalue");
       }
+      if (location.getType().getSymbol() ==
+          this->getContext().acquireBooleanType()) {
+        llvm::Type *llvm_bool_type_ptr = this->getContext().getLlvmTypePtr(
+            this->getContext().acquireBooleanType());
+        llvm_rvalue_ptr = this->getContext().getLlvmIrBuilder().CreateZExt(
+            llvm_rvalue_ptr, llvm_bool_type_ptr);
+      }
       this->getContext().getLlvmIrBuilder().CreateStore(
           llvm_rvalue_ptr, &location.getLlvmValue(), false);
       break;
@@ -184,11 +191,10 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
                                                 rq::Symbol &type,
                                                 llvm::Value *llvm_this_ptr) {
   std::ignore = llvm_this_ptr;
-  using S = rq::SymbolKind;
   using O = rq::Opcode;
   if (llvm::isa<rq::ConstantWord>(rvalue)) {
     rq::ConstantWord &word = llvm::cast<rq::ConstantWord>(rvalue);
-    if (type.getIsIntegerType() || type.getKind() == S::BOOLEAN_TYPE) {
+    if (type.getIsIntegerType()) {
       llvm::Type *llvm_type_ptr = this->getContext().getLlvmTypePtr(type);
       if (llvm_type_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("llvm error");
@@ -201,6 +207,15 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       llvm::APFloat llvm_float = word.getAsFloat(llvm_semantics);
       return llvm::ConstantFP::get(this->getContext().getLlvmContext(),
                                    llvm_float);
+    } else if (type == this->getContext().acquireBooleanType()) {
+      llvm::Type *llvm_type_ptr =
+          this->getContext().getLlvmIrBuilder().getInt1Ty();
+      if (llvm_type_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::Type &llvm_type = rq::dereferencePtr(llvm_type_ptr);
+      const bool value = word.getWord() != 0;
+      return llvm::ConstantInt::get(&llvm_type, value);
     }
     RQ_UNREACHABLE();
   } else if (llvm::isa<rq::LocalDynamicVariable>(rvalue)) {
@@ -219,6 +234,23 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
     if (llvm_value_ptr == nullptr) {
       RQ_UNHANDLED_ERROR("llvm error");
     }
+    if (var.getType().getSymbol() == this->getContext().acquireBooleanType()) {
+      // NOTE: booleans are stored as byte depth integers for performance
+      // reasons. to do actual logical operations, need to turn into i1.
+      // https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
+      // archive:
+      // https://web.archive.org/web/20260628190150/https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
+      // while bool is temp its i1, while its stored, its i8. on load, load as
+      // i8 then convert to i1. on store, convert to i8 and store.
+      const unsigned byte_depth = this->getContext().getByteDepth();
+      llvm::ConstantInt *llvm_zero_ptr =
+          this->getContext().getLlvmIrBuilder().getIntN(byte_depth, 0);
+      llvm_value_ptr = this->getContext().getLlvmIrBuilder().CreateICmpNE(
+          llvm_value_ptr, llvm_zero_ptr);
+      if (llvm_value_ptr == nullptr) {
+        RQ_UNHANDLED_ERROR("llvm error");
+      }
+    }
     llvm::Value &llvm_value = rq::dereferencePtr(llvm_value_ptr);
     return &llvm_value;
   } else if (llvm::isa<rq::Instruction>(rvalue)) {
@@ -231,13 +263,11 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       if (llvm_value_ptr == nullptr) {
         return nullptr;
       }
-      const unsigned bool_depth = this->getContext().getByteDepth();
       llvm::ConstantInt *llvm_zero_ptr =
-          this->getContext().getLlvmIrBuilder().getIntN(bool_depth, 0);
-      llvm::Value *llvm_comp_ptr =
-          this->getContext().getLlvmIrBuilder().CreateICmpNE(llvm_zero_ptr,
-                                                             llvm_value_ptr);
-      return llvm_comp_ptr;
+          this->getContext().getLlvmIrBuilder().getInt1(0);
+      llvm_value_ptr = this->getContext().getLlvmIrBuilder().CreateICmpEQ(
+          llvm_value_ptr, llvm_zero_ptr);
+      return llvm_value_ptr;
     }
     case O::LOGICAL_AND:
       [[fallthrough]];
@@ -266,51 +296,15 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         }
         llvm::Value &llvm_lvalue = rq::dereferencePtr(llvm_lvalue_ptr);
         switch (inst.getOpcode()) {
-        case O::LOGICAL_AND:
-          [[fallthrough]];
+        case O::LOGICAL_AND: {
+          llvm_lvalue_ptr =
+              this->getContext().getLlvmIrBuilder().CreateLogicalAnd(
+                  &llvm_lvalue, &llvm_rvalue);
+          break;
         case O::LOGICAL_OR: {
-          // NOTE: booleans are stored as byte depth integers for performance
-          // reasons. to do actual logical operations, need to turn into i1.
-          // https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
-          // archive:
-          // https://web.archive.org/web/20260628190150/https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
-          llvm::ConstantInt *llvm_zero_ptr =
-              this->getContext().getLlvmIrBuilder().getIntN(1, 0);
-          if (llvm_zero_ptr == nullptr) {
-            return nullptr;
-          }
-          llvm::Value *llvm_bool_lvalue_ptr =
-              this->getContext().getLlvmIrBuilder().CreateICmpNE(&llvm_lvalue,
-                                                                 llvm_zero_ptr);
-          if (llvm_bool_lvalue_ptr == nullptr) {
-            return nullptr;
-          }
-          llvm::Value &llvm_bool_lvalue =
-              rq::dereferencePtr(llvm_bool_lvalue_ptr);
-          llvm::Value *llvm_bool_rvalue_ptr =
-              this->getContext().getLlvmIrBuilder().CreateICmpNE(&llvm_rvalue,
-                                                                 llvm_zero_ptr);
-          if (llvm_bool_rvalue_ptr == nullptr) {
-            return nullptr;
-          }
-          llvm::Value &llvm_bool_rvalue =
-              rq::dereferencePtr(llvm_bool_rvalue_ptr);
-          switch (inst.getOpcode()) {
-          case O::LOGICAL_AND: {
-            llvm_lvalue_ptr =
-                this->getContext().getLlvmIrBuilder().CreateLogicalAnd(
-                    &llvm_bool_lvalue, &llvm_bool_rvalue);
-            break;
-          }
-          case O::LOGICAL_OR: {
-            llvm_lvalue_ptr =
-                this->getContext().getLlvmIrBuilder().CreateLogicalOr(
-                    &llvm_bool_lvalue, &llvm_bool_rvalue);
-            break;
-          }
-          default:
-            RQ_UNREACHABLE();
-          }
+          llvm_lvalue_ptr =
+              this->getContext().getLlvmIrBuilder().CreateLogicalOr(
+                  &llvm_lvalue, &llvm_rvalue);
           break;
         }
         case O::ADD: {
@@ -394,8 +388,9 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         default:
           RQ_UNREACHABLE();
         }
-        return llvm_lvalue_ptr;
+        }
       }
+      return llvm_lvalue_ptr;
     }
     case O::NEGATE: {
       rq::Entity &address0 = inst.getAddress0();
