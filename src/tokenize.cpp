@@ -84,7 +84,13 @@ void Tokenizer::_tokenizeSourceText() {
       this->getRanger().incrementChar(1);
       continue;
     case '!':
-      this->tokenizeLengthToken(T::BANG_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '=':
+        this->tokenizeLengthToken(T::BANG_EQUAL_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(T::BANG_OPERATOR, 1);
+      }
       continue;
     case '\"':
       this->tokenizeQuotedLiteral<'\"', T::STRING_LITERAL,
