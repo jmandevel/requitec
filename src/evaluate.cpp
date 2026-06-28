@@ -302,8 +302,10 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
       RQ_UNHANDLED_ERROR("not type");
     }
     rq::StaticSymbol static_sy = type_rvalue.getValue().getSymbol();
-    static_sy.symbol_ptr = this->completeType(
-        rq::dereferencePtr(static_sy.symbol_ptr), result_type.getSymbol());
+    if (var_ex.getKeyword() == K::RESULT) {
+      static_sy.symbol_ptr = this->completeType(
+          rq::dereferencePtr(static_sy.symbol_ptr), result_type.getSymbol());
+    }
     rq::ConstantSymbol &type = this->getContext().acquireConstantSymbol(
         static_sy.flags, rq::dereferencePtr(static_sy.symbol_ptr));
     switch (var_ex.getKeyword()) {
@@ -314,10 +316,6 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
       auto found = table.lookupList(name);
       if (!found.getIsEmpty()) {
         RQ_UNHANDLED_ERROR("var of name already initialized");
-      }
-      if (var_ex.getKeyword() == K::RESULT &&
-          type.getSymbol() != result_type.getSymbol()) {
-        RQ_UNHANDLED_ERROR("invalid result type");
       }
       rq::LocalDynamicVariable &var =
           this->getContext().allocateValue<rq::LocalDynamicVariable>(
@@ -371,12 +369,14 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
     }
     rq::Symbol &symbol = this->getContext().acquireSignedIntegerType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol}, type);
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol},
+                            type);
   }
   case K::INFERENCE: {
     rq::Symbol &symbol = this->getContext().acquireInferenceType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol}, type);
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol},
+                            type);
   }
   case K::MANGLE: {
     rq::LowAttribute value = rq::LowAttribute::MANGLE;
@@ -454,6 +454,20 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   case K::MODULUS: {
     return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
                                                  O::MODULUS);
+  }
+  case K::TRUE: {
+    unsigned depth = this->getContext().getByteDepth();
+    llvm::APInt llvm_boolean = llvm::APInt(depth, 1, false);
+    rq::Entity &value = this->getContext().acquireConstantWord(llvm_boolean);
+    rq::Symbol &type = this->getContext().acquireBooleanType();
+    return rq::DynamicRvalue(value, type);
+  }
+  case K::FALSE: {
+    unsigned depth = this->getContext().getByteDepth();
+    llvm::APInt llvm_boolean = llvm::APInt(depth, 0u, false);
+    rq::Entity &value = this->getContext().acquireConstantWord(llvm_boolean);
+    rq::Symbol &type = this->getContext().acquireBooleanType();
+    return rq::DynamicRvalue(value, type);
   }
   default:
     break;

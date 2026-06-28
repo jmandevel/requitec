@@ -262,6 +262,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
   [[nodiscard]] llvm::Type *getLlvmTypePtr(rq::Symbol &symbol);
+  [[nodiscard]] unsigned getByteDepth() const;
   [[nodiscard]] unsigned getDefaultIntegerDepth() const;
   [[nodiscard]] unsigned getDepth(rq::Symbol &symbol);
   [[nodiscard]] bool getIsSret(rq::Symbol &symbol);

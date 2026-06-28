@@ -635,6 +635,10 @@ bool Context::emitObject(llvm::StringRef path) {
 [[nodiscard]] llvm::Type *Context::getLlvmTypePtr(rq::Symbol &symbol) {
   using S = rq::SymbolKind;
   switch (symbol.getKind()) {
+  case S::BOOLEAN_TYPE: {
+    unsigned depth = this->getByteDepth();
+    return this->getLlvmIrBuilder().getIntNTy(depth);
+  }
   case S::SIGNED_INTEGER_TYPE: {
     unsigned best_size = this->getDefaultIntegerDepth();
     return this->getLlvmIrBuilder().getIntNTy(best_size);
@@ -656,6 +660,10 @@ bool Context::emitObject(llvm::StringRef path) {
   }
   RQ_UNREACHABLE();
 }
+
+  [[nodiscard]] unsigned Context::getByteDepth() const {
+    return 8;
+  }
 
 [[nodiscard]] unsigned Context::getDefaultIntegerDepth() const {
   return this->getLlvmModule().getDataLayout().getPointerSizeInBits();

@@ -184,10 +184,11 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
                                                 rq::Symbol &type,
                                                 llvm::Value *llvm_this_ptr) {
   std::ignore = llvm_this_ptr;
+  using S = rq::SymbolKind;
   using O = rq::Opcode;
   if (llvm::isa<rq::ConstantWord>(rvalue)) {
     rq::ConstantWord &word = llvm::cast<rq::ConstantWord>(rvalue);
-    if (type.getIsIntegerType()) {
+    if (type.getIsIntegerType() || type.getKind() == S::BOOLEAN_TYPE) {
       llvm::Type *llvm_type_ptr = this->getContext().getLlvmTypePtr(type);
       if (llvm_type_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("llvm error");
@@ -212,12 +213,13 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       RQ_UNHANDLED_ERROR("llvm error");
     }
     llvm::Type &llvm_type = rq::dereferencePtr(llvm_type_ptr);
-    llvm::Value *llvm_value_ptr = this->getContext().getLlvmIrBuilder().CreateLoad(
-        &llvm_type, &llvm_location);
+    llvm::Value *llvm_value_ptr =
+        this->getContext().getLlvmIrBuilder().CreateLoad(&llvm_type,
+                                                         &llvm_location);
     if (llvm_value_ptr == nullptr) {
       RQ_UNHANDLED_ERROR("llvm error");
     }
-    llvm::Value& llvm_value = rq::dereferencePtr(llvm_value_ptr);
+    llvm::Value &llvm_value = rq::dereferencePtr(llvm_value_ptr);
     return &llvm_value;
   } else if (llvm::isa<rq::Instruction>(rvalue)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
