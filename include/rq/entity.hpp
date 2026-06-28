@@ -723,6 +723,13 @@ enum class Opcode : rq::EntityId {
 
   ASSIGN,
 
+  // LOGICAL
+  // address0 = head
+  // address1 = tail
+  LOGICAL_AND,
+  LOGICAL_OR,
+  LOGICAL_COMPLEMENT,
+
   // ARITHMETIC
   // address0 = head
   // address1 = tail

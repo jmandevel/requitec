@@ -439,6 +439,29 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
         this->evaluateDynamicIdentifierRvalue(table, module, name);
     return rvalue;
   }
+  case K::LOGICAL_AND: {
+    return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
+                                              O::LOGICAL_AND);
+  }
+  case K::LOGICAL_OR: {
+    return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
+                                              O::LOGICAL_AND);
+  }
+  case K::LOGICAL_COMPLEMENT: {
+    rq::Expression &comp_rv_ex = rvalue_ex.getBranch();
+    rq::DynamicRvalue comp_rv =
+        this->evaluateDynamicRvalue(table, module, comp_rv_ex);
+    if (comp_rv.getIsEmpty()) {
+      return rq::DynamicRvalue();
+    }
+    if (comp_rv.getType() != this->getContext().acquireBooleanType()) {
+      RQ_UNHANDLED_ERROR("invalid logical complement type");
+    }
+    rq::Instruction &negate =
+        this->getContext().acquireInstruction(O::LOGICAL_COMPLEMENT);
+    negate.setAddress0(comp_rv.getValue());
+    return rq::DynamicRvalue(negate, comp_rv.getType());
+  }
   case K::ADD: {
     return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
                                                  O::ADD);
@@ -537,6 +560,26 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   return rq::DynamicRvalue(rvalue, type);
 }
 
+[[nodiscard]] rq::DynamicRvalue Evaluator::evaluateDynamicLogicalRvalue(
+    rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
+    rq::Opcode opcode) {
+  rq::DottedInstructionFactory factory(this->getContext(), opcode);
+  for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
+    rq::DynamicRvalue branch_rv =
+        this->evaluateDynamicRvalue(table, module, branch_ex);
+    factory.append(branch_rv.getValue());
+    if (branch_rv.getIsEmpty()) {
+      RQ_UNHANDLED_ERROR("empty branch rv");
+    }
+    if (branch_rv.getType() != this->getContext().acquireBooleanType()) {
+      RQ_UNHANDLED_ERROR("branch of logical operator must be boolean");
+    }
+  }
+  rq::Entity &rvalue = factory.getOuter();
+  rq::Symbol &type = this->getContext().acquireBooleanType();
+  return rq::DynamicRvalue(rvalue, type);
+}
+
 [[nodiscard]] rq::Entity &Evaluator::foldDynamicRvalue(rq::Entity &rvalue,
                                                        rq::Symbol &type) {
   using K = rq::Keyword;
@@ -563,6 +606,10 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   if (llvm::isa<rq::Instruction>(rvalue)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
     switch (inst.getOpcode()) {
+    case O::LOGICAL_AND: 
+      [[fallthrough]];
+    case O::LOGICAL_OR:
+      [[fallthrough]];
     case O::ADD:
       [[fallthrough]];
     case O::SUBTRACT:
@@ -580,7 +627,9 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
       inst.setAddress1(new_address1);
       return inst;
     }
-    case O::NEGATE: {
+    case O::NEGATE: 
+      [[fallthrough]];
+    case O::LOGICAL_COMPLEMENT: {
       rq::Entity &old_address0 = inst.popAddress0();
       rq::Entity &new_address0 = this->foldDynamicRvalue(old_address0, type);
       inst.setAddress0(new_address0);

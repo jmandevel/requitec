@@ -65,6 +65,14 @@ template <> struct is_flags<rq::OpcodeFlags> : std::true_type {};
   case O::ASSIGN:
     return OF::NONE;
 
+  // LOGICAL
+  case O::LOGICAL_AND:
+    return OF::NONE;
+  case O::LOGICAL_OR:
+    return OF::NONE;
+  case O::LOGICAL_COMPLEMENT:
+    return OF::NONE;
+
   // ARITHMETIC
   case O::ADD:
     return OF::NONE;

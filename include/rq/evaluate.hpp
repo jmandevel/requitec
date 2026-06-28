@@ -206,6 +206,9 @@ struct Evaluator final {
   [[nodiscard]] rq::DynamicRvalue evaluateDynamicArithmeticRvalue(
     rq::SymbolTable& table, rq::Module& module, rq::Expression &rvalue_ex, rq::Opcode opcode);
 
+  [[nodiscard]] rq::DynamicRvalue evaluateDynamicLogicalRvalue(
+    rq::SymbolTable& table, rq::Module& module, rq::Expression &rvalue_ex, rq::Opcode opcode);
+
   [[nodiscard]] rq::Entity& foldDynamicRvalue(rq::Entity& rvalue, rq::Symbol& type);
 
   [[nodiscard]] rq::DynamicRvalue evaluateDynamicIdentifierRvalue(rq::SymbolTable& table, rq::Module& module, rq::Name name);

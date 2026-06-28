@@ -224,6 +224,25 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
   } else if (llvm::isa<rq::Instruction>(rvalue)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
     switch (inst.getOpcode()) {
+    case O::LOGICAL_COMPLEMENT: {
+      rq::Entity &address0 = inst.getAddress0();
+      llvm::Value *llvm_value_ptr =
+          this->buildRvalue(address0, type, llvm_this_ptr);
+      if (llvm_value_ptr == nullptr) {
+        return nullptr;
+      }
+      const unsigned bool_depth = this->getContext().getByteDepth();
+      llvm::ConstantInt *llvm_zero_ptr =
+          this->getContext().getLlvmIrBuilder().getIntN(bool_depth, 0);
+      llvm::Value *llvm_comp_ptr =
+          this->getContext().getLlvmIrBuilder().CreateICmpNE(llvm_zero_ptr,
+                                                             llvm_value_ptr);
+      return llvm_comp_ptr;
+    }
+    case O::LOGICAL_AND:
+      [[fallthrough]];
+    case O::LOGICAL_OR:
+      [[fallthrough]];
     case O::ADD:
       [[fallthrough]];
     case O::SUBTRACT:
@@ -234,108 +253,148 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       [[fallthrough]];
     case O::MODULUS: {
       llvm::Value *llvm_lvalue_ptr = nullptr;
-      if (type.getIsIntegerType()) {
-        for (rq::Entity &operand : inst.getDottedSubrange(inst.getOpcode())) {
-          llvm::Value *llvm_rvalue_ptr =
-              this->buildRvalue(operand, type, llvm_this_ptr);
-          if (llvm_rvalue_ptr == nullptr) {
+      for (rq::Entity &operand : inst.getDottedSubrange(inst.getOpcode())) {
+        llvm::Value *llvm_rvalue_ptr =
+            this->buildRvalue(operand, type, llvm_this_ptr);
+        if (llvm_rvalue_ptr == nullptr) {
+          return nullptr;
+        }
+        llvm::Value &llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
+        if (llvm_lvalue_ptr == nullptr) {
+          llvm_lvalue_ptr = &llvm_rvalue;
+          continue;
+        }
+        llvm::Value &llvm_lvalue = rq::dereferencePtr(llvm_lvalue_ptr);
+        switch (inst.getOpcode()) {
+        case O::LOGICAL_AND:
+          [[fallthrough]];
+        case O::LOGICAL_OR: {
+          // NOTE: booleans are stored as byte depth integers for performance
+          // reasons. to do actual logical operations, need to turn into i1.
+          // https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
+          // archive:
+          // https://web.archive.org/web/20260628190150/https://llvm.org/docs/Frontend/PerformanceTips.html#avoid-loads-and-stores-of-non-byte-sized-types
+          llvm::ConstantInt *llvm_zero_ptr =
+              this->getContext().getLlvmIrBuilder().getIntN(1, 0);
+          if (llvm_zero_ptr == nullptr) {
             return nullptr;
           }
-          llvm::Value &llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
-          if (llvm_lvalue_ptr == nullptr) {
-            llvm_lvalue_ptr = &llvm_rvalue;
-            continue;
+          llvm::Value *llvm_bool_lvalue_ptr =
+              this->getContext().getLlvmIrBuilder().CreateICmpNE(&llvm_lvalue,
+                                                                 llvm_zero_ptr);
+          if (llvm_bool_lvalue_ptr == nullptr) {
+            return nullptr;
           }
-          llvm::Value &llvm_lvalue = rq::dereferencePtr(llvm_lvalue_ptr);
+          llvm::Value &llvm_bool_lvalue =
+              rq::dereferencePtr(llvm_bool_lvalue_ptr);
+          llvm::Value *llvm_bool_rvalue_ptr =
+              this->getContext().getLlvmIrBuilder().CreateICmpNE(&llvm_rvalue,
+                                                                 llvm_zero_ptr);
+          if (llvm_bool_rvalue_ptr == nullptr) {
+            return nullptr;
+          }
+          llvm::Value &llvm_bool_rvalue =
+              rq::dereferencePtr(llvm_bool_rvalue_ptr);
           switch (inst.getOpcode()) {
-          case O::ADD: {
-            if (type.getIsIntegerType()) {
-              llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
-                  &llvm_lvalue, &llvm_rvalue);
-              break;
-            } else if (type.getIsFloatType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateFAdd(
-                      &llvm_lvalue, &llvm_rvalue);
-              break;
-            }
-            RQ_UNREACHABLE();
+          case O::LOGICAL_AND: {
+            llvm_lvalue_ptr =
+                this->getContext().getLlvmIrBuilder().CreateLogicalAnd(
+                    &llvm_bool_lvalue, &llvm_bool_rvalue);
+            break;
           }
-          case O::SUBTRACT: {
-            if (type.getIsIntegerType()) {
-              llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
-                  &llvm_lvalue, &llvm_rvalue);
-              break;
-            } else if (type.getIsFloatType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateFSub(
-                      &llvm_lvalue, &llvm_rvalue);
-              break;
-            }
-            RQ_UNREACHABLE();
-          }
-          case O::MULTIPLY: {
-            if (type.getIsIntegerType()) {
-              llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateMul(
-                  &llvm_lvalue, &llvm_rvalue);
-              break;
-            } else if (type.getIsFloatType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateFMul(
-                      &llvm_lvalue, &llvm_rvalue);
-              break;
-            }
-            RQ_UNREACHABLE();
-          }
-          case O::DIVIDE: {
-            if (type.getIsIntegerType()) {
-              if (type.getIsSignedType()) {
-                llvm_lvalue_ptr =
-                    this->getContext().getLlvmIrBuilder().CreateSDiv(
-                        &llvm_lvalue, &llvm_rvalue);
-                break;
-              } else if (type.getIsUnsignedType()) {
-                llvm_lvalue_ptr =
-                    this->getContext().getLlvmIrBuilder().CreateUDiv(
-                        &llvm_lvalue, &llvm_rvalue);
-                break;
-              }
-              RQ_UNREACHABLE();
-            } else if (type.getIsFloatType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateFDiv(
-                      &llvm_lvalue, &llvm_rvalue);
-              break;
-            }
-            RQ_UNREACHABLE();
-          }
-          case O::MODULUS: {
-            if (type.getIsIntegerType()) {
-              if (type.getIsSignedType()) {
-                llvm_lvalue_ptr =
-                    this->getContext().getLlvmIrBuilder().CreateSRem(
-                        &llvm_lvalue, &llvm_rvalue);
-                break;
-              } else if (type.getIsUnsignedType()) {
-                llvm_lvalue_ptr =
-                    this->getContext().getLlvmIrBuilder().CreateURem(
-                        &llvm_lvalue, &llvm_rvalue);
-                break;
-              }
-              RQ_UNREACHABLE();
-            } else if (type.getIsFloatType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateFRem(
-                      &llvm_lvalue, &llvm_rvalue);
-              break;
-            }
-            RQ_UNREACHABLE();
+          case O::LOGICAL_OR: {
+            llvm_lvalue_ptr =
+                this->getContext().getLlvmIrBuilder().CreateLogicalOr(
+                    &llvm_bool_lvalue, &llvm_bool_rvalue);
+            break;
           }
           default:
             RQ_UNREACHABLE();
           }
-          return llvm_lvalue_ptr;
+          break;
         }
+        case O::ADD: {
+          if (type.getIsIntegerType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          } else if (type.getIsFloatType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFAdd(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          }
+          RQ_UNREACHABLE();
+        }
+        case O::SUBTRACT: {
+          if (type.getIsIntegerType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          } else if (type.getIsFloatType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFSub(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          }
+          RQ_UNREACHABLE();
+        }
+        case O::MULTIPLY: {
+          if (type.getIsIntegerType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateMul(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          } else if (type.getIsFloatType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFMul(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          }
+          RQ_UNREACHABLE();
+        }
+        case O::DIVIDE: {
+          if (type.getIsIntegerType()) {
+            if (type.getIsSignedType()) {
+              llvm_lvalue_ptr =
+                  this->getContext().getLlvmIrBuilder().CreateSDiv(
+                      &llvm_lvalue, &llvm_rvalue);
+              break;
+            } else if (type.getIsUnsignedType()) {
+              llvm_lvalue_ptr =
+                  this->getContext().getLlvmIrBuilder().CreateUDiv(
+                      &llvm_lvalue, &llvm_rvalue);
+              break;
+            }
+            RQ_UNREACHABLE();
+          } else if (type.getIsFloatType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFDiv(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          }
+          RQ_UNREACHABLE();
+        }
+        case O::MODULUS: {
+          if (type.getIsIntegerType()) {
+            if (type.getIsSignedType()) {
+              llvm_lvalue_ptr =
+                  this->getContext().getLlvmIrBuilder().CreateSRem(
+                      &llvm_lvalue, &llvm_rvalue);
+              break;
+            } else if (type.getIsUnsignedType()) {
+              llvm_lvalue_ptr =
+                  this->getContext().getLlvmIrBuilder().CreateURem(
+                      &llvm_lvalue, &llvm_rvalue);
+              break;
+            }
+            RQ_UNREACHABLE();
+          } else if (type.getIsFloatType()) {
+            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFRem(
+                &llvm_lvalue, &llvm_rvalue);
+            break;
+          }
+          RQ_UNREACHABLE();
+        }
+        default:
+          RQ_UNREACHABLE();
+        }
+        return llvm_lvalue_ptr;
       }
     }
     case O::NEGATE: {
@@ -345,12 +404,14 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       if (llvm_rvalue_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("llvm error");
       }
-      llvm::Value & llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
+      llvm::Value &llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
       llvm::Value *llvm_negate_ptr = nullptr;
       if (type.getIsIntegerType()) {
-        llvm_negate_ptr = this->getContext().getLlvmIrBuilder().CreateNeg(&llvm_rvalue);
+        llvm_negate_ptr =
+            this->getContext().getLlvmIrBuilder().CreateNeg(&llvm_rvalue);
       } else if (type.getIsFloatType()) {
-        llvm_negate_ptr = this->getContext().getLlvmIrBuilder().CreateFNeg(&llvm_rvalue);
+        llvm_negate_ptr =
+            this->getContext().getLlvmIrBuilder().CreateFNeg(&llvm_rvalue);
       } else {
         RQ_UNREACHABLE();
       }
