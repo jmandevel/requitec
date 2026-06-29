@@ -106,7 +106,13 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLengthToken(T::PERCENT_OPERATOR, 1);
       continue;
     case '&':
-      this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '&':
+        this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 2);
+        continue;
+      default:
+        this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
+      }
       continue;
     case '\'':
       this->tokenizeQuotedLiteral<'\'', T::CODEUNIT_LITERAL,
@@ -503,7 +509,12 @@ void Tokenizer::_tokenizeSourceText() {
       this->tokenizeLeftGrouping(G::BRACE, T::LEFT_BRACE_GROUPING, 1);
       continue;
     case '|':
-      this->tokenizeLengthToken(rq::TokenKind::PIPE_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '|':
+        this->tokenizeLengthToken(T::DOUBLE_PIPE_OPERATOR, 2);
+      default:
+        this->tokenizeLengthToken(T::PIPE_OPERATOR, 1);
+      }
       continue;
     case '}':
       if (!this->getHasGrouping()) {

@@ -171,6 +171,11 @@ bool Situator::situateTree(rq::Situation situation,
   case K::LOGICAL_COMPLEMENT:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
+  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
+    [[fallthrough]];
+  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
+    is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
+    break;
 
   // COMPARISON
   case K::GREATER:
@@ -184,7 +189,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::EQUAL:
     [[fallthrough]];
   case K::NOT_EQUAL:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
     break;
 
   // APPLY
@@ -204,8 +210,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ASCRIBE_EXPRESSION:
     is_ok = this->situateNaryDifferentFirstValueBranches(
-        situation, expression, 2, situation,
-        S::LOW_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::LOW_ATTRIBUTE_INSTANTIATION);
     break;
   case K::ASCRIBE_RECIEVER:
     is_ok = this->situateNaryDifferentFirstValueBranches(
@@ -534,8 +539,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementBranches(expression);
     break;
   case K::FUNCTION:
-    is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression, S::FUNCTION_NAME);
+    is_ok = this->situateNameStatementHeaderStatementBranches(
+        situation, expression, S::FUNCTION_NAME);
     break;
   case K::IMPLEMENT_FUNCTION:
     is_ok =
@@ -570,20 +575,20 @@ bool Situator::situateTree(rq::Situation situation,
 
   // DECLARED TYPES
   case K::CLASS:
-    is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression, S::NAME);
+    is_ok = this->situateNameStatementHeaderStatementBranches(
+        situation, expression, S::NAME);
     break;
   case K::ENUMERATION:
-    is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression, S::NAME);
+    is_ok = this->situateNameStatementHeaderStatementBranches(
+        situation, expression, S::NAME);
     break;
   case K::INTERFACE:
     is_ok =
         this->situateStatementHeaderStatementBranches(situation, expression);
     break;
   case K::ADAPTER:
-    is_ok = this->situateNameStatementHeaderStatementBranches(situation,
-                                                              expression, S::NAME);
+    is_ok = this->situateNameStatementHeaderStatementBranches(
+        situation, expression, S::NAME);
     break;
 
   // VALUES
@@ -804,7 +809,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::NAMESPACE: {
-    is_ok = this->stiuateNameStatementBranches(situation, expression, S::NAMESPACE);
+    is_ok =
+        this->stiuateNameStatementBranches(situation, expression, S::NAMESPACE);
     if (!is_ok) {
       break;
     }
@@ -1768,7 +1774,8 @@ bool Situator::situateStatementBranches(rq::Expression &expression) {
 }
 
 bool Situator::situateNameStatementHeaderStatementBranches(
-    rq::Situation situation, rq::Expression &expression, rq::Situation name_situation) {
+    rq::Situation situation, rq::Expression &expression,
+    rq::Situation name_situation) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
@@ -1933,7 +1940,8 @@ bool Situator::situateStatementMultiVingetteStatementBranches(
 }
 
 bool Situator::stiuateNameStatementBranches(rq::Situation situation,
-                                            rq::Expression &expression, rq::Situation name_situation) {
+                                            rq::Expression &expression,
+                                            rq::Situation name_situation) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;

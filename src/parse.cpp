@@ -383,6 +383,18 @@ rq::Expression &RequiteParser::parsePrecedence7() {
       precedence_factory.parseNary(token, rq::Keyword::LOGICAL_AND);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
+    case rq::TokenKind::DOUBLE_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token,
+                                   rq::Keyword::LOGICAL_AND_WITH_SHORTCIRCUIT);
+      precedence_factory.setRecent(this->parsePrecedence6());
+      continue;
+    case rq::TokenKind::DOUBLE_AMBERSAND_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token,
+                                   rq::Keyword::LOGICAL_AND_WITH_SHORTCIRCUIT);
+      precedence_factory.setRecent(this->parsePrecedence6());
+      continue;
     default:
       break;
     }
@@ -681,8 +693,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       }
       case rq::TokenKind::AT_OPERATOR:
         this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token,
-                                      rq::Keyword::INSTANTIATE_SLICE);
+        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_SLICE);
         continue;
       case rq::TokenKind::DOLLAR_OPERATOR:
         this->getRanger().incrementToken(1);

@@ -35,6 +35,8 @@ enum class TokenKind : std::uint_fast8_t {
   AMPERSAND_OPERATOR,         // &
   DOWN_ARROW_OPERATOR,        // \/
   UP_ARROW_OPERATOR,          // /\   .
+  DOUBLE_AMBERSAND_OPERATOR,  // &&
+  DOUBLE_PIPE_OPERATOR,       // ||
   AT_OPERATOR,                // @
   DOLLAR_OPERATOR,            // $
   EQUAL_OPERATOR,             // =
@@ -158,6 +160,10 @@ getName(rq::TokenKind kind) {
     return "down_arrow_operator";
   case T::UP_ARROW_OPERATOR:
     return "up_arrow_operator";
+  case T::DOUBLE_AMBERSAND_OPERATOR:
+    return "double_ambersand_operator";
+  case T::DOUBLE_PIPE_OPERATOR:
+    return "double_pipe_operator";
   case T::AT_OPERATOR:
     return "at_operator";
   case T::DOLLAR_OPERATOR:
@@ -314,6 +320,10 @@ getFlags(rq::TokenKind kind) {
   case T::DOWN_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::UP_ARROW_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOUBLE_AMBERSAND_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOUBLE_PIPE_OPERATOR:
     return TF::OPERATOR;
   case T::AT_OPERATOR:
     return TF::OPERATOR;

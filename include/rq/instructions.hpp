@@ -42,57 +42,6 @@ namespace rq {
   RQ_UNREACHABLE();
 }
 
-enum class OpcodeFlags : std::uint32_t {
-  NONE = 0,
-};
-
-template <> struct is_flags<rq::OpcodeFlags> : std::true_type {};
-
-[[nodiscard]] inline rq::OpcodeFlags getFlags(rq::Opcode opcode) {
-  using O = rq::Opcode;
-  using OF = rq::OpcodeFlags;
-  switch (opcode) {
-  case O::NONE:
-    break;
-
-  case O::DEBUG_STEP:
-    return OF::NONE;
-  case O::SOURCE_RANGE:
-    return OF::NONE;
-
-  case O::STATEMENT:
-    return OF::NONE;
-  case O::ASSIGN:
-    return OF::NONE;
-
-  // LOGICAL
-  case O::LOGICAL_AND:
-    return OF::NONE;
-  case O::LOGICAL_OR:
-    return OF::NONE;
-  case O::LOGICAL_COMPLEMENT:
-    return OF::NONE;
-
-  // ARITHMETIC
-  case O::ADD:
-    return OF::NONE;
-  case O::SUBTRACT:
-    return OF::NONE;
-  case O::MULTIPLY:
-    return OF::NONE;
-  case O::DIVIDE:
-    return OF::NONE;
-  case O::MODULUS:
-    return OF::NONE;
-  case O::NEGATE:
-    return OF::NONE;
-
-  case O::LAST:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
 struct Expression;
 
 struct Instruction final : public rq::Entity {

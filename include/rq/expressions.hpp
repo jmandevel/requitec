@@ -62,6 +62,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_logical_or";
   case K::LOGICAL_COMPLEMENT:
     return "_logical_complement";
+  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
+    return "_logical_and_with_shortcircuit";
+  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
+    return "_logical_or_with_shortcircuit";
 
   // COMPARISON
   case K::GREATER:
@@ -905,6 +909,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::LOGICAL_OR:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
   case K::LOGICAL_COMPLEMENT:
+    return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
+  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
+    return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
+  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
     return KF::CONVERGING | KF::RVALUE | KF::ARGUMENT;
 
   // COMPARISON
