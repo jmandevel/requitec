@@ -447,6 +447,14 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
                                               O::LOGICAL_OR);
   }
+  case K::LOGICAL_AND_WITH_SHORTCIRCUIT: {
+    return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
+                                              O::LOGICAL_AND_WITH_SHORTCIRCUIT);
+  }
+  case K::LOGICAL_OR_WITH_SHORTCIRCUIT: {
+    return this->evaluateDynamicLogicalRvalue(table, module, rvalue_ex,
+                                              O::LOGICAL_OR_WITH_SHORTCIRCUIT);
+  }
   case K::LOGICAL_COMPLEMENT: {
     rq::Expression &comp_rv_ex = rvalue_ex.getBranch();
     rq::DynamicRvalue comp_rv =

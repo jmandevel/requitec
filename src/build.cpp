@@ -3,6 +3,8 @@
 #include <rq/entity.hpp>
 #include <rq/symbols.hpp>
 
+#include <llvm/ADT/SmallVector.h>
+
 namespace rq {
 
 void Builder::buildLlvmIr() {
@@ -153,7 +155,7 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
         RQ_UNHANDLED_ERROR("invalid location");
       }
       llvm::Value *llvm_rvalue_ptr = this->buildRvalue(
-          rvalue, location.getType().getSymbol(), llvm_this_ptr);
+          func, rvalue, location.getType().getSymbol(), llvm_this_ptr);
       if (llvm_rvalue_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("invalid rvalue");
       }
@@ -187,7 +189,8 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] llvm::Value *Builder::buildRvalue(rq::Entity &rvalue,
+[[nodiscard]] llvm::Value *Builder::buildRvalue(rq::Function &func,
+                                                rq::Entity &rvalue,
                                                 rq::Symbol &type,
                                                 llvm::Value *llvm_this_ptr) {
   std::ignore = llvm_this_ptr;
@@ -259,7 +262,7 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
     case O::LOGICAL_COMPLEMENT: {
       rq::Entity &address0 = inst.getAddress0();
       llvm::Value *llvm_value_ptr =
-          this->buildRvalue(address0, type, llvm_this_ptr);
+          this->buildRvalue(func, address0, type, llvm_this_ptr);
       if (llvm_value_ptr == nullptr) {
         return nullptr;
       }
@@ -282,63 +285,62 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
     case O::DIVIDE:
       [[fallthrough]];
     case O::MODULUS: {
-      llvm::Value *llvm_lvalue_ptr = nullptr;
+      llvm::Value *llvm_prev_ptr = nullptr;
       for (rq::Entity &operand : inst.getDottedSubrange(inst.getOpcode())) {
-        llvm::Value *llvm_rvalue_ptr =
-            this->buildRvalue(operand, type, llvm_this_ptr);
-        if (llvm_rvalue_ptr == nullptr) {
+        llvm::Value *llvm_cur_ptr =
+            this->buildRvalue(func, operand, type, llvm_this_ptr);
+        if (llvm_cur_ptr == nullptr) {
           return nullptr;
         }
-        llvm::Value &llvm_rvalue = rq::dereferencePtr(llvm_rvalue_ptr);
-        if (llvm_lvalue_ptr == nullptr) {
-          llvm_lvalue_ptr = &llvm_rvalue;
+        llvm::Value &llvm_cur = rq::dereferencePtr(llvm_cur_ptr);
+        if (llvm_prev_ptr == nullptr) {
+          llvm_prev_ptr = &llvm_cur;
           continue;
         }
-        llvm::Value &llvm_lvalue = rq::dereferencePtr(llvm_lvalue_ptr);
+        llvm::Value &llvm_prev = rq::dereferencePtr(llvm_prev_ptr);
         switch (inst.getOpcode()) {
         case O::LOGICAL_AND: {
-          llvm_lvalue_ptr =
-              this->getContext().getLlvmIrBuilder().CreateLogicalAnd(
-                  &llvm_lvalue, &llvm_rvalue);
+          llvm_prev_ptr =
+              this->getContext().getLlvmIrBuilder().CreateLogicalAnd(&llvm_prev,
+                                                                     &llvm_cur);
           break;
         case O::LOGICAL_OR: {
-          llvm_lvalue_ptr =
-              this->getContext().getLlvmIrBuilder().CreateLogicalOr(
-                  &llvm_lvalue, &llvm_rvalue);
+          llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateLogicalOr(
+              &llvm_prev, &llvm_cur);
           break;
         }
         case O::ADD: {
           if (type.getIsIntegerType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
+                &llvm_prev, &llvm_cur);
             break;
           } else if (type.getIsFloatType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFAdd(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateFAdd(
+                &llvm_prev, &llvm_cur);
             break;
           }
           RQ_UNREACHABLE();
         }
         case O::SUBTRACT: {
           if (type.getIsIntegerType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateAdd(
+                &llvm_prev, &llvm_cur);
             break;
           } else if (type.getIsFloatType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFSub(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateFSub(
+                &llvm_prev, &llvm_cur);
             break;
           }
           RQ_UNREACHABLE();
         }
         case O::MULTIPLY: {
           if (type.getIsIntegerType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateMul(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateMul(
+                &llvm_prev, &llvm_cur);
             break;
           } else if (type.getIsFloatType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFMul(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateFMul(
+                &llvm_prev, &llvm_cur);
             break;
           }
           RQ_UNREACHABLE();
@@ -346,20 +348,18 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         case O::DIVIDE: {
           if (type.getIsIntegerType()) {
             if (type.getIsSignedType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateSDiv(
-                      &llvm_lvalue, &llvm_rvalue);
+              llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateSDiv(
+                  &llvm_prev, &llvm_cur);
               break;
             } else if (type.getIsUnsignedType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateUDiv(
-                      &llvm_lvalue, &llvm_rvalue);
+              llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateUDiv(
+                  &llvm_prev, &llvm_cur);
               break;
             }
             RQ_UNREACHABLE();
           } else if (type.getIsFloatType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFDiv(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateFDiv(
+                &llvm_prev, &llvm_cur);
             break;
           }
           RQ_UNREACHABLE();
@@ -367,20 +367,18 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         case O::MODULUS: {
           if (type.getIsIntegerType()) {
             if (type.getIsSignedType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateSRem(
-                      &llvm_lvalue, &llvm_rvalue);
+              llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateSRem(
+                  &llvm_prev, &llvm_cur);
               break;
             } else if (type.getIsUnsignedType()) {
-              llvm_lvalue_ptr =
-                  this->getContext().getLlvmIrBuilder().CreateURem(
-                      &llvm_lvalue, &llvm_rvalue);
+              llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateURem(
+                  &llvm_prev, &llvm_cur);
               break;
             }
             RQ_UNREACHABLE();
           } else if (type.getIsFloatType()) {
-            llvm_lvalue_ptr = this->getContext().getLlvmIrBuilder().CreateFRem(
-                &llvm_lvalue, &llvm_rvalue);
+            llvm_prev_ptr = this->getContext().getLlvmIrBuilder().CreateFRem(
+                &llvm_prev, &llvm_cur);
             break;
           }
           RQ_UNREACHABLE();
@@ -390,12 +388,13 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         }
         }
       }
-      return llvm_lvalue_ptr;
+      llvm::Value &llvm_outer = rq::dereferencePtr(llvm_prev_ptr);
+      return &llvm_outer;
     }
     case O::NEGATE: {
       rq::Entity &address0 = inst.getAddress0();
       llvm::Value *llvm_rvalue_ptr =
-          this->buildRvalue(address0, type, llvm_this_ptr);
+          this->buildRvalue(func, address0, type, llvm_this_ptr);
       if (llvm_rvalue_ptr == nullptr) {
         RQ_UNHANDLED_ERROR("llvm error");
       }
@@ -415,6 +414,88 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       }
       llvm::Value &llvm_negate = rq::dereferencePtr(llvm_negate_ptr);
       return &llvm_negate;
+    }
+    case O::LOGICAL_AND_WITH_SHORTCIRCUIT: {
+      [[fallthrough]];
+    }
+    case O::LOGICAL_OR_WITH_SHORTCIRCUIT: {
+      llvm::StringRef merge_name;
+      llvm::StringRef next_bb_name;
+      llvm::StringRef phi_name;
+
+      if (inst.getOpcode() == O::LOGICAL_AND_WITH_SHORTCIRCUIT) {
+        merge_name = "and_with_sc.merge";
+        next_bb_name = "and_with_sc.operand";
+        phi_name = "and_with_sc.result";
+      } else if (inst.getOpcode() == O::LOGICAL_OR_WITH_SHORTCIRCUIT) {
+        merge_name = "or_with_sc.merge";
+        next_bb_name = "or_with_sc.operand";
+        phi_name = "or_with_sc.result";
+      } else {
+        RQ_UNREACHABLE();
+      }
+      llvm::BasicBlock *llvm_merge_bb_ptr =
+          llvm::BasicBlock::Create(this->getContext().getLlvmContext(),
+                                   merge_name, func.getLlvmFunctionPtr());
+      if (llvm_merge_bb_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::BasicBlock &llvm_merge_bb = rq::dereferencePtr(llvm_merge_bb_ptr);
+      llvm::SmallVector<std::pair<llvm::Value *, llvm::BasicBlock *>, 2>
+          incoming_ptrs{};
+      for (rq::Entity &operand : inst.getDottedSubrange(inst.getOpcode())) {
+        if (!incoming_ptrs.empty()) {
+          llvm::Value *llvm_prev_ptr = incoming_ptrs.back().first;
+          llvm::Value &llvm_prev = rq::dereferencePtr(llvm_prev_ptr);
+          llvm::BasicBlock *llvm_prev_bb_ptr =
+              this->getContext().getLlvmIrBuilder().GetInsertBlock();
+          llvm::BasicBlock *llvm_next_bb_ptr =
+              llvm::BasicBlock::Create(this->getContext().getLlvmContext(),
+                                       next_bb_name, func.getLlvmFunctionPtr());
+          if (llvm_next_bb_ptr == nullptr) {
+            return nullptr;
+          }
+          llvm::BasicBlock &llvm_prev_bb = rq::dereferencePtr(llvm_prev_bb_ptr);
+          llvm::BasicBlock &llvm_next_bb = rq::dereferencePtr(llvm_next_bb_ptr);
+          if (inst.getOpcode() == O::LOGICAL_AND_WITH_SHORTCIRCUIT) {
+            this->getContext().getLlvmIrBuilder().CreateCondBr(
+                &llvm_prev, &llvm_next_bb, &llvm_merge_bb);
+          } else if (inst.getOpcode() == O::LOGICAL_OR_WITH_SHORTCIRCUIT) {
+            this->getContext().getLlvmIrBuilder().CreateCondBr(
+                &llvm_prev, &llvm_merge_bb, &llvm_next_bb);
+          } else {
+            RQ_UNREACHABLE();
+          }
+          incoming_ptrs.back().second = &llvm_prev_bb;
+          this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_next_bb);
+        }
+        rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
+        llvm::Value *llvm_next_ptr =
+            this->buildRvalue(func, operand, boolean_ty, llvm_this_ptr);
+        llvm::Value &llvm_next = rq::dereferencePtr(llvm_next_ptr);
+        incoming_ptrs.push_back({&llvm_next, nullptr});
+      }
+      this->getContext().getLlvmIrBuilder().CreateBr(&llvm_merge_bb);
+      incoming_ptrs.back().second =
+          this->getContext().getLlvmIrBuilder().GetInsertBlock();
+      this->getContext().getLlvmIrBuilder().SetInsertPoint(&llvm_merge_bb);
+      llvm::Type *llvm_bool_ty_ptr =
+          llvm::Type::getInt1Ty(this->getContext().getLlvmContext());
+      if (llvm_bool_ty_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::Type &llvm_bool_ty = rq::dereferencePtr(llvm_bool_ty_ptr);
+      llvm::PHINode *llvm_phi_ptr =
+          this->getContext().getLlvmIrBuilder().CreatePHI(
+              &llvm_bool_ty, incoming_ptrs.size(), phi_name);
+      if (llvm_phi_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::PHINode &llvm_phi = rq::dereferencePtr(llvm_phi_ptr);
+      for (auto &[llvm_val_ptr, llvm_bb_ptr] : incoming_ptrs) {
+        RQ_ASSERT(llvm_bb_ptr != nullptr, "missing bb");
+        llvm_phi.addIncoming(llvm_val_ptr, llvm_bb_ptr);
+      }
     }
     default:
       RQ_UNREACHABLE();

@@ -72,7 +72,7 @@ struct Builder final {
              llvm::Value *llvm_result_ptr, llvm::Value *llvm_out_ptr);
   [[nodiscard]] rq::LocationResult buildLocation(rq::Entity &lvalue,
                                                  llvm::Value *llvm_this_ptr);
-  [[nodiscard]] llvm::Value *buildRvalue(rq::Entity &rvalue, rq::Symbol &type,
+  [[nodiscard]] llvm::Value *buildRvalue(rq::Function& func, rq::Entity &rvalue, rq::Symbol &type,
                                          llvm::Value *llvm_this_ptr);
 };
 
