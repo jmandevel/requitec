@@ -422,7 +422,6 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
       llvm::StringRef merge_name;
       llvm::StringRef next_bb_name;
       llvm::StringRef phi_name;
-
       if (inst.getOpcode() == O::LOGICAL_AND_WITH_SHORTCIRCUIT) {
         merge_name = "and_with_sc.merge";
         next_bb_name = "and_with_sc.operand";
