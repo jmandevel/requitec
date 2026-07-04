@@ -108,7 +108,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '&':
       switch (this->getRanger().getChar(1)) {
       case '&':
-        this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 2);
+        this->tokenizeLengthToken(T::DOUBLE_AMBERSAND_OPERATOR, 2);
         continue;
       default:
         this->tokenizeLengthToken(T::AMPERSAND_OPERATOR, 1);
@@ -512,6 +512,7 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '|':
         this->tokenizeLengthToken(T::DOUBLE_PIPE_OPERATOR, 2);
+        continue;
       default:
         this->tokenizeLengthToken(T::PIPE_OPERATOR, 1);
       }
