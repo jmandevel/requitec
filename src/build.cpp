@@ -495,6 +495,139 @@ Builder::buildLocation(rq::Entity &lvalue, llvm::Value *llvm_this_ptr) {
         RQ_ASSERT(llvm_bb_ptr != nullptr, "missing bb");
         llvm_phi.addIncoming(llvm_val_ptr, llvm_bb_ptr);
       }
+      return &llvm_phi;
+    }
+    case O::GREATER:
+      [[fallthrough]];
+    case O::LESS:
+      [[fallthrough]];
+    case O::GREATER_EQUAL:
+      [[fallthrough]];
+    case O::LESS_EQUAL:
+      [[fallthrough]];
+    case O::EQUAL:
+      [[fallthrough]];
+    case O::NOT_EQUAL: {
+      rq::Symbol &type = llvm::cast<rq::Symbol>(inst.getAddress0());
+      rq::Instruction &pair = llvm::cast<rq::Instruction>(inst.getAddress1());
+      rq::Entity &rvalue0 = pair.getAddress0();
+      rq::Entity &rvalue1 = pair.getAddress1();
+      llvm::Value *llvm_rvalue0_ptr =
+          this->buildRvalue(func, rvalue0, type, llvm_this_ptr);
+      if (llvm_rvalue0_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::Value &llvm_rvalue0 = rq::dereferencePtr(llvm_rvalue0_ptr);
+      llvm::Value *llvm_rvalue1_ptr =
+          this->buildRvalue(func, rvalue1, type, llvm_this_ptr);
+      if (llvm_rvalue1_ptr == nullptr) {
+        return nullptr;
+      }
+      llvm::Value &llvm_rvalue1 = rq::dereferencePtr(llvm_rvalue1_ptr);
+      llvm::Type *llvm_ty_ptr = this->getContext().getLlvmTypePtr(type);
+      if (llvm_ty_ptr == nullptr) {
+        return nullptr;
+      }
+      switch (inst.getOpcode()) {
+      case O::GREATER: {
+        if (type.getIsIntegerType()) {
+          if (type.getIsSignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpSGT(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else if (type.getIsUnsignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpUGT(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else {
+            RQ_UNREACHABLE();
+          }
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpOGT(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      case O::LESS: {
+        if (type.getIsIntegerType()) {
+          if (type.getIsSignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpSLT(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else if (type.getIsUnsignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpUGT(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else {
+            RQ_UNREACHABLE();
+          }
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpOGT(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      case O::GREATER_EQUAL: {
+        if (type.getIsIntegerType()) {
+          if (type.getIsSignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpSGE(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else if (type.getIsUnsignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpUGE(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else {
+            RQ_UNREACHABLE();
+          }
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpOGE(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      case O::LESS_EQUAL: {
+        if (type.getIsIntegerType()) {
+          if (type.getIsSignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpSLE(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else if (type.getIsUnsignedType()) {
+            return this->getContext().getLlvmIrBuilder().CreateICmpULE(
+                &llvm_rvalue0, &llvm_rvalue1);
+          } else {
+            RQ_UNREACHABLE();
+          }
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpOGE(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      case O::EQUAL: {
+        if (type.getIsIntegerType() ||
+            type == this->getContext().acquireBooleanType()) {
+          return this->getContext().getLlvmIrBuilder().CreateICmpEQ(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpOEQ(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      case O::NOT_EQUAL: {
+        if (type.getIsIntegerType() ||
+            type == this->getContext().acquireBooleanType()) {
+          return this->getContext().getLlvmIrBuilder().CreateICmpNE(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else if (type.getIsFloatType()) {
+          return this->getContext().getLlvmIrBuilder().CreateFCmpONE(
+              &llvm_rvalue0, &llvm_rvalue1);
+        } else {
+          RQ_UNREACHABLE();
+        }
+      }
+      default:
+        RQ_UNREACHABLE();
+      }
     }
     default:
       RQ_UNREACHABLE();

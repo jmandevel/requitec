@@ -6,40 +6,13 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Casting.h>
 
+#include <tuple>
+
 namespace rq {
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Opcode opcode) {
-  using O = rq::Opcode;
-  switch (opcode) {
-  case O::NONE:
-    return "NONE";
-
-  case O::DEBUG_STEP:
-    return "DEBUG_STEP";
-  case O::SOURCE_RANGE:
-    return "SOURCE_RANGE";
-
-  case O::STATEMENT:
-    return "STATEMENT";
-  case O::ASSIGN:
-    return "ASSIGN";
-
-  // ARITHMETIC
-  case O::ADD:
-    return "ADD";
-  case O::SUBTRACT:
-    return "SUBTRACT";
-  case O::MULTIPLY:
-    return "MULTIPLY";
-  case O::MODULUS:
-    return "MODULUS";
-  case O::NEGATE:
-    return "NEGATE";
-
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
+  std::ignore = opcode;
+  RQ_TODO_IMPLEMENTATION();
 }
 
 struct Expression;

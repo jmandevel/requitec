@@ -203,21 +203,36 @@ struct Evaluator final {
   evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
                         rq::Expression &rvalue_ex);
 
-  [[nodiscard]] rq::DynamicRvalue evaluateDynamicArithmeticRvalue(
-    rq::SymbolTable& table, rq::Module& module, rq::Expression &rvalue_ex, rq::Opcode opcode);
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicArithmeticRvalue(rq::SymbolTable &table, rq::Module &module,
+                                  rq::Expression &rvalue_ex, rq::Opcode opcode);
 
-  [[nodiscard]] rq::DynamicRvalue evaluateDynamicLogicalRvalue(
-    rq::SymbolTable& table, rq::Module& module, rq::Expression &rvalue_ex, rq::Opcode opcode);
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicLogicalRvalue(rq::SymbolTable &table, rq::Module &module,
+                               rq::Expression &rvalue_ex, rq::Opcode opcode);
 
-  [[nodiscard]] rq::Entity& foldDynamicRvalue(rq::Entity& rvalue, rq::Symbol& type);
+  [[nodiscard]] rq::DynamicRvalue evaluateDynamicOrderedComparisonRvalue(
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
+      rq::Opcode opcode);
 
-  [[nodiscard]] rq::DynamicRvalue evaluateDynamicIdentifierRvalue(rq::SymbolTable& table, rq::Module& module, rq::Name name);
+  [[nodiscard]] rq::DynamicRvalue evaluateDynamicEquivalenceComparisonRvalue(
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
+      rq::Opcode opcode);
 
-  [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &table, rq::Module &module,
-                        rq::Expression &name_ex);
+  [[nodiscard]] rq::Entity &foldDynamicRvalue(rq::Entity &rvalue,
+                                              rq::Symbol &type);
 
-  [[nodiscard]] rq::Symbol* completeType(rq::Symbol& to_type, rq::Symbol& from_type);
+  [[nodiscard]] rq::DynamicRvalue
+  evaluateDynamicIdentifierRvalue(rq::SymbolTable &table, rq::Module &module,
+                                  rq::Name name);
 
-  [[nodiscard]] rq::Symbol& deliteralizeType(rq::Symbol& type);
+  [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &table,
+                                      rq::Module &module,
+                                      rq::Expression &name_ex);
+
+  [[nodiscard]] rq::Symbol *completeType(rq::Symbol &to_type,
+                                         rq::Symbol &from_type);
+
+  [[nodiscard]] rq::Symbol &deliteralizeType(rq::Symbol &type);
 };
 } // namespace rq

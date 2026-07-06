@@ -733,6 +733,20 @@ enum class Opcode : rq::EntityId {
   LOGICAL_COMPLEMENT,
   LOGICAL_AND_WITH_SHORTCIRCUIT,
   LOGICAL_OR_WITH_SHORTCIRCUIT,
+  
+  // address0 = rvalue0
+  // address1 = rvalue1
+  RVALUE_PAIR,
+
+  // COMPARISON
+  // address0 = operand type
+  // address1 = rvalue pair
+  LESS,
+  GREATER,
+  LESS_EQUAL,
+  GREATER_EQUAL,
+  EQUAL,
+  NOT_EQUAL,
 
   // ARITHMETIC
   // address0 = head

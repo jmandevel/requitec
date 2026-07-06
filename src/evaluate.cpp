@@ -5,6 +5,7 @@
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
 
+#include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallString.h>
 
 #include <optional>
@@ -470,6 +471,30 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
     negate.setAddress0(comp_rv.getValue());
     return rq::DynamicRvalue(negate, comp_rv.getType());
   }
+  case K::LESS: {
+    return this->evaluateDynamicOrderedComparisonRvalue(table, module,
+                                                        rvalue_ex, O::LESS);
+  }
+  case K::GREATER: {
+    return this->evaluateDynamicOrderedComparisonRvalue(table, module,
+                                                        rvalue_ex, O::LESS);
+  }
+  case K::LESS_EQUAL: {
+    return this->evaluateDynamicOrderedComparisonRvalue(
+        table, module, rvalue_ex, O::LESS_EQUAL);
+  }
+  case K::GREATER_EQUAL: {
+    return this->evaluateDynamicOrderedComparisonRvalue(
+        table, module, rvalue_ex, O::GREATER_EQUAL);
+  }
+  case K::EQUAL: {
+    return this->evaluateDynamicEquivalenceComparisonRvalue(
+        table, module, rvalue_ex, O::EQUAL);
+  }
+  case K::NOT_EQUAL: {
+    return this->evaluateDynamicEquivalenceComparisonRvalue(
+        table, module, rvalue_ex, O::NOT_EQUAL);
+  }
   case K::ADD: {
     return this->evaluateDynamicArithmeticRvalue(table, module, rvalue_ex,
                                                  O::ADD);
@@ -586,6 +611,128 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   return rq::DynamicRvalue(rvalue, type);
 }
 
+[[nodiscard]] rq::DynamicRvalue
+Evaluator::evaluateDynamicOrderedComparisonRvalue(rq::SymbolTable &table,
+                                                  rq::Module &module,
+                                                  rq::Expression &rvalue_ex,
+                                                  rq::Opcode opcode) {
+  rq::Expression &branch0_ex = rvalue_ex.getBranch();
+  rq::Expression &branch1_ex = branch0_ex.getNext();
+  rq::DynamicRvalue branch0_rv =
+      this->evaluateDynamicRvalue(table, module, branch0_ex);
+  if (branch0_rv.getIsEmpty()) {
+    return rq::DynamicRvalue();
+  }
+  rq::DynamicRvalue branch1_rv =
+      this->evaluateDynamicRvalue(table, module, branch1_ex);
+  if (branch1_rv.getIsEmpty()) {
+    return rq::DynamicRvalue();
+  }
+  rq::Symbol &branch0_ty = branch0_rv.getType();
+  rq::Symbol &branch1_ty = branch1_rv.getType();
+  rq::Symbol *ty_ptr = nullptr;
+  if (branch0_ty == this->getContext().acquireIntegerLiteralType()) {
+    if (branch1_ty.getIsLiteralType() || branch1_ty.getIsNumericType()) {
+      ty_ptr = &branch1_ty;
+    }
+  } else if (branch0_ty == this->getContext().acquireFloatLiteralType()) {
+    if (branch1_ty == this->getContext().acquireFloatLiteralType() ||
+        branch1_ty.getIsNumericType()) {
+      ty_ptr = &branch1_ty;
+    }
+  } else if (branch0_ty.getIsIntegerType()) {
+    if (branch1_ty == branch0_ty ||
+        branch1_ty == this->getContext().acquireIntegerLiteralType()) {
+      ty_ptr = &branch0_ty;
+    }
+  } else if (branch0_ty.getIsFloatType()) {
+    if (branch1_ty == branch0_ty || branch1_ty.getIsLiteralType()) {
+      ty_ptr = &branch0_ty;
+    }
+  }
+  if (ty_ptr == nullptr) {
+    RQ_UNHANDLED_ERROR("no builtin ordered relation");
+  }
+  rq::Symbol &ty = rq::dereferencePtr(ty_ptr);
+  rq::Symbol &complete_ty = this->deliteralizeType(ty);
+  rq::Entity &branch0_v =
+      this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
+  rq::Entity &branch1_v =
+      this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
+  rq::Instruction &pair =
+      this->getContext().acquireInstruction(rq::Opcode::RVALUE_PAIR);
+  pair.setAddress0(branch0_v);
+  pair.setAddress1(branch1_v);
+  rq::Instruction &inst = this->getContext().acquireInstruction(opcode);
+  inst.setAddress0(complete_ty);
+  inst.setAddress1(pair);
+  rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
+  return rq::DynamicRvalue(inst, boolean_ty);
+}
+
+[[nodiscard]] rq::DynamicRvalue
+Evaluator::evaluateDynamicEquivalenceComparisonRvalue(rq::SymbolTable &table,
+                                                      rq::Module &module,
+                                                      rq::Expression &rvalue_ex,
+                                                      rq::Opcode opcode) {
+  rq::Expression &branch0_ex = rvalue_ex.getBranch();
+  rq::Expression &branch1_ex = branch0_ex.getNext();
+  rq::DynamicRvalue branch0_rv =
+      this->evaluateDynamicRvalue(table, module, branch0_ex);
+  if (branch0_rv.getIsEmpty()) {
+    return rq::DynamicRvalue();
+  }
+  rq::DynamicRvalue branch1_rv =
+      this->evaluateDynamicRvalue(table, module, branch1_ex);
+  if (branch1_rv.getIsEmpty()) {
+    return rq::DynamicRvalue();
+  }
+  rq::Symbol &branch0_ty = branch0_rv.getType();
+  rq::Symbol &branch1_ty = branch1_rv.getType();
+  rq::Symbol *ty_ptr = nullptr;
+  if (branch0_ty == this->getContext().acquireIntegerLiteralType()) {
+    if (branch1_ty.getIsLiteralType() || branch1_ty.getIsNumericType()) {
+      ty_ptr = &branch1_ty;
+    }
+  } else if (branch0_ty == this->getContext().acquireFloatLiteralType()) {
+    if (branch1_ty == this->getContext().acquireFloatLiteralType() ||
+        branch1_ty.getIsNumericType()) {
+      ty_ptr = &branch1_ty;
+    }
+  } else if (branch0_ty.getIsIntegerType()) {
+    if (branch1_ty == branch0_ty ||
+        branch1_ty == this->getContext().acquireIntegerLiteralType()) {
+      ty_ptr = &branch0_ty;
+    }
+  } else if (branch0_ty.getIsFloatType()) {
+    if (branch1_ty == branch0_ty || branch1_ty.getIsLiteralType()) {
+      ty_ptr = &branch0_ty;
+    }
+  } else if (branch0_ty == this->getContext().acquireBooleanType()) {
+    if (branch1_ty == this->getContext().acquireBooleanType()) {
+      ty_ptr = &this->getContext().acquireBooleanType();
+    }
+  }
+  if (ty_ptr == nullptr) {
+    RQ_UNHANDLED_ERROR("no builtin equivalence relation");
+  }
+  rq::Symbol &ty = rq::dereferencePtr(ty_ptr);
+  rq::Symbol &complete_ty = this->deliteralizeType(ty);
+  rq::Entity &branch0_v =
+      this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
+  rq::Entity &branch1_v =
+      this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
+  rq::Instruction &pair =
+      this->getContext().acquireInstruction(rq::Opcode::RVALUE_PAIR);
+  pair.setAddress0(branch0_v);
+  pair.setAddress1(branch1_v);
+  rq::Instruction &inst = this->getContext().acquireInstruction(opcode);
+  inst.setAddress0(complete_ty);
+  inst.setAddress1(pair);
+  rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
+  return rq::DynamicRvalue(inst, boolean_ty);
+}
+
 [[nodiscard]] rq::Entity &Evaluator::foldDynamicRvalue(rq::Entity &rvalue,
                                                        rq::Symbol &type) {
   using K = rq::Keyword;
@@ -612,9 +759,13 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   if (llvm::isa<rq::Instruction>(rvalue)) {
     rq::Instruction &inst = llvm::cast<rq::Instruction>(rvalue);
     switch (inst.getOpcode()) {
-    case O::LOGICAL_AND: 
+    case O::LOGICAL_AND:
       [[fallthrough]];
     case O::LOGICAL_OR:
+      [[fallthrough]];
+    case O::LOGICAL_AND_WITH_SHORTCIRCUIT:
+      [[fallthrough]];
+    case O::LOGICAL_OR_WITH_SHORTCIRCUIT:
       [[fallthrough]];
     case O::ADD:
       [[fallthrough]];
@@ -633,12 +784,35 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
       inst.setAddress1(new_address1);
       return inst;
     }
-    case O::NEGATE: 
+    case O::NEGATE:
       [[fallthrough]];
     case O::LOGICAL_COMPLEMENT: {
       rq::Entity &old_address0 = inst.popAddress0();
       rq::Entity &new_address0 = this->foldDynamicRvalue(old_address0, type);
       inst.setAddress0(new_address0);
+      return inst;
+    }
+    case O::LESS:
+      [[fallthrough]];
+    case O::GREATER:
+      [[fallthrough]];
+    case O::LESS_EQUAL:
+      [[fallthrough]];
+    case O::GREATER_EQUAL:
+      [[fallthrough]];
+    case O::EQUAL:
+      [[fallthrough]];
+    case O::NOT_EQUAL: {
+      rq::Symbol &nest_type = llvm::cast<rq::Symbol>(inst.getAddress0());
+      rq::Instruction &pair = llvm::cast<rq::Instruction>(inst.getAddress1());
+      rq::Entity &old_address0 = pair.popAddress0();
+      rq::Entity &new_address0 =
+          this->foldDynamicRvalue(old_address0, nest_type);
+      pair.setAddress0(new_address0);
+      rq::Entity &old_address1 = pair.popAddress1();
+      rq::Entity &new_address1 =
+          this->foldDynamicRvalue(old_address1, nest_type);
+      pair.setAddress1(new_address1);
       return inst;
     }
     default:
