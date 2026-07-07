@@ -204,6 +204,17 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       RQ_UNREACHABLE();
     }
   }
+  if (!scope_done && table != function) {
+    rq::Name result_name(K::RESULT);
+    auto result_list = table.lookupList(result_name);
+    if (!result_list.getIsEmpty()) {
+      rq::LocalDynamicVariable &result =
+          llvm::cast<rq::LocalDynamicVariable>(result_list.getHead());
+      if (result.getContainingTable() == table) {
+        RQ_UNHANDLED_ERROR("must return from scope where result is initialized");
+      }
+    }
+  }
   rq::Entity &outer = factory.getOuter();
   rq::Instruction &outer_ins = llvm::cast<rq::Instruction>(outer);
   return &outer_ins;
