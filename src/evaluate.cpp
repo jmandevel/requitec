@@ -112,9 +112,13 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   std::ignore = result_type;
   using K = rq::Keyword;
   using O = rq::Opcode;
+  bool scope_done = false;
   // using S = rq::SymbolKind;
   rq::DottedInstructionFactory factory(this->getContext(), O::STATEMENT);
   for (rq::Expression &state_ex : first_ex.getInclusiveNextSubrange()) {
+    if (scope_done) {
+      RQ_UNHANDLED_ERROR("unreachable dynamic statement");
+    }
     switch (state_ex.getKeyword()) {
     case K::ASSIGN: {
       rq::Expression &lvalue_ex = state_ex.getBranch();
@@ -148,6 +152,21 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       inst.setAddress0(lvalue.getSymbol());
       inst.setAddress1(folded_rv);
       factory.append(inst);
+      break;
+    }
+    case K::RETURN: {
+      rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
+      factory.append(inst);
+      scope_done = true;
+      rq::Signature &signature = rq::dereferencePtr(function.getSignaturePtr());
+      if (signature.getReturnType() == this->getContext().acquireVoidType()) {
+        break;
+      }
+      rq::Name result_name(K::RESULT);
+      auto list = table.lookupList(result_name);
+      if (list.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("result not set before return");
+      }
       break;
     }
     default:

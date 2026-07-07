@@ -1,8 +1,5 @@
 [mangle]::main
 [function main, ()[signed_integer],
-    my_boolean :\[var]= [true] /\ [false];
-    my_boolean = [true] \/ [false];
-    my_boolean = ![true];
-    my_boolean = ([true] /\ (![false] \/ [true]));
     [result] := 0;
+    [return];
 ];

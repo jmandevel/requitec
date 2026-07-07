@@ -723,6 +723,8 @@ enum class Opcode : rq::EntityId {
   // address1 = tail
   STATEMENT,
 
+  // address0 = lvalue
+  // address1 = rvalue
   ASSIGN,
 
   // LOGICAL
@@ -730,13 +732,20 @@ enum class Opcode : rq::EntityId {
   // address1 = tail
   LOGICAL_AND,
   LOGICAL_OR,
-  LOGICAL_COMPLEMENT,
   LOGICAL_AND_WITH_SHORTCIRCUIT,
   LOGICAL_OR_WITH_SHORTCIRCUIT,
-  
+
+  // address0 = rvalue
+  // address1 = none
+  LOGICAL_COMPLEMENT,
+
   // address0 = rvalue0
   // address1 = rvalue1
   RVALUE_PAIR,
+
+  // address0 = none
+  // address1 = none
+  RETURN,
 
   // COMPARISON
   // address0 = operand type
@@ -757,7 +766,8 @@ enum class Opcode : rq::EntityId {
   DIVIDE,
   MODULUS,
 
-  // address0 - head
+  // address0 = rvalue
+  // address1 = none
   NEGATE,
 
   LAST

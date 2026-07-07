@@ -170,6 +170,10 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
           llvm_rvalue_ptr, &location.getLlvmValue(), false);
       break;
     }
+    case O::RETURN: {
+      this->getContext().getLlvmIrBuilder().CreateBr(&llvm_exit_bb);
+      break;
+    }
     default:
       RQ_UNREACHABLE();
     }
