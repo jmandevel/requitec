@@ -171,6 +171,20 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       factory.append(next);
       break;
     }
+    case K::BLOCK: {
+      if (!state_ex.getHasBranch()) {
+        break;
+      }
+      rq::Expression &branch0_ex = state_ex.getBranch();
+      rq::Instruction *next_ptr = this->evaluateLocalScope(
+          function, result_type, table, module, branch0_ex);
+      if (next_ptr == nullptr) {
+        return nullptr;
+      }
+      rq::Instruction &next = rq::dereferencePtr(next_ptr);
+      factory.append(next);
+      break;
+    }
     case K::RETURN: {
       rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
       factory.append(inst);

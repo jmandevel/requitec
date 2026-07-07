@@ -1,7 +1,7 @@
 [mangle]::main
 [function main, ()[signed_integer],
   [result] := 0;
-   [scope
+   [block
     [return];
    ];
 ];
