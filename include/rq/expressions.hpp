@@ -3130,6 +3130,28 @@ getArithmeticSequenceCondition(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
+enum class Chain : std::uint_fast8_t {
+  NONE,
+  IF,
+  SWITCH,
+  SPIN
+};
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Chain chain) {
+  using C = rq::Chain;
+  switch (chain) {
+    case C::NONE:
+      return "no chain";
+    case C::IF:
+      return "if chain";
+    case C::SWITCH:
+      return "switch case chain";
+    case C::SPIN:
+      return "spin weave chain";
+  }
+  RQ_UNREACHABLE();
+}
+
 template <typename SourceAParam, typename SourceBParam>
 [[nodiscard]] inline unsigned getSourceLengthBetween(const SourceAParam &first,
                                                      const SourceBParam &last) {
