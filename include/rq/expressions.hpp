@@ -3137,7 +3137,7 @@ enum class Chain : std::uint_fast8_t {
   SPIN
 };
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Chain chain) {
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getDescription(rq::Chain chain) {
   using C = rq::Chain;
   switch (chain) {
     case C::NONE:
