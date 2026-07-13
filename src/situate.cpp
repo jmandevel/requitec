@@ -1352,7 +1352,7 @@ bool Situator::situateTree(rq::Situation situation,
 
 bool Situator::situateValueBranch(rq::Situation branch_situation,
                                   rq::Expression &branch) {
-  if (branch.getIsUltimate() || branch.getIsChainLink()) {
+  if (!branch.getIsHeader()) {
     this->getContext().logErrorExpectedHeaderExpression(branch);
     return false;
   }
@@ -1365,7 +1365,7 @@ bool Situator::situateValueBranch(rq::Situation branch_situation,
 
 bool Situator::situateHeaderBranch(rq::Situation branch_situation,
                                    rq::Expression &branch) {
-  if (branch.getIsUltimate() || branch.getIsChainLink()) {
+  if (!branch.getIsHeader()) {
     this->getContext().logErrorExpectedHeaderExpression(branch);
     return false;
   }
