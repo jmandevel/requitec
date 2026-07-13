@@ -294,7 +294,7 @@ void Evaluator::evaluate(rq::Function &func) {
       rq::dereferencePtr(func.getFirstBodyExpressionPtr());
   rq::Expression *body_ptr = &statement0;
   if (func.getName().getKeyword() != rq::Keyword::MAIN) {
-    if (statement0.getIsStatement()) {
+    if (statement0.getIsUltimate()) {
       // TODO static statements before signature
       RQ_TODO_IMPLEMENTATION();
     }

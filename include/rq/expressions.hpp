@@ -3130,24 +3130,19 @@ getArithmeticSequenceCondition(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
-enum class Chain : std::uint_fast8_t {
-  NONE,
-  IF,
-  SWITCH,
-  SPIN
-};
+enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH, SPIN };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getDescription(rq::Chain chain) {
   using C = rq::Chain;
   switch (chain) {
-    case C::NONE:
-      return "no chain";
-    case C::IF:
-      return "if chain";
-    case C::SWITCH:
-      return "switch case chain";
-    case C::SPIN:
-      return "spin weave chain";
+  case C::NONE:
+    return "no chain";
+  case C::IF:
+    return "if chain";
+  case C::SWITCH:
+    return "switch case chain";
+  case C::SPIN:
+    return "spin weave chain";
   }
   RQ_UNREACHABLE();
 }
@@ -3173,8 +3168,8 @@ enum class ExpressionNextFlags : std::uint8_t {
   // seperator between Used in things like if->else_if->else chains. only occurs
   // for expressions with certain keywords.
   CHAINLINK = rq::getBit(0),
-  // NOTE: a "header" expression is one that terminates with a semicolon
-  STATEMENT = rq::getBit(1)
+  // NOTE: a "ultimate" expression is one that terminates with a semicolon
+  ULTIMATE = rq::getBit(1)
 };
 
 template <> struct is_flags<ExpressionNextFlags> : std::true_type {};
@@ -3418,11 +3413,14 @@ struct Expression final : public rq::Entity {
     return rq::getHasAll(this->_source_ptr_flags.getFlags(),
                          rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatement() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUltimate() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::STATEMENT);
+                         rq::ExpressionNextFlags::ULTIMATE);
   }
-
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
+    return rq::getHasNone(this->_next_ptr_flags.getFlags(),
+                         rq::ExpressionNextFlags::ULTIMATE | rq::ExpressionNextFlags::CHAINLINK);
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
     return this->_source_ptr_flags.getPtr() != nullptr;
   }
@@ -3492,8 +3490,8 @@ struct Expression final : public rq::Entity {
   RQ_ALWAYS_INLINE void setHasSituatorError() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceFlags::SITUATOR_ERROR);
   }
-  void RQ_ALWAYS_INLINE setIsStatement() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::STATEMENT);
+  void RQ_ALWAYS_INLINE setIsUltimate() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::ULTIMATE);
   }
   void RQ_ALWAYS_INLINE setIsChainLink() {
     this->_next_ptr_flags.addFlags(rq::ExpressionNextFlags::CHAINLINK);

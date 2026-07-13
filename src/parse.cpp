@@ -892,7 +892,7 @@ RequiteParser::parseBranches(rq::TokenKind end) {
         next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       continue;
     } else if (next_after.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
-      branch.setIsStatement();
+      branch.setIsUltimate();
       continue;
     }
     branch.setIsChainLink();

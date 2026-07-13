@@ -434,7 +434,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << '\n';
     for (const rq::Expression &branch : top.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (branch.getIsStatement()) {
+      if (branch.getIsUltimate()) {
         fout << ";\n";
       } else if (branch.getIsChainLink()) {
         fout << "\n";
@@ -465,7 +465,7 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
   const rq::Expression &top = rq::dereferencePtr(top_ptr);
   for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
-    if (branch.getIsStatement()) {
+    if (branch.getIsUltimate()) {
       fout << ";\n";
     } else if (branch.getIsChainLink()) {
       fout << "\n";
@@ -661,9 +661,7 @@ bool Context::emitObject(llvm::StringRef path) {
   RQ_UNREACHABLE();
 }
 
-  [[nodiscard]] unsigned Context::getByteDepth() const {
-    return 8;
-  }
+[[nodiscard]] unsigned Context::getByteDepth() const { return 8; }
 
 [[nodiscard]] unsigned Context::getDefaultIntegerDepth() const {
   return this->getLlvmModule().getDataLayout().getPointerSizeInBits();
@@ -974,36 +972,43 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
 
 void Context::logErrorExpectedHeaderBranch(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " has no header branch",
+                   expresison.getName() + " has no comma terminator",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedHeaderExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not header",
+                   expresison.getName() + " is not header expression",
                    {expresison.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedUltimateExpression(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() +
+                       " is not ultimate expression",
+                   {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainLinkExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not chain-link",
+                   expresison.getName() + " is not chain-link statement",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorUnexpectedChainLinkExpression(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is chain-link",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorExpectedStatementOrChainLinkExpression(
-    const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is not statement or chain-link",
-                   {expression.getLlvmSourceRange()}, {});
+void Context::logErrorExpressionDoesNotContinueChain(
+    const rq::Expression &expresison, rq::Chain chain) {
+  if (chain == rq::Chain::NONE) {
+    this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " must continue chain",
+                   {expresison.getLlvmSourceRange()}, {});
+   return;
+  }
+  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expresison.getName() + " does not continue " + rq::getDescription(chain),
+                   {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotDeterminateStaticValue(
@@ -1013,8 +1018,8 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidLowAttribute(
-    const rq::Expression &unascribed, const rq::Expression &attribute) {
+void Context::logErrorInvalidLowAttribute(const rq::Expression &unascribed,
+                                          const rq::Expression &attribute) {
   this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
                    attribute.getName() +
                        " is is not a valid attribute for expression " +
