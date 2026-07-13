@@ -1380,11 +1380,20 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
                                       rq::Chain &inout_chain) {
   using K = rq::Keyword;
   using C = rq::Chain;
-  switch (branch.getKeyword()) {
-  case K::IF:
+  if (!branch.getCanBeStatement()) {
+    this->getContext().logErrorInvalidBranchSituation(rq::Situation::STATEMENT,
+                                                      branch);
+    return false;
+  }
+  if (!this->situateTree(rq::Situation::STATEMENT, branch)) {
+    return false;
+  }
+  rq::Expression &unascribed = branch.getUnascribed();
+  switch (unascribed.getKeyword()) {
+  case K::IF: {
     if (inout_chain != C::NONE) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch,
-                                                               inout_chain);
+                                                                inout_chain);
       return false;
     }
     if (!branch.getIsChainLink()) {
@@ -1393,20 +1402,22 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
     }
     inout_chain = C::IF;
     break;
-  case K::ELSE_IF:
+  }
+  case K::ELSE_IF: {
     if (inout_chain != C::IF) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch,
-                                                               inout_chain);
+                                                                inout_chain);
       return false;
     }
     if (!branch.getIsChainLink()) {
       inout_chain = C::NONE;
     }
     break;
-  case K::ELSE:
+  }
+  case K::ELSE: {
     if (inout_chain != C::IF) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch,
-                                                               inout_chain);
+                                                                inout_chain);
       return false;
     }
     if (!branch.getIsUltimate()) {
@@ -1415,41 +1426,48 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
     }
     inout_chain = C::NONE;
     break;
-  case K::CASE:
+  }
+  case K::CASE: {
     if (inout_chain == C::NONE) {
       inout_chain = C::SWITCH;
     }
     if (inout_chain != C::SWITCH) {
-      this->getContext().logErrorExpressionDoesNotContinueChain(branch, inout_chain);
+      this->getContext().logErrorExpressionDoesNotContinueChain(branch,
+                                                                inout_chain);
       return false;
     }
     if (branch.getIsUltimate()) {
       inout_chain = C::NONE;
     }
     break;
-  case K::WEAVE:
+  }
+  case K::WEAVE: {
     if (inout_chain == C::NONE) {
       inout_chain = C::SPIN;
     }
     if (inout_chain != C::SPIN) {
-      this->getContext().logErrorExpressionDoesNotContinueChain(branch, inout_chain);
+      this->getContext().logErrorExpressionDoesNotContinueChain(branch,
+                                                                inout_chain);
       return false;
     }
     if (branch.getIsUltimate()) {
       inout_chain = C::NONE;
     }
     break;
-  case K::DEFAULT:
+  }
+  case K::DEFAULT: {
     if (inout_chain != C::SWITCH && inout_chain != C::SPIN) {
-      this->getContext().logErrorExpressionDoesNotContinueChain(branch, inout_chain);
+      this->getContext().logErrorExpressionDoesNotContinueChain(branch,
+                                                                inout_chain);
       return false;
     }
     inout_chain = C::NONE;
     break;
-  default:
+  }
+  default: {
     if (inout_chain != C::NONE) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch,
-                                                               inout_chain);
+                                                                inout_chain);
       return false;
     }
     if (!branch.getIsUltimate()) {
@@ -1457,12 +1475,8 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
       return false;
     }
   }
-  if (!branch.getCanBeStatement()) {
-    this->getContext().logErrorInvalidBranchSituation(rq::Situation::STATEMENT,
-                                                      branch);
-    return false;
   }
-  return this->situateTree(rq::Situation::STATEMENT, branch);
+  return true;
 }
 
 bool Situator::situateChainLinkBranch(rq::Expression &branch) {
