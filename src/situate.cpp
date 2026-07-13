@@ -1416,6 +1416,9 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
     inout_chain = C::NONE;
     break;
   case K::CASE:
+    if (inout_chain == C::NONE) {
+      inout_chain = C::SWITCH;
+    }
     if (inout_chain != C::SWITCH) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch, inout_chain);
       return false;
@@ -1425,6 +1428,9 @@ bool Situator::situateStatementBranch(rq::Expression &branch,
     }
     break;
   case K::WEAVE:
+    if (inout_chain == C::NONE) {
+      inout_chain = C::SPIN;
+    }
     if (inout_chain != C::SPIN) {
       this->getContext().logErrorExpressionDoesNotContinueChain(branch, inout_chain);
       return false;
