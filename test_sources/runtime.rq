@@ -1,9 +1,0 @@
-// this is a "runtime library" which the compiler uses to correlate [main] with the actual main function in the linker.
-// this version of runtime library should work on platforms with standard C main entry point:
-// int main(int argc, char** argv);
-
-[mangle]::main
-[function [noname], ( argc:[signed_integer], argv:??\[null_terminated][char] <)[signed_integer],
-    args :@?\[null_terminated][char]= argv.[slice argc];
-    [result]  :[signed_integer]= [call_main args];
-];

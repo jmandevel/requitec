@@ -6,6 +6,7 @@
     [result] := var.[bitwise_cast Signed];
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     [result] := asSigned{[single]}(3.14);
 ];

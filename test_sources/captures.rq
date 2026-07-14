@@ -14,7 +14,8 @@ var0 := 1;
 [capture]::{ name:="Bob", age:=25 }
 var1 := 0;
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     [static]
     [if var0.[symbol].[capture].[type].[has Foo],
         std.print(line=var0.[symbol].[capture].[get Foo].string);    

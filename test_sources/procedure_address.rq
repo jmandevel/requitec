@@ -7,7 +7,8 @@
     [result] := positional + positional_and_named + named + locked;
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     // calling directly from myFunction
     // default values are used
     // locked parameters cannot be set

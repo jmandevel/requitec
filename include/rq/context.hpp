@@ -96,7 +96,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::ResultValue _result_value{};
   rq::IndexValue _index_value{};
   rq::DiscriminantValue _discrimnant_value{};
-  rq::CommandLineArgumentsValue _command_line_arguments_value{};
   rq::CallsiteValue _callsite_value{};
   rq::InferenceType _inference_type{};
   rq::VoidType _void_type{};
@@ -420,10 +419,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &
   acquireDiscriminantValue() {
     return this->_discrimnant_value;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SimpleSymbol &
-  acquireCommandLineArgumentsValue() {
-    return this->_command_line_arguments_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CallsiteValue &acquireCallsiteValue() {
     return this->_callsite_value;

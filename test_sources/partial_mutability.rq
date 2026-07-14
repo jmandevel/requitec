@@ -5,7 +5,8 @@
     <},
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     // no properties are var for constant values:
     constant := Partialable();
 

@@ -11,7 +11,8 @@
     [result] := a + b;
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     std.print(line="the return value is " +> myFunc(1, 2));
 
     [result] := 0;

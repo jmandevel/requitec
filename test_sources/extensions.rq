@@ -12,7 +12,8 @@
     ];
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     my_array :5#[signed_integer]= [array 0, 1, 2, 3, 4].[of [fast_signed_integer 32]];
 
     // call extension function

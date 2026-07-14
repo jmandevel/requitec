@@ -28,7 +28,8 @@
     ];
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
 
     a := MyClass();
     b := MyClass(1, 2, 3);

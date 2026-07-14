@@ -20,7 +20,8 @@
     std.print(line="Its something");
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     printType{[signed_integer 32]}();
     printType{[single]}();
     printType{[boolean]}();

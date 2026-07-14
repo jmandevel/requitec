@@ -1,6 +1,0 @@
-[runtime_main]
-[mangle]::main
-[function [noname], ( argc:[signed_integer], argv:?[char] <)[signed_integer],
-    args := argv.[slice argc];
-    [result] := [call_main args];
-];

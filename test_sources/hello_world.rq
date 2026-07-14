@@ -1,6 +1,7 @@
 [import "std"];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     std.print(line="Hello, world!");
 
     [result] := 0;

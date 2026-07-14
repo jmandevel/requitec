@@ -22,9 +22,6 @@ void Builder::buildLlvmIr() {
 }
 
 void Builder::build(rq::Function &func) {
-  if (func.getName().getKeyword() == rq::Keyword::MAIN) {
-    return;
-  }
   if (func.getModule() != this->getContext().getSourceModule()) {
     return;
   }

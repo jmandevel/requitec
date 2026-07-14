@@ -35,8 +35,6 @@ namespace rq {
     return "IndexValue";
   case S::DISCRIMINANT_VALUE:
     return "DiscriminantValue";
-  case S::COMMAND_LINE_ARGUMENTS_VALUE:
-    return "CommandLineArgumentsValue";
   case S::CALLSITE_VALUE:
     return "CallsiteValue";
 
@@ -390,8 +388,6 @@ namespace rq {
   case S::INDEX_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::DISCRIMINANT_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
-  case S::COMMAND_LINE_ARGUMENTS_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
   case S::CALLSITE_VALUE:
     return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;

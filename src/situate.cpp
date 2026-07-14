@@ -534,9 +534,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::BINDING,
                                              S::RVALUE);
     break;
-  case K::MAIN:
-    is_ok = this->situateStatementBranches(expression);
-    break;
   case K::FUNCTION:
     is_ok = this->situateNameStatementHeaderStatementBranches(
         situation, expression, S::FUNCTION_NAME);
@@ -611,8 +608,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::THIS:
     [[fallthrough]];
   case K::RESULT:
-    [[fallthrough]];
-  case K::COMMAND_LINE_ARGUMENTS:
     [[fallthrough]];
   case K::CALLSITE:
     [[fallthrough]];

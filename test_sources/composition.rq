@@ -52,7 +52,8 @@
     [use_method greet, Rat.squeak, ()[void]=>];
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     dog := Dog();
     cat := Cat();
     rat := Rat();

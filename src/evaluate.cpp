@@ -75,15 +75,6 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
     }
     rq::Expression &unascribed_ex = rq::dereferencePtr(unascribed_ex_ptr);
     switch (unascribed_ex.getKeyword()) {
-    case K::MAIN: {
-      rq::Name name(K::MAIN);
-      rq::Expression *body_ex_ptr = unascribed_ex.getBranchPtr();
-      rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          table, name, table, unascribed_ex, nullptr, factory.getFlags(),
-          module, body_ex_ptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-      table.addMember(this->getContext(), name, func);
-      break;
-    }
     case K::FUNCTION: {
       rq::Expression &name_ex = unascribed_ex.getBranch();
       rq::Expression *body_ex_ptr = name_ex.getNextPtr();
@@ -147,12 +138,17 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
         var.completeType(type_ct);
       }
       rq::Entity &folded_rv = this->foldDynamicRvalue(rvalue.getValue(), type);
-      rq::Instruction &inst =
-          this->getContext().acquireInstruction(O::ASSIGN);
+      rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
       inst.setAddress0(lvalue.getSymbol());
       inst.setAddress1(folded_rv);
       factory.append(inst);
       break;
+    }
+    case K::IF:
+      [[fallthrough]];
+    case K::ELSE_IF: {
+    }
+    case K::ELSE: {
     }
     case K::SCOPE: {
       if (!state_ex.getHasBranch()) {
@@ -211,7 +207,8 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::LocalDynamicVariable &result =
           llvm::cast<rq::LocalDynamicVariable>(result_list.getHead());
       if (result.getContainingTable() == table) {
-        RQ_UNHANDLED_ERROR("must return from scope where result is initialized");
+        RQ_UNHANDLED_ERROR(
+            "must return from scope where result is initialized");
       }
     }
   }
@@ -293,26 +290,24 @@ void Evaluator::evaluate(rq::Function &func) {
   rq::Expression &statement0 =
       rq::dereferencePtr(func.getFirstBodyExpressionPtr());
   rq::Expression *body_ptr = &statement0;
-  if (func.getName().getKeyword() != rq::Keyword::MAIN) {
-    if (statement0.getIsUltimate()) {
-      // TODO static statements before signature
-      RQ_TODO_IMPLEMENTATION();
-    }
-    rq::Expression &sig_ex = statement0;
-    rq::StaticRvalue sig_rv = this->evaluateStaticRvalue(
-        func.getHostingTable(), func.getModule(), sig_ex);
-    if (sig_rv.getIsEmpty()) {
-      RQ_UNHANDLED_ERROR("invalid rvalue");
-    }
-    rq::Symbol &sig_sy =
-        rq::dereferencePtr(sig_rv.getValue().getSymbol().symbol_ptr);
-    if (!llvm::isa<rq::Signature>(sig_sy)) {
-      RQ_UNHANDLED_ERROR("expected sig");
-    }
-    rq::Signature &sig = llvm::cast<rq::Signature>(sig_sy);
-    func.setSignature(sig);
-    body_ptr = sig_ex.getNextPtr();
+  if (statement0.getIsUltimate()) {
+    // TODO static statements before signature
+    RQ_TODO_IMPLEMENTATION();
   }
+  rq::Expression &sig_ex = statement0;
+  rq::StaticRvalue sig_rv = this->evaluateStaticRvalue(
+      func.getHostingTable(), func.getModule(), sig_ex);
+  if (sig_rv.getIsEmpty()) {
+    RQ_UNHANDLED_ERROR("invalid rvalue");
+  }
+  rq::Symbol &sig_sy =
+      rq::dereferencePtr(sig_rv.getValue().getSymbol().symbol_ptr);
+  if (!llvm::isa<rq::Signature>(sig_sy)) {
+    RQ_UNHANDLED_ERROR("expected sig");
+  }
+  rq::Signature &sig = llvm::cast<rq::Signature>(sig_sy);
+  func.setSignature(sig);
+  body_ptr = sig_ex.getNextPtr();
   if (body_ptr == nullptr) {
     return;
   }

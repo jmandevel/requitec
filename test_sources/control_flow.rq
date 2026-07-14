@@ -1,6 +1,7 @@
 [import "std"];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     [result] :\[var]=0;
 
     [anchor]::MyWhile

@@ -16,7 +16,8 @@
     std.print(line="end!");
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     printList(
         "hello" +>
         3.14.[as [single]] +>

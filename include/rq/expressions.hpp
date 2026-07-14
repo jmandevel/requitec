@@ -278,8 +278,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "composition";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
-  case K::MAIN:
-    return "main";
   case K::FUNCTION:
     return "function";
   case K::IMPLEMENT_FUNCTION:
@@ -332,8 +330,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "this";
   case K::RESULT:
     return "result";
-  case K::COMMAND_LINE_ARGUMENTS:
-    return "command_line_arguments";
   case K::CALLSITE:
     return "callsite";
 
@@ -1124,8 +1120,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::DEFAULT_VALUE_PARAMETER:
     return KF::PARAMETER;
-  case K::MAIN:
-    return KF::STATEMENT;
   case K::FUNCTION:
     return KF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
@@ -1178,8 +1172,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
   case K::RESULT:
     return KF::RVALUE | KF::LVALUE | KF::ARGUMENT;
-  case K::COMMAND_LINE_ARGUMENTS:
-    return KF::RVALUE | KF::ARGUMENT;
   case K::CALLSITE:
     return KF::RVALUE;
 

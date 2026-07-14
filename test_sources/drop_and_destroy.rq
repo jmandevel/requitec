@@ -9,7 +9,8 @@
     ];
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();

@@ -18,7 +18,8 @@
 
 ];
 
-[main
+[mangle]::main
+[function [noname], ()[signed_integer],
   class :\[var]= MyClass();
   copy := class;
   reference := class.[borrow];

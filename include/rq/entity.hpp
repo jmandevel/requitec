@@ -158,7 +158,6 @@ enum class Keyword : rq::EntityId {
   PLACEMENT,
   COMPOSITION,
   DEFAULT_VALUE_PARAMETER,
-  MAIN,
   FUNCTION,
   IMPLEMENT_FUNCTION,
   USE_FUNCTION,
@@ -194,8 +193,6 @@ enum class Keyword : rq::EntityId {
   THIS,
   // value returned from a function.
   RESULT,
-  // retrieve command line arguments within main.
-  COMMAND_LINE_ARGUMENTS,
   // get information about location of function call
   CALLSITE,
 
@@ -500,7 +497,6 @@ enum class SymbolKind : rq::EntityId {
   VALUE_VALUE,
   INDEX_VALUE,
   DISCRIMINANT_VALUE,
-  COMMAND_LINE_ARGUMENTS_VALUE,
   CALLSITE_VALUE,
 
   // CONTEXTUAL TYPE
@@ -726,6 +722,14 @@ enum class Opcode : rq::EntityId {
   // address0 = lvalue
   // address1 = rvalue
   ASSIGN,
+
+  // address0 = condition (rvalue)
+  // address1 = true_path
+  IF,
+  ELSE_IF,
+
+  // address0 = true_path
+  ELSE,
 
   // LOGICAL
   // address0 = head

@@ -456,8 +456,6 @@ using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;
 using IndexValue = rq::DerivedSimpleSymbol<rq::SymbolKind::INDEX_VALUE>;
 using DiscriminantValue =
     rq::DerivedSimpleSymbol<rq::SymbolKind::DISCRIMINANT_VALUE>;
-using CommandLineArgumentsValue =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::COMMAND_LINE_ARGUMENTS_VALUE>;
 using CallsiteValue = rq::DerivedSimpleSymbol<rq::SymbolKind::CALLSITE_VALUE>;
 using InferenceType = rq::DerivedSimpleSymbol<rq::SymbolKind::INFERENCE_TYPE>;
 using VoidType = rq::DerivedSimpleSymbol<rq::SymbolKind::VOID_TYPE>;
