@@ -176,10 +176,39 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Instruction*
-  evaluateLocalScope(rq::Function &function, rq::ConstantSymbol &result_type,
-                     rq::SymbolTable &table, rq::Module &module,
-                     rq::Expression &first_ex, bool pretag_static);
+  [[nodiscard]] rq::Expression *evaluateStaticOrDynamicLocalStatements(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::ConstantSymbol &result_type, rq::SymbolTable &table,
+      rq::Module &module, rq::Expression &first_ex);
+  [[nodiscard]] rq::Expression *
+  evaluateStaticLocalStatements(rq::DottedInstructionFactory &factory,
+                                rq::Function &function, rq::SymbolTable &table,
+                                rq::Module &module, rq::Expression &first_ex);
+  [[nodiscard]] rq::Expression *evaluateStaticLocalConditionRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateDynamicLocalConditionRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateStaticLocalSwitchRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateDynamicLocalSwitchRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateStaticLocalCaseRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateDynamicLocalCaseRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateStaticLocalSignatureRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression *evaluateStaticOrDynamicLocalRangeRvalueTag(
+      rq::DottedInstructionFactory &factory, rq::Function &function,
+      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
+  [[nodiscard]] rq::Expression* evaluateLocalVignetteTags()
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);
