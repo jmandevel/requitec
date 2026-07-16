@@ -712,7 +712,8 @@ enum class Opcode : rq::EntityId {
   NONE,
 
   // address0 = source location (either rq::Expression or SOURCE_RANGE
-  // instruction) address1 = entity
+  // address0 = source location (either rq::Expression or SOURCE_RANGE)
+  // address1 = entity
   DEBUG_STEP,
 
   // address0 = start expression
@@ -727,12 +728,9 @@ enum class Opcode : rq::EntityId {
   // address1 = rvalue
   ASSIGN,
 
-  // address0 = condition (rvalue)
-  // address1 = true_path
+  // address0 = true_path
   IF,
   ELSE_IF,
-
-  // address0 = true_path
   ELSE,
 
   // LOGICAL
