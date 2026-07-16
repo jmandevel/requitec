@@ -137,10 +137,10 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
             lvalue.getType().getFlags(), type);
         var.completeType(type_ct);
       }
-      rq::Entity &folded_rv = this->foldDynamicRvalue(rvalue.getValue(), type);
+      rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
       rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
       inst.setAddress0(lvalue.getSymbol());
-      inst.setAddress1(folded_rv);
+      inst.setAddress1(folded_v);
       factory.append(inst);
       break;
     }
