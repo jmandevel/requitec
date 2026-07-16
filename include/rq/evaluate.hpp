@@ -116,6 +116,13 @@ struct DynamicLvalue final {
   }
 };
 
+struct LocalScopeResult final {
+  using Self = rq::LocalScopeResult;
+
+  rq::Instruction* _first_inst_ptr;
+  rq::Header _header_kind;
+}
+
 struct DottedInstructionFactory final {
   using Self = rq::DottedInstructionFactory;
 
@@ -176,10 +183,10 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Instruction *
+  [[nodiscard]] rq::Instruction*
   evaluateLocalScope(rq::Function &function, rq::ConstantSymbol &result_type,
                      rq::SymbolTable &table, rq::Module &module,
-                     rq::Expression &first_ex);
+                     rq::Expression &first_ex, bool preheader_static, rq::Header header);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);

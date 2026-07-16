@@ -16,19 +16,19 @@
     ];
 ];
 
-[adapter ASpeak, ISpeak=>Dog,
+[adapter ASpeak, ISpeak..Dog,
     [function speak, ()[void]=>,
         std.print(line="Woof!");
     ];
 ];
 
-[adapter ASpeak, ISpeak=>Cat,
+[adapter ASpeak, ISpeak..Cat,
     [function speak, ()[void]=>,
         std.print(line="Meow!");
     ];
 ];
 
-[adapter ASpeak, ISpeak=>Rat,
+[adapter ASpeak, ISpeak..Rat,
     [use_method speak, Rat.squeak, ()[void]=>$];
 ];
 
@@ -38,17 +38,17 @@
     ];
 ];
 
-[adapter AGreet, IGreet=>Dog,
+[adapter AGreet, IGreet..Dog,
     [function greet, ()[void]=>,
         std.print(line="*wags tail*");
     ];
 ];
 
-[adapter ASpeak, ISpeak=>Rat,
+[adapter ASpeak, ISpeak..Rat,
     [use_method speak, rat.squeak, ()[void]=>];
 ];
 
-[adapter AGreet, IGreet=>Rat,
+[adapter AGreet, IGreet..Rat,
     [use_method greet, Rat.squeak, ()[void]=>];
 ];
 
