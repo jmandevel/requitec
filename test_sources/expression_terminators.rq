@@ -1,3 +1,5 @@
+// for version of this file without comments, see expression_terminators_without_comments.rq
+
 // "tags" are expressions that terminate in a comma, or are last branch of an expression and end in nothing.
 // "statements" are expressions that terminate in a semicolon.
 // "chain-links" are expressions that terminate in nothing which are not last branch of an expression.
