@@ -312,8 +312,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   // VALUES
   case K::ARRAY:
     return "array";
-  case K::NULL_:
-    return "null";
   case K::TRUE:
     return "true";
   case K::FALSE:
@@ -1159,8 +1157,6 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
 
   // VALUES
   case K::ARRAY:
-    return KF::RVALUE | KF::ARGUMENT;
-  case K::NULL_:
     return KF::RVALUE | KF::ARGUMENT;
   case K::TRUE:
     return KF::RVALUE | KF::ARGUMENT;

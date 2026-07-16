@@ -597,8 +597,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ARRAY:
     is_ok = this->situateNaryValueBranches(situation, expression, 0, S::RVALUE);
     break;
-  case K::NULL_:
-    [[fallthrough]];
   case K::TRUE:
     [[fallthrough]];
   case K::FALSE:

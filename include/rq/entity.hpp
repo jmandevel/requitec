@@ -178,7 +178,6 @@ enum class Keyword : rq::EntityId {
 
   // VALUES
   ARRAY,
-  NULL_,
   TRUE,
   FALSE,
   // vignette value.

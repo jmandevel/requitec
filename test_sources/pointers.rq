@@ -9,7 +9,11 @@
 
     var_copy := var_ptr.[content];
 
-    var_ptr = [null];
+    var_ptr = 0.[as ?\[var][single]]; // there is no nullptr in requite! This is how you do it, but you should be careful...
+    // its this way because some platforms can reference 0 as a valid memory address.
+    // want to get people out of habit of using memory address of 0 as sentinal value.
+    // std will probably have an Optional reference template wrapper type that may or may not use null values under hood
+    // depending on the platform.
 
     [result] := var_copy.[cast [signed_integer 32]];
 ];
