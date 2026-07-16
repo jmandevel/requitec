@@ -147,8 +147,43 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
     case K::IF:
       [[fallthrough]];
     case K::ELSE_IF: {
+      // TODO evaluate statements before condition
+      rq::Expression& condition_ex = state_ex.getBranch();
+      rq::Expression* body_ex_ptr = condition_ex.getNextPtr();
+      rq::DynamicRvalue condition_rv = this->evaluateDynamicRvalue(
+        table, module, condition_ex
+      );
+      if (condition_rv.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("error");
+      }
+      if (condition_rv.getType() != this->getContext().acquireBooleanType()) {
+        RQ_UNHANDLED_ERROR("not of boolean type");
+      }
+      rq::Entity& condition_v = condition_rv.getValue();
+      rq::Instruction* body_inst_ptr = nullptr;
+      if (body_ex_ptr != nullptr) {
+        rq::Expression& body_ex = rq::dereferencePtr(body_ex_ptr);
+        body_inst_ptr = this->evaluateLocalScope(function, result_type, table, module, body_ex);
+      }
+      O opcode = O::NONE;
+      switch (state_ex.getKeyword()) {
+        case K::IF:
+          opcode = O::IF;
+          break;
+        case K::ELSE_IF:
+          opcode = O::ELSE_IF;
+          break;
+        default:
+          RQ_UNREACHABLE();
+      }
+      rq::Instruction &branch_inst = this->getContext().acquireInstruction(opcode);
+      branch_inst.setAddress0(condition_v);
+      branch_inst.setAddress1(body_inst_ptr);
+      factory.append(branch_inst);
+      break;
     }
     case K::ELSE: {
+      
     }
     case K::SCOPE: {
       if (!state_ex.getHasBranch()) {
