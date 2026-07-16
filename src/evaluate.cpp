@@ -196,7 +196,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Instruction *next_ptr = this->evaluateLocalScope(
           function, result_type, scope, module, branch0_ex);
       if (next_ptr == nullptr) {
-        return nullptr;
+        break;
       }
       rq::Instruction &next = rq::dereferencePtr(next_ptr);
       factory.append(next);
@@ -210,7 +210,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::Instruction *next_ptr = this->evaluateLocalScope(
           function, result_type, table, module, branch0_ex);
       if (next_ptr == nullptr) {
-        return nullptr;
+        break;
       }
       rq::Instruction &next = rq::dereferencePtr(next_ptr);
       factory.append(next);
