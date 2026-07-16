@@ -2,8 +2,8 @@
 
 [class MyClass];
 
-// This class has no_stable_address attribute, so it cannnot be moved to a new memory address
-[no_stable_address]
+// This class has stable_address attribute, so it cannnot be moved to a new memory address
+[stable_address]
 [class MyPinned,];
 
 [function takeReciever, ()[void]=>MyPinned,
