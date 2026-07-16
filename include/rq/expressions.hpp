@@ -86,8 +86,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_extend";
   case K::INSTANTIATE_EXTENSION:
     return "_instantiate_extension";
-  case K::INSTANTIATE_OUTLINE:
-    return "_instantiate_outline";
+  case K::INSTANTIATE_CONFORMITY:
+    return "_instantiate_conformity";
   case K::BINDING:
     return "_binding";
   case K::ASCRIBE_TYPE:
@@ -936,7 +936,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER;
   case K::INSTANTIATE_EXTENSION:
     return KF::RVALUE | KF::ARGUMENT;
-  case K::INSTANTIATE_OUTLINE:
+  case K::INSTANTIATE_CONFORMITY:
     return KF::RVALUE | KF::ARGUMENT;
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;

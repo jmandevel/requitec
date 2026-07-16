@@ -199,6 +199,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
+  case K::INSTANTIATE_CONFORMITY:
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
+    break;
   case K::BINDING:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
                                              S::RVALUE);

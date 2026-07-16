@@ -116,13 +116,6 @@ struct DynamicLvalue final {
   }
 };
 
-struct LocalScopeResult final {
-  using Self = rq::LocalScopeResult;
-
-  rq::Instruction* _first_inst_ptr;
-  rq::Header _header_kind;
-}
-
 struct DottedInstructionFactory final {
   using Self = rq::DottedInstructionFactory;
 
