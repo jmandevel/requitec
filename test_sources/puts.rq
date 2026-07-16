@@ -1,0 +1,8 @@
+[opaque][mangle]::puts
+[function [noname], (> str:?\[no_var][utf8]) [void]];
+
+[function [main], ()[signed_integer],
+    [c].puts("hello, world\n");
+
+    [result] := 0;
+];
