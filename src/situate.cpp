@@ -844,8 +844,17 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
+  case K::C:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
   case K::TOP:
-    is_ok = this->situateStatementBranches(expression);
+    switch (situation) {
+    case S::TOP:
+      is_ok = this->situateStatementBranches(expression);
+      break;
+    default:
+      is_ok = this->situateNullaryExpression(situation, expression);
+    }
     break;
   case K::LABEL:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::NAME);

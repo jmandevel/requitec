@@ -274,6 +274,7 @@ void Evaluator::evaluate(rq::GlobalStaticVariable &var) {
 }
 
 void Evaluator::evaluate(rq::Function &func) {
+  using K = rq::Keyword;
   if (func.getFirstBodyExpressionPtr() == nullptr) {
     return;
   }
@@ -286,6 +287,14 @@ void Evaluator::evaluate(rq::Function &func) {
       RQ_UNHANDLED_ERROR("invalid name");
     }
     func.setMangledName(mangle.getText());
+  } else if (func.getName().getKeyword() == K::MAIN) {
+    llvm::StringRef main_name = this->getContext().saveString("main");
+    func.setMangledName(main_name);
+  }
+  if (!func.getMangledName().empty()) {
+    llvm::StringRef mangled_str = func.getMangledName();
+    rq::Name mangled_name(mangled_str);
+    this->getContext().getC().addMember(this->getContext(), mangled_name, func);
   }
   rq::Expression &statement0 =
       rq::dereferencePtr(func.getFirstBodyExpressionPtr());

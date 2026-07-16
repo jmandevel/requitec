@@ -269,6 +269,8 @@ namespace rq {
     return "SynonymType";
 
   // SYMBOL TABLES
+  case S::C:
+    return "C";
   case S::TOP:
     return "Top";
 
@@ -646,6 +648,8 @@ namespace rq {
     return SF::IS_TYPE;
 
   // SYMBOL TABLES
+  case S::C:
+    return SF::SYMBOL_TABLE | SF::IS_FRAME;
   case S::TOP:
     return SF::SYMBOL_TABLE | SF::IS_FRAME;
 
@@ -3283,6 +3287,14 @@ SymbolTable::lookupList(rq::Name name) {
   const rq::EntityId id = entity.getId();
   return rq::getIsSymbolTable(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
+}
+
+RQ_ALWAYS_INLINE C::C() : SymbolTable(rq::SymbolKind::C, nullptr) {}
+
+[[nodiscard]] inline bool C::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::C);
 }
 
 RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}

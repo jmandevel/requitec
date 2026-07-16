@@ -84,6 +84,7 @@ struct Context final : public rq::BumpPtrAllocator {
   std::unique_ptr<llvm::Module> _llvm_module_uptr;
   std::unique_ptr<llvm::IRBuilder<>> _llvm_ir_builder_uptr;
   rq::Module *_source_module_ptr = nullptr;
+  rq::C _c{};
   rq::Top _top{};
   rq::Expression *_free_expression_ptr{nullptr};
   rq::Instruction *_free_instruction_ptr{nullptr};
@@ -189,6 +190,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this != &rhs;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::C &getC() { return this->_c; }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::C &getC() const { return this->_c; }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Top &getTop() { return this->_top; }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Top &getTop() const {
     return this->_top;
@@ -347,15 +350,13 @@ struct Context final : public rq::BumpPtrAllocator {
                                       const rq::Expression &branch);
   void logErrorExpectedHeaderBranch(const rq::Expression &expresison);
   void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
-  void logErrorExpectedUltimateExpression(
-      const rq::Expression &expresison);
-  void logErrorExpectedChainLinkExpression(
-      const rq::Expression &expresison);
-  void logErrorExpressionDoesNotContinueChain(
-      const rq::Expression &expresison, rq::Chain chain);
+  void logErrorExpectedUltimateExpression(const rq::Expression &expresison);
+  void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
+  void logErrorExpressionDoesNotContinueChain(const rq::Expression &expresison,
+                                              rq::Chain chain);
   void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
   void logErrorInvalidLowAttribute(const rq::Expression &unascribed,
-                                          const rq::Expression &attribute);
+                                   const rq::Expression &attribute);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
                                          const rq::Expression &attribute);
   void logErrorNotSymbol(const rq::Expression &expression);

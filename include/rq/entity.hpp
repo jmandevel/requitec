@@ -265,6 +265,7 @@ enum class Keyword : rq::EntityId {
   // TABLE GRAPH
   IMPORT,
   NAMESPACE,
+  C,
   TOP,
   LABEL,
 
@@ -642,6 +643,7 @@ enum class SymbolKind : rq::EntityId {
   SYNONYM_TYPE,
 
   // SYMBOL TABLES
+  C,
   TOP,
 
   // LOCAL STATEMENTS => symbol table
@@ -831,7 +833,8 @@ struct ConstDottedInstructionIterator final {
   rq::Opcode _opcode{rq::Opcode::NONE};
 
   ConstDottedInstructionIterator() = default;
-  explicit ConstDottedInstructionIterator(const rq::Entity *entity_ptr, rq::Opcode opcode);
+  explicit ConstDottedInstructionIterator(const rq::Entity *entity_ptr,
+                                          rq::Opcode opcode);
   ConstDottedInstructionIterator(const Self &) = default;
   ConstDottedInstructionIterator(Self &&) = default;
   ~ConstDottedInstructionIterator() = default;
@@ -908,11 +911,11 @@ struct Entity {
         rq::DottedInstructionIterator(this, opcode),
         rq::DottedInstructionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getConstDottedSubrange(rq::Opcode opcode) const {
-    return std::ranges::subrange<
-        rq::ConstDottedInstructionIterator,
-        rq::ConstDottedInstructionIterator,
-        std::ranges::subrange_kind::unsized>(
+  [[nodiscard]] RQ_ALWAYS_INLINE auto
+  getConstDottedSubrange(rq::Opcode opcode) const {
+    return std::ranges::subrange<rq::ConstDottedInstructionIterator,
+                                 rq::ConstDottedInstructionIterator,
+                                 std::ranges::subrange_kind::unsized>(
         rq::ConstDottedInstructionIterator(this, opcode),
         rq::ConstDottedInstructionIterator());
   }

@@ -356,6 +356,7 @@ struct Symbol;
   struct SynonymType;
   struct SymbolTable;
     struct Top;
+    struct C;
     struct LocalStatement;
       template<rq::SymbolKind KIND_PARAM> struct DerivedLocalStatement;
     struct NamedTable;
@@ -1716,6 +1717,14 @@ struct SymbolTable : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE auto getSymbolListSubrange();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct C final : rq::SymbolTable {
+  using Self = rq::C;
+
+  explicit RQ_ALWAYS_INLINE C();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity* entity_ptr);
 };
 
 rq::SymbolTableIterator &SymbolTableIterator::operator++() {

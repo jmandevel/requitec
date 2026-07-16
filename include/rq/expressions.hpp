@@ -462,8 +462,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "import";
   case K::NAMESPACE:
     return "namespace";
+  case K::C:
+    return "c";
   case K::TOP:
-    return "_top";
+    return "top";
   case K::LABEL:
     return "label";
 
@@ -1309,9 +1311,11 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
   case K::IMPORT:
     return KF::STATEMENT;
   case K::NAMESPACE:
-    return KF::STATEMENT | KF::RVALUE;
+    return KF::STATEMENT | KF::ARGUMENT | KF::RVALUE;
+  case K::C:
+    return KF::ARGUMENT | KF::RVALUE;
   case K::TOP:
-    return KF::NONE; // TOP
+    return KF::ARGUMENT | KF::RVALUE; // TOP
   case K::LABEL:
     return KF::STATEMENT;
 
@@ -3426,7 +3430,8 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
     return rq::getHasNone(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextFlags::ULTIMATE | rq::ExpressionNextFlags::CHAINLINK);
+                          rq::ExpressionNextFlags::ULTIMATE |
+                              rq::ExpressionNextFlags::CHAINLINK);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
     return this->_source_ptr_flags.getPtr() != nullptr;

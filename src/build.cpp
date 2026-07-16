@@ -22,7 +22,6 @@ void Builder::buildLlvmIr() {
 }
 
 void Builder::build(rq::Function &func) {
-  using K = rq::Keyword;
   if (func.getModule() != this->getContext().getSourceModule()) {
     return;
   }
@@ -35,10 +34,6 @@ void Builder::build(rq::Function &func) {
   }
   llvm::FunctionType &llvm_func_type = rq::dereferencePtr(llvm_func_type_ptr);
   if (func.getMangledName().empty()) {
-    if (func.getName().getKeyword() == K::MAIN) {
-      llvm::StringRef main_name = this->getContext().saveString("main");
-      func.setMangledName(main_name);
-    }
     RQ_TODO_IMPLEMENTATION(); // TODO generate mangled name
   }
   llvm::Function *llvm_func_ptr = llvm::Function::Create(
