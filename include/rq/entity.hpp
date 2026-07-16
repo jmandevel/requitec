@@ -711,7 +711,6 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
   NONE,
 
-  // address0 = source location (either rq::Expression or SOURCE_RANGE
   // address0 = source location (either rq::Expression or SOURCE_RANGE)
   // address1 = entity
   DEBUG_STEP,
