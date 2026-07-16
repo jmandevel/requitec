@@ -10,18 +10,18 @@
     ];
 ];
 
-[class MyObject, // the class name is not a tag
+[class MyObject, // the class nametag must be the first branch
     // statements before tag of class must be static
     [static] var := 0;
     [static] el := [signed_integer];
-    {>[public] arr : var#el<},  // tag is layout of class
+    {>[public] arr : var#el<},  // the second tag is layout of class
 ];
 
-[function myFunction, // the function name is not a tag
+[function myFunction, // the function nametag must be the first branch
     // statements before tag of function must be static
     [static] ret := [void];
     [static] default := 0;
-    (>arg0:[signed_integer]=default, arg1:[signed_integer]=default<)ret, // tag is signature of function
+    (>arg0:[signed_integer]=default, arg1:[signed_integer]=default<)ret, // the second tag is signature of function
 ];
 
 
