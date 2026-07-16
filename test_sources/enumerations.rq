@@ -6,8 +6,7 @@
     GRAPE  :[binary32] = 3;
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
     fruit := MyEnum.APPLE(3);
     [match fruit,
         [case APPLE, apple:=[value].\[var][borrow], 

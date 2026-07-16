@@ -441,6 +441,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DESTROY_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
+  case K::MAIN:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::MAIN_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
   case K::FORWARD:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;

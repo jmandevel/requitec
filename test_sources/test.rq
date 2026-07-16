@@ -1,5 +1,4 @@
-[mangle]::main
-[function main, ()[signed_integer],
+[function [main], ()[signed_integer],
   [result] := 0;
    [block
     [return];

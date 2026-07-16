@@ -754,6 +754,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "at";
   case K::AT_OF:
     return "_at_of";
+  case K::MAIN:
+    return "main";
+  case K::MAIN_OF:
+    return "main_of";
   case K::FORWARD:
     return "forward";
   case K::FORWARD_OF:
@@ -1607,6 +1611,11 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
     return KF::STATEMENT;
+  case K::MAIN:
+    return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
+    return KF::RVALUE | KF::ARGUMENT;
+  case K::MAIN_OF:
+    return KF::RVALUE | KF::ARGUMENT;
   case K::FORWARD:
     return KF::FUNCTION_NAME | KF::REFLECTION | KF::UNIVERSALIZABLE;
     return KF::RVALUE | KF::ARGUMENT;
@@ -1875,6 +1884,12 @@ getDescription(rq::Situation situation) {
     return K::ADAPT_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
+  case K::MAIN:
+    return K::MAIN_OF;
+  case K::FORWARD:
+    return K::FORWARD_OF;
+  case K::BACKWARD:
+    return K::BACKWARD_OF;
   case K::DROP:
     return K::DROP_OF;
   case K::INPLACE_DESTROY:

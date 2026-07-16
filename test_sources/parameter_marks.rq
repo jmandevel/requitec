@@ -32,8 +32,7 @@
     {a:=0, > b:=1 <, c:=2, | d:=3},
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
     template : MyTemplateClass{0, b=1, c=2} = MyTemplateClass{0, b=1, c=2}();
     class : MyClass = MyClass(0, b=1, c=2);
     [result] := 0;

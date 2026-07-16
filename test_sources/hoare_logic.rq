@@ -8,8 +8,7 @@
     [result] := square;
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
     a := divideSquare{[signed_integer]}(6, 2);
     
     [result] := 0;

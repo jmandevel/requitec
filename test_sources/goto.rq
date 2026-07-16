@@ -1,7 +1,6 @@
 [import "std"];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
   [label Restart];
   std.print(line="Hello!");
   [goto Restart];

@@ -41,8 +41,7 @@
     ];
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
     uptr := UniquePtr{NoAutoDrop}.create(
             MyClass(3.14).[emplace]
         );

@@ -56,8 +56,7 @@
     ];
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
 
     // all of these loops are equivalent
 

@@ -445,6 +445,8 @@ enum class Keyword : rq::EntityId {
   ELEMENT_OF,
   AT,
   AT_OF,
+  MAIN,
+  MAIN_OF,
   DESTROY,
   DESTROY_OF,
   FORWARD,

@@ -7,8 +7,7 @@
     varname.getSlice().[identify] :[signed_integer]= num.[bake];
 ];
 
-[mangle]::main
-[function [noname], ()[signed_integer],
+[function [main], ()[signed_integer],
     [static][for 0.<=10, [static] num:=[value],
         [static] varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
