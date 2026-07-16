@@ -1,8 +1,8 @@
 [opaque][mangle]::puts
-[function [noname], (> str:?\[no_var][utf8]) [void]];
+[function [noname], (>str:?\[no_var][char]<) [void]];
 
 [function [main], ()[signed_integer],
-    [c].puts("hello, world\n");
+    [c].puts("hello, world\n".[of [char]].[data_address]);
 
     [result] := 0;
 ];
