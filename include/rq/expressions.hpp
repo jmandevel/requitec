@@ -3428,7 +3428,7 @@ struct Expression final : public rq::Entity {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
                          rq::ExpressionNextFlags::ULTIMATE);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHeader() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTag() const {
     return rq::getHasNone(this->_next_ptr_flags.getFlags(),
                           rq::ExpressionNextFlags::ULTIMATE |
                               rq::ExpressionNextFlags::CHAINLINK);

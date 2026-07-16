@@ -348,8 +348,8 @@ struct Context final : public rq::BumpPtrAllocator {
                                   unsigned count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
-  void logErrorExpectedHeaderBranch(const rq::Expression &expresison);
-  void logErrorExpectedHeaderExpression(const rq::Expression &expresison);
+  void logErrorExpectedTagBranch(const rq::Expression &expresison);
+  void logErrorExpectedTagExpression(const rq::Expression &expresison);
   void logErrorExpectedUltimateExpression(const rq::Expression &expresison);
   void logErrorExpectedChainLinkExpression(const rq::Expression &expresison);
   void logErrorExpressionDoesNotContinueChain(const rq::Expression &expresison,

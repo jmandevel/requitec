@@ -32,7 +32,7 @@ struct Situator final {
                                  rq::Expression &expression);
   [[nodiscard]] bool situateValueBranch(rq::Situation branch_situation,
                                         rq::Expression &branch);
-  [[nodiscard]] bool situateHeaderBranch(rq::Situation branch_situation,
+  [[nodiscard]] bool situateTagBranch(rq::Situation branch_situation,
                                          rq::Expression &branch);
   [[nodiscard]] bool situateStatementBranch(rq::Expression &branch, rq::Chain& inout_chain);  
   [[nodiscard]] bool situateChainLinkBranch(rq::Expression &branch);  
@@ -88,11 +88,11 @@ struct Situator final {
   [[nodiscard]] bool situateStatementBranches(rq::Expression &expression);
   // function, function, class, enum, adapter
   [[nodiscard]] bool
-  situateNameStatementHeaderStatementBranches(rq::Situation situation,
+  situateNameStatementTagStatementBranches(rq::Situation situation,
                                               rq::Expression &expression, rq::Situation name_situation);
   // switch, match, if, else_if, while, case, with, forward, backward
   [[nodiscard]] bool
-  situateStatementHeaderStatementBranches(rq::Situation situation,
+  situateStatementTagStatementBranches(rq::Situation situation,
                                           rq::Expression &expression);
   // weave
   [[nodiscard]] bool

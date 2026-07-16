@@ -545,12 +545,12 @@ bool Situator::situateTree(rq::Situation situation,
                                              S::RVALUE);
     break;
   case K::FUNCTION:
-    is_ok = this->situateNameStatementHeaderStatementBranches(
+    is_ok = this->situateNameStatementTagStatementBranches(
         situation, expression, S::FUNCTION_NAME);
     break;
   case K::IMPLEMENT_FUNCTION:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::USE_FUNCTION:
     is_ok = this->situateTernaryValueBranches(situation, expression, S::NAME,
@@ -581,19 +581,19 @@ bool Situator::situateTree(rq::Situation situation,
 
   // DECLARED TYPES
   case K::CLASS:
-    is_ok = this->situateNameStatementHeaderStatementBranches(
+    is_ok = this->situateNameStatementTagStatementBranches(
         situation, expression, S::NAME);
     break;
   case K::ENUMERATION:
-    is_ok = this->situateNameStatementHeaderStatementBranches(
+    is_ok = this->situateNameStatementTagStatementBranches(
         situation, expression, S::NAME);
     break;
   case K::INTERFACE:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::ADAPTER:
-    is_ok = this->situateNameStatementHeaderStatementBranches(
+    is_ok = this->situateNameStatementTagStatementBranches(
         situation, expression, S::NAME);
     break;
 
@@ -709,7 +709,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::ELSE_IF:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::ELSE:
     is_ok = this->situateStatementBranches(expression);
@@ -718,7 +718,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::SWITCH:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::CASE:
     is_ok =
@@ -733,11 +733,11 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::WHILE:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::SPIN:
     is_ok =
-        this->situateStatementHeaderStatementBranches(situation, expression);
+        this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::WEAVE:
     is_ok =
@@ -1364,8 +1364,8 @@ bool Situator::situateTree(rq::Situation situation,
 
 bool Situator::situateValueBranch(rq::Situation branch_situation,
                                   rq::Expression &branch) {
-  if (!branch.getIsHeader()) {
-    this->getContext().logErrorExpectedHeaderExpression(branch);
+  if (!branch.getIsTag()) {
+    this->getContext().logErrorExpectedTagExpression(branch);
     return false;
   }
   if (!branch.getCanBeSituation(branch_situation)) {
@@ -1375,10 +1375,10 @@ bool Situator::situateValueBranch(rq::Situation branch_situation,
   return this->situateTree(branch_situation, branch);
 }
 
-bool Situator::situateHeaderBranch(rq::Situation branch_situation,
+bool Situator::situateTagBranch(rq::Situation branch_situation,
                                    rq::Expression &branch) {
-  if (!branch.getIsHeader()) {
-    this->getContext().logErrorExpectedHeaderExpression(branch);
+  if (!branch.getIsTag()) {
+    this->getContext().logErrorExpectedTagExpression(branch);
     return false;
   }
   if (!branch.getCanBeSituation(branch_situation)) {
@@ -1506,7 +1506,7 @@ bool Situator::situateChainLinkBranch(rq::Expression &branch) {
 
 bool Situator::situateVignetteBranch(rq::Expression &branch) {
   if (branch.getIsChainLink() && branch.getIsUltimate()) {
-    this->getContext().logErrorExpectedHeaderExpression(branch);
+    this->getContext().logErrorExpectedTagExpression(branch);
     return false;
   }
   if (!branch.getCanBeStatement()) {
@@ -1519,7 +1519,7 @@ bool Situator::situateVignetteBranch(rq::Expression &branch) {
 
 bool Situator::situateVignetteOrRvalueBranch(rq::Expression &branch) {
   if (branch.getIsChainLink() && branch.getIsUltimate()) {
-    this->getContext().logErrorExpectedHeaderExpression(branch);
+    this->getContext().logErrorExpectedTagExpression(branch);
     return false;
   }
   if (!branch.getCanBeStatement() && !branch.getCanBeRvalue()) {
@@ -1880,7 +1880,7 @@ bool Situator::situateStatementBranches(rq::Expression &expression) {
   return is_ok;
 }
 
-bool Situator::situateNameStatementHeaderStatementBranches(
+bool Situator::situateNameStatementTagStatementBranches(
     rq::Situation situation, rq::Expression &expression,
     rq::Situation name_situation) {
   if (!expression.getHasBranch()) {
@@ -1888,7 +1888,7 @@ bool Situator::situateNameStatementHeaderStatementBranches(
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (!this->situateHeaderBranch(name_situation, branch0)) {
+  if (!this->situateTagBranch(name_situation, branch0)) {
     return false;
   }
   if (!branch0.getHasNext()) {
@@ -1899,7 +1899,7 @@ bool Situator::situateNameStatementHeaderStatementBranches(
   rq::Expression *last_ptr = nullptr;
   rq::Chain chain = rq::Chain::NONE;
   for (rq::Expression &branch : branch1.getInclusiveNextSubrange()) {
-    if (branch.getIsHeader()) {
+    if (branch.getIsTag()) {
       last_ptr = &branch;
       break;
     }
@@ -1908,18 +1908,18 @@ bool Situator::situateNameStatementHeaderStatementBranches(
     }
   }
   if (last_ptr == nullptr) {
-    this->getContext().logErrorExpectedHeaderBranch(expression);
+    this->getContext().logErrorExpectedTagBranch(expression);
     return false;
   }
-  rq::Expression &header = rq::dereferencePtr(last_ptr);
+  rq::Expression &tag = rq::dereferencePtr(last_ptr);
   if (chain != rq::Chain::NONE) {
-    this->getContext().logErrorExpressionDoesNotContinueChain(header, chain);
+    this->getContext().logErrorExpressionDoesNotContinueChain(tag, chain);
     return false;
   }
-  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
-  for (rq::Expression &branch : header.getNextSubrange()) {
+  for (rq::Expression &branch : tag.getNextSubrange()) {
     if (!this->situateStatementBranch(branch, chain)) {
       return false;
     }
@@ -1927,7 +1927,7 @@ bool Situator::situateNameStatementHeaderStatementBranches(
   return true;
 }
 
-bool Situator::situateStatementHeaderStatementBranches(
+bool Situator::situateStatementTagStatementBranches(
     rq::Situation situation, rq::Expression &expression) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
@@ -1945,18 +1945,18 @@ bool Situator::situateStatementHeaderStatementBranches(
     }
   }
   if (last_ptr == nullptr) {
-    this->getContext().logErrorExpectedHeaderBranch(expression);
+    this->getContext().logErrorExpectedTagBranch(expression);
     return false;
   }
-  rq::Expression &header = rq::dereferencePtr(last_ptr);
+  rq::Expression &tag = rq::dereferencePtr(last_ptr);
   if (chain != rq::Chain::NONE) {
-    this->getContext().logErrorExpressionDoesNotContinueChain(header, chain);
+    this->getContext().logErrorExpressionDoesNotContinueChain(tag, chain);
     return false;
   }
-  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
-  for (rq::Expression &branch : header.getNextSubrange()) {
+  for (rq::Expression &branch : tag.getNextSubrange()) {
     if (!this->situateStatementBranch(branch, chain)) {
       return false;
     }
@@ -1982,18 +1982,18 @@ bool Situator::situateStatementVingetteStatementBranches(
     }
   }
   if (last_ptr == nullptr) {
-    this->getContext().logErrorExpectedHeaderBranch(expression);
+    this->getContext().logErrorExpectedTagBranch(expression);
     return false;
   }
-  rq::Expression &header = rq::dereferencePtr(last_ptr);
+  rq::Expression &tag = rq::dereferencePtr(last_ptr);
   if (chain != rq::Chain::NONE) {
-    this->getContext().logErrorExpressionDoesNotContinueChain(header, chain);
+    this->getContext().logErrorExpressionDoesNotContinueChain(tag, chain);
     return false;
   }
-  if (this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
-  for (rq::Expression &branch : header.getNextSubrange()) {
+  for (rq::Expression &branch : tag.getNextSubrange()) {
     if (branch.getIsUltimate()) {
       last_ptr = &branch;
       break;
@@ -2029,18 +2029,18 @@ bool Situator::situateStatementMultiVingetteStatementBranches(
     }
   }
   if (last_ptr == nullptr) {
-    this->getContext().logErrorExpectedHeaderBranch(expression);
+    this->getContext().logErrorExpectedTagBranch(expression);
     return false;
   }
-  rq::Expression &header = rq::dereferencePtr(last_ptr);
+  rq::Expression &tag = rq::dereferencePtr(last_ptr);
   if (chain != rq::Chain::NONE) {
-    this->getContext().logErrorExpressionDoesNotContinueChain(header, chain);
+    this->getContext().logErrorExpressionDoesNotContinueChain(tag, chain);
     return false;
   }
-  if (!this->situateHeaderBranch(rq::Situation::RVALUE, header)) {
+  if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
-  for (rq::Expression &branch : header.getNextSubrange()) {
+  for (rq::Expression &branch : tag.getNextSubrange()) {
     if (branch.getIsUltimate()) {
       last_ptr = &branch;
       break;
@@ -2066,7 +2066,7 @@ bool Situator::stiuateNameStatementBranches(rq::Situation situation,
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (!this->situateHeaderBranch(name_situation, branch0)) {
+  if (!this->situateTagBranch(name_situation, branch0)) {
     return false;
   }
   rq::Chain chain = rq::Chain::NONE;

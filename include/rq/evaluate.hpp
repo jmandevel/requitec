@@ -179,7 +179,7 @@ struct Evaluator final {
   [[nodiscard]] rq::Instruction*
   evaluateLocalScope(rq::Function &function, rq::ConstantSymbol &result_type,
                      rq::SymbolTable &table, rq::Module &module,
-                     rq::Expression &first_ex, bool preheader_static, rq::Header header);
+                     rq::Expression &first_ex, bool pretag_static);
   void evaluateAllModuleSymbols(rq::Module &module);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);

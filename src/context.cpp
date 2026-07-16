@@ -970,16 +970,16 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
                    {branch.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedHeaderBranch(const rq::Expression &expresison) {
+void Context::logErrorExpectedTagBranch(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " has no comma terminator",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedHeaderExpression(
+void Context::logErrorExpectedTagExpression(
     const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not header expression",
+                   expresison.getName() + " is not tag expression",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
