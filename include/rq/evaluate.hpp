@@ -116,6 +116,125 @@ struct DynamicLvalue final {
   }
 };
 
+enum class LocalBreakKind : std::uint_fast8_t {
+  NONE,
+  RETURN,
+  BREAK,
+  CONTINUE,
+  FALLTHROUGH,
+  GOTO
+};
+
+enum class LocalBreakFlags : std::uint_fast8_t {
+  NONE = 0,
+
+  HAS_TARGET = rq::getBit(0),
+  LOOP = rq::getBit(1),
+  CASE = rq::getBit(2),
+  NON_FRAME = rq::getBit(3)
+};
+
+template <> struct is_flags<rq::LocalBreakFlags> final : std::true_type {};
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LocalBreakFlags
+getFlags(rq::LocalBreakKind kind) {
+  using LBK = rq::LocalBreakKind;
+  using LBF = rq::LocalBreakFlags;
+  switch (kind) {
+  case LBK::NONE:
+    return LBF::NONE;
+  case LBK::RETURN:
+    return LBF::LOOP | LBF::CASE | LBF::NON_FRAME;
+  case LBK::BREAK:
+    return LBF::HAS_TARGET | LBF::LOOP | LBF::CASE | LBF::NON_FRAME;
+  case LBK::CONTINUE:
+    return LBF::HAS_TARGET | LBF::LOOP;
+  case LBK::FALLTHROUGH:
+    return LBF::CASE;
+  case LBK::GOTO:
+    return LBF::HAS_TARGET | LBF::LOOP | LBF::CASE | LBF::NON_FRAME;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodisard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::LocalBreakKind kind) {
+  rq::LocalBreakFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakFlags::HAS_TARGET);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop(rq::LocalBreakKind kind) {
+  rq::LocalBreakFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakFlags::LOOP);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInCase(rq::LocalBreakKind kind) {
+  rq::LocalBreakFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakFlags::CASE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeInNonFrame(rq::LocalBreakKind kind) {
+  rq::LocalBreakFlags flags = rq::getFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakFlags::NON_FRAME);
+}
+
+struct LocalBreak final {
+  using Self = rq::LocalBreak;
+
+  rq::LocalBreakKind _kind{rq::LocalBreakKind::NONE};
+  rq::Entity *_target_ptr{nullptr};
+  rq::Expression *_target_rvalue_ex_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE LocalBreak() = default;
+  explicit RQ_ALWAYS_INLINE LocalBreak(rq::LocalBreakKind kind) : _kind(kind) {
+    RQ_ASSERT(!rq::getHasTarget(kind), "must have target");
+  }
+  explicit RQ_ALWAYS_INLINE LocalBreak(rq::LocalBreakKind kind,
+                                       rq::Entity &target,
+                                       rq::Expression &target_rvalue_ex)
+      : _kind(kind), _target_ptr(&target),
+        _target_rvalue_ex_ptr(&target_rvalue_ex) {
+    RQ_ASSERT(rq::getHasTarget(kind), "break of kind does not have target");
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocalBreakKind getKind() const {
+    return this->_kind;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getTarget() const {
+    return rq::dereferencePtr(this->_target_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getTarget() {
+    return rq::dereferencePtr(this->_target_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  getTargetRvalueEx() const {
+    return rq::dereferencePtr(this->_target_rvalue_ex_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getTargetRvalueEx() {
+    return rq::dereferencePtr(this->_target_rvalue_ex_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget() const {
+    return this->_target_ptr != nullptr;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop() const {
+    return rq::getCanBeInLoop(this->getKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInCase() const {
+    return rq::getCanBeInCase(this->getKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInNonFrame() const {
+    return rq::getCanBeInNonFrame(this->getKind());
+  }
+};
+
 struct DottedInstructionFactory final {
   using Self = rq::DottedInstructionFactory;
 
@@ -176,40 +295,17 @@ struct Evaluator final {
   void evaluateSourceModule();
   void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticOrDynamicLocalStatements(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
+  [[nodiscard]] rq::Expression &evaluateLowFlags(rq::Module& module, rq::SymbolTable& table, rq::LowFlagsFactory &factory,
+                                                 rq::Expression &asc_ex);
+  [[nodiscard]] rq::LocalBreak evaluateStaticOrDynamicLocalStatements(
+      rq::DottedInstructionFactory &inst_factory, rq::Module &module,
+      rq::Function &function, rq::SymbolTable &table,
+      rq::Expression &state0_ex);
+  [[nodiscard]] rq::LocalBreak evaluateDynamicLocalStatement(
+      rq::DottedInstructionFactory &inst_factory,
+      rq::LowFlagsFactory &flags_factory, rq::Function &function,
       rq::ConstantSymbol &result_type, rq::SymbolTable &table,
-      rq::Module &module, rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression *
-  evaluateStaticLocalStatements(rq::DottedInstructionFactory &factory,
-                                rq::Function &function, rq::SymbolTable &table,
-                                rq::Module &module, rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticLocalConditionRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateDynamicLocalConditionRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticLocalSwitchRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateDynamicLocalSwitchRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticLocalCaseRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateDynamicLocalCaseRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticLocalSignatureRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression *evaluateStaticOrDynamicLocalRangeRvalueTag(
-      rq::DottedInstructionFactory &factory, rq::Function &function,
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex);
-  [[nodiscard]] rq::Expression* evaluateLocalVignetteTags()
-  void evaluateAllModuleSymbols(rq::Module &module);
+      rq::Module &module, rq::Expression &state_ex);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);
   void evaluate(rq::EnumerationType &enum_);
@@ -224,12 +320,12 @@ struct Evaluator final {
                         rq::Module &module, rq::Expression &lvalue_ex);
 
   [[nodiscard]] rq::StaticRvalue
-  evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+  evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &table,
                        rq::Expression &rvalue_ex);
   // etc
 
   [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
+  evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
                         rq::Expression &rvalue_ex);
 
   [[nodiscard]] rq::DynamicRvalue

@@ -50,10 +50,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_unsituated_parenthesis_group";
   case K::UNSITUATED_EQUAL_OPERATOR:
     return "_unsituated_equal_operator";
-  case K::UNSITUATED_ASCRIBE_EXPRESSION:
-    return "_unsituated_ascribe_expression";
-  case K::UNSITUATED_ASCRIBE_TYPE:
-    return "_unsituated_ascribe_type";
+  case K::UNSITUATED_ASCRIBE_LOW:
+    return "_unsituated_ascribe_low";
+  case K::UNSITUATED_ASCRIBE_HIGH:
+    return "_unsituated_ascribe_high";
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -90,10 +90,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_conformity";
   case K::BINDING:
     return "_binding";
-  case K::ASCRIBE_TYPE:
-    return "_ascribe_type";
-  case K::ASCRIBE_EXPRESSION:
-    return "_ascribe_expression";
+  case K::ASCRIBE_HIGH:
+    return "_ascribe_high";
+  case K::ASCRIBE_LOW:
+    return "_ascribe_low";
   case K::ASCRIBE_RECIEVER:
     return "_ascribe_reciever";
   case K::INSTANTIATE_LOW_ATTRIBUTE:
@@ -898,10 +898,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
            KF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KF::STATEMENT | KF::ARGUMENT | KF::PARAMETER;
-  case K::UNSITUATED_ASCRIBE_TYPE:
+  case K::UNSITUATED_ASCRIBE_HIGH:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::UNSITUATED_ASCRIBE_EXPRESSION:
+  case K::UNSITUATED_ASCRIBE_LOW:
     return KF::STATEMENT | KF::RVALUE | KF::PARAMETER | KF::ARGUMENT |
            KF::ASCRIPTION;
 
@@ -940,10 +940,10 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::RVALUE | KF::ARGUMENT;
   case K::BINDING:
     return KF::LVALUE | KF::PARAMETER | KF::ARGUMENT | KF::BINDING;
-  case K::ASCRIBE_TYPE:
+  case K::ASCRIBE_HIGH:
     return KF::RVALUE | KF::ARGUMENT | KF::PARAMETER | KF::REFLECTION |
            KF::ASCRIPTION;
-  case K::ASCRIBE_EXPRESSION:
+  case K::ASCRIBE_LOW:
     return KF::STATEMENT | KF::PARAMETER | KF::ARGUMENT | KF::ASCRIPTION;
   case K::ASCRIBE_RECIEVER:
     return KF::RVALUE | KF::ARGUMENT | KF::ASCRIPTION;
@@ -1704,10 +1704,10 @@ getIsParameterMarkKeyword(rq::Keyword keyword) {
 [[nodiscard]] inline rq::Keyword
 getSituatedAscribeKeyword(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION:
-    return rq::Keyword::ASCRIBE_EXPRESSION;
-  case rq::Keyword::UNSITUATED_ASCRIBE_TYPE:
-    return rq::Keyword::ASCRIBE_TYPE;
+  case rq::Keyword::UNSITUATED_ASCRIBE_LOW:
+    return rq::Keyword::ASCRIBE_LOW;
+  case rq::Keyword::UNSITUATED_ASCRIBE_HIGH:
+    return rq::Keyword::ASCRIBE_HIGH;
   default:
     break;
   }
@@ -1990,13 +1990,13 @@ getDescription(rq::Situation situation) {
 [[nodiscard]] inline rq::Situation
 getAttributeInstantiationSituation(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION:
+  case rq::Keyword::UNSITUATED_ASCRIBE_LOW:
     [[fallthrough]];
-  case rq::Keyword::ASCRIBE_EXPRESSION:
+  case rq::Keyword::ASCRIBE_LOW:
     return rq::Situation::LOW_ATTRIBUTE_INSTANTIATION;
-  case rq::Keyword::UNSITUATED_ASCRIBE_TYPE:
+  case rq::Keyword::UNSITUATED_ASCRIBE_HIGH:
     [[fallthrough]];
-  case rq::Keyword::ASCRIBE_TYPE:
+  case rq::Keyword::ASCRIBE_HIGH:
     [[fallthrough]];
   case rq::Keyword::ASCRIBE_RECIEVER:
     return rq::Situation::HIGH_ATTRIBUTE_INSTANTIATION;
@@ -2788,6 +2788,9 @@ struct LowFlagsFactory final {
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_flags == rq::LowFlags::NONE;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags getFlags() const {
     return this->_flags;
   }

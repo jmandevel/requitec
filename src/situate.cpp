@@ -150,14 +150,14 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::UNSITUATED_ASCRIBE_EXPRESSION:
+  case K::UNSITUATED_ASCRIBE_LOW:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_EXPRESSION,
+        situation, expression, 2, K::ASCRIBE_LOW,
         S::LOW_ATTRIBUTE_INSTANTIATION, situation);
     break;
-  case K::UNSITUATED_ASCRIBE_TYPE:
+  case K::UNSITUATED_ASCRIBE_HIGH:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_TYPE,
+        situation, expression, 2, K::ASCRIBE_HIGH,
         S::HIGH_ATTRIBUTE_INSTANTIATION, situation);
     break;
 
@@ -207,11 +207,11 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
                                              S::RVALUE);
     break;
-  case K::ASCRIBE_TYPE:
+  case K::ASCRIBE_HIGH:
     is_ok = this->situateNaryDifferentFirstValueBranches(
         situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
     break;
-  case K::ASCRIBE_EXPRESSION:
+  case K::ASCRIBE_LOW:
     is_ok = this->situateNaryDifferentFirstValueBranches(
         situation, expression, 2, situation, S::LOW_ATTRIBUTE_INSTANTIATION);
     break;
@@ -1095,7 +1095,7 @@ bool Situator::situateTree(rq::Situation situation,
         inner.setNext(next);
         inner_ptr = &member;
         continue;
-      } else if (next.getKeyword() == rq::Keyword::ASCRIBE_TYPE) {
+      } else if (next.getKeyword() == rq::Keyword::ASCRIBE_HIGH) {
         next.changeKeyword(rq::Keyword::ASCRIBE_RECIEVER);
         rq::Expression &next_branch = next.getBranch();
         if (!next_branch.getIsUniversalizable()) {

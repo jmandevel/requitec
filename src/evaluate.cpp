@@ -48,20 +48,38 @@ void Evaluator::evaluateSourceModule() {
   this->evaluateAllModuleSymbols(source);
 }
 
+[[nodiscard]] rq::Expression &
+Evaluator::evaluateLowFlags(rq::Module& module, rq::SymbolTable& table, rq::LowFlagsFactory &factory,
+                            rq::Expression &asc_ex) {
+  RQ_ASSERT(factory.getIsEmpty(), "factory not empty");
+  RQ_ASSERT(asc_ex.getKeyword() == rq::Keyword::ASCRIBE_LOW,
+            "not _ascribe_low");
+  rq::Expression &unasc_ex = asc_ex.getBranch();
+  RQ_ASSERT(unasc_ex.getHasNext(), "missing attributes");
+  for (rq::Expression &attrib_ex : unasc_ex.getNextSubrange()) {
+    RQ_ASSERT(attrib_ex.getKeyword() == rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE,
+              "invalid attribute keyword");
+    rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
+    rq::Expression *attrib_attachment_ex = attrib_rv_ex.getNextPtr();
+    rq::StaticRvalue attrib_rv =
+        this->evaluateStaticRvalue(module, table, attrib_rv_ex);
+  }
+}
+
 void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
                                     rq::Expression &first_ex) {
   using K = rq::Keyword;
   rq::LowFlagsFactory factory{};
   for (rq::Expression &branch_ex : first_ex.getInclusiveNextSubrange()) {
     rq::Expression *unascribed_ex_ptr = nullptr;
-    if (branch_ex.getKeyword() == K::ASCRIBE_EXPRESSION) {
+    if (branch_ex.getKeyword() == K::ASCRIBE_LOW) {
       rq::Expression &unascribed_ex = branch_ex.getBranch();
       unascribed_ex_ptr = &unascribed_ex;
       for (rq::Expression &attrib_ex : unascribed_ex.getNextSubrange()) {
         rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
         rq::Expression *attrib_br_ex_ptr = attrib_rv_ex.getNextPtr();
         rq::StaticRvalue attrib_rv =
-            this->evaluateStaticRvalue(table, module, attrib_rv_ex);
+            this->evaluateStaticRvalue(module, table, attrib_rv_ex);
         if (!attrib_rv.getType().getIsLowAttributeType()) {
           RQ_UNHANDLED_ERROR("not low attribute");
         }
@@ -94,6 +112,105 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   }
 }
 
+[[nodiscard]] rq::LocalBreak Evaluator::evaluateStaticOrDynamicLocalStatements(
+    rq::DottedInstructionFactory &inst_factory, rq::Module &module,
+    rq::Function &function, rq::SymbolTable &table, rq::Expression &state0_ex) {
+  for (rq::Expression &state_ex : state0_ex.getInclusiveNextSubrange()) {
+    rq::LowFlagsFactory flags_factory;
+  }
+}
+
+[[nodiscard]] rq::LocalBreak Evaluator::evaluateDynamicLocalStatement(
+    rq::DottedInstructionFactory &factory, rq::HighFlagsFactory &flags_factory,
+    rq::Function &function, rq::ConstantSymbol &result_type,
+    rq::SymbolTable &table, rq::Module &module, rq::Expression &state_ex) {
+  using K = rq::Keyword;
+  using O = rq::Opcode;
+  switch (state_ex.getKeyword()) {
+  case K::ASSIGN: {
+    rq::Expression &lvalue_ex = state_ex.getBranch();
+    rq::Expression &rvalue_ex = lvalue_ex.getNext();
+    rq::DynamicRvalue rvalue =
+        this->evaluateDynamicRvalue(module, table, rvalue_ex);
+    if (rvalue.getIsEmpty()) {
+      break;
+    }
+    rq::DynamicLvalue lvalue =
+        this->evaluateDynamicLvalue(result_type, table, module, lvalue_ex);
+    if (lvalue.getIsEmpty()) {
+      break;
+    }
+    rq::Symbol *type_ptr =
+        this->completeType(lvalue.getType().getSymbol(), rvalue.getType());
+    if (type_ptr == nullptr) {
+      RQ_UNHANDLED_ERROR("type not determined");
+      break;
+    }
+    rq::Symbol &type = rq::dereferencePtr(type_ptr);
+    if (type != lvalue.getType().getSymbol()) {
+      rq::LocalDynamicVariable &var =
+          llvm::cast<rq::LocalDynamicVariable>(lvalue.getSymbol());
+      rq::ConstantSymbol &type_ct = this->getContext().acquireConstantSymbol(
+          lvalue.getType().getFlags(), type);
+      var.completeType(type_ct);
+    }
+    rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
+    rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
+    inst.setAddress0(lvalue.getSymbol());
+    inst.setAddress1(folded_v);
+    factory.append(inst);
+    break;
+  }
+  case K::IF:
+    [[fallthrough]];
+  case K::ELSE_IF: {
+    // TODO
+  }
+  case K::ELSE: {
+    // TODO
+  }
+  case K::SCOPE: {
+    if (!state_ex.getHasBranch()) {
+      break;
+    }
+    rq::ScopeStatement &scope =
+        this->getContext().allocateValue<rq::ScopeStatement>(
+            table, state_ex, rq::LowFlags::NONE, module);
+    rq::Expression &branch0_ex = state_ex.getBranch();
+    rq::Instruction *next_ptr = this->evaluateLocalScope(
+        function, result_type, scope, module, branch0_ex);
+    if (next_ptr == nullptr) {
+      break;
+    }
+    rq::Instruction &next = rq::dereferencePtr(next_ptr);
+    factory.append(next);
+    break;
+  }
+  case K::BLOCK: {
+    if (!state_ex.getHasBranch()) {
+      break;
+    }
+    rq::Expression &branch0_ex = state_ex.getBranch();
+    rq::Instruction *next_ptr = this->evaluateLocalScope(
+        function, result_type, table, module, branch0_ex);
+    if (next_ptr == nullptr) {
+      break;
+    }
+    rq::Instruction &next = rq::dereferencePtr(next_ptr);
+    factory.append(next);
+    break;
+  }
+  case K::RETURN: {
+    rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
+    factory.append(inst);
+    return rq::LocalBreak(rq::LocalBreakKind::RETURN);
+  }
+  default:
+    RQ_UNREACHABLE();
+  }
+  return rq::LocalBreak();
+}
+
 [[nodiscard]] rq::Instruction *Evaluator::evaluateLocalScope(
     rq::Function &function, rq::ConstantSymbol &result_type,
     rq::SymbolTable &table, rq::Module &module, rq::Expression &first_ex) {
@@ -109,130 +226,6 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
   for (rq::Expression &state_ex : first_ex.getInclusiveNextSubrange()) {
     if (scope_done) {
       RQ_UNHANDLED_ERROR("unreachable dynamic statement");
-    }
-    switch (state_ex.getKeyword()) {
-    case K::ASSIGN: {
-      rq::Expression &lvalue_ex = state_ex.getBranch();
-      rq::Expression &rvalue_ex = lvalue_ex.getNext();
-      rq::DynamicRvalue rvalue =
-          this->evaluateDynamicRvalue(table, module, rvalue_ex);
-      if (rvalue.getIsEmpty()) {
-        RQ_UNHANDLED_ERROR("error");
-      }
-      rq::DynamicLvalue lvalue =
-          this->evaluateDynamicLvalue(result_type, table, module, lvalue_ex);
-      if (lvalue.getIsEmpty()) {
-        RQ_UNHANDLED_ERROR("error");
-      }
-      rq::Symbol *type_ptr =
-          this->completeType(lvalue.getType().getSymbol(), rvalue.getType());
-      if (type_ptr == nullptr) {
-        RQ_UNHANDLED_ERROR("type not determined");
-      }
-      rq::Symbol &type = rq::dereferencePtr(type_ptr);
-      if (type != lvalue.getType().getSymbol()) {
-        rq::LocalDynamicVariable &var =
-            llvm::cast<rq::LocalDynamicVariable>(lvalue.getSymbol());
-        rq::ConstantSymbol &type_ct = this->getContext().acquireConstantSymbol(
-            lvalue.getType().getFlags(), type);
-        var.completeType(type_ct);
-      }
-      rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
-      rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
-      inst.setAddress0(lvalue.getSymbol());
-      inst.setAddress1(folded_v);
-      factory.append(inst);
-      break;
-    }
-    case K::IF:
-      [[fallthrough]];
-    case K::ELSE_IF: {
-      // TODO evaluate statements before condition
-      rq::Expression& condition_ex = state_ex.getBranch();
-      rq::Expression* body_ex_ptr = condition_ex.getNextPtr();
-      rq::DynamicRvalue condition_rv = this->evaluateDynamicRvalue(
-        table, module, condition_ex
-      );
-      if (condition_rv.getIsEmpty()) {
-        RQ_UNHANDLED_ERROR("error");
-      }
-      if (condition_rv.getType() != this->getContext().acquireBooleanType()) {
-        RQ_UNHANDLED_ERROR("not of boolean type");
-      }
-      rq::Entity& condition_v = condition_rv.getValue();
-      rq::Instruction* body_inst_ptr = nullptr;
-      if (body_ex_ptr != nullptr) {
-        rq::Expression& body_ex = rq::dereferencePtr(body_ex_ptr);
-        body_inst_ptr = this->evaluateLocalScope(function, result_type, table, module, body_ex);
-      }
-      O opcode = O::NONE;
-      switch (state_ex.getKeyword()) {
-        case K::IF:
-          opcode = O::IF;
-          break;
-        case K::ELSE_IF:
-          opcode = O::ELSE_IF;
-          break;
-        default:
-          RQ_UNREACHABLE();
-      }
-      rq::Instruction &branch_inst = this->getContext().acquireInstruction(opcode);
-      branch_inst.setAddress0(condition_v);
-      branch_inst.setAddress1(body_inst_ptr);
-      factory.append(branch_inst);
-      break;
-    }
-    case K::ELSE: {
-      
-    }
-    case K::SCOPE: {
-      if (!state_ex.getHasBranch()) {
-        break;
-      }
-      rq::ScopeStatement &scope =
-          this->getContext().allocateValue<rq::ScopeStatement>(
-              table, state_ex, rq::LowFlags::NONE, module);
-      rq::Expression &branch0_ex = state_ex.getBranch();
-      rq::Instruction *next_ptr = this->evaluateLocalScope(
-          function, result_type, scope, module, branch0_ex);
-      if (next_ptr == nullptr) {
-        break;
-      }
-      rq::Instruction &next = rq::dereferencePtr(next_ptr);
-      factory.append(next);
-      break;
-    }
-    case K::BLOCK: {
-      if (!state_ex.getHasBranch()) {
-        break;
-      }
-      rq::Expression &branch0_ex = state_ex.getBranch();
-      rq::Instruction *next_ptr = this->evaluateLocalScope(
-          function, result_type, table, module, branch0_ex);
-      if (next_ptr == nullptr) {
-        break;
-      }
-      rq::Instruction &next = rq::dereferencePtr(next_ptr);
-      factory.append(next);
-      break;
-    }
-    case K::RETURN: {
-      rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
-      factory.append(inst);
-      scope_done = true;
-      rq::Signature &signature = rq::dereferencePtr(function.getSignaturePtr());
-      if (signature.getReturnType() == this->getContext().acquireVoidType()) {
-        break;
-      }
-      rq::Name result_name(K::RESULT);
-      auto list = table.lookupList(result_name);
-      if (list.getIsEmpty()) {
-        RQ_UNHANDLED_ERROR("result not set before return");
-      }
-      break;
-    }
-    default:
-      RQ_UNREACHABLE();
     }
   }
   if (!scope_done && table != function) {
@@ -340,7 +333,7 @@ void Evaluator::evaluate(rq::Function &func) {
   }
   rq::Expression &sig_ex = statement0;
   rq::StaticRvalue sig_rv = this->evaluateStaticRvalue(
-      func.getHostingTable(), func.getModule(), sig_ex);
+      func.getModule(), func.getHostingTable(), sig_ex);
   if (sig_rv.getIsEmpty()) {
     RQ_UNHANDLED_ERROR("invalid rvalue");
   }
@@ -397,7 +390,7 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
     rq::Expression &var_ex = lvalue_ex.getBranch();
     rq::Expression &type_ex = var_ex.getNext();
     rq::StaticRvalue type_rvalue =
-        this->evaluateStaticRvalue(table, module, type_ex);
+        this->evaluateStaticRvalue(module, table, type_ex);
     rq::Symbol &type_type = type_rvalue.getType();
     if (type_type != this->getContext().acquireSymbolType()) {
       RQ_UNHANDLED_ERROR("not type");
@@ -435,22 +428,20 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
 }
 
 [[nodiscard]] rq::StaticRvalue
-Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
+Evaluator::evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &table,
                                 rq::Expression &rvalue_ex) {
-  std::ignore = table;
-  std::ignore = module;
   using K = rq::Keyword;
   using S = rq::SymbolKind;
   rq::HighFlagsFactory factory{};
   rq::Expression *unascribed_ex_ptr = nullptr;
-  if (rvalue_ex.getKeyword() == K::ASCRIBE_TYPE) {
+  if (rvalue_ex.getKeyword() == K::ASCRIBE_HIGH) {
     rq::Expression &unascribed_ex = rvalue_ex.getBranch();
     unascribed_ex_ptr = &unascribed_ex;
     for (rq::Expression &attrib_ex : unascribed_ex.getNextSubrange()) {
       rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
       rq::Expression *attrib_br_ex_ptr = attrib_rv_ex.getNextPtr();
       rq::StaticRvalue attrib_rv =
-          this->evaluateStaticRvalue(table, module, attrib_rv_ex);
+          this->evaluateStaticRvalue(module, table, attrib_rv_ex);
       if (!attrib_rv.getType().getIsHighAttributeType()) {
         RQ_UNHANDLED_ERROR("not high attribute");
       }
@@ -496,7 +487,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
       RQ_TODO_IMPLEMENTATION();
     }
     rq::StaticRvalue return_rv =
-        this->evaluateStaticRvalue(table, module, return_ex);
+        this->evaluateStaticRvalue(module, table, return_ex);
     if (return_rv.getIsEmpty()) {
       RQ_UNHANDLED_ERROR("invalid rvalue");
     }
@@ -522,7 +513,7 @@ Evaluator::evaluateStaticRvalue(rq::SymbolTable &table, rq::Module &module,
 }
 
 [[nodiscard]] rq::DynamicRvalue
-Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
+Evaluator::evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
                                  rq::Expression &rvalue_ex) {
   std::ignore = table;
   std::ignore = module;
@@ -559,7 +550,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   case K::LOGICAL_COMPLEMENT: {
     rq::Expression &comp_rv_ex = rvalue_ex.getBranch();
     rq::DynamicRvalue comp_rv =
-        this->evaluateDynamicRvalue(table, module, comp_rv_ex);
+        this->evaluateDynamicRvalue(module, table, comp_rv_ex);
     if (comp_rv.getIsEmpty()) {
       return rq::DynamicRvalue();
     }
@@ -614,7 +605,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   case K::NEGATE: {
     rq::Expression &negate_rv_ex = rvalue_ex.getBranch();
     rq::DynamicRvalue negate_rv =
-        this->evaluateDynamicRvalue(table, module, negate_rv_ex);
+        this->evaluateDynamicRvalue(module, table, negate_rv_ex);
     if (negate_rv.getIsEmpty()) {
       return rq::DynamicRvalue();
     }
@@ -655,7 +646,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   rq::DottedInstructionFactory factory(this->getContext(), opcode);
   for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
     rq::DynamicRvalue branch_rv =
-        this->evaluateDynamicRvalue(table, module, branch_ex);
+        this->evaluateDynamicRvalue(module, table, branch_ex);
     factory.append(branch_rv.getValue());
     if (branch_rv.getIsEmpty()) {
       RQ_UNHANDLED_ERROR("empty branch rv");
@@ -697,7 +688,7 @@ Evaluator::evaluateDynamicRvalue(rq::SymbolTable &table, rq::Module &module,
   rq::DottedInstructionFactory factory(this->getContext(), opcode);
   for (rq::Expression &branch_ex : rvalue_ex.getBranchSubrange()) {
     rq::DynamicRvalue branch_rv =
-        this->evaluateDynamicRvalue(table, module, branch_ex);
+        this->evaluateDynamicRvalue(module, table, branch_ex);
     factory.append(branch_rv.getValue());
     if (branch_rv.getIsEmpty()) {
       RQ_UNHANDLED_ERROR("empty branch rv");
@@ -719,12 +710,12 @@ Evaluator::evaluateDynamicOrderedComparisonRvalue(rq::SymbolTable &table,
   rq::Expression &branch0_ex = rvalue_ex.getBranch();
   rq::Expression &branch1_ex = branch0_ex.getNext();
   rq::DynamicRvalue branch0_rv =
-      this->evaluateDynamicRvalue(table, module, branch0_ex);
+      this->evaluateDynamicRvalue(module, table, branch0_ex);
   if (branch0_rv.getIsEmpty()) {
     return rq::DynamicRvalue();
   }
   rq::DynamicRvalue branch1_rv =
-      this->evaluateDynamicRvalue(table, module, branch1_ex);
+      this->evaluateDynamicRvalue(module, table, branch1_ex);
   if (branch1_rv.getIsEmpty()) {
     return rq::DynamicRvalue();
   }
@@ -778,12 +769,12 @@ Evaluator::evaluateDynamicEquivalenceComparisonRvalue(rq::SymbolTable &table,
   rq::Expression &branch0_ex = rvalue_ex.getBranch();
   rq::Expression &branch1_ex = branch0_ex.getNext();
   rq::DynamicRvalue branch0_rv =
-      this->evaluateDynamicRvalue(table, module, branch0_ex);
+      this->evaluateDynamicRvalue(module, table, branch0_ex);
   if (branch0_rv.getIsEmpty()) {
     return rq::DynamicRvalue();
   }
   rq::DynamicRvalue branch1_rv =
-      this->evaluateDynamicRvalue(table, module, branch1_ex);
+      this->evaluateDynamicRvalue(module, table, branch1_ex);
   if (branch1_rv.getIsEmpty()) {
     return rq::DynamicRvalue();
   }

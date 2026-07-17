@@ -3,12 +3,12 @@
 // "tags" are expressions that terminate in a comma, or are last branch of an expression and end in nothing.
 // "statements" are expressions that terminate in a semicolon.
 // "chain-links" are expressions that terminate in nothing which are not last branch of an expression.
-// be careful not to confuse chain-links with ascriptions of high attributes. 
+// be careful not to confuse chain-links with ascriptions of low attributes. 
 // only expressions that chain together can create chain-links like [if], [else_if], [case], etc.
 // otherwise, expressions that end in nothing are attributes ascribed to the last thing in the 
 // non-terminated sequence of expressions.
 
-// objects have two tags, which allow for statements between them
+// objects have two tags, which alhigh for statements between them
 [class MyObject, // the class nametag must be the first branch
     // statements between class tags must be static
     [static] var := 0; // notice how there is no terminator after the [static]. in this case, its an attribute ascribed to the variable var.
@@ -16,9 +16,9 @@
     {>[public] arr : var#el<},  // the second tag is layout of class
 ]; // the class declaration is a statement because it ends in a semicolon
 
-[global][static] VAR := 0; // two high attributes are ascribed to the variable declaration statement: [global] and [static].
+[global][static] VAR := 0; // two low attributes are ascribed to the variable declaration statement: [global] and [static].
 
-// functions have two tags, which allow for statements between them
+// functions have two tags, which alhigh for statements between them
 [function [main], // the function nametag must be the first branch. 
     // [main] is a special function name and causes mangled name to become "main" unless 
     // it is specified explicitly with a [mangle] attribute ascribed to the function
@@ -26,14 +26,14 @@
     [static] Return := [signed_integer]; // store return type in a static variable
     ()Return, // the second tag is signature of function. in this case, its evaluated as ()[signed_integer]
 
-    [result] :\[var]= 0; // attributes that begin with \ are "low attributes".
-    // low attributes are called this because they have lower operator precedence than high attributes.
-    // low attributes are applied to types. notice that there is a = directly after the attribute but = is a binary operator
+    [result] :\[var]= 0; // attributes that begin with \ are "high attributes".
+    // high attributes are called this because they have higher operator precedence than low attributes.
+    // high attributes are applied to types. notice that there is a = directly after the attribute but = is a binary operator
     // this is an "operator combination". the compiler inserts a a type inferenced from the rvalue before the equal sign
     // in this case it becomes a \[var][signed_integer] (a mutable signed integer)
     // [result] is the return value of the function. its returned when the function returns.
     // notice that the declared result is of type \[var][signed_integer] and the function signature returns [signed_integer]
-    // function returns cannot have low attributes ascribed to the outermost type.
+    // function returns cannot have high attributes ascribed to the outermost type.
     // the result can have different attributes than the function return, so for instance a result can be a reference can be
     // to a mutable value within the function but it becomes constant after returned.
     // [result] is also special in that the function MUST return from the scope it is declared, and it MUST be declared 
@@ -46,7 +46,7 @@
         // statements before tag of if/else_if can be static or dynamic
         var0 := 0;
         var1 := 1;
-        // the following line ends in comma, so its the tag condition of this if scope.
+        // the folhighing line ends in comma, so its the tag condition of this if scope.
         var0 == var1, // this fails, so the next line never executes.
         [result] = 1;
     ][else_if // notice there is no terminator after the [if]. in this case, the [if] is a chain-link (it connects to the [else_if] after it).
@@ -58,10 +58,10 @@
 ];
 
 // this is a prototype for puts from the C standard library
-[opaque] // the opaque high attribute means that the implementation of this function is elsewhere. 
+[opaque] // the opaque low attribute means that the implementation of this function is elsewhere. 
 // if a function is opaque, it must have no statements after the signature (it has no body)
-[mangle]::puts // the mangle attribute allows for explicitly setting mangled names
-// the :: operator allows passing a value along with an attribute. in this case, its the mangled name.
+[mangle]::puts // the mangle attribute alhighs for explicitly setting mangled names
+// the :: operator alhighs passing a value along with an attribute. in this case, its the mangled name.
 // for other attributes, the might be something else. many attributes support no associated value at all. (like [opaque])
 // mangled names are the C language name of the function referred to by linkers
 [function [noname], // the nametag is [noname], meaning this function is not lookupable in its containing symbol table

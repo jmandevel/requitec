@@ -223,7 +223,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       instantiation.extendSourceOver(value);
     }
     precedence_factory.parseAscribe(instantiation.getSourceText(),
-                                    rq::Keyword::UNSITUATED_ASCRIBE_EXPRESSION);
+                                    rq::Keyword::UNSITUATED_ASCRIBE_LOW);
     precedence_factory.appendBranch(instantiation);
   }
   return precedence_factory.getOuter();
@@ -646,7 +646,7 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         this->getRanger().incrementToken(1);
         rq::Expression &attribute = this->parseTypeAscribedExpression();
         precedence_factory.parseAscribe(token.getSourceText(),
-                                        rq::Keyword::UNSITUATED_ASCRIBE_TYPE);
+                                        rq::Keyword::UNSITUATED_ASCRIBE_HIGH);
         rq::Expression &instantiation = this->getContext().acquireExpression();
         instantiation.setSource(token, attribute);
         instantiation.setKeyword(rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE);
