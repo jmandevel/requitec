@@ -157,7 +157,7 @@ getFlags(rq::LocalBreakKind kind) {
   RQ_UNREACHABLE();
 }
 
-[[nodisard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::LocalBreakKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::LocalBreakKind kind) {
   rq::LocalBreakFlags flags = rq::getFlags(kind);
   return rq::getHasAll(flags, rq::LocalBreakFlags::HAS_TARGET);
 }
