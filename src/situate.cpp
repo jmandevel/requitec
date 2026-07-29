@@ -933,7 +933,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_SUPPORT_STATUS:
     [[fallthrough]];
-  case K::DEPRECIATE:
+  case K::DEPRECIATED:
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];

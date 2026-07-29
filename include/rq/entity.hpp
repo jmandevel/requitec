@@ -317,7 +317,7 @@ enum class Keyword : rq::EntityId {
   UNLIKELY,
   // support_status_attribute
   NO_SUPPORT_STATUS,
-  DEPRECIATE,
+  DEPRECIATED,
   EXPERIMENTAL,
   // address_stability_attribute
   NO_STABLE_ADDRESS,

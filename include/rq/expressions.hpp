@@ -536,8 +536,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "unlikely";
   case K::NO_SUPPORT_STATUS:
     return "no_support_status";
-  case K::DEPRECIATE:
-    return "depreciate";
+  case K::DEPRECIATED:
+    return "depreciated";
   case K::EXPERIMENTAL:
     return "experimental";
   case K::NO_STABLE_ADDRESS:
@@ -1387,7 +1387,7 @@ template <> struct is_flags<rq::KeywordFlags> : std::true_type {};
     return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::NO_SUPPORT_STATUS:
     return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
-  case K::DEPRECIATE:
+  case K::DEPRECIATED:
     return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
   case K::EXPERIMENTAL:
     return KF::LOW_ATTRIBUTE | KF::RVALUE | KF::ARGUMENT;
@@ -2199,7 +2199,7 @@ enum class LowAttribute : std::uint_fast8_t {
   UNLIKELY,
   // support_status_attribute
   NO_SUPPORT_STATUS,
-  DEPRECIATE,
+  DEPRECIATED,
   EXPERIMENTAL,
   // stable_address_attribute
   NO_STABLE_ADDRESS,
@@ -2288,8 +2288,8 @@ enum class LowAttribute : std::uint_fast8_t {
     return "unlikely";
   case LA::NO_SUPPORT_STATUS:
     return "no_support_status";
-  case LA::DEPRECIATE:
-    return "depreciate";
+  case LA::DEPRECIATED:
+    return "depreciated";
   case LA::EXPERIMENTAL:
     return "experimental";
   case LA::NO_STABLE_ADDRESS:
@@ -2387,8 +2387,8 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::UNLIKELY;
   case K::NO_SUPPORT_STATUS:
     return LA::NO_SUPPORT_STATUS;
-  case K::DEPRECIATE:
-    return LA::DEPRECIATE;
+  case K::DEPRECIATED:
+    return LA::DEPRECIATED;
   case K::EXPERIMENTAL:
     return LA::EXPERIMENTAL;
   case K::NO_STABLE_ADDRESS:
@@ -2459,9 +2459,9 @@ enum class LowFlags : std::uint_fast32_t {
   UNLIKELY = rq::getBit(12),
   BRANCH_TREND_MASK = LIKELY | UNLIKELY,
 
-  DEPRECIATE = rq::getBit(13),
+  DEPRECIATED = rq::getBit(13),
   EXPERIMENTAL = rq::getBit(14),
-  DEPRECIATE_MASK = DEPRECIATE | EXPERIMENTAL,
+  SUPPORT_STATUS_MASK = DEPRECIATED | EXPERIMENTAL,
 
   STABLE_ADDRESS = rq::getBit(15),
   STABLE_ADDRESS_MASK = STABLE_ADDRESS,
@@ -2488,7 +2488,12 @@ enum class LowFlags : std::uint_fast32_t {
   ENSURE_MASK = ENSURE,
 
   RANGER = rq::getBit(23),
-  RANGER_MASK = RANGER
+  RANGER_MASK = RANGER,
+
+  ALL_MASK = ANCHOR | OPAQUE | EXPORT | PUBLIC | PARTIAL_MUTATE | STATIC |
+             CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
+             EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
+             CONSTRAINT | WEIGHT | REQUIRE | ENSURE | RANGER
 };
 
 template <> struct is_flags<rq::LowFlags> : std::true_type {};
@@ -2550,8 +2555,8 @@ template <> struct is_flags<rq::LowFlags> : std::true_type {};
     return EF::UNLIKELY;
   case LA::NO_SUPPORT_STATUS:
     return EF::NONE;
-  case LA::DEPRECIATE:
-    return EF::DEPRECIATE;
+  case LA::DEPRECIATED:
+    return EF::DEPRECIATED;
   case LA::EXPERIMENTAL:
     return EF::EXPERIMENTAL;
   case LA::NO_STABLE_ADDRESS:
@@ -2728,7 +2733,7 @@ enum class LowAttributeKind : std::uint_fast8_t {
     return LAK::BRANCH_TREND_ATTRIBUTE;
   case LA::NO_SUPPORT_STATUS:
     [[fallthrough]];
-  case LA::DEPRECIATE:
+  case LA::DEPRECIATED:
     [[fallthrough]];
   case LA::EXPERIMENTAL:
     return LAK::SUPPORT_STATUS_ATTRIBUTE;
@@ -2774,9 +2779,43 @@ enum class LowAttributeKind : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
+struct LowFlagsExpressionPair final {
+  using Self = rq::LowFlagsExpressionPair;
+
+  rq::Expression *_instantiation_ex_ptr{nullptr};
+  rq::Expression *_attachment_ex_ptr{nullptr};
+
+  explicit LowFlagsExpressionPair() = default;
+  explicit LowFlagsExpressionPair(rq::Expression &instantiation_ex,
+                                  rq::Expression *attachment_ex_ptr)
+      : _instantiation_ex_ptr(&instantiation_ex),
+        _attachment_ex_ptr(attachment_ex_ptr) {}
+
+  [[nodiscard]] bool getIsEmpty() const {
+    return this->_instantiation_ex_ptr == nullptr;
+  }
+
+  [[nodiscard]] const rq::Expression &getInstantiationEx() const {
+    return rq::dereferencePtr(this->_instantiation_ex_ptr);
+  }
+
+  [[nodiscard]] rq::Expression &getInstantiationEx() {
+    return rq::dereferencePtr(this->_instantiation_ex_ptr);
+  }
+
+  [[nodiscard]] const rq::Expression *getAttachmentExPtr() const {
+    return this->_attachment_ex_ptr;
+  }
+
+  [[nodiscard]] rq::Expression *getAttachmentExPtr() {
+    return this->_attachment_ex_ptr;
+  }
+};
+
 struct LowFlagsFactory final {
   using Self = rq::LowFlagsFactory;
-  using PtrMap = llvm::SmallDenseMap<rq::LowAttributeKind, rq::Expression *>;
+  using PtrMap =
+      llvm::SmallDenseMap<rq::LowAttributeKind, rq::LowFlagsExpressionPair>;
 
   rq::LowFlags _flags{};
   PtrMap _ptr_map{};
@@ -2797,22 +2836,25 @@ struct LowFlagsFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  getExpressionPtr(rq::LowAttributeKind kind) {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlagsExpressionPair
+  getExpressionPair(rq::LowAttributeKind kind) const {
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
-      return nullptr;
+      return rq::LowFlagsExpressionPair();
     }
     return it->getSecond();
   }
   [[nodiscard]] inline bool addFlag(rq::LowAttribute attribute,
-                                    rq::Expression *expression_ptr) {
+                                    rq::Expression &instantiation_ex,
+                                    rq::Expression *attachment_ex_ptr) {
     const rq::LowFlags flag = rq::getFlags(attribute);
     this->_flags |= flag;
     const rq::LowAttributeKind kind = rq::getKind(attribute);
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
-      this->_ptr_map.emplace_or_assign(kind, expression_ptr);
+      this->_ptr_map.emplace_or_assign(
+          kind,
+          rq::LowFlagsExpressionPair(instantiation_ex, attachment_ex_ptr));
     } else {
       return false;
     }
