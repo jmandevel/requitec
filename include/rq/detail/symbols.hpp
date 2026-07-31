@@ -361,395 +361,396 @@ namespace rq {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::SymbolFlags getFlags(rq::SymbolKind kind) {
+[[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind) {
   using S = rq::SymbolKind;
-  using SF = rq::SymbolFlags;
+  using SIF = rq::SymbolInfoFlags;
   switch (kind) {
   case S::NONE:
-    return SF::NONE;
+    return SIF::NONE;
 
   // LITERALS
   case S::INTEGER_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE | SIF::IS_INTEGER_TYPE;
   case S::FLOAT_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE | SF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE | SIF::IS_FLOAT_TYPE;
   case S::STRING_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE;
   case S::CODEUNIT_LITERAL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LITERAL | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE;
 
   // CONTEXTUAL VALUE
   case S::OUT_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::THIS_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::RESULT_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::VALUE_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::INDEX_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::DISCRIMINANT_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::CALLSITE_VALUE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_VALUE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
 
   // CONTEXTUAL TYPE
   case S::INFERENCE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_TYPE |
-           SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_TYPE |
+           SIF::IS_TYPE;
   case S::VOID_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_TYPE |
-           SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_TYPE |
+           SIF::IS_TYPE;
   case S::NO_RETURN_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::CONTEXTUAL | SF::CONTEXTUAL_TYPE |
-           SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_TYPE |
+           SIF::IS_TYPE;
 
   // LOW ATTRIBUTES
   case S::ANCHOR_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::OPAQUE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::GLOBAL_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::ACCESS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::PARTIAL_MUTATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::STATIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::CAPTURE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::INLINE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::MANGLE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::PACK_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::BRANCH_TREND_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::SUPPORT_STATUS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::STABLE_ADDRESS_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::VARIADIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::LOCATION_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::TEMPLATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::CONSTRAINT_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::WEIGHT_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::LOW_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
 
   // HIGH ATTRIBUTES
   case S::VAR_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::VOLATILE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::ATOMIC_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::NULL_TERMINATE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::REQUIRE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::ENSURE_ATTRIBUTE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::HIGH_ATTRIBUTE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::HIGH_ATTRIBUTE_TYPE | SIF::IS_TYPE;
 
   // REFLECTIVE
   case S::SYMBOL_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::REFLECTIVE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
   case S::EXPRESSION_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::REFLECTIVE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
 
   // PLATFORM PRIMITIVE
   case S::BOOLEAN_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE;
   case S::HALF_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE;
   case S::SINGLE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE;
   case S::DOUBLE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE;
   case S::QUADRUPLE_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE;
   case S::SIGNED_INTEGER_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::UNSIGNED_INTEGER_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_UNSIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_UNSIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::SIGNED_INDEX_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::UNSIGNED_INDEX_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_UNSIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_UNSIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::SIGNED_ADDRESS_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::UNSIGNED_ADDRESS_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_UNSIGNED_TYPE | SF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_UNSIGNED_TYPE | SIF::IS_INTEGER_TYPE;
   case S::CHAR_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::PLATFORM_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_CODEUNIT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_CODEUNIT_TYPE;
 
   // STANDARD PRIMITIVE TYPE
   case S::BINARY16_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE | SF::IS_BINARY_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE | SIF::IS_BINARY_TYPE;
   case S::BINARY32_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE | SF::IS_BINARY_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE | SIF::IS_BINARY_TYPE;
   case S::BINARY64_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE | SF::IS_BINARY_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE | SIF::IS_BINARY_TYPE;
   case S::BINARY128_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE | SF::IS_BINARY_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE | SIF::IS_BINARY_TYPE;
   case S::BFLOAT16_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_SIGNED_TYPE | SF::IS_FLOAT_TYPE | SF::IS_BFLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_SIGNED_TYPE | SIF::IS_FLOAT_TYPE | SIF::IS_BFLOAT_TYPE;
   case S::ASCII_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_CODEUNIT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_CODEUNIT_TYPE;
   case S::UTF8_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::STANDARD_PRIMITIVE_TYPE | SF::IS_TYPE |
-           SF::IS_CODEUNIT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_TYPE |
+           SIF::IS_CODEUNIT_TYPE;
 
   // VARIADIC ARGUMENTS
   case S::VARIADIC_ARGUMENTS_TYPE:
-    return SF::SIMPLE_SYMBOL | SF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
 
   // SCALED PRIMITIVES
   case S::SCALED_SIGNED_INTEGER_TYPE:
-    return SF::SCALED_PRIMITIVE_TYPE | SF::IS_TYPE | SF::IS_SIGNED_TYPE |
-           SF::IS_INTEGER_TYPE;
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_TYPE | SIF::IS_SIGNED_TYPE |
+           SIF::IS_INTEGER_TYPE;
   case S::SCALED_UNSIGNED_INTEGER_TYPE:
-    return SF::SCALED_PRIMITIVE_TYPE | SF::IS_TYPE | SF::IS_UNSIGNED_TYPE |
-           SF::IS_INTEGER_TYPE;
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_TYPE | SIF::IS_UNSIGNED_TYPE |
+           SIF::IS_INTEGER_TYPE;
 
   // ARRAY
   case S::ARRAY_SUBTYPE:
-    return SF::SUBTYPE | SF::IS_TYPE;
+    return SIF::SUBTYPE | SIF::IS_TYPE;
 
   // UNCOUNTED SUBTYPES
   case S::REFERENCE_SUBTYPE:
-    return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
+    return SIF::SUBTYPE | SIF::UNCOUNTED_SUBTYPE | SIF::IS_TYPE;
   case S::POINTER_SUBTYPE:
-    return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
+    return SIF::SUBTYPE | SIF::UNCOUNTED_SUBTYPE | SIF::IS_TYPE;
   case S::SLICE_SUBTYPE:
-    return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
+    return SIF::SUBTYPE | SIF::UNCOUNTED_SUBTYPE | SIF::IS_TYPE;
   case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
-    return SF::SUBTYPE | SF::UNCOUNTED_SUBTYPE | SF::IS_TYPE;
+    return SIF::SUBTYPE | SIF::UNCOUNTED_SUBTYPE | SIF::IS_TYPE;
 
   // MODULES
   case S::MODULE:
-    return SF::NONE;
+    return SIF::NONE;
 
   // IMPORTS
   case S::IMPORT:
-    return SF::HAS_LOW_ATTRIBUTES;
+    return SIF::HAS_LOW_ATTRIBUTES;
 
   // CONFORMITY
   case S::CONFORMITY:
-    return SF::NONE;
+    return SIF::NONE;
 
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::ENUMERATION_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::INTERFACE_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::ADAPTER_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
   case S::FUNCTION_WEIGHT_LEVEL:
-    return SF::WEIGHT_LEVEL;
+    return SIF::WEIGHT_LEVEL;
 
   // JUXTAPOSITIONAL LIST
   case S::JUXTAPOSITIONAL_LIST_ITEM:
-    return SF::NONE;
+    return SIF::NONE;
   case S::JUXTAPOSITIONAL_LIST_TYPE:
-    return SF::IS_TYPE;
+    return SIF::IS_TYPE;
 
   // ARITHMETIC SEQUENCES
   case S::ARITHMETIC_INTERVAL_TYPE:
-    return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
+    return SIF::ARITHMETIC_SEQUENCE | SIF::IS_TYPE;
   case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
-    return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
+    return SIF::ARITHMETIC_SEQUENCE | SIF::IS_TYPE;
   case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
-    return SF::ARITHMETIC_SEQUENCE | SF::IS_TYPE;
+    return SIF::ARITHMETIC_SEQUENCE | SIF::IS_TYPE;
 
   // LOCAL DECLARATIONS
   case S::LABEL:
-    return SF::LOCAL_DECLARATION;
+    return SIF::LOCAL_DECLARATION;
   case S::ANCHOR:
-    return SF::LOCAL_DECLARATION;
+    return SIF::LOCAL_DECLARATION;
   case S::ENUMERATOR:
-    return SF::LOCAL_DECLARATION | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::HAS_LOW_ATTRIBUTES;
 
   // LOCAL VARIABLES
   case S::LOCAL_DYNAMIC_VARIABLE:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
   case S::LOCAL_STATIC_VARIABLE:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
   case S::PROCEDURE_ARGUMENT:
-    return SF::LOCAL_DECLARATION | SF::LOCAL_VARIABLE;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
 
   // SYMBOL PARAMETERS
   case S::SIGNATURE_PARAMETER:
-    return SF::SYMBOL_PARAMETER;
+    return SIF::SYMBOL_PARAMETER;
   case S::LAYOUT_PARAMETER:
-    return SF::SYMBOL_PARAMETER;
+    return SIF::SYMBOL_PARAMETER;
 
   // TYPE PARAMETERS
   case S::TUPLE_PARAMETER:
-    return SF::TYPE_PARAMETER;
+    return SIF::TYPE_PARAMETER;
   case S::PROCEDURE_PARAMETER:
-    return SF::TYPE_PARAMETER;
+    return SIF::TYPE_PARAMETER;
 
   // SYMBOL PARAMETER LISTS
   case S::SIGNATURE:
-    return SF::SYMBOL_PARAMETER_LIST;
+    return SIF::SYMBOL_PARAMETER_LIST;
   case S::LAYOUT:
-    return SF::SYMBOL_PARAMETER_LIST;
+    return SIF::SYMBOL_PARAMETER_LIST;
 
   // TYPE PARAMETER LISTS
   case S::TUPLE_TYPE:
-    return SF::TYPE_PARAMETER_LIST | SF::IS_TYPE;
+    return SIF::TYPE_PARAMETER_LIST | SIF::IS_TYPE;
   case S::PROCEDURE_TYPE:
-    return SF::TYPE_PARAMETER_LIST | SF::IS_TYPE;
+    return SIF::TYPE_PARAMETER_LIST | SIF::IS_TYPE;
 
     // PLACEMENTS
   case S::PLACEMENT_TYPE:
-    return SF::IS_TYPE;
+    return SIF::IS_TYPE;
 
   // COMPOSITIONS
   case S::COMPOSITION_COMPONENT:
-    return SF::NONE;
+    return SIF::NONE;
   case S::COMPOSITION_TYPE:
-    return SF::IS_TYPE;
+    return SIF::IS_TYPE;
 
   // SYNONYMS
   case S::SYNONYM_TYPE:
-    return SF::IS_TYPE;
+    return SIF::IS_TYPE;
 
   // SYMBOL TABLES
   case S::C:
-    return SF::SYMBOL_TABLE | SF::IS_FRAME;
+    return SIF::SYMBOL_TABLE | SIF::IS_FRAME_SCOPE;
   case S::TOP:
-    return SF::SYMBOL_TABLE | SF::IS_FRAME;
+    return SIF::SYMBOL_TABLE | SIF::IS_FRAME_SCOPE;
 
   // LOCAL STATEMENTS
   case S::IF_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::ELSE_IF_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::ELSE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::MATCH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::SWITCH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::CASE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::WITH_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::DEFAULT_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::FOR_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::WHILE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::SPIN_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::WEAVE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
   case S::SCOPE_STATEMENT:
-    return SF::SYMBOL_TABLE | SF::LOCAL_STATEMENT | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE | SIF::HAS_LOW_ATTRIBUTES;
 
   // NAMED TABLES
   case S::NAMESPACE:
-    return SF::NAMED_TABLE | SF::SYMBOL_TABLE | SF::IS_FRAME;
+    return SIF::NAMED_TABLE | SIF::SYMBOL_TABLE | SIF::IS_FRAME_SCOPE;
 
   // POLYMORPH ITEM
   case S::CLASS_TYPE:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_LOW_ATTRIBUTES |
-           SF::IS_FRAME;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::IS_TYPE | SIF::HAS_LOW_ATTRIBUTES |
+           SIF::IS_FRAME_SCOPE | SIF::IS_OBJECT_SCOPE;
   case S::ENUMERATION_TYPE:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::IS_TYPE | SF::HAS_LOW_ATTRIBUTES |
-           SF::IS_FRAME;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::IS_TYPE | SIF::HAS_LOW_ATTRIBUTES |
+           SIF::IS_FRAME_SCOPE | SIF::IS_OBJECT_SCOPE;
   case S::INTERFACE:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::HAS_LOW_ATTRIBUTES | SIF::IS_FRAME_SCOPE |
+           SIF::IS_OBJECT_SCOPE;
   case S::ADAPTER:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::HAS_LOW_ATTRIBUTES | SIF::IS_FRAME_SCOPE;
   case S::FUNCTION:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::HAS_LOW_ATTRIBUTES | SF::IS_FRAME;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::HAS_LOW_ATTRIBUTES | SIF::IS_FRAME_SCOPE;
 
   // GLOBAL VARIABLE
   case S::GLOBAL_DYNAMIC_VARIABLE:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::GLOBAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE:
-    return SF::INSTANCE | SF::GLOBAL_DECLARATION | SF::NAMED_TABLE |
-           SF::SYMBOL_TABLE | SF::GLOBAL_VARIABLE | SF::HAS_LOW_ATTRIBUTES;
+    return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
+           SIF::SYMBOL_TABLE | SIF::GLOBAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::ENUMERATION_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::INTERFACE_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::ADAPTER_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::FUNCTION_TEMPLATE:
-    return SF::GLOBAL_DECLARATION | SF::NAMED_TABLE | SF::TEMPLATE |
-           SF::HAS_LOW_ATTRIBUTES;
+    return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
+           SIF::HAS_LOW_ATTRIBUTES;
 
   // POLYMORPHS
   case S::FUNCTION_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::CLASS_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::ENUMERATION_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::ADAPTER_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::INTERFACE_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::GLOBAL_DYNAMIC_VARIABLE_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
   case S::GLOBAL_STATIC_VARIABLE_POLYMORPH:
-    return SF::POLYMORPH;
+    return SIF::POLYMORPH;
 
   case S::LAST:
     break;
@@ -757,312 +758,234 @@ namespace rq {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::LowFlags getValidLowFlags(rq::SymbolKind kind) {
-  RQ_ASSERT(rq::getHasLowAttributes(kind), "has no attributes");
-  using S = rq::SymbolKind;
-  using EF = rq::LowFlags;
-  switch (kind) {
-  case S::IMPORT:
-    return EF::EXPORT;
-    return EF::PUBLIC | EF::PARTIAL_MUTATE | EF::LOCATION;
-  case S::SIGNATURE_PARAMETER:
-    return EF::VARIADIC | EF::LOCATION;
-  case S::SIGNATURE:
-    return EF::ENSURE | EF::REQUIRE;
-  case S::IF_STATEMENT:
-    return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case S::ELSE_IF_STATEMENT:
-    return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case S::ELSE_STATEMENT:
-    return EF::ANCHOR | EF::STATIC | EF::LIKELY | EF::UNLIKELY;
-  case S::MATCH_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::SWITCH_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::CASE_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::WITH_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::DEFAULT_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::FOR_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::WHILE_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::SPIN_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::WEAVE_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::SCOPE_STATEMENT:
-    return EF::ANCHOR | EF::STATIC;
-  case S::CLASS_TYPE:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::PACK |
-           EF::DEPRECIATE | EF::EXPERIMENTAL | EF::STABLE_ADDRESS | EF::RANGER;
-  case S::ENUMERATION_TYPE:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL;
-  case S::INTERFACE:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL;
-  case S::ADAPTER:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::MANGLE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL;
-  case S::GLOBAL_DYNAMIC_VARIABLE:
-    return EF::OPAQUE | EF::GLOBAL | EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL;
-  case S::GLOBAL_STATIC_VARIABLE:
-    return EF::GLOBAL | EF::EXPORT | EF::STATIC | EF::CAPTURE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL;
-  case S::FUNCTION:
-    return EF::OPAQUE | EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::MANGLE;
-  case S::CLASS_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::PACK | EF::DEPRECIATE |
-           EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::ENUMERATION_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::INTERFACE_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::ADAPTER_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::GLOBAL_STATIC_VARIABLE_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::DEPRECIATE | EF::EXPERIMENTAL |
-           EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-  case S::FUNCTION_TEMPLATE:
-    return EF::EXPORT | EF::CAPTURE | EF::INLINE | EF::DEPRECIATE |
-           EF::EXPERIMENTAL | EF::TEMPLATE | EF::CONSTRAINT | EF::WEIGHT;
-
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SIMPLE_SYMBOL);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SIMPLE_SYMBOL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LITERAL);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LITERAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::CONTEXTUAL);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::CONTEXTUAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::CONTEXTUAL_VALUE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::CONTEXTUAL_VALUE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::CONTEXTUAL_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::CONTEXTUAL_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LOW_ATTRIBUTE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOW_ATTRIBUTE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsHighAttributeType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HIGH_ATTRIBUTE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::HIGH_ATTRIBUTE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::REFLECTIVE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::REFLECTIVE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsPlatformPrimitiveType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::PLATFORM_PRIMITIVE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsStandardPrimitiveType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::STANDARD_PRIMITIVE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::STANDARD_PRIMITIVE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitive(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SCALED_PRIMITIVE_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SCALED_PRIMITIVE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SUBTYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::WEIGHT_LEVEL);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::WEIGHT_LEVEL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUncountedSubtype(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::UNCOUNTED_SUBTYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::UNCOUNTED_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsArithmeticSequenceType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::ARITHMETIC_SEQUENCE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::ARITHMETIC_SEQUENCE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LOCAL_DECLARATION);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_DECLARATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LOCAL_VARIABLE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_VARIABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameter(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::SymbolFlags::SYMBOL_PARAMETER |
-                                   rq::SymbolFlags::TYPE_PARAMETER);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, rq::SymbolInfoFlags::SYMBOL_PARAMETER |
+                                   rq::SymbolInfoFlags::TYPE_PARAMETER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolParameter(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_PARAMETER);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SYMBOL_PARAMETER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTypeParameter(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::TYPE_PARAMETER);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::TYPE_PARAMETER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::SymbolFlags::SYMBOL_PARAMETER_LIST |
-                                   rq::SymbolFlags::TYPE_PARAMETER_LIST);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, rq::SymbolInfoFlags::SYMBOL_PARAMETER_LIST |
+                                   rq::SymbolInfoFlags::TYPE_PARAMETER_LIST);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsSymbolParameterList(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_PARAMETER_LIST);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SYMBOL_PARAMETER_LIST);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsTypeParameterList(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::TYPE_PARAMETER_LIST);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::TYPE_PARAMETER_LIST);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::POLYMORPH);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::POLYMORPH);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::SYMBOL_TABLE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::SYMBOL_TABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::LOCAL_STATEMENT);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalScope(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_SCOPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::NAMED_TABLE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::NAMED_TABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstance(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::INSTANCE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::INSTANCE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsGlobalDeclaration(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::GLOBAL_DECLARATION);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::GLOBAL_DECLARATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariable(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::GLOBAL_VARIABLE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::GLOBAL_VARIABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRanger(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::RANGER);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::RANGER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::TEMPLATE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::TEMPLATE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_INTEGER_TYPE |
-                                  rq::SymbolFlags::IS_FLOAT_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_INTEGER_TYPE |
+                                  rq::SymbolInfoFlags::IS_FLOAT_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_SIGNED_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_SIGNED_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_UNSIGNED_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_UNSIGNED_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_INTEGER_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_INTEGER_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_FLOAT_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_FLOAT_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_BINARY_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_BINARY_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_BFLOAT_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_BFLOAT_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_CODEUNIT_TYPE);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_CODEUNIT_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLowAttributes(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::HAS_LOW_ATTRIBUTES);
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::HAS_LOW_ATTRIBUTES);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrame(rq::SymbolKind kind) {
-  const rq::SymbolFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolFlags::IS_FRAME);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_FRAME_SCOPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::IS_OBJECT_SCOPE);
 }
 
 [[nodiscard]] inline rq::SymbolKind getPolymorphKind(rq::SymbolKind kind) {
@@ -1103,32 +1026,32 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
   return static_cast<rq::SymbolKind>(this->getId() - rq::SYMBOL_OFFSET);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolFlags Symbol::getFlags() const {
-  return rq::getFlags(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags Symbol::getInfoFlags() const {
+  return rq::getInfoFlags(this->getKind());
 }
 
-[[nodiscard]] inline rq::LowFlags Symbol::getDerivedLowFlags() const {
+[[nodiscard]] inline rq::LowFuseFlags Symbol::getDerivedLowFuseFlags() const {
   if (llvm::isa<rq::Import>(*this)) {
     const rq::Import &import = llvm::cast<rq::Import>(*this);
-    return import.getLowFlags();
+    return import.getLowFuseFlags();
   }
   if (llvm::isa<rq::LocalVariable>(*this)) {
     const rq::LocalVariable &local = llvm::cast<rq::LocalVariable>(*this);
-    return local.getLowFlags();
+    return local.getLowFuseFlags();
   }
   if (llvm::isa<rq::SymbolParameter>(*this)) {
     const rq::SymbolParameter &parameter =
         llvm::cast<rq::SymbolParameter>(*this);
-    return parameter.getLowFlags();
+    return parameter.getLowFuseFlags();
   }
-  if (llvm::isa<rq::LocalStatement>(*this)) {
-    const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
-    return statement.getLowFlags();
+  if (llvm::isa<rq::LocalScope>(*this)) {
+    const rq::LocalScope &statement = llvm::cast<rq::LocalScope>(*this);
+    return statement.getLowFuseFlags();
   }
   if (llvm::isa<rq::GlobalDeclaration>(*this)) {
     const rq::GlobalDeclaration &decl =
         llvm::cast<rq::GlobalDeclaration>(*this);
-    return decl.getLowFlags();
+    return decl.getLowFuseFlags();
   }
   return {};
 }
@@ -1153,8 +1076,8 @@ Symbol::getDerivedExpressionPtr() const {
         llvm::cast<rq::SymbolParameterList>(*this);
     return &list.getExpression();
   }
-  if (llvm::isa<rq::LocalStatement>(*this)) {
-    const rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
+  if (llvm::isa<rq::LocalScope>(*this)) {
+    const rq::LocalScope &statement = llvm::cast<rq::LocalScope>(*this);
     return &statement.getExpression();
   }
   if (llvm::isa<rq::GlobalDeclaration>(*this)) {
@@ -1182,8 +1105,8 @@ Symbol::getDerivedExpressionPtr() const {
     rq::SymbolParameterList &list = llvm::cast<rq::SymbolParameterList>(*this);
     return &list.getExpression();
   }
-  if (llvm::isa<rq::LocalStatement>(*this)) {
-    rq::LocalStatement &statement = llvm::cast<rq::LocalStatement>(*this);
+  if (llvm::isa<rq::LocalScope>(*this)) {
+    rq::LocalScope &statement = llvm::cast<rq::LocalScope>(*this);
     return &statement.getExpression();
   }
   if (llvm::isa<rq::GlobalDeclaration>(*this)) {
@@ -1280,8 +1203,12 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getHasLowAttributes(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrame() const {
-  return rq::getIsFrame(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrameScope() const {
+  return rq::getIsFrameScope(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsObjectScope() const {
+  return rq::getIsObjectScope(this->getKind());
 }
 
 [[nodiscard]] inline bool Symbol::getIsCompleteType() const {
@@ -1573,9 +1500,9 @@ Module::getExpression() const {
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MODULE);
 }
 
-RQ_ALWAYS_INLINE Import::Import(rq::LowFlags flags, rq::Expression &expression,
+RQ_ALWAYS_INLINE Import::Import(rq::LowFuseFlags flags, rq::Expression &expression,
                                 rq::Module &imported, rq::Module &module)
-    : Symbol(rq::SymbolKind::IMPORT), _expression_flags(flags),
+    : Symbol(rq::SymbolKind::IMPORT), _low_flags(flags),
       _expression_ptr(&expression), _imported_ptr(&imported),
       _module_ptr(&module) {}
 
@@ -1588,8 +1515,8 @@ Import::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags Import::getLowFlags() const {
-  return this->_expression_flags;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags Import::getLowFuseFlags() const {
+  return this->_low_flags;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &Import::getModule() const {
@@ -1877,18 +1804,18 @@ Label::getTargetInstruction() const {
 
 RQ_ALWAYS_INLINE
 Anchor::Anchor(rq::Name name, rq::SymbolTable &containing_table,
-               rq::Module &module, rq::LocalStatement &local_table)
+               rq::Module &module, rq::SymbolTable &vessel)
     : LocalDeclaration(rq::SymbolKind::ANCHOR, name, containing_table,
                        containing_table, module),
-      _local_table_ptr(&local_table) {}
+      _vessel_ptr(&vessel) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::LocalStatement &
-Anchor::getLocalStatement() const {
-  return rq::dereferencePtr(this->_local_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+Anchor::getVessel() const {
+  return rq::dereferencePtr(this->_vessel_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LocalStatement &Anchor::getLocalStatement() {
-  return rq::dereferencePtr(this->_local_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &Anchor::getVessel() {
+  return rq::dereferencePtr(this->_vessel_ptr);
 }
 
 [[nodiscard]] inline bool Anchor::classof(const rq::Entity *entity_ptr) {
@@ -1934,14 +1861,14 @@ RQ_ALWAYS_INLINE
 LocalVariable::LocalVariable(rq::SymbolKind kind, rq::Name name,
                              rq::SymbolTable &containing_table,
                              rq::SymbolTable &hosting_table, rq::Module &module,
-                             rq::LowFlags flags, rq::ConstantSymbol &type)
+                             rq::LowFuseFlags flags, rq::ConstantSymbol &type)
     : LocalDeclaration(kind, name, containing_table, hosting_table, module),
-      _expression_flags(flags), _type_ptr(&type) {
+      _low_flags(flags), _type_ptr(&type) {
   RQ_ASSERT(rq::getIsLocalVariable(kind), "not local variable");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags LocalVariable::getLowFlags() const {
-  return this->_expression_flags;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags LocalVariable::getLowFuseFlags() const {
+  return this->_low_flags;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
@@ -1972,7 +1899,7 @@ RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::ConstantSymbol &type) {
 
 RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
     rq::ConstantSymbol &type)
     : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags, type) {}
@@ -2002,7 +1929,7 @@ LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
     rq::ConstantSymbol &type, rq::Gendex<rq::StaticValue> value)
     : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
                     containing_table, hosting_table, module, flags, type),
@@ -2028,7 +1955,7 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
     rq::ConstantSymbol &type, rq::Entity &value, rq::LayoutParameter &parameter)
     : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
                     hosting_table, module, flags, type),
@@ -2063,7 +1990,7 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
     rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFlags flags,
+    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
     rq::ConstantSymbol &type, rq::ProcedureParameter &parameter)
     : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
                     hosting_table, module, flags, type),
@@ -2128,13 +2055,13 @@ RQ_ALWAYS_INLINE
 SymbolParameter::SymbolParameter(
     rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
     bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
     rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : Parameter(kind, next_ptr, name, type), _is_positional(is_positional),
       _is_nonpositional(is_nonpositional), _is_locked(is_locked),
-      _expression_flags(expression_flags), _hosting_table_ptr(&hosting_table),
+      _low_flags(expression_flags), _hosting_table_ptr(&hosting_table),
       _expression_ptr(&expression), _name_expression_ptr(&name_expression),
       _type_expression_ptr(&type_expression),
       _default_value_expression_ptr(default_value_expression_ptr),
@@ -2142,9 +2069,9 @@ SymbolParameter::SymbolParameter(
   RQ_ASSERT(rq::getIsSymbolParameter(kind), "not symbol parameter");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags
-SymbolParameter::getLowFlags() const {
-  return this->_expression_flags;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags
+SymbolParameter::getLowFuseFlags() const {
+  return this->_low_flags;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
@@ -2243,7 +2170,7 @@ SymbolParameter::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
     bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
     rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
@@ -2273,7 +2200,7 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
     rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFlags expression_flags, bool is_positional, bool is_nonpositional,
+    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
     bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
     rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
@@ -3305,56 +3232,56 @@ RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::TOP);
 }
 
-RQ_ALWAYS_INLINE LocalStatement::LocalStatement(
+RQ_ALWAYS_INLINE LocalScope::LocalScope(
     rq::SymbolKind kind, rq::SymbolTable &containing_table,
-    rq::Expression &expression, rq::LowFlags flags, rq::Module &module)
+    rq::Expression &expression, rq::LowFuseFlags flags, rq::Module &module)
     : SymbolTable(kind, &containing_table), _expression_ptr(&expression),
-      _expression_flags(flags), _module_ptr(&module) {
-  RQ_ASSERT(rq::getIsLocalStatement(kind), "not local statement");
+      _low_flags(flags), _module_ptr(&module) {
+  RQ_ASSERT(rq::getIsLocalScope(kind), "not local statement");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-LocalStatement::getExpression() const {
+LocalScope::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &LocalStatement::getExpression() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &LocalScope::getExpression() {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] rq::LowFlags LocalStatement::getLowFlags() const {
-  return this->_expression_flags;
+[[nodiscard]] rq::LowFuseFlags LocalScope::getLowFuseFlags() const {
+  return this->_low_flags;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &
-LocalStatement::getModule() const {
+LocalScope::getModule() const {
   return rq::dereferencePtr(this->_module_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Module &LocalStatement::getModule() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module &LocalScope::getModule() {
   return rq::dereferencePtr(this->_module_ptr);
 }
 
 [[nodiscard]] inline bool
-LocalStatement::classof(const rq::Entity *entity_ptr) {
+LocalScope::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   if (!llvm::isa<rq::Symbol>(entity)) {
     return false;
   }
   const rq::EntityId id = entity.getId();
-  return rq::getIsLocalStatement(
+  return rq::getIsLocalScope(
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
 template <rq::SymbolKind KIND_PARAM>
-RQ_ALWAYS_INLINE DerivedLocalStatement<KIND_PARAM>::DerivedLocalStatement(
+RQ_ALWAYS_INLINE DerivedLocalScope<KIND_PARAM>::DerivedLocalScope(
     rq::SymbolTable &containing_table, rq::Expression &expression,
-    rq::LowFlags flags, rq::Module &module)
-    : LocalStatement(KIND_PARAM, containing_table, expression, flags, module) {}
+    rq::LowFuseFlags flags, rq::Module &module)
+    : LocalScope(KIND_PARAM, containing_table, expression, flags, module) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
-DerivedLocalStatement<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
+DerivedLocalScope<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(KIND_PARAM);
@@ -3405,7 +3332,7 @@ RQ_ALWAYS_INLINE
 GlobalDeclaration::GlobalDeclaration(
     rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression *name_expression_ptr, rq::LowFlags flags, rq::Module &module)
+    rq::Expression *name_expression_ptr, rq::LowFuseFlags flags, rq::Module &module)
     : NamedTable(kind, containing_table, name),
       _hosting_table_ptr(&hosting_table), _expression_ptr(&expression),
       _name_expression_ptr(name_expression_ptr), _flags(flags),
@@ -3462,8 +3389,8 @@ GlobalDeclaration::getNameExpressionPtr() {
   return this->_name_expression_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFlags
-GlobalDeclaration::getLowFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags
+GlobalDeclaration::getLowFuseFlags() const {
   return this->_flags;
 }
 
@@ -3498,14 +3425,14 @@ RQ_ALWAYS_INLINE
 Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                    rq::Name name, rq::SymbolTable &hosting_table,
                    rq::Expression &expression,
-                   rq::Expression *name_expression_ptr, rq::LowFlags flags,
+                   rq::Expression *name_expression_ptr, rq::LowFuseFlags flags,
                    rq::Module &module, rq::Template *template_ptr,
                    rq::TemplateArgument *first_argument_ptr)
     : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
                         name_expression_ptr, flags, module),
       _template_ptr(template_ptr), _first_argument_ptr(first_argument_ptr) {
   RQ_ASSERT(rq::getIsInstance(kind), "not instance");
-  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
+  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind
@@ -3557,7 +3484,7 @@ Instance::getFirstTemplateArgumentPtr() {
 RQ_ALWAYS_INLINE
 ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
                      rq::SymbolTable &hosting_table, rq::Expression &expression,
-                     rq::Expression &name_expression, rq::LowFlags flags,
+                     rq::Expression &name_expression, rq::LowFuseFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::CLASS_TYPE, containing_table, name,
@@ -3574,7 +3501,7 @@ ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
 RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
     rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::ENUMERATION_TYPE, containing_table, name,
                hosting_table, expression, &name_expression, flags, module,
@@ -3591,7 +3518,7 @@ EnumerationType::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE
 Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
                      rq::SymbolTable &hosting_table, rq::Expression &expression,
-                     rq::Expression &name_expression, rq::LowFlags flags,
+                     rq::Expression &name_expression, rq::LowFuseFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::INTERFACE, containing_table, name, hosting_table,
@@ -3607,7 +3534,7 @@ Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
 RQ_ALWAYS_INLINE
 Adapter::Adapter(rq::SymbolTable &containing_table, rq::Name name,
                  rq::SymbolTable &hosting_table, rq::Expression &expression,
-                 rq::Expression &name_expression, rq::LowFlags flags,
+                 rq::Expression &name_expression, rq::LowFuseFlags flags,
                  rq::Module &module, rq::Template *template_ptr,
                  rq::TemplateArgument *first_argument_ptr)
     : Instance(rq::SymbolKind::ADAPTER, containing_table, name, hosting_table,
@@ -3632,7 +3559,7 @@ Adapter::getInterfacePtr() const {
 RQ_ALWAYS_INLINE
 Function::Function(rq::SymbolTable &containing_table, rq::Name name,
                    rq::SymbolTable &hosting_table, rq::Expression &expression,
-                   rq::Expression *name_expression_ptr, rq::LowFlags flags,
+                   rq::Expression *name_expression_ptr, rq::LowFuseFlags flags,
                    rq::Module &module,
                    rq::Expression *first_body_expression_ptr,
                    rq::Template *template_ptr,
@@ -3748,7 +3675,7 @@ RQ_ALWAYS_INLINE
 GlobalVariable::GlobalVariable(
     rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
     rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
     rq::Expression *initial_value_expression_ptr)
     : Instance(kind, containing_table, name, hosting_table, expression,
@@ -3796,7 +3723,7 @@ GlobalVariable::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE GlobalDynamicVariable::GlobalDynamicVariable(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
     rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, containing_table,
@@ -3830,7 +3757,7 @@ GlobalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE GlobalStaticVariable::GlobalStaticVariable(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
     rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
     : GlobalVariable(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, containing_table,
@@ -3863,7 +3790,7 @@ RQ_ALWAYS_INLINE
 Template::Template(rq::SymbolKind kind, rq::SymbolTable &containing_table,
                    rq::Name name, rq::SymbolTable &hosting_table,
                    rq::Expression &expression, rq::Expression &name_expression,
-                   rq::LowFlags flags, rq::Module &module,
+                   rq::LowFuseFlags flags, rq::Module &module,
                    rq::Expression &layout_expression,
                    rq::Expression *constraint_expression_ptr,
                    rq::Expression *weight_expression_ptr, unsigned weight)
@@ -3873,7 +3800,7 @@ Template::Template(rq::SymbolKind kind, rq::SymbolTable &containing_table,
       _constraint_expression_ptr(constraint_expression_ptr),
       _weight_expression_ptr(weight_expression_ptr), _weight(weight) {
   RQ_ASSERT(rq::getIsTemplate(kind), "not template");
-  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
+  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
@@ -3935,7 +3862,7 @@ template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedTemplate<KIND_PARAM>::DerivedTemplate(
     rq::SymbolTable &containing_table, rq::Name name,
     rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFlags flags, rq::Module &module,
+    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
     rq::Expression &layout_expression,
     rq::Expression *constraint_expression_ptr,
     rq::Expression *weight_expression_ptr, unsigned weight)
@@ -3957,7 +3884,7 @@ RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
     : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph),
       _containing_table_ptr(&containing_table) {
   RQ_ASSERT(rq::getIsWeightLevel(kind), "not weight level");
-  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
+  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
@@ -4023,7 +3950,7 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, rq::Name name,
                                       rq::SymbolTable &containing_table)
     : Symbol(kind), _name(name), _containing_table_ptr(&containing_table) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
-  RQ_ASSERT(containing_table.getIsFrame(), "not contained in frame");
+  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
 }
 
 // inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,

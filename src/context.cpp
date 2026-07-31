@@ -516,12 +516,12 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
 // static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
 //   json.beginArray("attributes");
 //   using LA = rq::LowAttribute;
-//   using EF = rq::LowFlags;
-//   EF flags = symbol.getDerivedLowFlags();
+//   using EF = rq::LowFuseFlags;
+//   EF flags = symbol.getDerivedLowFuseFlags();
 //   for (unsigned attribute_i = static_cast<unsigned>(LA::NONE) + 1;
 //        attribute_i < static_cast<unsigned>(LA::LAST); attribute_i++) {
 //     LA attribute = static_cast<LA>(attribute_i);
-//     EF attribute_flags = rq::getFlags(attribute);
+//     EF attribute_flags = rq::getInfoFlags(attribute);
 //     if (rq::getHasAll(flags, attribute_flags)) {
 //       json.emitString(rq::getName(attribute));
 //     }
@@ -976,8 +976,7 @@ void Context::logErrorExpectedTagBranch(const rq::Expression &expresison) {
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedTagExpression(
-    const rq::Expression &expresison) {
+void Context::logErrorExpectedTagExpression(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expresison.getName() + " is not tag expression",
                    {expresison.getLlvmSourceRange()}, {});
@@ -986,8 +985,7 @@ void Context::logErrorExpectedTagExpression(
 void Context::logErrorExpectedUltimateExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() +
-                       " is not ultimate expression",
+                   expression.getName() + " is not ultimate expression",
                    {expression.getLlvmSourceRange()}, {});
 }
 
@@ -1002,12 +1000,13 @@ void Context::logErrorExpressionDoesNotContinueChain(
     const rq::Expression &expresison, rq::Chain chain) {
   if (chain == rq::Chain::NONE) {
     this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " must continue chain",
-                   {expresison.getLlvmSourceRange()}, {});
-   return;
+                     expresison.getName() + " must continue chain",
+                     {expresison.getLlvmSourceRange()}, {});
+    return;
   }
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " does not continue " + rq::getDescription(chain),
+                   expresison.getName() + " does not continue " +
+                       rq::getDescription(chain),
                    {expresison.getLlvmSourceRange()}, {});
 }
 
@@ -1018,13 +1017,14 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidLowAttribute(const rq::Expression &unascribed,
-                                          const rq::Expression &attribute) {
-  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   attribute.getName() +
+void Context::logErrorInvalidLowAttribute(
+    const rq::Expression &unascribed, const rq::Expression &instantiation_ex,
+    rq::LowAttribute attribute) {
+  this->logMessage(instantiation_ex.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   rq::getName(attribute) +
                        " is is not a valid attribute for expression " +
                        unascribed.getName(),
-                   {attribute.getLlvmSourceRange()}, {});
+                   {instantiation_ex.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorFailedToAscribeExpression(

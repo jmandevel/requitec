@@ -9,7 +9,7 @@
 
 namespace rq {
 
-enum class CodeunitFlags : std::uint16_t {
+enum class CodeunitInfoFlags : std::uint16_t {
   NONE = 0,
   HORIZONTAL_WHITESPACE = rq::getBit(15),
   VERTICAL_WHITESPACE = rq::getBit(14),
@@ -24,7 +24,7 @@ enum class CodeunitFlags : std::uint16_t {
   MASK = 0x3F
 };
 
-template <> struct is_flags<rq::CodeunitFlags> : std::true_type {};
+template <> struct is_flags<rq::CodeunitInfoFlags> : std::true_type {};
 
 constexpr char CHAR_EXTENDED_BIT = 0x80;
 
@@ -549,10 +549,10 @@ getUtf8Name(char codeunit) {
   return "unknown";
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::CodeunitFlags
-getFlags(char codeunit) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::CodeunitInfoFlags
+getInfoFlags(char codeunit) {
   using namespace rq;
-  using CF = CodeunitFlags;
+  using CF = CodeunitInfoFlags;
   constexpr CF INVALID = CF::NONE;
   constexpr CF HORIZONTAL_WHITESPACE = CF::HORIZONTAL_WHITESPACE;
   constexpr CF VERTICAL_WHITESPACE = CF::VERTICAL_WHITESPACE;
@@ -1610,69 +1610,69 @@ getCsvQuotedValueText(char codeunit) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsWhitespace(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasSome(flags, rq::CodeunitFlags::HORIZONTAL_WHITESPACE |
-                                   rq::CodeunitFlags::VERTICAL_WHITESPACE);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasSome(flags, rq::CodeunitInfoFlags::HORIZONTAL_WHITESPACE |
+                                   rq::CodeunitInfoFlags::VERTICAL_WHITESPACE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsHorizontalWhitespace(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::HORIZONTAL_WHITESPACE);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::HORIZONTAL_WHITESPACE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsVerticalWhitespace(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::VERTICAL_WHITESPACE);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::VERTICAL_WHITESPACE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsDigit(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasSome(flags, rq::CodeunitFlags::DECIMAL_DIGIT |
-                                   rq::CodeunitFlags::EXTENDED_DIGIT);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasSome(flags, rq::CodeunitInfoFlags::DECIMAL_DIGIT |
+                                   rq::CodeunitInfoFlags::EXTENDED_DIGIT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsDecimalDigit(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::DECIMAL_DIGIT);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::DECIMAL_DIGIT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsExtendedDigit(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::EXTENDED_DIGIT);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::EXTENDED_DIGIT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsNumeric(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::NUMERIC);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::NUMERIC);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE std::underlying_type_t<rq::CodeunitFlags>
+[[nodiscard]] RQ_ALWAYS_INLINE std::underlying_type_t<rq::CodeunitInfoFlags>
 getDigitBaseMultiplier(char codeunit) {
   RQ_ASSERT(rq::getIsDigit(codeunit), "codeunit not digit");
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getMaskValue(flags, rq::CodeunitFlags::MASK);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getMaskValue(flags, rq::CodeunitInfoFlags::MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsLetter(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasSome(flags, rq::CodeunitFlags::LOWERCASE_LETTER |
-                                   rq::CodeunitFlags::UPPERCASE_LETTER);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasSome(flags, rq::CodeunitInfoFlags::LOWERCASE_LETTER |
+                                   rq::CodeunitInfoFlags::UPPERCASE_LETTER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr char
 getIsUppercaseLetter(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::UPPERCASE_LETTER);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::UPPERCASE_LETTER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr char
 getIsLowercaseLetter(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::LOWERCASE_LETTER);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::LOWERCASE_LETTER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr char
@@ -1692,42 +1692,42 @@ getLowercaseLetter(char codeunit) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsIdentifier(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasSome(flags, rq::CodeunitFlags::IDENTIFIER_FRONT |
-                                   rq::CodeunitFlags::IDENTIFIER_BODY);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasSome(flags, rq::CodeunitInfoFlags::IDENTIFIER_FRONT |
+                                   rq::CodeunitInfoFlags::IDENTIFIER_BODY);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsIdentifierStart(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::IDENTIFIER_FRONT);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::IDENTIFIER_FRONT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsIdentifierBody(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::IDENTIFIER_BODY);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::IDENTIFIER_BODY);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsSymbol(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitFlags::SYMBOL);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::SYMBOL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsExtended(char codeunit) {
   return (codeunit & rq::CHAR_EXTENDED_BIT) == rq::CHAR_EXTENDED_BIT;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<rq::CodeunitFlags>
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<rq::CodeunitInfoFlags>
 getExtendedStartCount(char codeunit) {
   RQ_ASSERT(rq::getIsExtended(codeunit), "codeunit not extended");
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return rq::getMaskValue(flags, rq::CodeunitFlags::MASK);
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getMaskValue(flags, rq::CodeunitInfoFlags::MASK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsValid(char codeunit) {
-  const rq::CodeunitFlags flags = rq::getFlags(codeunit);
-  return flags != rq::CodeunitFlags::NONE;
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return flags != rq::CodeunitInfoFlags::NONE;
 }
 
 } // namespace rq

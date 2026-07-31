@@ -90,7 +90,7 @@ enum class TokenKind : std::uint_fast8_t {
   ERROR_UNMATCHED_RIGHT_PARENTHESIS_GROUPING,
 };
 
-enum class TokenFlags : std::uint8_t {
+enum class TokenInfoFlags : std::uint8_t {
   NONE = 0,
   OPERATOR = rq::getBit(7),
   MARK = rq::getBit(6),
@@ -102,7 +102,7 @@ enum class TokenFlags : std::uint8_t {
   INFERENCE_TERMINATOR = rq::getBit(0)
 };
 
-template <> struct is_flags<rq::TokenFlags> : std::true_type {};
+template <> struct is_flags<rq::TokenInfoFlags> : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
 getName(rq::TokenKind kind) {
@@ -268,11 +268,11 @@ getDescription(rq::TokenKind kind) {
   return getName(kind);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::TokenFlags
-getFlags(rq::TokenKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr rq::TokenInfoFlags
+getInfoFlags(rq::TokenKind kind) {
   using namespace rq;
   using T = TokenKind;
-  using TF = TokenFlags;
+  using TF = TokenInfoFlags;
   switch (kind) {
   case T::NONE:
     return TF::ERROR;
@@ -443,89 +443,89 @@ getUnmatched(rq::TokenKind kind) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsOperator(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::OPERATOR);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::OPERATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsSeparator(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::SEPARATOR);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::SEPARATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsLiteral(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::LITERAL);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::LITERAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getCanBeMark(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::MARK);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::MARK);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsLeftGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::LEFT_GROUPING);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::LEFT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsRightGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::RIGHT_GROUPING);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::TokenFlags::LEFT_GROUPING |
-                                   rq::TokenFlags::RIGHT_GROUPING);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, rq::TokenInfoFlags::LEFT_GROUPING |
+                                   rq::TokenInfoFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsLeftUnmatchedGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags,
-                       rq::TokenFlags::ERROR | rq::TokenFlags::LEFT_GROUPING);
+                       rq::TokenInfoFlags::ERROR | rq::TokenInfoFlags::LEFT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsRightUnmathcedGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags,
-                       rq::TokenFlags::ERROR | rq::TokenFlags::RIGHT_GROUPING);
+                       rq::TokenInfoFlags::ERROR | rq::TokenInfoFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsUnmatchedGrouping(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::ERROR) &&
-         rq::getHasSome(flags, rq::TokenFlags::LEFT_GROUPING |
-                                   rq::TokenFlags::RIGHT_GROUPING);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::ERROR) &&
+         rq::getHasSome(flags, rq::TokenInfoFlags::LEFT_GROUPING |
+                                   rq::TokenInfoFlags::RIGHT_GROUPING);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsError(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::ERROR);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::ERROR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsErrorLiteral(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::ERROR | rq::TokenFlags::LITERAL);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::ERROR | rq::TokenInfoFlags::LITERAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsInferenceTerminator(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::TokenFlags::INFERENCE_TERMINATOR);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::TokenInfoFlags::INFERENCE_TERMINATOR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsExpressionEnd(rq::TokenKind kind) {
-  const rq::TokenFlags flags = rq::getFlags(kind);
-  return rq::getHasSome(flags, rq::TokenFlags::SEPARATOR |
-                                   rq::TokenFlags::RIGHT_GROUPING);
+  const rq::TokenInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, rq::TokenInfoFlags::SEPARATOR |
+                                   rq::TokenInfoFlags::RIGHT_GROUPING);
 }
 
 struct Token final {

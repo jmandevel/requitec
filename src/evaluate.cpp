@@ -49,61 +49,67 @@ void Evaluator::evaluateSourceModule() {
 }
 
 [[nodiscard]] rq::Expression &
-Evaluator::evaluateLowFlags(rq::Module& module, rq::SymbolTable& table, rq::LowFlagsFactory &factory,
-                            rq::Expression &asc_ex) {
+Evaluator::evaluateLowFuseFlags(rq::Module &module, rq::SymbolTable &table,
+                                rq::LowFactory &factory,
+                                rq::Expression &asc_ex) {
   RQ_ASSERT(factory.getIsEmpty(), "factory not empty");
-  RQ_ASSERT(asc_ex.getKeyword() == rq::Keyword::ASCRIBE_LOW,
-            "not _ascribe_low");
+  if (asc_ex.getKeyword() != rq::Keyword::ASCRIBE_LOW) {
+    return asc_ex;
+  }
   rq::Expression &unasc_ex = asc_ex.getBranch();
   RQ_ASSERT(unasc_ex.getHasNext(), "missing attributes");
   for (rq::Expression &attrib_ex : unasc_ex.getNextSubrange()) {
     RQ_ASSERT(attrib_ex.getKeyword() == rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE,
               "invalid attribute keyword");
     rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
-    rq::Expression *attrib_attachment_ex = attrib_rv_ex.getNextPtr();
+    rq::Expression *attrib_attachment_ex_ptr = attrib_rv_ex.getNextPtr();
     rq::StaticRvalue attrib_rv =
         this->evaluateStaticRvalue(module, table, attrib_rv_ex);
+    if (!attrib_rv.getType().getIsLowAttributeType()) {
+      RQ_UNHANDLED_ERROR("not low attribute");
+    }
+    rq::LowAttribute attrib = attrib_rv.getValue().getLowAttribute();
+    if (!factory.addFlag(attrib, attrib_ex, attrib_attachment_ex_ptr)) {
+      RQ_UNHANDLED_ERROR("duplicate attribute of kind");
+    }
   }
+  return unasc_ex;
 }
 
-void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
+void Evaluator::evaluateGlobalScope(rq::Module &module,
+                                    rq::SymbolTable &hosting_table,
                                     rq::Expression &first_ex) {
   using K = rq::Keyword;
-  rq::LowFlagsFactory factory{};
+  using LAK = rq::LowAttributeKind;
+  using LF = rq::LowFuseFlags;
   for (rq::Expression &branch_ex : first_ex.getInclusiveNextSubrange()) {
-    rq::Expression *unascribed_ex_ptr = nullptr;
-    if (branch_ex.getKeyword() == K::ASCRIBE_LOW) {
-      rq::Expression &unascribed_ex = branch_ex.getBranch();
-      unascribed_ex_ptr = &unascribed_ex;
-      for (rq::Expression &attrib_ex : unascribed_ex.getNextSubrange()) {
-        rq::Expression &attrib_rv_ex = attrib_ex.getBranch();
-        rq::Expression *attrib_br_ex_ptr = attrib_rv_ex.getNextPtr();
-        rq::StaticRvalue attrib_rv =
-            this->evaluateStaticRvalue(module, table, attrib_rv_ex);
-        if (!attrib_rv.getType().getIsLowAttributeType()) {
-          RQ_UNHANDLED_ERROR("not low attribute");
-        }
-        rq::LowAttribute attrib = attrib_rv.getValue().getLowAttribute();
-        if (!factory.addFlag(attrib, attrib_br_ex_ptr)) {
-          RQ_UNHANDLED_ERROR("duplicate attribute of kind");
-        }
-      }
-    } else {
-      unascribed_ex_ptr = &branch_ex;
-    }
-    rq::Expression &unascribed_ex = rq::dereferencePtr(unascribed_ex_ptr);
+    rq::LowFactory factory{};
+    rq::Expression &unascribed_ex =
+        this->evaluateLowFuseFlags(module, hosting_table, factory, branch_ex);
+    rq::SymbolTable &containing_table =
+        this->evaluateContainingTable(module, hosting_table, factory);
     switch (unascribed_ex.getKeyword()) {
     case K::FUNCTION: {
+      if (!this->validateAttributes(
+              containing_table, unascribed_ex, factory,
+              LF::OPAQUE | LF::EXPORT | LF::PUBLIC | LF::CAPTURE | LF::INLINE |
+                  LF::MANGLE | LF::DEPRECIATED | LF::EXPERIMENTAL |
+                  LF::TEMPLATE | LF::CONSTRAINT | LF::WEIGHT | LF::REQUIRE |
+                  LF::ENSURE)) {
+        continue;
+      }
       rq::Expression &name_ex = unascribed_ex.getBranch();
       rq::Expression *body_ex_ptr = name_ex.getNextPtr();
-      rq::Name name = this->evaluateName(table, module, name_ex);
+      rq::Name name = this->evaluateName(hosting_table, module, name_ex);
       rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          table, name, table, unascribed_ex, &name_ex, factory.getFlags(),
-          module, body_ex_ptr, nullptr, nullptr,
-          factory.getExpressionPtr(rq::LowAttributeKind::MANGLE_ATTRIBUTE),
-          nullptr, nullptr);
-      ;
-      table.addMember(this->getContext(), name, func);
+          containing_table, name, hosting_table, unascribed_ex, &name_ex,
+          factory.getFuseFlags(), module, body_ex_ptr, /*template_ptr=*/nullptr,
+          factory.getExpressionPair(LAK::MANGLE_ATTRIBUTE).getAttachmentExPtr(),
+          factory.getExpressionPair(LAK::REQUIRE_ATTRIBUTE)
+              .getAttachmentExPtr(),
+          factory.getExpressionPair(LAK::ENSURE_ATTRIBUTE)
+              .getAttachmentExPtr());
+      containing_table.addMember(this->getContext(), name, func);
       break;
     }
     default:
@@ -116,12 +122,12 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
     rq::DottedInstructionFactory &inst_factory, rq::Module &module,
     rq::Function &function, rq::SymbolTable &table, rq::Expression &state0_ex) {
   for (rq::Expression &state_ex : state0_ex.getInclusiveNextSubrange()) {
-    rq::LowFlagsFactory flags_factory;
+    rq::LowFactory flags_factory;
   }
 }
 
 [[nodiscard]] rq::LocalBreak Evaluator::evaluateDynamicLocalStatement(
-    rq::DottedInstructionFactory &factory, rq::HighFlagsFactory &flags_factory,
+    rq::DottedInstructionFactory &inst_factory, rq::LowFactory &flags_factory,
     rq::Function &function, rq::ConstantSymbol &result_type,
     rq::SymbolTable &table, rq::Module &module, rq::Expression &state_ex) {
   using K = rq::Keyword;
@@ -151,7 +157,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
       rq::LocalDynamicVariable &var =
           llvm::cast<rq::LocalDynamicVariable>(lvalue.getSymbol());
       rq::ConstantSymbol &type_ct = this->getContext().acquireConstantSymbol(
-          lvalue.getType().getFlags(), type);
+          lvalue.getType().getInfoFlags(), type);
       var.completeType(type_ct);
     }
     rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
@@ -175,7 +181,7 @@ void Evaluator::evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
     }
     rq::ScopeStatement &scope =
         this->getContext().allocateValue<rq::ScopeStatement>(
-            table, state_ex, rq::LowFlags::NONE, module);
+            table, state_ex, rq::LowFuseFlags::NONE, module);
     rq::Expression &branch0_ex = state_ex.getBranch();
     rq::Instruction *next_ptr = this->evaluateLocalScope(
         function, result_type, scope, module, branch0_ex);
@@ -271,7 +277,8 @@ void Evaluator::evaluate(rq::Module &module) {
     return;
   }
   rq::Expression &body_ex = top_ex.getBranch();
-  this->evaluateGlobalScope(this->getContext().getTop(), module, body_ex);
+  rq::SymbolTable &hosting_table = this->getContext().getTop();
+  this->evaluateGlobalScope(module, hosting_table, body_ex);
 }
 
 void Evaluator::evaluate(rq::ClassType &class_) {
@@ -365,7 +372,7 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
                                  rq::SymbolTable &table, rq::Module &module,
                                  rq::Expression &lvalue_ex) {
   using K = rq::Keyword;
-  using TF = rq::HighFlags;
+  using TF = rq::HighFuseFlags;
   switch (lvalue_ex.getKeyword()) {
   case K::IDENTIFIER_LITERAL: {
     rq::Name name = this->evaluateName(table, module, lvalue_ex);
@@ -380,7 +387,7 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
     if (llvm::isa<rq::LocalDynamicVariable>(symbol)) {
       rq::LocalDynamicVariable &var =
           llvm::cast<rq::LocalDynamicVariable>(symbol);
-      if (rq::getHasNone(var.getType().getFlags(), TF::VAR)) {
+      if (rq::getHasNone(var.getType().getInfoFlags(), TF::VAR)) {
         RQ_UNHANDLED_ERROR("assigning to constant variable");
       }
       return rq::DynamicLvalue(var, var.getType());
@@ -413,7 +420,7 @@ Evaluator::evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
       }
       rq::LocalDynamicVariable &var =
           this->getContext().allocateValue<rq::LocalDynamicVariable>(
-              name, table, table, module, rq::LowFlags::NONE, type);
+              name, table, table, module, rq::LowFuseFlags::NONE, type);
       table.addMember(this->getContext(), name, var);
       return rq::DynamicLvalue(var, type);
     }
@@ -432,7 +439,7 @@ Evaluator::evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &table,
                                 rq::Expression &rvalue_ex) {
   using K = rq::Keyword;
   using S = rq::SymbolKind;
-  rq::HighFlagsFactory factory{};
+  rq::HighFactory factory{};
   rq::Expression *unascribed_ex_ptr = nullptr;
   if (rvalue_ex.getKeyword() == K::ASCRIBE_HIGH) {
     rq::Expression &unascribed_ex = rvalue_ex.getBranch();
@@ -461,13 +468,13 @@ Evaluator::evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &table,
     }
     rq::Symbol &symbol = this->getContext().acquireSignedIntegerType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol},
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFuseFlags(), &symbol},
                             type);
   }
   case K::INFERENCE: {
     rq::Symbol &symbol = this->getContext().acquireInferenceType();
     rq::Symbol &type = this->getContext().acquireSymbolType();
-    return rq::StaticRvalue(rq::StaticSymbol{factory.getFlags(), &symbol},
+    return rq::StaticRvalue(rq::StaticSymbol{factory.getFuseFlags(), &symbol},
                             type);
   }
   case K::MANGLE: {
@@ -948,6 +955,10 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     rq::Name name(text);
     return name;
   }
+  case K::THIS:
+    [[fallthrough]];
+  case K::OUT:
+    [[fallthrough]];
   case K::RESULT: {
     rq::Name name{name_ex.getKeyword()};
     return name;
@@ -956,6 +967,39 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     break;
   }
   RQ_UNREACHABLE();
+}
+
+[[nodiscard]] rq::SymbolTable &
+Evaluator::evaluateContainingTable(rq::Module &module,
+                                   rq::SymbolTable &hosting_table,
+                                   rq::LowFactory &factory) {
+  using LFF = rq::LowFuseFlags;
+  using HFF = rq::HighFuseFlags;
+  using LAK = rq::LowAttributeKind;
+  if (rq::getHasNone(factory.getFuseFlags(), LFF::FLANK)) {
+    return hosting_table;
+  }
+  rq::LowExpressionPair pair = factory.getExpressionPair(LAK::FLANK_ATTRIBUTE);
+  if (pair.getAttachmentExPtr() == nullptr) {
+    return hosting_table; // this is error, but is handled in validateAttributes
+  }
+  rq::Expression &attachment_ex = rq::dereferencePtr(pair.getAttachmentExPtr());
+  rq::StaticRvalue anchor_rv =
+      this->evaluateStaticRvalue(module, hosting_table, attachment_ex);
+  if (anchor_rv.getType() != this->getContext().acquireSymbolType()) {
+    RQ_UNHANDLED_ERROR("expected symbol");
+  }
+  if (anchor_rv.getValue().getSymbol().flags != HFF::NONE) {
+    RQ_UNHANDLED_ERROR("expected no high flags");
+  }
+  rq::Symbol &anchor_sy =
+      rq::dereferencePtr(anchor_rv.getValue().getSymbol().symbol_ptr);
+  if (!llvm::isa<rq::Anchor>(anchor_sy)) {
+    RQ_UNHANDLED_ERROR("expected anchor");
+  }
+  rq::Anchor &anchor = llvm::cast<rq::Anchor>(anchor_sy);
+  rq::SymbolTable &containing_table = anchor.getVessel();
+  return containing_table;
 }
 
 [[nodiscard]] rq::Symbol *Evaluator::completeType(rq::Symbol &to_type,
@@ -982,7 +1026,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     }
     rq::Symbol &child = rq::dereferencePtr(child_ptr);
     rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
-        to_inf_array.getChild().getFlags(), child);
+        to_inf_array.getChild().getInfoFlags(), child);
     rq::ArraySubtype &array =
         this->getContext().acquireArraySubtype(child_ct, from_array.getCount());
     return &array;
@@ -1002,7 +1046,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     }
     rq::Symbol &child = rq::dereferencePtr(child_ptr);
     rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
-        to_subtype.getChild().getFlags(), child);
+        to_subtype.getChild().getInfoFlags(), child);
     rq::UncountedSubtype &subtype = this->getContext().acquireUncountedSubtype(
         to_subtype.getKind(), child_ct);
     return &subtype;
@@ -1023,7 +1067,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     }
     rq::Symbol &child = rq::dereferencePtr(child_ptr);
     rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
-        to_array.getChild().getFlags(), child);
+        to_array.getChild().getInfoFlags(), child);
     rq::ArraySubtype &subtype =
         this->getContext().acquireArraySubtype(child_ct, to_array.getCount());
     return &subtype;
@@ -1033,7 +1077,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
 
 [[nodiscard]] rq::Symbol &Evaluator::deliteralizeType(rq::Symbol &type) {
   using S = rq::SymbolKind;
-  using TF = rq::HighFlags;
+  using HFF = rq::HighFuseFlags;
   if (type.getKind() == S::INTEGER_LITERAL_TYPE) {
     return this->getContext().acquireSignedIntegerType();
   }
@@ -1043,7 +1087,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
   if (type.getKind() == S::STRING_LITERAL_TYPE) {
     rq::Symbol &child = this->getContext().acquireCharType();
     rq::ConstantSymbol &child_ct =
-        this->getContext().acquireConstantSymbol(TF::NONE, child);
+        this->getContext().acquireConstantSymbol(HFF::NONE, child);
     rq::SliceSubtype &slice = this->getContext().acquireSliceSubtype(child_ct);
     return slice;
   }
@@ -1056,7 +1100,7 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     rq::Symbol &child =
         this->deliteralizeType(uc_subtype.getChild().getSymbol());
     rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
-        uc_subtype.getChild().getFlags(), child);
+        uc_subtype.getChild().getInfoFlags(), child);
     rq::UncountedSubtype &new_subtype =
         this->getContext().acquireUncountedSubtype(uc_subtype.getKind(),
                                                    child_ct);
@@ -1066,12 +1110,59 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
     rq::ArraySubtype &array = llvm::cast<rq::ArraySubtype>(type);
     rq::Symbol &child = this->deliteralizeType(array.getChild().getSymbol());
     rq::ConstantSymbol &child_ct = this->getContext().acquireConstantSymbol(
-        array.getChild().getFlags(), child);
+        array.getChild().getInfoFlags(), child);
     rq::ArraySubtype &new_array =
         this->getContext().acquireArraySubtype(child_ct, array.getCount());
     return new_array;
   }
   return type;
+}
+
+[[nodiscard]] bool
+Evaluator::validateAttributes(rq::SymbolTable &containing_table,
+                              rq::Expression &unascribed_ex,
+                              rq::LowFactory &factory, rq::LowFuseFlags flags) {
+  using LA = rq::LowAttribute;
+  using LAK = rq::LowAttributeKind;
+  using LFF = rq::LowFuseFlags;
+  for (unsigned attribute_i = static_cast<unsigned>(LA::NONE) + 1;
+       attribute_i < static_cast<unsigned>(LA::LAST); attribute_i++) {
+    LA attribute = static_cast<LA>(attribute_i);
+    LFF flag = rq::getFuseFlags(attribute);
+    if (!rq::getHasSome(factory.getFuseFlags(), flag)) {
+      continue;
+    }
+    LAK kind = rq::getKind(attribute);
+    rq::LowExpressionPair pair = factory.getExpressionPair(kind);
+    if (rq::getMustHaveAttachment(attribute)) {
+      if (pair.getAttachmentExPtr() == nullptr) {
+        RQ_UNHANDLED_ERROR("attribute must have attachment");
+      }
+    } else if (rq::getMustNotHaveAttachment(attribute)) {
+      if (pair.getAttachmentExPtr() != nullptr) {
+        RQ_UNHANDLED_ERROR("attribute must not have attachment");
+      }
+    }
+    if (rq::getHasNone(flags, flag)) {
+      this->getContext().logErrorInvalidLowAttribute(
+          unascribed_ex, pair.getInstantiationEx(), attribute);
+    }
+  }
+  if (rq::getHasNone(factory.getFuseFlags(), LFF::TEMPLATE)) {
+    if (rq::getHasAll(factory.getFuseFlags(), LFF::CONSTRAINT)) {
+      RQ_UNHANDLED_ERROR("constraint low attribute must be paired with "
+                         "template low attribute");
+    }
+    if (rq::getHasAll(factory.getFuseFlags(), LFF::WEIGHT)) {
+      RQ_UNHANDLED_ERROR(
+          "weight low attribute must be paired with template low attribute");
+    }
+  }
+  if (!containing_table.getIsObjectScope()) {
+    if (rq::getHasAll(factory.getFuseFlags(), LFF::PUBLIC)) {
+      RQ_UNHANDLED_ERROR("symbol with public low attribute not in object scope")
+    }
+  }
 }
 
 } // namespace rq

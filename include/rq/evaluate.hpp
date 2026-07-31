@@ -17,7 +17,7 @@ struct Module;
 struct Expression;
 struct SymbolTable;
 struct Instruction;
-struct LowFlagsFactory;
+struct LowFactory;
 
 struct StaticRvalue final {
   using Self = rq::StaticRvalue;
@@ -125,7 +125,7 @@ enum class LocalBreakKind : std::uint_fast8_t {
   GOTO
 };
 
-enum class LocalBreakFlags : std::uint_fast8_t {
+enum class LocalBreakInfoFlags : std::uint_fast8_t {
   NONE = 0,
 
   HAS_TARGET = rq::getBit(0),
@@ -134,12 +134,12 @@ enum class LocalBreakFlags : std::uint_fast8_t {
   NON_FRAME = rq::getBit(3)
 };
 
-template <> struct is_flags<rq::LocalBreakFlags> final : std::true_type {};
+template <> struct is_flags<rq::LocalBreakInfoFlags> final : std::true_type {};
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LocalBreakFlags
-getFlags(rq::LocalBreakKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LocalBreakInfoFlags
+getInfoFlags(rq::LocalBreakKind kind) {
   using LBK = rq::LocalBreakKind;
-  using LBF = rq::LocalBreakFlags;
+  using LBF = rq::LocalBreakInfoFlags;
   switch (kind) {
   case LBK::NONE:
     return LBF::NONE;
@@ -158,24 +158,24 @@ getFlags(rq::LocalBreakKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::LocalBreakKind kind) {
-  rq::LocalBreakFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::LocalBreakFlags::HAS_TARGET);
+  rq::LocalBreakInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakInfoFlags::HAS_TARGET);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop(rq::LocalBreakKind kind) {
-  rq::LocalBreakFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::LocalBreakFlags::LOOP);
+  rq::LocalBreakInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakInfoFlags::LOOP);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInCase(rq::LocalBreakKind kind) {
-  rq::LocalBreakFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::LocalBreakFlags::CASE);
+  rq::LocalBreakInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakInfoFlags::CASE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeInNonFrame(rq::LocalBreakKind kind) {
-  rq::LocalBreakFlags flags = rq::getFlags(kind);
-  return rq::getHasAll(flags, rq::LocalBreakFlags::NON_FRAME);
+  rq::LocalBreakInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::LocalBreakInfoFlags::NON_FRAME);
 }
 
 struct LocalBreak final {
@@ -293,18 +293,20 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void evaluateGlobalScope(rq::SymbolTable &table, rq::Module &module,
+  void evaluateGlobalScope(rq::Module &module, rq::SymbolTable &hosting_table,
                            rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression &evaluateLowFlags(rq::Module& module, rq::SymbolTable& table, rq::LowFlagsFactory &factory,
+  [[nodiscard]] rq::Expression &evaluateLowFuseFlags(rq::Module &module,
+                                                 rq::SymbolTable &hosting_table,
+                                                 rq::LowFactory &factory,
                                                  rq::Expression &asc_ex);
   [[nodiscard]] rq::LocalBreak evaluateStaticOrDynamicLocalStatements(
       rq::DottedInstructionFactory &inst_factory, rq::Module &module,
-      rq::Function &function, rq::SymbolTable &table,
+      rq::Function &function, rq::SymbolTable &hosting_table,
       rq::Expression &state0_ex);
   [[nodiscard]] rq::LocalBreak evaluateDynamicLocalStatement(
       rq::DottedInstructionFactory &inst_factory,
-      rq::LowFlagsFactory &flags_factory, rq::Function &function,
-      rq::ConstantSymbol &result_type, rq::SymbolTable &table,
+      rq::LowFactory &flags_factory, rq::Function &function,
+      rq::ConstantSymbol &result_type, rq::SymbolTable &hosting_table,
       rq::Module &module, rq::Expression &state_ex);
   void evaluate(rq::Module &module);
   void evaluate(rq::ClassType &class_);
@@ -316,48 +318,60 @@ struct Evaluator final {
   void evaluate(rq::Function &func);
 
   [[nodiscard]] rq::DynamicLvalue
-  evaluateDynamicLvalue(rq::ConstantSymbol &result_type, rq::SymbolTable &table,
-                        rq::Module &module, rq::Expression &lvalue_ex);
+  evaluateDynamicLvalue(rq::ConstantSymbol &result_type,
+                        rq::SymbolTable &hosting_table, rq::Module &module,
+                        rq::Expression &lvalue_ex);
 
   [[nodiscard]] rq::StaticRvalue
-  evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &table,
+  evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &hosting_table,
                        rq::Expression &rvalue_ex);
   // etc
 
   [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
+  evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &hosting_table,
                         rq::Expression &rvalue_ex);
 
   [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicArithmeticRvalue(rq::SymbolTable &table, rq::Module &module,
-                                  rq::Expression &rvalue_ex, rq::Opcode opcode);
+  evaluateDynamicArithmeticRvalue(rq::SymbolTable &hosting_table,
+                                  rq::Module &module, rq::Expression &rvalue_ex,
+                                  rq::Opcode opcode);
 
   [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicLogicalRvalue(rq::SymbolTable &table, rq::Module &module,
-                               rq::Expression &rvalue_ex, rq::Opcode opcode);
+  evaluateDynamicLogicalRvalue(rq::SymbolTable &hosting_table,
+                               rq::Module &module, rq::Expression &rvalue_ex,
+                               rq::Opcode opcode);
 
   [[nodiscard]] rq::DynamicRvalue evaluateDynamicOrderedComparisonRvalue(
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
-      rq::Opcode opcode);
+      rq::SymbolTable &hosting_table, rq::Module &module,
+      rq::Expression &rvalue_ex, rq::Opcode opcode);
 
   [[nodiscard]] rq::DynamicRvalue evaluateDynamicEquivalenceComparisonRvalue(
-      rq::SymbolTable &table, rq::Module &module, rq::Expression &rvalue_ex,
-      rq::Opcode opcode);
+      rq::SymbolTable &hosting_table, rq::Module &module,
+      rq::Expression &rvalue_ex, rq::Opcode opcode);
 
   [[nodiscard]] rq::Entity &foldDynamicRvalue(rq::Entity &rvalue,
                                               rq::Symbol &type);
 
   [[nodiscard]] rq::DynamicRvalue
-  evaluateDynamicIdentifierRvalue(rq::SymbolTable &table, rq::Module &module,
-                                  rq::Name name);
+  evaluateDynamicIdentifierRvalue(rq::SymbolTable &hosting_table,
+                                  rq::Module &module, rq::Name name);
 
-  [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &table,
+  [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &hosting_table,
                                       rq::Module &module,
                                       rq::Expression &name_ex);
+
+  [[nodiscard]] rq::SymbolTable &
+  evaluateContainingTable(rq::Module &module, rq::SymbolTable &hosting_table,
+                          rq::LowFactory &factory);
 
   [[nodiscard]] rq::Symbol *completeType(rq::Symbol &to_type,
                                          rq::Symbol &from_type);
 
   [[nodiscard]] rq::Symbol &deliteralizeType(rq::Symbol &type);
+
+  [[nodiscard]] bool validateAttributes(rq::SymbolTable &containing_table,
+                                        rq::Expression &unascribed_ex,
+                                        rq::LowFactory &factory,
+                                        rq::LowFuseFlags flags);
 };
 } // namespace rq

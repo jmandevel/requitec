@@ -44,12 +44,12 @@ using StaticArray = std::vector<rq::StaticValue>;
 using StaticDataArray = std::vector<std::byte>;
 
 struct Symbol;
-enum class HighFlags : std::uint_fast8_t;
+enum class HighFuseFlags : std::uint_fast8_t;
 
 struct StaticSymbol final {
   using Self = rq::StaticSymbol;
 
-  rq::HighFlags flags;
+  rq::HighFuseFlags flags;
   rq::Symbol *symbol_ptr;
 };
 
