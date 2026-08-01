@@ -334,7 +334,7 @@ struct Evaluator final {
   void declareFunction(rq::Function &function);
   void implementFunction(rq::Function &function);
 
-  void destroyAllLocalVariables(rq::SymbolTable &table,
+  [[nodiscard]] bool destroyAllLocalVariables(rq::SymbolTable &table,
                                 rq::DottedInstructionFactory &dot_factory);
 
   [[nodiscard]] rq::Jump

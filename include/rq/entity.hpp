@@ -724,6 +724,9 @@ enum class Opcode : rq::EntityId {
   // address1 = rvalue
   ASSIGN,
 
+  // address0 = variable
+  REF,
+
   // address0 = true_path
   IF,
   ELSE_IF,
@@ -748,6 +751,10 @@ enum class Opcode : rq::EntityId {
   // address0 = none
   // address1 = none
   RETURN,
+
+  // address0 = function
+  // address1 = push_args
+  CALL,
 
   // COMPARISON
   // address0 = operand type

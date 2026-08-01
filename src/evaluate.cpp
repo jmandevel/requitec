@@ -235,18 +235,74 @@ void Evaluator::implementFunction(rq::Function &function) {
       }
     }
   }
-  this->destroyAllLocalVariables(function, dot_factory);
+  if (!this->destroyAllLocalVariables(function, dot_factory)) {
+    function.setState(ES::ERROR);
+  } else {
+    function.setState(ES::IMPLEMENTED);
+  }
   rq::Instruction *outer_inst_ptr =
       llvm::cast_or_null<rq::Instruction>(dot_factory.getOuterPtr());
   function.setInstructionPtr(outer_inst_ptr);
-  function.setState(ES::IMPLEMENTED);
 }
 
-void Evaluator::destroyAllLocalVariables(
+bool Evaluator::destroyAllLocalVariables(
     rq::SymbolTable &table, rq::DottedInstructionFactory &dot_factory) {
-  std::ignore = table;
-  std::ignore = dot_factory;
-  RQ_TODO_IMPLEMENTATION();
+  using K = rq::Keyword;
+  using O = rq::Opcode;
+  using ES = rq::EvaluationState;
+  for (auto &kvp : table.getSymbolListSubrange()) {
+    rq::BumpPtrListRef<rq::Symbol> list = kvp.getSecond();
+    for (rq::Symbol &symbol : list) {
+      if (llvm::isa<rq::LocalDynamicVariable>(symbol)) {
+        rq::LocalDynamicVariable &local =
+            llvm::cast<rq::LocalDynamicVariable>(symbol);
+        // TODO continue if local is inactive already
+        rq::Symbol &type_sy = local.getType().getSymbol();
+        if (llvm::isa<rq::ClassType>(type_sy)) {
+          rq::ClassType &class_ = llvm::cast<rq::ClassType>(type_sy);
+          rq::Name name{K::DESTROY};
+          auto destroy_list = class_.lookupList(name);
+          if (destroy_list.getIsEmpty()) {
+            continue;
+          }
+          if (destroy_list.getHasTail()) {
+            this->setNotOk();
+            RQ_UNHANDLED_ERROR("name collision");
+            return false;
+          }
+          rq::Symbol &destroy_sy = destroy_list.getHead();
+          rq::FunctionPolymorph &destroy_poly =
+              llvm::cast<rq::FunctionPolymorph>(destroy_sy);
+          if (destroy_poly.getHasMultipleInstance()) {
+            this->setNotOk();
+            RQ_UNHANDLED_ERROR("multiple destroy functions for type");
+            return false;
+          }
+          rq::Function &destroy_fn =
+              llvm::cast<rq::Function>(destroy_poly.getOnlyInstance());
+          this->declareFunction(destroy_fn);
+          if (destroy_fn.getState() == ES::ERROR) {
+            this->setNotOk();
+            RQ_UNHANDLED_ERROR("error destroy function");
+            return false;
+          }
+          // NOTE: destroy function should be verified to extend container
+          // object, have no args, and have void return.
+          rq::Instruction &destroy_inst =
+              this->getContext().acquireInstruction(O::CALL);
+          destroy_inst.setAddress0(destroy_fn);
+          rq::Instruction &sret_inst =
+              this->getContext().acquireInstruction(O::REF);
+          sret_inst.setAddress0(local);
+          destroy_inst.setAddress1(sret_inst);
+          dot_factory.append(destroy_inst);
+        }
+      } else if (llvm::isa<rq::LocalStaticVariable>(symbol)) {
+        RQ_TODO_IMPLEMENTATION();
+      }
+    }
+  }
+  return true;
 }
 
 [[nodiscard]] rq::Jump Evaluator::evaluateDynamicLocalStatement(
