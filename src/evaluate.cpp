@@ -40,12 +40,14 @@ void DottedInstructionFactory::append(rq::Entity &entity) {
 }
 
 void Evaluator::evaluateSourceModule() {
+  using S = rq::SymbolKind;
+  using O = rq::Opcode;
   rq::Module &source = this->getContext().getSourceModule();
-  this->evaluate(source);
+  this->declareAllSymbols(source);
   if (!this->getIsOk()) {
     return;
   }
-  this->evaluateAllModuleSymbols(source);
+  this->implementAllSymbols(source);
 }
 
 [[nodiscard]] rq::Expression &
@@ -76,40 +78,26 @@ Evaluator::evaluateLowFuseFlags(rq::Module &module, rq::SymbolTable &table,
   return unasc_ex;
 }
 
-void Evaluator::evaluateGlobalScope(rq::Module &module,
-                                    rq::SymbolTable &hosting_table,
+void Evaluator::evaluateGlobalScope(rq::Module &module, rq::SymbolTable &host,
                                     rq::Expression &first_ex) {
   using K = rq::Keyword;
-  using LAK = rq::LowAttributeKind;
   using LF = rq::LowFuseFlags;
   for (rq::Expression &branch_ex : first_ex.getInclusiveNextSubrange()) {
     rq::LowFactory factory{};
     rq::Expression &unascribed_ex =
-        this->evaluateLowFuseFlags(module, hosting_table, factory, branch_ex);
-    rq::SymbolTable &containing_table =
-        this->evaluateContainingTable(module, hosting_table, factory);
+        this->evaluateLowFuseFlags(module, host, factory, branch_ex);
+    rq::SymbolTable &container = this->evaluateContainer(module, host, factory);
     switch (unascribed_ex.getKeyword()) {
     case K::FUNCTION: {
       if (!this->validateAttributes(
-              containing_table, unascribed_ex, factory,
+              container, unascribed_ex, factory,
               LF::OPAQUE | LF::EXPORT | LF::PUBLIC | LF::CAPTURE | LF::INLINE |
                   LF::MANGLE | LF::DEPRECIATED | LF::EXPERIMENTAL |
                   LF::TEMPLATE | LF::CONSTRAINT | LF::WEIGHT | LF::REQUIRE |
                   LF::ENSURE)) {
         continue;
       }
-      rq::Expression &name_ex = unascribed_ex.getBranch();
-      rq::Expression *body_ex_ptr = name_ex.getNextPtr();
-      rq::Name name = this->evaluateName(hosting_table, module, name_ex);
-      rq::Function &func = this->getContext().allocateValue<rq::Function>(
-          containing_table, name, hosting_table, unascribed_ex, &name_ex,
-          factory.getFuseFlags(), module, body_ex_ptr, /*template_ptr=*/nullptr,
-          factory.getExpressionPair(LAK::MANGLE_ATTRIBUTE).getAttachmentExPtr(),
-          factory.getExpressionPair(LAK::REQUIRE_ATTRIBUTE)
-              .getAttachmentExPtr(),
-          factory.getExpressionPair(LAK::ENSURE_ATTRIBUTE)
-              .getAttachmentExPtr());
-      containing_table.addMember(this->getContext(), name, func);
+      this->nameFunction(module, container, host, factory, unascribed_ex);
       break;
     }
     default:
@@ -118,15 +106,83 @@ void Evaluator::evaluateGlobalScope(rq::Module &module,
   }
 }
 
-[[nodiscard]] rq::LocalBreak Evaluator::evaluateStaticOrDynamicLocalStatements(
-    rq::DottedInstructionFactory &inst_factory, rq::Module &module,
-    rq::Function &function, rq::SymbolTable &table, rq::Expression &state0_ex) {
-  for (rq::Expression &state_ex : state0_ex.getInclusiveNextSubrange()) {
-    rq::LowFactory flags_factory;
+void Evaluator::nameFunction(rq::Module &module, rq::SymbolTable &container,
+                             rq::SymbolTable &host, rq::LowFactory &factory,
+                             rq::Expression &ex) {
+  using LAK = rq::LowAttributeKind;
+  rq::Expression &name_ex = ex.getBranch();
+  rq::Expression &first_header_ex = name_ex.getNext();
+  rq::Name name = this->evaluateName(host, module, name_ex);
+  rq::Function &func = this->getContext().allocateValue<rq::Function>(
+      container, name, host, ex, &name_ex, factory.getFuseFlags(), module,
+      first_header_ex, /*template_ptr=*/nullptr,
+      factory.getExpressionPair(LAK::MANGLE_ATTRIBUTE).getAttachmentExPtr(),
+      factory.getExpressionPair(LAK::REQUIRE_ATTRIBUTE).getAttachmentExPtr(),
+      factory.getExpressionPair(LAK::ENSURE_ATTRIBUTE).getAttachmentExPtr());
+  container.addMember(this->getContext(), name, func);
+}
+
+void Evaluator::declareFunction(rq::Function &function) {
+  using ES = rq::EvaluationState;
+  using LFF = rq::LowFuseFlags;
+  using J = rq::JumpKind;
+  if (function.getState() >= ES::DECLARED) {
+    return;
+  }
+  rq::Expression &first_header_ex = function.getFirstHeaderEx();
+  for (rq::Expression &header_ex : first_header_ex.getNextSubrange()) {
+    if (header_ex.getIsTag()) {
+      rq::StaticRvalue signature_rv =
+          this->evaluateStaticRvalue(function.getModule(), function, header_ex);
+      if (signature_rv.getIsEmpty()) {
+        RQ_UNHANDLED_ERROR("error evaluating signature");
+      }
+      if (signature_rv.getType() != this->getContext().acquireSymbolType()) {
+        RQ_UNHANDLED_ERROR("expected symbol");
+      }
+      rq::Symbol &signature_sy =
+          rq::dereferencePtr(signature_rv.getValue().getSymbol().symbol_ptr);
+      if (!llvm::isa<rq::Signature>(signature_sy)) {
+        RQ_UNHANDLED_ERROR("expected signature");
+      }
+      rq::Signature &signature = llvm::cast<rq::Signature>(signature_sy);
+      function.setSignature(signature);
+      return;
+    }
+    rq::LowFactory factory{};
+    rq::Expression &unascribed_ex = this->evaluateLowFuseFlags(
+        function.getModule(), function, factory, header_ex);
+    if (rq::getHasNone(factory.getFuseFlags(), LFF::STATIC)) {
+      RQ_UNHANDLED_ERROR("expected static statement before function signature");
+    }
+    rq::Jump jump = this->evaluateStaticLocalStatement(
+        function.getModule(), function, unascribed_ex, factory);
+    if (jump.getKind() != J::NONE) {
+      RQ_UNHANDLED_ERROR("invalid jump before function signature");
+    }
   }
 }
 
-[[nodiscard]] rq::LocalBreak Evaluator::evaluateDynamicLocalStatement(
+void Evaluator::implementFunction(rq::Function &function) {
+  using ES = rq::EvaluationState;
+  if (function.getState() >= ES::IMPLEMENTED) {
+    return;
+  }
+  this->declareFunction(function);
+  rq::Signature &signature = rq::dereferencePtr(function.getSignaturePtr());
+  for (rq::SignatureParameter &parameter :
+       signature.getSignatureParameterSubrange()) {
+    rq::Name name = parameter.getName();
+    rq::FunctionArgument &argument =
+        this->getContext().allocateValue<rq::FunctionArgument>(
+            name, function, function.getModule(), parameter);
+    function.addMember(this->getContext(), name, argument);
+  }
+  rq::Expression &first_body_ex =
+      rq::dereferencePtr(function.getFirstBodyExpressionPtr());
+}
+
+[[nodiscard]] rq::Jump Evaluator::evaluateDynamicLocalStatement(
     rq::DottedInstructionFactory &inst_factory, rq::LowFactory &flags_factory,
     rq::Function &function, rq::ConstantSymbol &result_type,
     rq::SymbolTable &table, rq::Module &module, rq::Expression &state_ex) {
@@ -209,12 +265,12 @@ void Evaluator::evaluateGlobalScope(rq::Module &module,
   case K::RETURN: {
     rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
     factory.append(inst);
-    return rq::LocalBreak(rq::LocalBreakKind::RETURN);
+    return rq::Jump(rq::JumpKind::RETURN);
   }
   default:
     RQ_UNREACHABLE();
   }
-  return rq::LocalBreak();
+  return rq::Jump();
 }
 
 [[nodiscard]] rq::Instruction *Evaluator::evaluateLocalScope(
@@ -240,7 +296,7 @@ void Evaluator::evaluateGlobalScope(rq::Module &module,
     if (!result_list.getIsEmpty()) {
       rq::LocalDynamicVariable &result =
           llvm::cast<rq::LocalDynamicVariable>(result_list.getHead());
-      if (result.getContainingTable() == table) {
+      if (result.getContainer() == table) {
         RQ_UNHANDLED_ERROR(
             "must return from scope where result is initialized");
       }
@@ -271,14 +327,38 @@ void Evaluator::evaluateAllModuleSymbols(rq::Module &module) {
   }
 }
 
-void Evaluator::evaluate(rq::Module &module) {
+void Evaluator::declareAllSymbols(rq::Module &module) {
   rq::Expression &top_ex = module.getExpression();
   if (!top_ex.getHasBranch()) {
     return;
   }
   rq::Expression &body_ex = top_ex.getBranch();
-  rq::SymbolTable &hosting_table = this->getContext().getTop();
-  this->evaluateGlobalScope(module, hosting_table, body_ex);
+  rq::SymbolTable &host = this->getContext().getTop();
+  this->evaluateGlobalScope(module, host, body_ex);
+}
+
+void Evaluator::implementAllSymbols(rq::Module &module) {
+  using S = rq::SymbolKind;
+  using O = rq::Opcode;
+  using ES = rq::EvaluationState;
+  for (auto &kvp : this->getContext().getTop().getSymbolListSubrange()) {
+    rq::Name name = kvp.getFirst();
+    rq::BumpPtrListRef<rq::Symbol> list = kvp.getSecond();
+    for (rq::Symbol &symbol : list) {
+      switch (symbol.getKind()) {
+      case S::FUNCTION: {
+        rq::Function &function = llvm::cast<rq::Function>(symbol);
+        if (function.getModule() != module) {
+          continue;
+        }
+        if (function.getState() != ES::DECLARED) {
+          continue;
+        }
+        this->implement(function);
+      }
+      }
+    }
+  }
 }
 
 void Evaluator::evaluate(rq::ClassType &class_) {
@@ -308,16 +388,13 @@ void Evaluator::evaluate(rq::GlobalStaticVariable &var) {
   RQ_TODO_IMPLEMENTATION();
 }
 
-void Evaluator::evaluate(rq::Function &func) {
+void Evaluator::evaluatePrototype(rq::Function &func) {
   using K = rq::Keyword;
-  if (func.getFirstBodyExpressionPtr() == nullptr) {
-    return;
-  }
   if (func.getMangleExpressionPtr() != nullptr) {
     rq::Expression &mangle_ex =
         rq::dereferencePtr(func.getMangleExpressionPtr());
     rq::Name mangle =
-        this->evaluateName(func.getHostingTable(), func.getModule(), mangle_ex);
+        this->evaluateName(func.getHost(), func.getModule(), mangle_ex);
     if (mangle.getText().empty()) {
       RQ_UNHANDLED_ERROR("invalid name");
     }
@@ -331,6 +408,9 @@ void Evaluator::evaluate(rq::Function &func) {
     rq::Name mangled_name(mangled_str);
     this->getContext().getC().addMember(this->getContext(), mangled_name, func);
   }
+  if (func.getFirstBodyExpressionPtr() == nullptr) {
+    return;
+  }
   rq::Expression &statement0 =
       rq::dereferencePtr(func.getFirstBodyExpressionPtr());
   rq::Expression *body_ptr = &statement0;
@@ -339,8 +419,8 @@ void Evaluator::evaluate(rq::Function &func) {
     RQ_TODO_IMPLEMENTATION();
   }
   rq::Expression &sig_ex = statement0;
-  rq::StaticRvalue sig_rv = this->evaluateStaticRvalue(
-      func.getModule(), func.getHostingTable(), sig_ex);
+  rq::StaticRvalue sig_rv =
+      this->evaluateStaticRvalue(func.getModule(), func.getHost(), sig_ex);
   if (sig_rv.getIsEmpty()) {
     RQ_UNHANDLED_ERROR("invalid rvalue");
   }
@@ -970,22 +1050,22 @@ Evaluator::evaluateDynamicIdentifierRvalue(rq::SymbolTable &table,
 }
 
 [[nodiscard]] rq::SymbolTable &
-Evaluator::evaluateContainingTable(rq::Module &module,
-                                   rq::SymbolTable &hosting_table,
-                                   rq::LowFactory &factory) {
+Evaluator::evaluateContainer(rq::Module &module, rq::SymbolTable &host,
+                             rq::LowFactory &factory) {
   using LFF = rq::LowFuseFlags;
   using HFF = rq::HighFuseFlags;
   using LAK = rq::LowAttributeKind;
   if (rq::getHasNone(factory.getFuseFlags(), LFF::FLANK)) {
-    return hosting_table;
+    return host;
   }
   rq::LowExpressionPair pair = factory.getExpressionPair(LAK::FLANK_ATTRIBUTE);
   if (pair.getAttachmentExPtr() == nullptr) {
-    return hosting_table; // this is error, but is handled in validateAttributes
+    return host; // this is error, but is handled in
+                 // validateAttributes
   }
   rq::Expression &attachment_ex = rq::dereferencePtr(pair.getAttachmentExPtr());
   rq::StaticRvalue anchor_rv =
-      this->evaluateStaticRvalue(module, hosting_table, attachment_ex);
+      this->evaluateStaticRvalue(module, host, attachment_ex);
   if (anchor_rv.getType() != this->getContext().acquireSymbolType()) {
     RQ_UNHANDLED_ERROR("expected symbol");
   }
@@ -998,8 +1078,8 @@ Evaluator::evaluateContainingTable(rq::Module &module,
     RQ_UNHANDLED_ERROR("expected anchor");
   }
   rq::Anchor &anchor = llvm::cast<rq::Anchor>(anchor_sy);
-  rq::SymbolTable &containing_table = anchor.getVessel();
-  return containing_table;
+  rq::SymbolTable &container = anchor.getVessel();
+  return container;
 }
 
 [[nodiscard]] rq::Symbol *Evaluator::completeType(rq::Symbol &to_type,
@@ -1118,10 +1198,10 @@ Evaluator::evaluateContainingTable(rq::Module &module,
   return type;
 }
 
-[[nodiscard]] bool
-Evaluator::validateAttributes(rq::SymbolTable &containing_table,
-                              rq::Expression &unascribed_ex,
-                              rq::LowFactory &factory, rq::LowFuseFlags flags) {
+[[nodiscard]] bool Evaluator::validateAttributes(rq::SymbolTable &container,
+                                                 rq::Expression &unascribed_ex,
+                                                 rq::LowFactory &factory,
+                                                 rq::LowFuseFlags flags) {
   using LA = rq::LowAttribute;
   using LAK = rq::LowAttributeKind;
   using LFF = rq::LowFuseFlags;
@@ -1158,7 +1238,7 @@ Evaluator::validateAttributes(rq::SymbolTable &containing_table,
           "weight low attribute must be paired with template low attribute");
     }
   }
-  if (!containing_table.getIsObjectScope()) {
+  if (!container.getIsObjectScope()) {
     if (rq::getHasAll(factory.getFuseFlags(), LFF::PUBLIC)) {
       RQ_UNHANDLED_ERROR("symbol with public low attribute not in object scope")
     }

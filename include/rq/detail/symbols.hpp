@@ -223,8 +223,8 @@ namespace rq {
     return "LocalStaticVariable";
   case S::TEMPLATE_ARGUMENT:
     return "TemplateArgument";
-  case S::PROCEDURE_ARGUMENT:
-    return "ProcedureArgument";
+  case S::FUNCTION_ARGUMENT:
+    return "FunctionArgument";
   case S::ENUMERATOR:
     return "Enumerator";
 
@@ -606,7 +606,7 @@ namespace rq {
            SIF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
-  case S::PROCEDURE_ARGUMENT:
+  case S::FUNCTION_ARGUMENT:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
 
   // SYMBOL PARAMETERS
@@ -1967,7 +1967,7 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::TEMPLATE_ARGUMENT);
 }
 
-RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
+RQ_ALWAYS_INLINE FunctionArgument::FunctionArgument(
     rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
     rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type,
     rq::ProcedureParameter &parameter)
@@ -1976,21 +1976,21 @@ RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
       _parameter_ptr(&parameter) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
-ProcedureArgument::getProcedureParameter() const {
+FunctionArgument::getProcedureParameter() const {
   return rq::dereferencePtr(this->_parameter_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-ProcedureArgument::getProcedureParameter() {
+FunctionArgument::getProcedureParameter() {
   return rq::dereferencePtr(this->_parameter_ptr);
 }
 
 [[nodiscard]] inline bool
-ProcedureArgument::classof(const rq::Entity *entity_ptr) {
+FunctionArgument::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::PROCEDURE_ARGUMENT);
+                   rq::getUnderlying(rq::SymbolKind::FUNCTION_ARGUMENT);
 }
 
 RQ_ALWAYS_INLINE

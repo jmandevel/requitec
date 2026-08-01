@@ -296,8 +296,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "continue";
   case K::FALLTHROUGH:
     return "fallthrough";
-  case K::GOTO:
-    return "goto";
   case K::RANGE_OVER:
     return "range_over";
 
@@ -466,8 +464,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "top";
-  case K::LABEL:
-    return "label";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -1144,8 +1140,6 @@ template <> struct is_flags<rq::KeywordInfoFlags> : std::true_type {};
     return KIF::STATEMENT;
   case K::FALLTHROUGH:
     return KIF::STATEMENT;
-  case K::GOTO:
-    return KIF::STATEMENT;
   case K::RANGE_OVER:
     return KIF::STATEMENT;
 
@@ -1318,8 +1312,6 @@ template <> struct is_flags<rq::KeywordInfoFlags> : std::true_type {};
     return KIF::ARGUMENT | KIF::RVALUE;
   case K::TOP:
     return KIF::ARGUMENT | KIF::RVALUE; // TOP
-  case K::LABEL:
-    return KIF::STATEMENT;
 
   // HINTS
   case K::DEBUG_BREAK:
