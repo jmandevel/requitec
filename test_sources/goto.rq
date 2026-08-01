@@ -1,8 +1,0 @@
-[import "std"];
-
-[function [main], ()[signed_integer],
-  [label Restart];
-  std.print(line="Hello!");
-  [goto Restart];
-  [result] := 0;
-];

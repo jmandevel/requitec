@@ -572,9 +572,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::FALLTHROUGH:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::GOTO:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::RANGE_OVER:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
@@ -857,9 +854,6 @@ bool Situator::situateTree(rq::Situation situation,
     default:
       is_ok = this->situateNullaryExpression(situation, expression);
     }
-    break;
-  case K::LABEL:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::NAME);
     break;
 
   // HINTS

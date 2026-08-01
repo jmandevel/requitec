@@ -168,7 +168,6 @@ enum class Keyword : rq::EntityId {
   BREAK,
   CONTINUE,
   FALLTHROUGH,
-  GOTO,
   RANGE_OVER,
 
   // DECLARED TYPES
@@ -267,7 +266,6 @@ enum class Keyword : rq::EntityId {
   NAMESPACE,
   C,
   TOP,
-  LABEL,
 
   // HINTS
   DEBUG_BREAK,
@@ -606,7 +604,6 @@ enum class SymbolKind : rq::EntityId {
   FINITE_ARITHMETIC_SEQUENCE_TYPE,
 
   // LOCAL DECLARATIONS
-  LABEL,
   ANCHOR,
   ENUMERATOR,
 

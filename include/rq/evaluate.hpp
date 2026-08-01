@@ -121,8 +121,7 @@ enum class LocalBreakKind : std::uint_fast8_t {
   RETURN,
   BREAK,
   CONTINUE,
-  FALLTHROUGH,
-  GOTO
+  FALLTHROUGH
 };
 
 enum class LocalBreakInfoFlags : std::uint_fast8_t {

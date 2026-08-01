@@ -213,8 +213,6 @@ namespace rq {
     return "FiniteArithmeticSequenceType";
 
   // LOCAL DECLARATIONS
-  case S::LABEL:
-    return "Label";
   case S::ANCHOR:
     return "Anchor";
 
@@ -370,9 +368,11 @@ namespace rq {
 
   // LITERALS
   case S::INTEGER_LITERAL_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE | SIF::IS_INTEGER_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE |
+           SIF::IS_INTEGER_TYPE;
   case S::FLOAT_LITERAL_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE | SIF::IS_FLOAT_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE |
+           SIF::IS_FLOAT_TYPE;
   case S::STRING_LITERAL_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE;
   case S::CODEUNIT_LITERAL_TYPE:
@@ -592,8 +592,6 @@ namespace rq {
     return SIF::ARITHMETIC_SEQUENCE | SIF::IS_TYPE;
 
   // LOCAL DECLARATIONS
-  case S::LABEL:
-    return SIF::LOCAL_DECLARATION;
   case S::ANCHOR:
     return SIF::LOCAL_DECLARATION;
   case S::ENUMERATOR:
@@ -601,9 +599,11 @@ namespace rq {
 
   // LOCAL VARIABLES
   case S::LOCAL_DYNAMIC_VARIABLE:
-    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::LOCAL_STATIC_VARIABLE:
-    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
   case S::PROCEDURE_ARGUMENT:
@@ -1026,7 +1026,8 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
   return static_cast<rq::SymbolKind>(this->getId() - rq::SYMBOL_OFFSET);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags Symbol::getInfoFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags
+Symbol::getInfoFlags() const {
   return rq::getInfoFlags(this->getKind());
 }
 
@@ -1500,7 +1501,8 @@ Module::getExpression() const {
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::MODULE);
 }
 
-RQ_ALWAYS_INLINE Import::Import(rq::LowFuseFlags flags, rq::Expression &expression,
+RQ_ALWAYS_INLINE Import::Import(rq::LowFuseFlags flags,
+                                rq::Expression &expression,
                                 rq::Module &imported, rq::Module &module)
     : Symbol(rq::SymbolKind::IMPORT), _low_flags(flags),
       _expression_ptr(&expression), _imported_ptr(&imported),
@@ -1515,7 +1517,8 @@ Import::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags Import::getLowFuseFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags
+Import::getLowFuseFlags() const {
   return this->_low_flags;
 }
 
@@ -1728,11 +1731,10 @@ template <rq::SymbolKind KIND_PARAM>
 
 RQ_ALWAYS_INLINE
 LocalDeclaration::LocalDeclaration(rq::SymbolKind kind, rq::Name name,
-                                   rq::SymbolTable &containing_table,
-                                   rq::SymbolTable &hosting_table,
-                                   rq::Module &module)
-    : Symbol(kind), _name(name), _containing_table_ptr(&containing_table),
-      _hosting_table_ptr(&hosting_table), _module_ptr(&module) {
+                                   rq::SymbolTable &container,
+                                   rq::SymbolTable &host, rq::Module &module)
+    : Symbol(kind), _name(name), _container_ptr(&container), _host_ptr(&host),
+      _module_ptr(&module) {
   RQ_ASSERT(rq::getIsLocalDeclaration(kind), "not local declaration");
 }
 
@@ -1741,23 +1743,22 @@ LocalDeclaration::LocalDeclaration(rq::SymbolKind kind, rq::Name name,
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-LocalDeclaration::getContainingTable() const {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+LocalDeclaration::getContainer() const {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-LocalDeclaration::getContainingTable() {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+LocalDeclaration::getContainer() {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-LocalDeclaration::getHostingTable() const {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+LocalDeclaration::getHost() const {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-LocalDeclaration::getHostingTable() {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &LocalDeclaration::getHost() {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &
@@ -1781,32 +1782,10 @@ LocalDeclaration::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-Label::Label(rq::Name name, rq::SymbolTable &containing_table,
-             rq::Module &module, rq::Instruction &instruction)
-    : LocalDeclaration(rq::SymbolKind::LABEL, name, containing_table,
-                       containing_table, module),
-      _target_instruction_ptr(&instruction) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction &
-Label::getTargetInstruction() const {
-  return rq::dereferencePtr(this->_target_instruction_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &Label::getTargetInstruction() {
-  return rq::dereferencePtr(this->_target_instruction_ptr);
-}
-
-[[nodiscard]] inline bool Label::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::LABEL);
-}
-
-RQ_ALWAYS_INLINE
-Anchor::Anchor(rq::Name name, rq::SymbolTable &containing_table,
-               rq::Module &module, rq::SymbolTable &vessel)
-    : LocalDeclaration(rq::SymbolKind::ANCHOR, name, containing_table,
-                       containing_table, module),
+Anchor::Anchor(rq::Name name, rq::SymbolTable &container, rq::Module &module,
+               rq::SymbolTable &vessel)
+    : LocalDeclaration(rq::SymbolKind::ANCHOR, name, container, container,
+                       module),
       _vessel_ptr(&vessel) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
@@ -1825,11 +1804,11 @@ Anchor::getVessel() const {
 }
 
 RQ_ALWAYS_INLINE
-Enumerator::Enumerator(rq::Name name, rq::SymbolTable &containing_table,
-                       rq::SymbolTable &hosting_table, rq::Module &module,
+Enumerator::Enumerator(rq::Name name, rq::SymbolTable &container,
+                       rq::SymbolTable &host, rq::Module &module,
                        rq::ConstantSymbol *type_ptr, llvm::APInt discriminant)
-    : LocalDeclaration(rq::SymbolKind::ENUMERATOR, name, containing_table,
-                       hosting_table, module),
+    : LocalDeclaration(rq::SymbolKind::ENUMERATOR, name, container, host,
+                       module),
       _type_ptr(type_ptr), _discriminant_value(discriminant) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
@@ -1859,15 +1838,16 @@ Enumerator::getDiscriminantValue() const {
 
 RQ_ALWAYS_INLINE
 LocalVariable::LocalVariable(rq::SymbolKind kind, rq::Name name,
-                             rq::SymbolTable &containing_table,
-                             rq::SymbolTable &hosting_table, rq::Module &module,
-                             rq::LowFuseFlags flags, rq::ConstantSymbol &type)
-    : LocalDeclaration(kind, name, containing_table, hosting_table, module),
-      _low_flags(flags), _type_ptr(&type) {
+                             rq::SymbolTable &container, rq::SymbolTable &host,
+                             rq::Module &module, rq::LowFuseFlags flags,
+                             rq::ConstantSymbol &type)
+    : LocalDeclaration(kind, name, container, host, module), _low_flags(flags),
+      _type_ptr(&type) {
   RQ_ASSERT(rq::getIsLocalVariable(kind), "not local variable");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags LocalVariable::getLowFuseFlags() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags
+LocalVariable::getLowFuseFlags() const {
   return this->_low_flags;
 }
 
@@ -1898,11 +1878,10 @@ RQ_ALWAYS_INLINE void LocalVariable::completeType(rq::ConstantSymbol &type) {
 }
 
 RQ_ALWAYS_INLINE LocalDynamicVariable::LocalDynamicVariable(
-    rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
-    rq::ConstantSymbol &type)
-    : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name,
-                    containing_table, hosting_table, module, flags, type) {}
+    rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
+    rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type)
+    : LocalVariable(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE, name, container,
+                    host, module, flags, type) {}
 
 RQ_ALWAYS_INLINE void
 LocalDynamicVariable::setLlvmLocation(llvm::Value &llvm_location) {
@@ -1928,11 +1907,11 @@ LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
-    rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
-    rq::ConstantSymbol &type, rq::Gendex<rq::StaticValue> value)
-    : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name,
-                    containing_table, hosting_table, module, flags, type),
+    rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
+    rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type,
+    rq::Gendex<rq::StaticValue> value)
+    : LocalVariable(rq::SymbolKind::LOCAL_STATIC_VARIABLE, name, container,
+                    host, module, flags, type),
       _value(value) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
@@ -1954,11 +1933,11 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
-    rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
-    rq::ConstantSymbol &type, rq::Entity &value, rq::LayoutParameter &parameter)
-    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
-                    hosting_table, module, flags, type),
+    rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
+    rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type,
+    rq::Entity &value, rq::LayoutParameter &parameter)
+    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, container, host,
+                    module, flags, type),
       _value_ptr(&value), _parameter_ptr(&parameter) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
@@ -1989,11 +1968,11 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE ProcedureArgument::ProcedureArgument(
-    rq::Name name, rq::SymbolTable &containing_table,
-    rq::SymbolTable &hosting_table, rq::Module &module, rq::LowFuseFlags flags,
-    rq::ConstantSymbol &type, rq::ProcedureParameter &parameter)
-    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, containing_table,
-                    hosting_table, module, flags, type),
+    rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
+    rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type,
+    rq::ProcedureParameter &parameter)
+    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, container, host,
+                    module, flags, type),
       _parameter_ptr(&parameter) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
@@ -2054,14 +2033,14 @@ Parameter::getNextParameterPtr() const {
 RQ_ALWAYS_INLINE
 SymbolParameter::SymbolParameter(
     rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
-    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
-    rq::Expression &type_expression,
+    rq::ConstantSymbol &type, rq::SymbolTable &host,
+    rq::LowFuseFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, rq::Expression &expression,
+    rq::Expression &name_expression, rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : Parameter(kind, next_ptr, name, type), _is_positional(is_positional),
       _is_nonpositional(is_nonpositional), _is_locked(is_locked),
-      _low_flags(expression_flags), _hosting_table_ptr(&hosting_table),
+      _low_flags(expression_flags), _host_ptr(&host),
       _expression_ptr(&expression), _name_expression_ptr(&name_expression),
       _type_expression_ptr(&type_expression),
       _default_value_expression_ptr(default_value_expression_ptr),
@@ -2098,13 +2077,12 @@ SymbolParameter::getIsNonpositional() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-SymbolParameter::getHostingTable() const {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+SymbolParameter::getHost() const {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-SymbolParameter::getHostingTable() {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &SymbolParameter::getHost() {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
@@ -2169,15 +2147,15 @@ SymbolParameter::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
-    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
-    rq::Expression &type_expression,
+    rq::ConstantSymbol &type, rq::SymbolTable &host,
+    rq::LowFuseFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, rq::Expression &expression,
+    rq::Expression &name_expression, rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::SIGNATURE_PARAMETER, next_ptr, name, type,
-                      hosting_table, expression_flags, is_positional,
-                      is_nonpositional, is_locked, expression, name_expression,
-                      type_expression, default_value_expression_ptr, module) {}
+                      host, expression_flags, is_positional, is_nonpositional,
+                      is_locked, expression, name_expression, type_expression,
+                      default_value_expression_ptr, module) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
 SignatureParameter::getNextSignatureParameterPtr() const {
@@ -2199,15 +2177,15 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
     rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::ConstantSymbol &type, rq::SymbolTable &hosting_table,
-    rq::LowFuseFlags expression_flags, bool is_positional, bool is_nonpositional,
-    bool is_locked, rq::Expression &expression, rq::Expression &name_expression,
-    rq::Expression &type_expression,
+    rq::ConstantSymbol &type, rq::SymbolTable &host,
+    rq::LowFuseFlags expression_flags, bool is_positional,
+    bool is_nonpositional, bool is_locked, rq::Expression &expression,
+    rq::Expression &name_expression, rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::LAYOUT_PARAMETER, next_ptr, name, type,
-                      hosting_table, expression_flags, is_positional,
-                      is_nonpositional, is_locked, expression, name_expression,
-                      type_expression, default_value_expression_ptr, module) {}
+                      host, expression_flags, is_positional, is_nonpositional,
+                      is_locked, expression, name_expression, type_expression,
+                      default_value_expression_ptr, module) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
 LayoutParameter::getNextLayoutParameterPtr() const {
@@ -3083,19 +3061,51 @@ SynonymType::getOriginal() const {
 }
 
 RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::SymbolKind kind,
-                                          rq::SymbolTable *containing_table_ptr)
-    : Symbol(kind), _containing_table_ptr(containing_table_ptr) {
+                                          rq::SymbolTable *container_ptr)
+    : Symbol(kind), _container_ptr(container_ptr) {
+  using S = rq::SymbolKind;
   RQ_ASSERT(rq::getIsSymbolTable(kind), "not symbol table");
+  if (kind == S::FUNCTION) {
+    this->_function_container_ptr = llvm::cast<rq::Function>(this);
+  } else if (container_ptr != nullptr) {
+    rq::SymbolTable &container = rq::dereferencePtr(container_ptr);
+    this->_function_container_ptr = container.getFunctionContainerPtr();
+  }
+  if (this->getIsObjectScope()) {
+    this->_object_container_ptr = llvm::cast<rq::GlobalDeclaration>(this);
+  } else if (container_ptr != nullptr) {
+    rq::SymbolTable &container = rq::dereferencePtr(container_ptr);
+    this->_object_container_ptr = container.getObjectContainerPtr();
+  }
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
-SymbolTable::getContainingTablePtr() const {
-  return this->_containing_table_ptr;
+SymbolTable::getContainerPtr() const {
+  return this->_container_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *
-SymbolTable::getContainingTablePtr() {
-  return this->_containing_table_ptr;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *SymbolTable::getContainerPtr() {
+  return this->_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Function *
+SymbolTable::getFunctionContainerPtr() const {
+  return this->_function_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Function *
+SymbolTable::getFunctionContainerPtr() {
+  return this->_function_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDeclaration *
+SymbolTable::getObjectContainerPtr() const {
+  return this->_object_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDeclaration *
+SymbolTable::getObjectContainerPtr() {
+  return this->_object_container_ptr;
 }
 
 inline void SymbolTable::addMember(rq::BumpPtrAllocator &allocator,
@@ -3232,10 +3242,11 @@ RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}
   return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::TOP);
 }
 
-RQ_ALWAYS_INLINE LocalScope::LocalScope(
-    rq::SymbolKind kind, rq::SymbolTable &containing_table,
-    rq::Expression &expression, rq::LowFuseFlags flags, rq::Module &module)
-    : SymbolTable(kind, &containing_table), _expression_ptr(&expression),
+RQ_ALWAYS_INLINE
+LocalScope::LocalScope(rq::SymbolKind kind, rq::SymbolTable &container,
+                       rq::Expression &expression, rq::LowFuseFlags flags,
+                       rq::Module &module)
+    : SymbolTable(kind, &container), _expression_ptr(&expression),
       _low_flags(flags), _module_ptr(&module) {
   RQ_ASSERT(rq::getIsLocalScope(kind), "not local statement");
 }
@@ -3253,8 +3264,7 @@ LocalScope::getExpression() const {
   return this->_low_flags;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &
-LocalScope::getModule() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &LocalScope::getModule() const {
   return rq::dereferencePtr(this->_module_ptr);
 }
 
@@ -3262,8 +3272,7 @@ LocalScope::getModule() const {
   return rq::dereferencePtr(this->_module_ptr);
 }
 
-[[nodiscard]] inline bool
-LocalScope::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool LocalScope::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   if (!llvm::isa<rq::Symbol>(entity)) {
     return false;
@@ -3275,9 +3284,9 @@ LocalScope::classof(const rq::Entity *entity_ptr) {
 
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedLocalScope<KIND_PARAM>::DerivedLocalScope(
-    rq::SymbolTable &containing_table, rq::Expression &expression,
+    rq::SymbolTable &container, rq::Expression &expression,
     rq::LowFuseFlags flags, rq::Module &module)
-    : LocalScope(KIND_PARAM, containing_table, expression, flags, module) {}
+    : LocalScope(KIND_PARAM, container, expression, flags, module) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
@@ -3288,9 +3297,9 @@ DerivedLocalScope<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::SymbolKind kind,
-                                        rq::SymbolTable &containing_table,
+                                        rq::SymbolTable &container,
                                         rq::Name name)
-    : SymbolTable(kind, &containing_table), _name(name) {
+    : SymbolTable(kind, &container), _name(name) {
   RQ_ASSERT(rq::getIsNamedTable(kind), "not named table");
 }
 
@@ -3318,9 +3327,8 @@ NamedTable::getMangledName() const {
       static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET));
 }
 
-RQ_ALWAYS_INLINE Namespace::Namespace(rq::SymbolTable &containing_table,
-                                      rq::Name name)
-    : NamedTable(rq::SymbolKind::NAMESPACE, containing_table, name) {}
+RQ_ALWAYS_INLINE Namespace::Namespace(rq::SymbolTable &container, rq::Name name)
+    : NamedTable(rq::SymbolKind::NAMESPACE, container, name) {}
 
 [[nodiscard]] inline bool Namespace::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3329,44 +3337,35 @@ RQ_ALWAYS_INLINE Namespace::Namespace(rq::SymbolTable &containing_table,
 }
 
 RQ_ALWAYS_INLINE
-GlobalDeclaration::GlobalDeclaration(
-    rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression *name_expression_ptr, rq::LowFuseFlags flags, rq::Module &module)
-    : NamedTable(kind, containing_table, name),
-      _hosting_table_ptr(&hosting_table), _expression_ptr(&expression),
-      _name_expression_ptr(name_expression_ptr), _flags(flags),
-      _module_ptr(&module) {
+GlobalDeclaration::GlobalDeclaration(rq::SymbolKind kind,
+                                     rq::SymbolTable &container, rq::Name name,
+                                     rq::SymbolTable &host,
+                                     rq::Expression &expression,
+                                     rq::Expression *name_expression_ptr,
+                                     rq::LowFuseFlags flags, rq::Module &module)
+    : NamedTable(kind, container, name), _host_ptr(&host),
+      _expression_ptr(&expression), _name_expression_ptr(name_expression_ptr),
+      _flags(flags), _module_ptr(&module) {
   RQ_ASSERT(rq::getIsGlobalDeclaration(kind), "not global declaration");
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool GlobalDeclaration::getIsEvaluated() const {
-  return this->_is_evaluated;
-}
-
-RQ_ALWAYS_INLINE void GlobalDeclaration::setIsEvaluated() {
-  RQ_ASSERT(this->_is_evaluated == false, "already evaluated");
-  this->_is_evaluated = true;
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-GlobalDeclaration::getContainingTable() const {
-  return rq::dereferencePtr(this->getContainingTablePtr());
+GlobalDeclaration::getContainer() const {
+  return rq::dereferencePtr(this->getContainerPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-GlobalDeclaration::getContainingTable() {
-  return rq::dereferencePtr(this->getContainingTablePtr());
+GlobalDeclaration::getContainer() {
+  return rq::dereferencePtr(this->getContainerPtr());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-GlobalDeclaration::getHostingTable() const {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+GlobalDeclaration::getHost() const {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-GlobalDeclaration::getHostingTable() {
-  return rq::dereferencePtr(this->_hosting_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &GlobalDeclaration::getHost() {
+  return rq::dereferencePtr(this->_host_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
@@ -3395,7 +3394,7 @@ GlobalDeclaration::getLowFuseFlags() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool GlobalDeclaration::getIsMember() const {
-  const rq::SymbolKind containing_kind = this->getContainingTable().getKind();
+  const rq::SymbolKind containing_kind = this->getContainer().getKind();
   return containing_kind == rq::SymbolKind::CLASS_TYPE ||
          containing_kind == rq::SymbolKind::ENUMERATION_TYPE ||
          containing_kind == rq::SymbolKind::INTERFACE;
@@ -3422,17 +3421,17 @@ GlobalDeclaration::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-                   rq::Name name, rq::SymbolTable &hosting_table,
+Instance::Instance(rq::SymbolKind kind, rq::SymbolTable &container,
+                   rq::Name name, rq::SymbolTable &host,
                    rq::Expression &expression,
                    rq::Expression *name_expression_ptr, rq::LowFuseFlags flags,
                    rq::Module &module, rq::Template *template_ptr,
                    rq::TemplateArgument *first_argument_ptr)
-    : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
+    : GlobalDeclaration(kind, container, name, host, expression,
                         name_expression_ptr, flags, module),
       _template_ptr(template_ptr), _first_argument_ptr(first_argument_ptr) {
   RQ_ASSERT(rq::getIsInstance(kind), "not instance");
-  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
+  RQ_ASSERT(container.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind
@@ -3482,14 +3481,14 @@ Instance::getFirstTemplateArgumentPtr() {
 }
 
 RQ_ALWAYS_INLINE
-ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
-                     rq::SymbolTable &hosting_table, rq::Expression &expression,
+ClassType::ClassType(rq::SymbolTable &container, rq::Name name,
+                     rq::SymbolTable &host, rq::Expression &expression,
                      rq::Expression &name_expression, rq::LowFuseFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::CLASS_TYPE, containing_table, name,
-               hosting_table, expression, &name_expression, flags, module,
-               template_ptr, first_argument_ptr) {}
+    : Instance(rq::SymbolKind::CLASS_TYPE, container, name, host, expression,
+               &name_expression, flags, module, template_ptr,
+               first_argument_ptr) {}
 
 [[nodiscard]] inline bool ClassType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3499,13 +3498,13 @@ ClassType::ClassType(rq::SymbolTable &containing_table, rq::Name name,
 }
 
 RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
-    rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
-    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::ENUMERATION_TYPE, containing_table, name,
-               hosting_table, expression, &name_expression, flags, module,
-               template_ptr, first_argument_ptr) {}
+    rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::LowFuseFlags flags, rq::Module &module, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::ENUMERATION_TYPE, container, name, host,
+               expression, &name_expression, flags, module, template_ptr,
+               first_argument_ptr) {}
 
 [[nodiscard]] inline bool
 EnumerationType::classof(const rq::Entity *entity_ptr) {
@@ -3516,13 +3515,13 @@ EnumerationType::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
-                     rq::SymbolTable &hosting_table, rq::Expression &expression,
+Interface::Interface(rq::SymbolTable &container, rq::Name name,
+                     rq::SymbolTable &host, rq::Expression &expression,
                      rq::Expression &name_expression, rq::LowFuseFlags flags,
                      rq::Module &module, rq::Template *template_ptr,
                      rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::INTERFACE, containing_table, name, hosting_table,
-               expression, &name_expression, flags, module, template_ptr,
+    : Instance(rq::SymbolKind::INTERFACE, container, name, host, expression,
+               &name_expression, flags, module, template_ptr,
                first_argument_ptr) {}
 
 [[nodiscard]] inline bool Interface::classof(const rq::Entity *entity_ptr) {
@@ -3532,13 +3531,13 @@ Interface::Interface(rq::SymbolTable &containing_table, rq::Name name,
 }
 
 RQ_ALWAYS_INLINE
-Adapter::Adapter(rq::SymbolTable &containing_table, rq::Name name,
-                 rq::SymbolTable &hosting_table, rq::Expression &expression,
+Adapter::Adapter(rq::SymbolTable &container, rq::Name name,
+                 rq::SymbolTable &host, rq::Expression &expression,
                  rq::Expression &name_expression, rq::LowFuseFlags flags,
                  rq::Module &module, rq::Template *template_ptr,
                  rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::ADAPTER, containing_table, name, hosting_table,
-               expression, &name_expression, flags, module, template_ptr,
+    : Instance(rq::SymbolKind::ADAPTER, container, name, host, expression,
+               &name_expression, flags, module, template_ptr,
                first_argument_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface *
@@ -3557,20 +3556,19 @@ Adapter::getInterfacePtr() const {
 }
 
 RQ_ALWAYS_INLINE
-Function::Function(rq::SymbolTable &containing_table, rq::Name name,
-                   rq::SymbolTable &hosting_table, rq::Expression &expression,
+Function::Function(rq::SymbolTable &container, rq::Name name,
+                   rq::SymbolTable &host, rq::Expression &expression,
                    rq::Expression *name_expression_ptr, rq::LowFuseFlags flags,
-                   rq::Module &module,
-                   rq::Expression *first_body_expression_ptr,
+                   rq::Module &module, rq::Expression &first_header_ex,
                    rq::Template *template_ptr,
                    rq::TemplateArgument *first_argument_ptr,
                    rq::Expression *mangle_expression_ptr,
                    rq::Expression *precondition_expression_ptr,
                    rq::Expression *postcondition_expression_ptr)
-    : Instance(rq::SymbolKind::FUNCTION, containing_table, name, hosting_table,
-               expression, name_expression_ptr, flags, module, template_ptr,
+    : Instance(rq::SymbolKind::FUNCTION, container, name, host, expression,
+               name_expression_ptr, flags, module, template_ptr,
                first_argument_ptr),
-      _first_body_expression_ptr(first_body_expression_ptr),
+      _first_header_expression_ptr(&first_header_ex),
       _mangle_expression_ptr(mangle_expression_ptr),
       _precondition_expression_ptr(precondition_expression_ptr),
       _postcondition_expression_ptr(postcondition_expression_ptr) {}
@@ -3599,8 +3597,11 @@ Function::getSignaturePtr() const {
   return this->_signature_ptr;
 }
 
-RQ_ALWAYS_INLINE void Function::setInstructions(rq::Instruction &instructions) {
-  rq::assignSingleValue(this->_instructions_ptr, &instructions);
+RQ_ALWAYS_INLINE void
+Function::implementWithInstructions(rq::Instruction *instructions_ptr) {
+  RQ_ASSERT(this->_is_implemented == false, "already implemented");
+  this->_is_implemented = true;
+  rq::assignSingleValue(this->_instructions_ptr, instructions_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
@@ -3665,6 +3666,16 @@ Function::getPostconditionExpressionPtr() {
   return this->_postcondition_expression_ptr;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationState Function::getState() const {
+  if (this->_signature_ptr == nullptr) {
+    return rq::EvaluationState::NAMED;
+  }
+  if (!this->_is_implemented) {
+    return rq::EvaluationState::DECLARED;
+  }
+  return rq::EvaluationState::IMPLEMENTED;
+}
+
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
@@ -3672,15 +3683,16 @@ Function::getPostconditionExpressionPtr() {
 }
 
 RQ_ALWAYS_INLINE
-GlobalVariable::GlobalVariable(
-    rq::SymbolKind kind, rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
-    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
-    rq::Expression *initial_value_expression_ptr)
-    : Instance(kind, containing_table, name, hosting_table, expression,
-               &name_expression, flags, module, template_ptr,
-               first_argument_ptr),
+GlobalVariable::GlobalVariable(rq::SymbolKind kind, rq::SymbolTable &container,
+                               rq::Name name, rq::SymbolTable &host,
+                               rq::Expression &expression,
+                               rq::Expression &name_expression,
+                               rq::LowFuseFlags flags, rq::Module &module,
+                               rq::Template *template_ptr,
+                               rq::TemplateArgument *first_argument_ptr,
+                               rq::Expression *initial_value_expression_ptr)
+    : Instance(kind, container, name, host, expression, &name_expression, flags,
+               module, template_ptr, first_argument_ptr),
       _initial_value_expression_ptr(initial_value_expression_ptr) {
   RQ_ASSERT(rq::getIsGlobalVariable(kind), "not global variable");
 }
@@ -3721,14 +3733,14 @@ GlobalVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE GlobalDynamicVariable::GlobalDynamicVariable(
-    rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
-    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
+    rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::LowFuseFlags flags, rq::Module &module, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
-    : GlobalVariable(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, containing_table,
-                     name, hosting_table, expression, name_expression, flags,
-                     module, template_ptr, first_argument_ptr,
+    : GlobalVariable(rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE, container, name,
+                     host, expression, name_expression, flags, module,
+                     template_ptr, first_argument_ptr,
                      &initial_value_expression) {}
 
 RQ_ALWAYS_INLINE void
@@ -3755,14 +3767,14 @@ GlobalDynamicVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE GlobalStaticVariable::GlobalStaticVariable(
-    rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
-    rq::Template *template_ptr, rq::TemplateArgument *first_argument_ptr,
+    rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::LowFuseFlags flags, rq::Module &module, rq::Template *template_ptr,
+    rq::TemplateArgument *first_argument_ptr,
     rq::Expression &initial_value_expression)
-    : GlobalVariable(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, containing_table,
-                     name, hosting_table, expression, name_expression, flags,
-                     module, template_ptr, first_argument_ptr,
+    : GlobalVariable(rq::SymbolKind::GLOBAL_STATIC_VARIABLE, container, name,
+                     host, expression, name_expression, flags, module,
+                     template_ptr, first_argument_ptr,
                      &initial_value_expression) {}
 
 RQ_ALWAYS_INLINE void GlobalStaticVariable::setValue(rq::Entity &value) {
@@ -3787,20 +3799,20 @@ GlobalStaticVariable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-Template::Template(rq::SymbolKind kind, rq::SymbolTable &containing_table,
-                   rq::Name name, rq::SymbolTable &hosting_table,
+Template::Template(rq::SymbolKind kind, rq::SymbolTable &container,
+                   rq::Name name, rq::SymbolTable &host,
                    rq::Expression &expression, rq::Expression &name_expression,
                    rq::LowFuseFlags flags, rq::Module &module,
                    rq::Expression &layout_expression,
                    rq::Expression *constraint_expression_ptr,
                    rq::Expression *weight_expression_ptr, unsigned weight)
-    : GlobalDeclaration(kind, containing_table, name, hosting_table, expression,
+    : GlobalDeclaration(kind, container, name, host, expression,
                         &name_expression, flags, module),
       _layout_expression_ptr(&layout_expression),
       _constraint_expression_ptr(constraint_expression_ptr),
       _weight_expression_ptr(weight_expression_ptr), _weight(weight) {
   RQ_ASSERT(rq::getIsTemplate(kind), "not template");
-  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
+  RQ_ASSERT(container.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
@@ -3860,15 +3872,15 @@ Template::getWeightExpressionPtr() {
 
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedTemplate<KIND_PARAM>::DerivedTemplate(
-    rq::SymbolTable &containing_table, rq::Name name,
-    rq::SymbolTable &hosting_table, rq::Expression &expression,
-    rq::Expression &name_expression, rq::LowFuseFlags flags, rq::Module &module,
+    rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::LowFuseFlags flags, rq::Module &module,
     rq::Expression &layout_expression,
     rq::Expression *constraint_expression_ptr,
     rq::Expression *weight_expression_ptr, unsigned weight)
-    : Template(KIND_PARAM, containing_table, name, hosting_table, expression,
-               name_expression, flags, module, layout_expression,
-               constraint_expression_ptr, weight_expression_ptr, weight) {}
+    : Template(KIND_PARAM, container, name, host, expression, name_expression,
+               flags, module, layout_expression, constraint_expression_ptr,
+               weight_expression_ptr, weight) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
@@ -3880,11 +3892,11 @@ DerivedTemplate<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE WeightLevel::WeightLevel(rq::SymbolKind kind, unsigned weight,
                                           rq::Polymorph &polymorph,
-                                          rq::SymbolTable &containing_table)
+                                          rq::SymbolTable &container)
     : Symbol(kind), _weight(weight), _polymorph_ptr(&polymorph),
-      _containing_table_ptr(&containing_table) {
+      _container_ptr(&container) {
   RQ_ASSERT(rq::getIsWeightLevel(kind), "not weight level");
-  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
+  RQ_ASSERT(container.getIsFrameScope(), "not contained in frame");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
@@ -3900,12 +3912,12 @@ WeightLevel::getPolymorph() const {
   return rq::dereferencePtr(this->_polymorph_ptr);
 }
 
-[[nodiscard]] const rq::SymbolTable &WeightLevel::getContainingTable() const {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+[[nodiscard]] const rq::SymbolTable &WeightLevel::getContainer() const {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
-[[nodiscard]] rq::SymbolTable &WeightLevel::getContainingTable() {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+[[nodiscard]] rq::SymbolTable &WeightLevel::getContainer() {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -3934,9 +3946,8 @@ WeightLevel::getPolymorph() const {
 
 template <rq::SymbolKind KIND_PARAM>
 RQ_ALWAYS_INLINE DerivedWeightLevel<KIND_PARAM>::DerivedWeightLevel(
-    unsigned weight, rq::Polymorph &polymorph,
-    rq::SymbolTable &containing_table)
-    : WeightLevel(KIND_PARAM, weight, polymorph, containing_table) {}
+    unsigned weight, rq::Polymorph &polymorph, rq::SymbolTable &container)
+    : WeightLevel(KIND_PARAM, weight, polymorph, container) {}
 
 template <rq::SymbolKind KIND_PARAM>
 [[nodiscard]] inline bool
@@ -3947,10 +3958,10 @@ DerivedWeightLevel<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, rq::Name name,
-                                      rq::SymbolTable &containing_table)
-    : Symbol(kind), _name(name), _containing_table_ptr(&containing_table) {
+                                      rq::SymbolTable &container)
+    : Symbol(kind), _name(name), _container_ptr(&container) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
-  RQ_ASSERT(containing_table.getIsFrameScope(), "not contained in frame");
+  RQ_ASSERT(container.getIsFrameScope(), "not contained in frame");
 }
 
 // inline void Polymorph::addTemplate(rq::BumpPtrAllocator &allocator,
@@ -3991,8 +4002,8 @@ RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind, rq::Name name,
 //}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
-Polymorph::getContainingTable() const {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+Polymorph::getContainer() const {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
 inline void Polymorph::addInstance(rq::Instance &instance) {
@@ -4000,9 +4011,8 @@ inline void Polymorph::addInstance(rq::Instance &instance) {
   this->_first_instance_ptr = &instance;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
-Polymorph::getContainingTable() {
-  return rq::dereferencePtr(this->_containing_table_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &Polymorph::getContainer() {
+  return rq::dereferencePtr(this->_container_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Polymorph::getHasSomeInstance() const {
