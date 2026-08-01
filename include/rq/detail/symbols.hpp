@@ -1967,21 +1967,21 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::TEMPLATE_ARGUMENT);
 }
 
-RQ_ALWAYS_INLINE FunctionArgument::FunctionArgument(
-    rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
-    rq::Module &module, rq::LowFuseFlags flags, rq::ConstantSymbol &type,
-    rq::ProcedureParameter &parameter)
-    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, container, host,
-                    module, flags, type),
+RQ_ALWAYS_INLINE
+FunctionArgument::FunctionArgument(rq::Name name, rq::SymbolTable &host,
+                                   rq::Module &module,
+                                   rq::SignatureParameter &parameter)
+    : LocalVariable(rq::SymbolKind::TEMPLATE_ARGUMENT, name, host, host, module,
+                    parameter.getLowFuseFlags(), parameter.getType()),
       _parameter_ptr(&parameter) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter &
-FunctionArgument::getProcedureParameter() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter &
+FunctionArgument::getSignatureParameter() const {
   return rq::dereferencePtr(this->_parameter_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-FunctionArgument::getProcedureParameter() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter &
+FunctionArgument::getSignatureParameter() {
   return rq::dereferencePtr(this->_parameter_ptr);
 }
 
@@ -1995,10 +1995,10 @@ FunctionArgument::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE
 Parameter::Parameter(rq::SymbolKind kind, rq::Parameter *next_ptr,
-                     llvm::StringRef name, rq::ConstantSymbol &type)
+                     rq::Name name, rq::ConstantSymbol &type)
     : Symbol(kind), _next_ptr(next_ptr), _name(name), _type_ptr(&type) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Parameter::getName() const {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name Parameter::getName() const {
   return this->_name;
 }
 
@@ -2032,7 +2032,7 @@ Parameter::getNextParameterPtr() const {
 
 RQ_ALWAYS_INLINE
 SymbolParameter::SymbolParameter(
-    rq::SymbolKind kind, rq::SymbolParameter *next_ptr, llvm::StringRef name,
+    rq::SymbolKind kind, rq::SymbolParameter *next_ptr, rq::Name name,
     rq::ConstantSymbol &type, rq::SymbolTable &host,
     rq::LowFuseFlags expression_flags, bool is_positional,
     bool is_nonpositional, bool is_locked, rq::Expression &expression,
@@ -2146,11 +2146,11 @@ SymbolParameter::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE SignatureParameter::SignatureParameter(
-    rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::ConstantSymbol &type, rq::SymbolTable &host,
-    rq::LowFuseFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked, rq::Expression &expression,
-    rq::Expression &name_expression, rq::Expression &type_expression,
+    rq::SymbolParameter *next_ptr, rq::Name name, rq::ConstantSymbol &type,
+    rq::SymbolTable &host, rq::LowFuseFlags expression_flags,
+    bool is_positional, bool is_nonpositional, bool is_locked,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::SIGNATURE_PARAMETER, next_ptr, name, type,
                       host, expression_flags, is_positional, is_nonpositional,
@@ -2176,11 +2176,11 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
-    rq::SymbolParameter *next_ptr, llvm::StringRef name,
-    rq::ConstantSymbol &type, rq::SymbolTable &host,
-    rq::LowFuseFlags expression_flags, bool is_positional,
-    bool is_nonpositional, bool is_locked, rq::Expression &expression,
-    rq::Expression &name_expression, rq::Expression &type_expression,
+    rq::SymbolParameter *next_ptr, rq::Name name, rq::ConstantSymbol &type,
+    rq::SymbolTable &host, rq::LowFuseFlags expression_flags,
+    bool is_positional, bool is_nonpositional, bool is_locked,
+    rq::Expression &expression, rq::Expression &name_expression,
+    rq::Expression &type_expression,
     rq::Expression *default_value_expression_ptr, rq::Module &module)
     : SymbolParameter(rq::SymbolKind::LAYOUT_PARAMETER, next_ptr, name, type,
                       host, expression_flags, is_positional, is_nonpositional,
@@ -2207,7 +2207,7 @@ LayoutParameter::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE
 TypeParameter::TypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                             llvm::StringRef name, rq::ConstantSymbol &type,
+                             rq::Name name, rq::ConstantSymbol &type,
                              unsigned location, bool is_positional)
     : Parameter(kind, next_ptr, name, type), _location(location),
       _is_positional(is_positional) {
@@ -2242,11 +2242,11 @@ TypeParameter::getIsPositionPassable() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool TypeParameter::getIsTypePassable() const {
-  return !this->_is_positional && this->getName().empty();
+  return !this->_is_positional && this->getName().getIsEmpty();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool TypeParameter::getIsNamePassable() const {
-  return !this->_is_positional && !this->getName().empty();
+  return !this->_is_positional && !this->getName().getIsEmpty();
 }
 
 [[nodiscard]] inline bool TypeParameter::classof(const rq::Entity *entity_ptr) {
@@ -2278,11 +2278,12 @@ profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
   out_id.AddBoolean(is_positional);
 }
 
-RQ_ALWAYS_INLINE ProcedureParameter::ProcedureParameter(
-    rq::TypeParameter *next_ptr, llvm::StringRef name, rq::ConstantSymbol &type,
-    unsigned location)
+RQ_ALWAYS_INLINE
+ProcedureParameter::ProcedureParameter(rq::TypeParameter *next_ptr,
+                                       rq::Name name, rq::ConstantSymbol &type,
+                                       unsigned location)
     : TypeParameter(rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr, name, type,
-                    location, name.empty()) {}
+                    location, name.getIsEmpty()) {}
 
 [[nodiscard]] inline bool
 ProcedureParameter::classof(const rq::Entity *entity_ptr) {
@@ -2293,9 +2294,9 @@ ProcedureParameter::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-TupleParameter::TupleParameter(rq::TypeParameter *next_ptr,
-                               llvm::StringRef name, rq::ConstantSymbol &type,
-                               unsigned location, bool is_positional)
+TupleParameter::TupleParameter(rq::TypeParameter *next_ptr, rq::Name name,
+                               rq::ConstantSymbol &type, unsigned location,
+                               bool is_positional)
     : TypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr, name, type,
                     location, is_positional) {}
 
@@ -2344,7 +2345,7 @@ ParameterList::getNonpositionalParameterCount() const {
 }
 
 [[nodiscard]] inline const rq::Parameter *
-ParameterList::getParameterPtrOfName(llvm::StringRef name) const {
+ParameterList::getParameterPtrOfName(rq::Name name) const {
   for (const rq::Parameter &parameter : this->getParameterSubrange()) {
     if (parameter.getName() == name) {
       return &parameter;
@@ -2354,7 +2355,7 @@ ParameterList::getParameterPtrOfName(llvm::StringRef name) const {
 }
 
 [[nodiscard]] inline rq::Parameter *
-ParameterList::getParameterPtrOfName(llvm::StringRef name) {
+ParameterList::getParameterPtrOfName(rq::Name name) {
   for (rq::Parameter &parameter : this->getParameterSubrange()) {
     if (parameter.getName() == name) {
       return &parameter;
@@ -2435,12 +2436,12 @@ SymbolParameterList::getFirstSymbolParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolParameter *
-SymbolParameterList::getSymbolParameterPtrOfName(llvm::StringRef name) const {
+SymbolParameterList::getSymbolParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::SymbolParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolParameter *
-SymbolParameterList::getSymbolParameterPtrOfName(llvm::StringRef name) {
+SymbolParameterList::getSymbolParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::SymbolParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2534,12 +2535,12 @@ Signature::getFirstSignatureParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureParameter *
-Signature::getSignatureParameterPtrOfName(llvm::StringRef name) const {
+Signature::getSignatureParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureParameter *
-Signature::getSignatureParameterPtrOfName(llvm::StringRef name) {
+Signature::getSignatureParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::SignatureParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2599,12 +2600,12 @@ Layout::getFirstLayoutParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutParameter *
-Layout::getLayoutParameterPtrOfName(llvm::StringRef name) const {
+Layout::getLayoutParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::LayoutParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutParameter *
-Layout::getLayoutParameterPtrOfName(llvm::StringRef name) {
+Layout::getLayoutParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::LayoutParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2663,12 +2664,12 @@ TypeParameterList::getFirstTypeParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
-TypeParameterList::getTypeParameterPtrOfName(llvm::StringRef name) const {
+TypeParameterList::getTypeParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::TypeParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeParameter *
-TypeParameterList::getTypeParameterPtrOfName(llvm::StringRef name) {
+TypeParameterList::getTypeParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::TypeParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2754,12 +2755,12 @@ ProcedureType::getFirstProcedureParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureParameter *
-ProcedureType::getProcedureParameterPtrOfName(llvm::StringRef name) const {
+ProcedureType::getProcedureParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::ProcedureParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter *
-ProcedureType::getProcedureParameterPtrOfName(llvm::StringRef name) {
+ProcedureType::getProcedureParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::ProcedureParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2845,12 +2846,12 @@ TupleType::getFirstTupleParameterPtr() {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::TupleParameter *
-TupleType::getTupleParameterPtrOfName(llvm::StringRef name) const {
+TupleType::getTupleParameterPtrOfName(rq::Name name) const {
   return llvm::cast<rq::TupleParameter>(this->getParameterPtrOfName(name));
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter *
-TupleType::getTupleParameterPtrOfName(llvm::StringRef name) {
+TupleType::getTupleParameterPtrOfName(rq::Name name) {
   return llvm::cast<rq::TupleParameter>(this->getParameterPtrOfName(name));
 }
 
@@ -2858,7 +2859,7 @@ TupleType::getTupleParameterPtrOfName(llvm::StringRef name) {
 TupleType::getTupleParameterPtrOfType(const rq::ConstantSymbol &type) const {
   for (const rq::TupleParameter &parameter :
        this->getTupleParameterSubrange()) {
-    if (!parameter.getName().empty()) {
+    if (!parameter.getName().getIsEmpty()) {
       continue;
     }
     if (parameter.getType() == type) {
@@ -2871,7 +2872,7 @@ TupleType::getTupleParameterPtrOfType(const rq::ConstantSymbol &type) const {
 [[nodiscard]] inline rq::TupleParameter *
 TupleType::getTupleParameterPtrOfType(const rq::ConstantSymbol &type) {
   for (rq::TupleParameter &parameter : this->getTupleParameterSubrange()) {
-    if (!parameter.getName().empty()) {
+    if (!parameter.getName().getIsEmpty()) {
       continue;
     }
     if (parameter.getType() == type) {
@@ -3349,6 +3350,16 @@ GlobalDeclaration::GlobalDeclaration(rq::SymbolKind kind,
   RQ_ASSERT(rq::getIsGlobalDeclaration(kind), "not global declaration");
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationState
+GlobalDeclaration::getState() const {
+  return this->_state;
+}
+
+RQ_ALWAYS_INLINE void GlobalDeclaration::setState(rq::EvaluationState state) {
+  RQ_ASSERT(this->getState() < state, "devolving state");
+  this->_state = state;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
 GlobalDeclaration::getContainer() const {
   return rq::dereferencePtr(this->getContainerPtr());
@@ -3598,9 +3609,7 @@ Function::getSignaturePtr() const {
 }
 
 RQ_ALWAYS_INLINE void
-Function::implementWithInstructions(rq::Instruction *instructions_ptr) {
-  RQ_ASSERT(this->_is_implemented == false, "already implemented");
-  this->_is_implemented = true;
+Function::setInstruction(rq::Instruction *instructions_ptr) {
   rq::assignSingleValue(this->_instructions_ptr, instructions_ptr);
 }
 
@@ -3664,16 +3673,6 @@ Function::getPostconditionExpressionPtr() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
 Function::getPostconditionExpressionPtr() {
   return this->_postcondition_expression_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationState Function::getState() const {
-  if (this->_signature_ptr == nullptr) {
-    return rq::EvaluationState::NAMED;
-  }
-  if (!this->_is_implemented) {
-    return rq::EvaluationState::DECLARED;
-  }
-  return rq::EvaluationState::IMPLEMENTED;
 }
 
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {

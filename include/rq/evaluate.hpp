@@ -118,38 +118,49 @@ struct DynamicLvalue final {
 
 enum class JumpKind : std::uint_fast8_t {
   NONE,
-  RETURN,
-  BREAK,
-  CONTINUE,
-  FALLTHROUGH
+  DYNAMIC_RETURN,
+  DYNAMIC_BREAK,
+  DYNAMIC_CONTINUE,
+  DYNAMIC_FALLTHROUGH,
+  STATIC_BREAK,
+  STATIC_CONTINUE,
+  STATIC_FALLTHROUGH
 };
 
 enum class JumpInfoFlags : std::uint_fast8_t {
   NONE = 0,
 
-  HAS_TARGET = rq::getBit(0),
-  LOOP = rq::getBit(1),
-  CASE = rq::getBit(2),
-  NON_FRAME = rq::getBit(3)
+  IS_DYNAMIC = rq::getBit(0),
+  IS_STATIC = rq::getBit(1) HAS_TARGET = rq::getBit(2),
+  LOOP = rq::getBit(3),
+  CASE = rq::getBit(4),
+  NON_FRAME = rq::getBit(5)
 };
 
 template <> struct is_flags<rq::JumpInfoFlags> final : std::true_type {};
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::JumpInfoFlags
 getInfoFlags(rq::JumpKind kind) {
-  using LBK = rq::JumpKind;
-  using LBF = rq::JumpInfoFlags;
+  using J = rq::JumpKind;
+  using JF = rq::JumpInfoFlags;
   switch (kind) {
-  case LBK::NONE:
-    return LBF::NONE;
-  case LBK::RETURN:
-    return LBF::LOOP | LBF::CASE | LBF::NON_FRAME;
-  case LBK::BREAK:
-    return LBF::HAS_TARGET | LBF::LOOP | LBF::CASE | LBF::NON_FRAME;
-  case LBK::CONTINUE:
-    return LBF::HAS_TARGET | LBF::LOOP;
-  case LBK::FALLTHROUGH:
-    return LBF::CASE;
+  case J::NONE:
+    return JF::NONE;
+  case J::DYNAMIC_RETURN:
+    return JF::IS_DYNAMIC | JF::LOOP | JF::CASE | JF::NON_FRAME;
+  case J::DYNAMIC_BREAK:
+    return JF::IS_DYNAMIC | JF::HAS_TARGET | JF::LOOP | JF::CASE |
+           JF::NON_FRAME;
+  case J::DYNAMIC_CONTINUE:
+    return JF::IS_DYNAMIC | JF::HAS_TARGET | JF::LOOP;
+  case J::DYNAMIC_FALLTHROUGH:
+    return JF::IS_DYNAMIC | JF::CASE;
+  case J::STATIC_BREAK:
+    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
+  case J::STATIC_CONTINUE:
+    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
+  case J::STATIC_FALLTHROUGH:
+    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
   }
   RQ_UNREACHABLE();
 }
@@ -157,6 +168,16 @@ getInfoFlags(rq::JumpKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::JumpKind kind) {
   rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::JumpInfoFlags::HAS_TARGET);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamic(rq::JumpKind kind) {
+  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::JumpInfoFlags::IS_DYNAMIC);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatic(rq::JumpKind kind) {
+  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::JumpInfoFlags::IS_STATIC);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop(rq::JumpKind kind) {
@@ -169,8 +190,7 @@ getInfoFlags(rq::JumpKind kind) {
   return rq::getHasAll(flags, rq::JumpInfoFlags::CASE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeInNonFrame(rq::JumpKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInNonFrame(rq::JumpKind kind) {
   rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::JumpInfoFlags::NON_FRAME);
 }
@@ -186,12 +206,15 @@ struct Jump final {
   explicit RQ_ALWAYS_INLINE Jump(rq::JumpKind kind) : _kind(kind) {
     RQ_ASSERT(!rq::getHasTarget(kind), "must have target");
   }
-  explicit RQ_ALWAYS_INLINE Jump(rq::JumpKind kind,
-                                       rq::Entity &target,
-                                       rq::Expression &target_rvalue_ex)
+  explicit RQ_ALWAYS_INLINE Jump(rq::JumpKind kind, rq::Entity &target,
+                                 rq::Expression &target_rvalue_ex)
       : _kind(kind), _target_ptr(&target),
         _target_rvalue_ex_ptr(&target_rvalue_ex) {
     RQ_ASSERT(rq::getHasTarget(kind), "break of kind does not have target");
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
+    return this->_kind == rq::JumpKind::NONE;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::JumpKind getKind() const {
@@ -213,6 +236,14 @@ struct Jump final {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getTargetRvalueEx() {
     return rq::dereferencePtr(this->_target_rvalue_ex_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamic() const {
+    return rq::getIsDynamic(this->getKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatic() const {
+    return rq::getIsStatic(this->getKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget() const {
@@ -252,11 +283,11 @@ struct DottedInstructionFactory final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return rq::dereferencePtr(this->_constext_ptr);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getOuter() const {
-    return rq::dereferencePtr(this->_outer_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *getOuterPtr() const {
+    return this->_outer_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getOuter() {
-    return rq::dereferencePtr(this->_outer_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *getOuterPtr() {
+    return this->_outer_ptr;
   }
 
   void append(rq::Entity &entity);
@@ -290,26 +321,30 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void evaluateGlobalScope(rq::Module &module, rq::SymbolTable &host,
-                           rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression &evaluateLowFuseFlags(rq::Module &module,
-                                                     rq::SymbolTable &host,
-                                                     rq::LowFactory &factory,
-                                                     rq::Expression &asc_ex);
-  void declareAllSymbols(rq::Module &module);
+  void surveyGlobalScope(rq::Module &module, rq::SymbolTable &host,
+                         rq::Expression &first_ex);
+  [[nodiscard]] rq::Expression &
+  evaluateLowFuseFlags(rq::Module &module, rq::SymbolTable &host,
+                       rq::LowFactory &low_factory, rq::Expression &asc_ex);
+  void surveyAllSymbols(rq::Module &module);
   void implementAllSymbols(rq::Module &module);
-  void nameFunction(rq::Module &module, rq::SymbolTable &container,
-                    rq::SymbolTable &host, rq::LowFactory &factory,
-                    rq::Expression &ex);
+  void surveyFunction(rq::Module &module, rq::SymbolTable &container,
+                      rq::SymbolTable &host, rq::LowFactory &low_factory,
+                      rq::Expression &ex);
   void declareFunction(rq::Function &function);
   void implementFunction(rq::Function &function);
 
+  void destroyAllLocalVariables(rq::SymbolTable &table,
+                                rq::DottedInstructionFactory &dot_factory);
+
   [[nodiscard]] rq::Jump
   evaluateStaticLocalStatement(rq::Module &module, rq::SymbolTable &host,
-                               rq::Expression &unascribed_ex, rq::LowFactory& factory);
-  [[nodiscard]] rq::Jump
-  evaluateDynamicLocalStatement(rq::Module &module, rq::SymbolTable &host,
-                                rq::Expression &unascribed_ex, rq::LowFactory& factory);
+                               rq::Expression &unascribed_ex,
+                               rq::LowFactory &low_factory,
+                               rq::DottedInstructionFactory *dot_factory_ptr);
+  [[nodiscard]] rq::Jump evaluateDynamicLocalStatement(
+      rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
+      rq::LowFactory &low_factory, rq::DottedInstructionFactory &dot_factory);
 
   [[nodiscard]] rq::DynamicLvalue
   evaluateDynamicLvalue(rq::ConstantSymbol &result_type, rq::SymbolTable &host,
@@ -352,7 +387,7 @@ struct Evaluator final {
 
   [[nodiscard]] rq::SymbolTable &evaluateContainer(rq::Module &module,
                                                    rq::SymbolTable &host,
-                                                   rq::LowFactory &factory);
+                                                   rq::LowFactory &low_factory);
 
   [[nodiscard]] rq::Symbol *completeType(rq::Symbol &to_type,
                                          rq::Symbol &from_type);
@@ -361,7 +396,7 @@ struct Evaluator final {
 
   [[nodiscard]] bool validateAttributes(rq::SymbolTable &container,
                                         rq::Expression &unascribed_ex,
-                                        rq::LowFactory &factory,
+                                        rq::LowFactory &low_factory,
                                         rq::LowFuseFlags flags);
 };
 } // namespace rq
