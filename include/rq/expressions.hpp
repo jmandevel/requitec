@@ -104,8 +104,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "identify";
   case K::IDENTIFY_OF:
     return "_identify_of";
-  case K::FORK:
-    return "_fork";
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -426,8 +424,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weave";
   case K::SCOPE:
     return "scope";
-  case K::BLOCK:
-    return "block";
 
   // RANGES
   case K::ARITHMETIC_SEQUENCE:
@@ -952,8 +948,6 @@ template <> struct is_flags<rq::KeywordInfoFlags> : std::true_type {};
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
            KIF::NAMESPACE | KIF::FUNCTION_NAME;
-  case K::FORK:
-    return KIF::NONE;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1273,8 +1267,6 @@ template <> struct is_flags<rq::KeywordInfoFlags> : std::true_type {};
     return KIF::STATEMENT | KIF::CONTINUING_CHAINLINK |
            KIF::FINISHING_CHAINLINK;
   case K::SCOPE:
-    return KIF::STATEMENT | KIF::RVALUE | KIF::ARGUMENT;
-  case K::BLOCK:
     return KIF::STATEMENT | KIF::RVALUE | KIF::ARGUMENT;
 
   // RANGES

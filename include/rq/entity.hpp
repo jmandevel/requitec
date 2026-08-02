@@ -64,7 +64,6 @@ enum class Keyword : rq::EntityId {
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,
-  FORK,
 
   // JUXTAPOSITIONAL
   CONCATENATE,
@@ -245,7 +244,6 @@ enum class Keyword : rq::EntityId {
   SPIN,
   WEAVE,
   SCOPE,
-  BLOCK,
 
   // RANGES
   ARITHMETIC_SEQUENCE,

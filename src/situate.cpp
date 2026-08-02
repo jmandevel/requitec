@@ -77,29 +77,11 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
       break;
     }
-    if (!first.getHasNext()) {
-      this->getContext().discardExpression(expression.mergeAndPopBranch());
+    if (first.getHasNext()) {
+      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);      
       break;
     }
-    if (situation != S::RVALUE) {
-      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);
-      is_ok = false;
-      break;
-    }
-    {
-      bool found_error = false;
-      for (rq::Expression &next : first.getNextSubrange()) {
-        if (!this->situateValueBranch(S::RVALUE, next)) {
-          found_error = true;
-          break;
-        }
-      }
-      if (found_error) {
-        is_ok = false;
-        break;
-      }
-    }
-    expression.changeKeyword(K::FORK);
+    this->getContext().discardExpression(expression.mergeAndPopBranch());
   } break;
   case K::UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
@@ -253,9 +235,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::IDENTIFY_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::FORK:
-    is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
     break;
 
   // JUXTAPOSITIONAL
@@ -741,8 +720,6 @@ bool Situator::situateTree(rq::Situation situation,
         this->situateStatementVingetteStatementBranches(situation, expression);
     break;
   case K::SCOPE:
-    [[fallthrough]];
-  case K::BLOCK:
     is_ok = this->situateStatementBranches(expression);
     break;
 
