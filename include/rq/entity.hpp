@@ -709,14 +709,6 @@ enum class ConstantKind : rq::EntityId {
 enum class Opcode : rq::EntityId {
   NONE,
 
-  // address0 = source location (either rq::Expression or SOURCE_RANGE)
-  // address1 = entity
-  DEBUG_STEP,
-
-  // address0 = start expression
-  // address1 = end expression
-  SOURCE_RANGE,
-
   // address0 = head
   // address1 = tail
   STATEMENT,
@@ -744,15 +736,12 @@ enum class Opcode : rq::EntityId {
   LOGICAL_OR_WITH_SHORTCIRCUIT,
 
   // address0 = rvalue
-  // address1 = none
   LOGICAL_COMPLEMENT,
 
   // address0 = rvalue0
   // address1 = rvalue1
   RVALUE_PAIR,
 
-  // address0 = none
-  // address1 = none
   RETURN,
 
   // address0 = function
@@ -779,7 +768,6 @@ enum class Opcode : rq::EntityId {
   MODULUS,
 
   // address0 = rvalue
-  // address1 = none
   NEGATE,
 
   LAST
