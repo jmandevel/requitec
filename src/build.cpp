@@ -44,10 +44,8 @@ void Builder::build(rq::Function &func) {
   }
   llvm::Function &llvm_func = rq::dereferencePtr(llvm_func_ptr);
   func.setLlvmFunction(llvm_func);
-  if (func.getInstructionsPtr() == nullptr) {
-    return;
-  }
-  rq::Instruction &instructions = rq::dereferencePtr(func.getInstructionsPtr());
+  rq::Block& entry = func.getEntryBlock();
+  rq::Instruction &instructions = rq::dereferencePtr(entry.getOuterInstructionPtr());
   llvm::BasicBlock *llvm_entry_bb_ptr = llvm::BasicBlock::Create(
       this->getContext().getLlvmContext(), "entry", &llvm_func);
   if (llvm_entry_bb_ptr == nullptr) {

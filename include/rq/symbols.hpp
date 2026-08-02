@@ -769,16 +769,16 @@ namespace rq {
 struct Block final : public rq::Symbol {
   using Self = rq::Block;
 
-  rq::Instruction *_instruction_ptr{nullptr};
+  rq::Instruction *_outer_instruction_ptr{nullptr};
   llvm::BasicBlock *_llvm_block_ptr{nullptr};
   rq::Block *_next_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Block();
 
-  void setInstructionPtr(rq::Instruction *instruction_ptr);
+  void setOuterInstructionPtr(rq::Instruction *instruction_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
-  getInstructionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionPtr();
+  getOuterInstructionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getOuterInstructionPtr();
   void setLlvmBlock(llvm::BasicBlock &llvm_block);
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::BasicBlock &getLlvmBlock() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::BasicBlock &getLlvmBlock();
@@ -2038,10 +2038,6 @@ struct Function final : public rq::Instance {
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
-  RQ_ALWAYS_INLINE void setInstructionPtr(rq::Instruction *instructions_ptr);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
-  getInstructionsPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionsPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
   getMangleExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getMangleExpressionPtr();

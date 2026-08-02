@@ -23,19 +23,16 @@ void DottedInstructionFactory::append(rq::Entity &entity) {
     return;
   }
   if (this->_last_ptr == nullptr) {
-    rq::Instruction &cons =
-        this->getContext().acquireInstruction(this->getOpcode());
-    cons.setAddress0(this->_outer_ptr);
-    cons.setAddress1(entity);
+    rq::Instruction &cons = this->getContext().acquireInstruction(
+        this->getOpcode(), rq::dereferencePtr(this->_outer_ptr), entity);
     this->_outer_ptr = &cons;
     this->_last_ptr = &cons;
     return;
   }
-  rq::Instruction &cons =
-      this->getContext().acquireInstruction(this->getOpcode());
   rq::Instruction &last = rq::dereferencePtr(this->_last_ptr);
-  cons.setAddress0(last.replaceAddress1(cons));
-  cons.setAddress1(entity);
+  rq::Instruction &cons = this->getContext().acquireInstruction(
+      this->getOpcode(), last.getAddress1(), entity);
+  std::ignore = last.replaceAddress1(cons);
   this->_last_ptr = &cons;
 }
 
@@ -200,7 +197,7 @@ void Evaluator::implementFunction(rq::Function &function) {
             name, function, function.getModule(), parameter);
     function.addMember(this->getContext(), name, argument);
   }
-  rq::DottedInstructionFactory dot_factory{this->getContext(), O::STATEMENT};
+  rq::BlockFactory block_factory(this->getContext());
   if (function.getFirstBodyExpressionPtr() != nullptr) {
     rq::Expression &first_body_ex =
         rq::dereferencePtr(function.getFirstBodyExpressionPtr());
@@ -211,7 +208,7 @@ void Evaluator::implementFunction(rq::Function &function) {
       if (rq::getHasAll(low_factory.getFuseFlags(), LFF::STATIC)) {
         rq::Jump jump = this->evaluateStaticLocalStatement(
             function.getModule(), function, unascribed_ex, low_factory,
-            &dot_factory);
+            &block_factory);
         if (jump.getIsStatic()) {
           function.setState(ES::ERROR);
           RQ_UNHANDLED_ERROR("invalid static jump in function body");
@@ -219,7 +216,7 @@ void Evaluator::implementFunction(rq::Function &function) {
         continue;
       }
       rq::Jump jump = this->evaluateDynamicLocalStatement(
-          function.getModule(), function, body_ex, low_factory, dot_factory);
+          function.getModule(), function, body_ex, low_factory, block_factory);
       if (!jump.getIsEmpty()) {
         if (body_ex.getHasNext()) {
           function.setState(ES::ERROR);
@@ -235,18 +232,17 @@ void Evaluator::implementFunction(rq::Function &function) {
       }
     }
   }
-  if (!this->destroyAllLocalVariables(function, dot_factory)) {
+  if (!this->destroyAllLocalVariables(function, block_factory)) {
     function.setState(ES::ERROR);
   } else {
     function.setState(ES::IMPLEMENTED);
   }
-  rq::Instruction *outer_inst_ptr =
-      llvm::cast_or_null<rq::Instruction>(dot_factory.getOuterPtr());
-  function.setInstructionPtr(outer_inst_ptr);
+  rq::Block &entry = block_factory.build();
+  function.setEntryBlock(entry);
 }
 
-bool Evaluator::destroyAllLocalVariables(
-    rq::SymbolTable &table, rq::DottedInstructionFactory &dot_factory) {
+bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
+                                         rq::BlockFactory &block_factory) {
   using K = rq::Keyword;
   using O = rq::Opcode;
   using ES = rq::EvaluationState;
@@ -288,14 +284,11 @@ bool Evaluator::destroyAllLocalVariables(
           }
           // NOTE: destroy function should be verified to extend container
           // object, have no args, and have void return.
-          rq::Instruction &destroy_inst =
-              this->getContext().acquireInstruction(O::CALL);
-          destroy_inst.setAddress0(destroy_fn);
           rq::Instruction &sret_inst =
-              this->getContext().acquireInstruction(O::REF);
-          sret_inst.setAddress0(local);
-          destroy_inst.setAddress1(sret_inst);
-          dot_factory.append(destroy_inst);
+              this->getContext().acquireInstruction(O::REF, local);
+          rq::Instruction &destroy_inst = this->getContext().acquireInstruction(
+              O::CALL, destroy_fn, sret_inst);
+          block_factory.append(destroy_inst);
         }
       } else if (llvm::isa<rq::LocalStaticVariable>(symbol)) {
         RQ_TODO_IMPLEMENTATION();
@@ -307,19 +300,18 @@ bool Evaluator::destroyAllLocalVariables(
 
 [[nodiscard]] rq::Jump Evaluator::evaluateStaticLocalStatement(
     rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
-    rq::LowFactory &low_factory,
-    rq::DottedInstructionFactory *dot_factory_ptr) {
+    rq::LowFactory &low_factory, rq::BlockFactory *block_factory_ptr) {
   using LFF = rq::LowFuseFlags;
   RQ_ASSERT(rq::getHasAll(low_factory.getFuseFlags(), LFF::STATIC),
             "not static");
-  
 }
 
 [[nodiscard]] rq::Jump Evaluator::evaluateDynamicLocalStatement(
-      rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
-      rq::LowFactory &low_factory, rq::DottedInstructionFactory &dot_factory) {
+    rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
+    rq::LowFactory &low_factory, rq::BlockFactory &block_factory) {
   using K = rq::Keyword;
   using O = rq::Opcode;
+  using LFF = rq::LowFuseFlags;
   switch (unascribed_ex.getKeyword()) {
   case K::ASSIGN: {
     rq::Expression &lvalue_ex = unascribed_ex.getBranch();
@@ -349,37 +341,45 @@ bool Evaluator::destroyAllLocalVariables(
       var.completeType(type_ct);
     }
     rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
-    rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
-    inst.setAddress0(lvalue.getSymbol());
-    inst.setAddress1(folded_v);
-    dot_factory.append(inst);
+    rq::Instruction &inst = this->getContext().acquireInstruction(
+        O::ASSIGN, lvalue.getSymbol(), folded_v);
+    block_factory.append(inst);
     break;
-  }
-  case K::IF:
-    [[fallthrough]];
+  } break;
+  case K::IF: {
+    rq::IfStatement &if_ = this->getContext().allocateValue<rq::IfStatement>(
+        host, unascribed_ex, low_factory.getFuseFlags(), module);
+    rq::Expression* condition_tag_ex_ptr = nullptr;
+    for (rq::Expression& header_ex : unascribed_ex.getBranchSubrange()) {
+      if (header_ex.getIsTag()) {
+        condition_tag_ex_ptr = &header_ex;
+        break;
+      }
+      rq::LowFactory low_factory1;
+      rq::Expression& unascribed_ex1 = this->evaluateLowFuseFlags(module, if_, low_factory1, header_ex);
+      if (rq::getHasAll(low_factory1.getFuseFlags(), LFF::STATIC)) {
+        rq::Jump jump = this->evaluateStaticLocalStatement(module, )
+      }
+    }
+    rq::Expression &condition_tag_ex = rq::dereferencePtr(condition_tag_ex_ptr);
+  } break;
   case K::ELSE_IF: {
-    RQ_TODO_IMPLEMENTATION();
-  }
+    rq::LocalScope &scope = this->getContext().allocateValue<rq::LocalScope>()
+  } break;
   case K::ELSE: {
     RQ_TODO_IMPLEMENTATION();
-  }
+  } break;
   case K::SCOPE: {
     if (!unascribed_ex.getHasBranch()) {
       break;
     }
-   RQ_TODO_IMPLEMENTATION();
-  }
-  case K::BLOCK: {
-    if (!unascribed_ex.getHasBranch()) {
-      break;
-    }
     RQ_TODO_IMPLEMENTATION();
-  }
+  } break;
   case K::RETURN: {
     rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
-    dot_factory.append(inst);
+    block_factory.append(inst);
     return rq::Jump(rq::JumpKind::DYNAMIC_RETURN);
-  }
+  } break;
   default:
     RQ_UNREACHABLE();
   }
@@ -668,9 +668,8 @@ Evaluator::evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
     if (comp_rv.getType() != this->getContext().acquireBooleanType()) {
       RQ_UNHANDLED_ERROR("invalid logical complement type");
     }
-    rq::Instruction &negate =
-        this->getContext().acquireInstruction(O::LOGICAL_COMPLEMENT);
-    negate.setAddress0(comp_rv.getValue());
+    rq::Instruction &negate = this->getContext().acquireInstruction(
+        O::LOGICAL_COMPLEMENT, comp_rv.getValue());
     return rq::DynamicRvalue(negate, comp_rv.getType());
   }
   case K::LESS: {
@@ -727,8 +726,8 @@ Evaluator::evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
     if (negate_rv.getType().getIsUnsignedType()) {
       RQ_UNHANDLED_ERROR("not signed");
     }
-    rq::Instruction &negate = this->getContext().acquireInstruction(O::NEGATE);
-    negate.setAddress0(negate_rv.getValue());
+    rq::Instruction &negate =
+        this->getContext().acquireInstruction(O::NEGATE, negate_rv.getValue());
     return rq::DynamicRvalue(negate, negate_rv.getType());
   }
   case K::TRUE: {
@@ -861,13 +860,10 @@ Evaluator::evaluateDynamicOrderedComparisonRvalue(rq::SymbolTable &table,
       this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
   rq::Entity &branch1_v =
       this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
-  rq::Instruction &pair =
-      this->getContext().acquireInstruction(rq::Opcode::RVALUE_PAIR);
-  pair.setAddress0(branch0_v);
-  pair.setAddress1(branch1_v);
-  rq::Instruction &inst = this->getContext().acquireInstruction(opcode);
-  inst.setAddress0(complete_ty);
-  inst.setAddress1(pair);
+  rq::Instruction &pair = this->getContext().acquireInstruction(
+      rq::Opcode::RVALUE_PAIR, branch0_v, branch1_v);
+  rq::Instruction &inst =
+      this->getContext().acquireInstruction(opcode, complete_ty, pair);
   rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
   return rq::DynamicRvalue(inst, boolean_ty);
 }
@@ -924,13 +920,10 @@ Evaluator::evaluateDynamicEquivalenceComparisonRvalue(rq::SymbolTable &table,
       this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
   rq::Entity &branch1_v =
       this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
-  rq::Instruction &pair =
-      this->getContext().acquireInstruction(rq::Opcode::RVALUE_PAIR);
-  pair.setAddress0(branch0_v);
-  pair.setAddress1(branch1_v);
-  rq::Instruction &inst = this->getContext().acquireInstruction(opcode);
-  inst.setAddress0(complete_ty);
-  inst.setAddress1(pair);
+  rq::Instruction &pair = this->getContext().acquireInstruction(
+      rq::Opcode::RVALUE_PAIR, branch0_v, branch1_v);
+  rq::Instruction &inst =
+      this->getContext().acquireInstruction(opcode, complete_ty, pair);
   rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
   return rq::DynamicRvalue(inst, boolean_ty);
 }

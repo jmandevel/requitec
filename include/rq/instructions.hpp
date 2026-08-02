@@ -6,6 +6,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Casting.h>
 
+#include <cstdint>
 #include <tuple>
 
 namespace rq {
@@ -13,6 +14,92 @@ namespace rq {
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::Opcode opcode) {
   std::ignore = opcode;
   RQ_TODO_IMPLEMENTATION();
+}
+
+enum class OpcodeInfoFlags : std::uint_fast8_t {
+  NONE,
+
+  ZERO_ADDRESS = rq::getBit(0),
+  ONE_ADDRESS = rq::getBit(1),
+  TWO_ADDRESS = rq::getBit(2)
+};
+
+RQ_DEFINE_FLAGS(rq::OpcodeInfoFlags);
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::OpcodeInfoFlags
+getInfoFlags(rq::Opcode opcode) {
+  using O = rq::Opcode;
+  using OIF = rq::OpcodeInfoFlags;
+  switch (opcode) {
+  case O::STATEMENT:
+    return OIF::TWO_ADDRESS;
+  case O::ASSIGN:
+    return OIF::TWO_ADDRESS;
+  case O::REF:
+    return OIF::ONE_ADDRESS;
+  case O::CONDITIONAL_JUMP:
+    return OIF::TWO_ADDRESS;
+  case O::JUMP:
+    return OIF::ONE_ADDRESS;
+  case O::LOGICAL_AND:
+    return OIF::TWO_ADDRESS;
+  case O::LOGICAL_OR:
+    return OIF::TWO_ADDRESS;
+  case O::LOGICAL_AND_WITH_SHORTCIRCUIT:
+    return OIF::TWO_ADDRESS;
+  case O::LOGICAL_OR_WITH_SHORTCIRCUIT:
+    return OIF::TWO_ADDRESS;
+  case O::LOGICAL_COMPLEMENT:
+    return OIF::ONE_ADDRESS;
+  case O::RVALUE_PAIR:
+    return OIF::TWO_ADDRESS;
+  case O::RETURN:
+    return OIF::ZERO_ADDRESS;
+  case O::CALL:
+    return OIF::ONE_ADDRESS | OIF::TWO_ADDRESS;
+  case O::LESS:
+    return OIF::TWO_ADDRESS;
+  case O::GREATER:
+    return OIF::TWO_ADDRESS;
+  case O::LESS_EQUAL:
+    return OIF::TWO_ADDRESS;
+  case O::GREATER_EQUAL:
+    return OIF::TWO_ADDRESS;
+  case O::EQUAL:
+    return OIF::TWO_ADDRESS;
+  case O::NOT_EQUAL:
+    return OIF::TWO_ADDRESS;
+  case O::ADD:
+    return OIF::TWO_ADDRESS;
+  case O::SUBTRACT:
+    return OIF::TWO_ADDRESS;
+  case O::MULTIPLY:
+    return OIF::TWO_ADDRESS;
+  case O::DIVIDE:
+    return OIF::TWO_ADDRESS;
+  case O::MODULUS:
+    return OIF::TWO_ADDRESS;
+  case O::NEGATE:
+    return OIF::ONE_ADDRESS;
+  default:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getSupportsZeroAddress(rq::Opcode opcode) {
+  rq::OpcodeInfoFlags flags = rq::getInfoFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeInfoFlags::ZERO_ADDRESS);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getSupportsOneAddress(rq::Opcode opcode) {
+  rq::OpcodeInfoFlags flags = rq::getInfoFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeInfoFlags::ONE_ADDRESS);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getSupportsTwoAddress(rq::Opcode opcode) {
+  rq::OpcodeInfoFlags flags = rq::getInfoFlags(opcode);
+  return rq::getHasAll(flags, rq::OpcodeInfoFlags::TWO_ADDRESS);
 }
 
 struct Expression;
@@ -60,18 +147,6 @@ struct Instruction final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *getAddress1Ptr() {
     return this->_address1_ptr;
   }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity &address0) {
-    rq::assignSingleValue(this->_address0_ptr, &address0);
-  }
-  RQ_ALWAYS_INLINE void setAddress1(rq::Entity &address1) {
-    rq::assignSingleValue(this->_address1_ptr, &address1);
-  }
-  RQ_ALWAYS_INLINE void setAddress0(rq::Entity *address0_ptr) {
-    rq::assignSingleValue(this->_address0_ptr, address0_ptr);
-  }
-  RQ_ALWAYS_INLINE void setAddress1(rq::Entity *address1_ptr) {
-    rq::assignSingleValue(this->_address1_ptr, address1_ptr);
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
   replaceAddress0(rq::Entity &address0) {
     return rq::replaceValue(this->_address0_ptr, &address0);
@@ -95,18 +170,6 @@ struct Instruction final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *
   replaceAddress1Ptr(rq::Entity *address1_ptr) {
     return rq::replaceValuePtr(this->_address1_ptr, address1_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress0() {
-    return rq::popValue(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &popAddress1() {
-    return rq::popValue(this->_address1_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress0Ptr() {
-    return rq::popValuePtr(this->_address0_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *popAddress1Ptr() {
-    return rq::popValuePtr(this->_address1_ptr);
   }
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {

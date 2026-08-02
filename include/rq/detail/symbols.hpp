@@ -182,6 +182,10 @@ namespace rq {
   case S::CONFORMITY:
     return "Conformity";
 
+  // BLOCK
+  case S::BLOCK:
+    return "Block";
+
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
     return "ClassWeightLevel";
@@ -559,6 +563,10 @@ namespace rq {
 
   // CONFORMITY
   case S::CONFORMITY:
+    return SIF::NONE;
+
+  // BLOCK
+  case S::BLOCK:
     return SIF::NONE;
 
   // WEIGHTS
@@ -1571,6 +1579,41 @@ Conformity::getInterface() const {
   const rq::EntityId id = entity.getId();
   return id ==
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CONFORMITY);
+}
+
+RQ_ALWAYS_INLINE Block::Block() : Symbol(rq::SymbolKind::BLOCK) {}
+
+void Block::setOuterInstructionPtr(rq::Instruction *instruction_ptr) {
+  rq::assignSingleValue(this->_outer_instruction_ptr, instruction_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
+Block::getOuterInstructionPtr() const {
+  return this->_outer_instruction_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *
+Block::getOuterInstructionPtr() {
+  return this->_outer_instruction_ptr;
+}
+
+void Block::setLlvmBlock(llvm::BasicBlock &llvm_block) {
+  rq::assignSingleValue(this->_llvm_block_ptr, &llvm_block);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::BasicBlock &
+Block::getLlvmBlock() const {
+  return rq::dereferencePtr(this->_llvm_block_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::BasicBlock &Block::getLlvmBlock() {
+  return rq::dereferencePtr(this->_llvm_block_ptr);
+}
+
+[[nodiscard]] inline bool Block::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::BLOCK);
 }
 
 RQ_ALWAYS_INLINE
@@ -3608,20 +3651,6 @@ Function::getSignaturePtr() const {
   return this->_signature_ptr;
 }
 
-RQ_ALWAYS_INLINE void
-Function::setInstructionPtr(rq::Instruction *instructions_ptr) {
-  rq::assignSingleValue(this->_instructions_ptr, instructions_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
-Function::getInstructionsPtr() const {
-  return this->_instructions_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *Function::getInstructionsPtr() {
-  return this->_instructions_ptr;
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
 Function::getMangleExpressionPtr() const {
   return this->_mangle_expression_ptr;
@@ -3673,6 +3702,44 @@ Function::getPostconditionExpressionPtr() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
 Function::getPostconditionExpressionPtr() {
   return this->_postcondition_expression_ptr;
+}
+
+void Function::setEntryBlock(rq::Block &block) {
+  rq::assignSingleValue(this->_entry_ptr, &block);
+}
+
+[[nodiscard]] rq::Block &Function::getEntryBlock() {
+  return rq::dereferencePtr(this->_entry_ptr);
+}
+
+void Function::appendBlock(rq::Block &block) {
+  rq::Block &entry = this->getEntryBlock();
+  rq::assignSingleValue(block._next_ptr, entry._next_ptr);
+  entry._next_ptr = block._next_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::NextIterator<rq::Block>,
+                          rq::NextIterator<rq::Block>,
+                          std::ranges::subrange_kind::unsized>
+    Function::getBlockSubrange() {
+  return std::ranges::subrange<rq::NextIterator<rq::Block>,
+                               rq::NextIterator<rq::Block>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::NextIterator<rq::Block>(this->_entry_ptr),
+      rq::NextIterator<rq::Block>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    std::ranges::subrange<rq::ConstNextIterator<rq::Block>,
+                          rq::ConstNextIterator<rq::Block>,
+                          std::ranges::subrange_kind::unsized>
+    Function::getBlockSubrange() const {
+  return std::ranges::subrange<rq::ConstNextIterator<rq::Block>,
+                               rq::ConstNextIterator<rq::Block>,
+                               std::ranges::subrange_kind::unsized>(
+      rq::ConstNextIterator<rq::Block>(this->_entry_ptr),
+      rq::ConstNextIterator<rq::Block>());
 }
 
 [[nodiscard]] inline bool Function::classof(const rq::Entity *entity_ptr) {

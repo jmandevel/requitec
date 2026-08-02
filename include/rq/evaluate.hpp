@@ -131,7 +131,8 @@ enum class JumpInfoFlags : std::uint_fast8_t {
   NONE = 0,
 
   IS_DYNAMIC = rq::getBit(0),
-  IS_STATIC = rq::getBit(1) HAS_TARGET = rq::getBit(2),
+  IS_STATIC = rq::getBit(1),
+  HAS_TARGET = rq::getBit(2),
   LOOP = rq::getBit(3),
   CASE = rq::getBit(4),
   NON_FRAME = rq::getBit(5)
@@ -274,6 +275,11 @@ struct DottedInstructionFactory final {
   explicit RQ_ALWAYS_INLINE DottedInstructionFactory(rq::Context &context,
                                                      rq::Opcode opcode);
 
+  RQ_ALWAYS_INLINE void clear() {
+    this->_outer_ptr = nullptr;
+    this->_last_ptr = nullptr;
+  }
+
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
     return this->_opcode;
   }
@@ -291,6 +297,36 @@ struct DottedInstructionFactory final {
   }
 
   void append(rq::Entity &entity);
+};
+
+struct BlockFactory final {
+  using Self = rq::BlockFactory;
+
+  rq::DottedInstructionFactory _dot_factory;
+
+  BlockFactory(rq::Context &context)
+      : _dot_factory(context, rq::Opcode::STATEMENT) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
+    return this->_dot_factory.getContext();
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
+    return this->_dot_factory.getContext();
+  }
+
+  RQ_ALWAYS_INLINE void append(rq::Instruction &instruction) {
+    this->_dot_factory.append(instruction);
+  }
+
+  [[nodiscard]] rq::Block &build() {
+    rq::Block &block = this->getContext().allocateValue<rq::Block>();
+    rq::Instruction *outer_inst_ptr =
+        llvm::cast_or_null<rq::Instruction>(this->_dot_factory.getOuterPtr());
+    this->_dot_factory.clear();
+    block.setOuterInstructionPtr(outer_inst_ptr);
+    return block;
+  }
 };
 
 struct Evaluator final {
@@ -334,26 +370,27 @@ struct Evaluator final {
   void declareFunction(rq::Function &function);
   void implementFunction(rq::Function &function);
 
-  [[nodiscard]] bool destroyAllLocalVariables(rq::SymbolTable &table,
-                                rq::DottedInstructionFactory &dot_factory);
+  [[nodiscard]] bool
+  destroyAllLocalVariables(rq::SymbolTable &table,
+                           rq::BlockFactory &block_factory);
 
   [[nodiscard]] rq::Jump
   evaluateStaticLocalStatement(rq::Module &module, rq::SymbolTable &host,
                                rq::Expression &unascribed_ex,
                                rq::LowFactory &low_factory,
-                               rq::DottedInstructionFactory *dot_factory_ptr);
+                               rq::BlockFactory *block_factory_ptr);
+
   [[nodiscard]] rq::Jump evaluateDynamicLocalStatement(
       rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
-      rq::LowFactory &low_factory, rq::DottedInstructionFactory &dot_factory);
+      rq::LowFactory &low_factory, rq::BlockFactory &block_factory);
 
   [[nodiscard]] rq::DynamicLvalue
-  evaluateDynamicLvalue(rq::SymbolTable &host,
-                        rq::Module &module, rq::Expression &lvalue_ex);
+  evaluateDynamicLvalue(rq::SymbolTable &host, rq::Module &module,
+                        rq::Expression &lvalue_ex);
 
   [[nodiscard]] rq::StaticRvalue
   evaluateStaticRvalue(rq::Module &module, rq::SymbolTable &host,
                        rq::Expression &rvalue_ex);
-  // etc
 
   [[nodiscard]] rq::DynamicRvalue
   evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &host,
