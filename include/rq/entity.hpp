@@ -583,6 +583,9 @@ enum class SymbolKind : rq::EntityId {
   // CONFORMITY
   CONFORMITY,
 
+  // BLOCK
+  BLOCK,
+
   // WEIGHTS
   CLASS_WEIGHT_LEVEL,
   ENUMERATION_WEIGHT_LEVEL,
@@ -725,21 +728,12 @@ enum class Opcode : rq::EntityId {
   // address0 = variable
   REF,
 
-  // address0 = statements
-  IF,
-  ELSE_IF,
-  ELSE,
+  // address0 = condition rvalue
+  // address1 = false target block
+  CONDITIONAL_JUMP,
 
-  // address0 = rvalue
-  // address1 = fork
-  CONDITION,
-
-  // address0 = true_path
-  // address1 = false_path
-  FORK,
-
-  JUMP_AFTER_IF_CHAIN,
-  JUMP_NEXT_IF_CHAINLINK,
+  // address0 = block
+  JUMP,
 
   // LOGICAL
   // address0 = head

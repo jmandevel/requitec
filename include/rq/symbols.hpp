@@ -337,6 +337,7 @@ struct Symbol;
   struct Module;
   struct Import;
   struct Conformity;
+  struct Block;
   struct WeightLevel;
     template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedWeightLevel;
   struct JuxtapositionalListItem;
@@ -757,6 +758,34 @@ struct Conformity final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+} // namespace rq
+
+namespace llvm {
+class BasicBlock;
+}
+
+namespace rq {
+
+struct Block final : public rq::Symbol {
+  using Self = rq::Block;
+
+  rq::Instruction *_instruction_ptr{nullptr};
+  llvm::BasicBlock *_llvm_block_ptr{nullptr};
+  rq::Block *_next_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Block();
+
+  void setInstructionPtr(rq::Instruction *instruction_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
+  getInstructionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionPtr();
+  void setLlvmBlock(llvm::BasicBlock &llvm_block);
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::BasicBlock &getLlvmBlock() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::BasicBlock &getLlvmBlock();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct JuxtapositionalListItem final : public rq::Symbol,
                                        public llvm::FoldingSetNode {
   using Self = rq::JuxtapositionalListItem;
@@ -884,12 +913,14 @@ struct Name final {
     return this->_keyword;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const rq::Name& rhs) const {
-    return this->getKeyword() == rhs.getKeyword() && this->getText() == rhs.getText();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const rq::Name &rhs) const {
+    return this->getKeyword() == rhs.getKeyword() &&
+           this->getText() == rhs.getText();
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const rq::Name& rhs) const {
-    return this->getKeyword() != rhs.getKeyword() && this->getText() != rhs.getText();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const rq::Name &rhs) const {
+    return this->getKeyword() != rhs.getKeyword() &&
+           this->getText() != rhs.getText();
   }
 };
 
@@ -1196,9 +1227,9 @@ struct TypeParameter : public rq::Parameter, public llvm::FoldingSetNode {
   bool _is_positional : 1;
 
   explicit RQ_ALWAYS_INLINE
-  TypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                rq::Name name, rq::ConstantSymbol &type,
-                unsigned location, bool is_positional);
+  TypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr, rq::Name name,
+                rq::ConstantSymbol &type, unsigned location,
+                bool is_positional);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::TypeParameter *
   getNextTypeParameterPtr() const;
@@ -1266,8 +1297,7 @@ struct ParameterList : public rq::Symbol {
   getNonpositionalParameterCount() const;
   [[nodiscard]] inline const rq::Parameter *
   getParameterPtrOfName(rq::Name name) const;
-  [[nodiscard]] inline rq::Parameter *
-  getParameterPtrOfName(rq::Name name);
+  [[nodiscard]] inline rq::Parameter *getParameterPtrOfName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Parameter>,
                             rq::NextIterator<rq::Parameter>,
@@ -1978,13 +2008,13 @@ struct Function;
 
 namespace rq {
 
-struct Function : public rq::Instance {
+struct Function final : public rq::Instance {
   using Self = rq::Function;
 
   rq::Expression *_first_header_expression_ptr;
   rq::Expression *_first_body_expression_ptr{nullptr};
   rq::Signature *_signature_ptr{nullptr};
-  rq::Instruction *_instructions_ptr{nullptr};
+  rq::Block *_entry_ptr{nullptr};
   rq::Expression *_mangle_expression_ptr;
   llvm::StringRef _mangled_name{};
   llvm::Function *_llvm_function_ptr{nullptr};
@@ -2008,8 +2038,7 @@ struct Function : public rq::Instance {
   RQ_ALWAYS_INLINE void setSignature(rq::Signature &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Signature *getSignaturePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Signature *getSignaturePtr();
-  RQ_ALWAYS_INLINE void
-  setInstructionPtr(rq::Instruction *instructions_ptr);
+  RQ_ALWAYS_INLINE void setInstructionPtr(rq::Instruction *instructions_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
   getInstructionsPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getInstructionsPtr();
@@ -2029,6 +2058,19 @@ struct Function : public rq::Instance {
   getPostconditionExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   getPostconditionExpressionPtr();
+  void setEntryBlock(rq::Block& block);
+  [[nodiscard]] rq::Block& getEntryBlock();
+  void appendBlock(rq::Block& block);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::NextIterator<rq::Block>,
+                            rq::NextIterator<rq::Block>,
+                            std::ranges::subrange_kind::unsized>
+      getBlockSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      std::ranges::subrange<rq::ConstNextIterator<rq::Block>,
+                            rq::ConstNextIterator<rq::Block>,
+                            std::ranges::subrange_kind::unsized>
+      getBlockSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
