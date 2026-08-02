@@ -3609,7 +3609,7 @@ Function::getSignaturePtr() const {
 }
 
 RQ_ALWAYS_INLINE void
-Function::setInstruction(rq::Instruction *instructions_ptr) {
+Function::setInstructionPtr(rq::Instruction *instructions_ptr) {
   rq::assignSingleValue(this->_instructions_ptr, instructions_ptr);
 }
 
