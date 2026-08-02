@@ -137,7 +137,7 @@ enum class JumpInfoFlags : std::uint_fast8_t {
   NON_FRAME = rq::getBit(5)
 };
 
-template <> struct is_flags<rq::JumpInfoFlags> final : std::true_type {};
+RQ_DEFINE_FLAGS(rq::JumpInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::JumpInfoFlags
 getInfoFlags(rq::JumpKind kind) {

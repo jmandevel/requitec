@@ -24,7 +24,7 @@ enum class CodeunitInfoFlags : std::uint16_t {
   MASK = 0x3F
 };
 
-template <> struct is_flags<rq::CodeunitInfoFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::CodeunitInfoFlags);
 
 constexpr char CHAR_EXTENDED_BIT = 0x80;
 

@@ -855,7 +855,7 @@ enum class KeywordInfoFlags : std::uint32_t {
 
 };
 
-template <> struct is_flags<rq::KeywordInfoFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
 [[nodiscard]] inline rq::KeywordInfoFlags getInfoFlags(rq::Keyword keyword) {
   using namespace rq;
@@ -2498,7 +2498,7 @@ enum class LowFuseFlags : std::uint_fast32_t {
              TEMPLATE | CONSTRAINT | WEIGHT | REQUIRE | ENSURE | RANGER
 };
 
-template <> struct is_flags<rq::LowFuseFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::LowFuseFlags);
 
 [[nodiscard]] inline rq::LowFuseFlags getFuseFlags(rq::LowAttribute attribute) {
   using namespace rq;
@@ -2615,7 +2615,7 @@ enum class LowInfoFlags : std::uint_fast8_t {
   MUST_NOT_HAVE_ATTACHMENT
 };
 
-template <> struct is_flags<rq::LowInfoFlags> final : std::true_type {};
+RQ_DEFINE_FLAGS(rq::LowInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::LowInfoFlags
 getInfoFlags(rq::LowAttribute attribute) {
@@ -3103,7 +3103,7 @@ enum class HighFuseFlags : std::uint_fast8_t {
   NULL_TERMINATE_MASK = NULL_TERMINATE,
 };
 
-template <> struct is_flags<HighFuseFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::HighFuseFlags);
 
 [[nodiscard]] inline rq::HighFuseFlags
 getFuseFlags(rq::HighAttribute attribute) {
@@ -3383,7 +3383,7 @@ enum class ExpressionNextInfoFlags : std::uint8_t {
   ULTIMATE = rq::getBit(1)
 };
 
-template <> struct is_flags<ExpressionNextInfoFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::ExpressionNextInfoFlags);
 
 enum class ExpressionSourceInfoFlags : std::uint8_t {
   NONE = 0,
@@ -3394,7 +3394,7 @@ enum class ExpressionSourceInfoFlags : std::uint8_t {
   SITUATOR_ERROR = rq::getBit(1)
 };
 
-template <> struct is_flags<ExpressionSourceInfoFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::ExpressionSourceInfoFlags);
 
 struct ExpressionIterator final {
   using Self = rq::ExpressionIterator;

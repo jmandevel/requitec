@@ -79,7 +79,7 @@ enum class SymbolInfoFlags : std::uint64_t {
   IS_OBJECT_SCOPE = rq::getBit(42)
 };
 
-template <> struct is_flags<rq::SymbolInfoFlags> final : std::true_type {};
+RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
 [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind);
 

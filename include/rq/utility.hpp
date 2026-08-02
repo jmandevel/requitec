@@ -153,6 +153,8 @@ constexpr bool is_flags_v = rq::is_flags<FlagsParam>::value;
 template <typename FlagsParam>
 concept flags = rq::is_flags<FlagsParam>::value;
 
+#define RQ_DEFINE_FLAGS(FLAGS) template<> struct is_flags<typename FLAGS> final : std::true_type {}
+
 template <typename FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<FlagsParam>
 getUnderlying(FlagsParam flags) {

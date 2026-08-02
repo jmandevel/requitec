@@ -102,7 +102,7 @@ enum class TokenInfoFlags : std::uint8_t {
   INFERENCE_TERMINATOR = rq::getBit(0)
 };
 
-template <> struct is_flags<rq::TokenInfoFlags> : std::true_type {};
+RQ_DEFINE_FLAGS(rq::TokenInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr llvm::StringRef
 getName(rq::TokenKind kind) {
