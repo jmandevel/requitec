@@ -725,10 +725,21 @@ enum class Opcode : rq::EntityId {
   // address0 = variable
   REF,
 
-  // address0 = true_path
+  // address0 = statements
   IF,
   ELSE_IF,
   ELSE,
+
+  // address0 = rvalue
+  // address1 = fork
+  CONDITION,
+
+  // address0 = true_path
+  // address1 = false_path
+  FORK,
+
+  JUMP_AFTER_IF_CHAIN,
+  JUMP_NEXT_IF_CHAINLINK,
 
   // LOGICAL
   // address0 = head

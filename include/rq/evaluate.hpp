@@ -347,7 +347,7 @@ struct Evaluator final {
       rq::LowFactory &low_factory, rq::DottedInstructionFactory &dot_factory);
 
   [[nodiscard]] rq::DynamicLvalue
-  evaluateDynamicLvalue(rq::ConstantSymbol &result_type, rq::SymbolTable &host,
+  evaluateDynamicLvalue(rq::SymbolTable &host,
                         rq::Module &module, rq::Expression &lvalue_ex);
 
   [[nodiscard]] rq::StaticRvalue

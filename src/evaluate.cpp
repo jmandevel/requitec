@@ -305,23 +305,32 @@ bool Evaluator::destroyAllLocalVariables(
   return true;
 }
 
+[[nodiscard]] rq::Jump Evaluator::evaluateStaticLocalStatement(
+    rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
+    rq::LowFactory &low_factory,
+    rq::DottedInstructionFactory *dot_factory_ptr) {
+  using LFF = rq::LowFuseFlags;
+  RQ_ASSERT(rq::getHasAll(low_factory.getFuseFlags(), LFF::STATIC),
+            "not static");
+  
+}
+
 [[nodiscard]] rq::Jump Evaluator::evaluateDynamicLocalStatement(
-    rq::DottedInstructionFactory &inst_factory, rq::LowFactory &flags_factory,
-    rq::Function &function, rq::ConstantSymbol &result_type,
-    rq::SymbolTable &table, rq::Module &module, rq::Expression &state_ex) {
+      rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
+      rq::LowFactory &low_factory, rq::DottedInstructionFactory &dot_factory) {
   using K = rq::Keyword;
   using O = rq::Opcode;
-  switch (state_ex.getKeyword()) {
+  switch (unascribed_ex.getKeyword()) {
   case K::ASSIGN: {
-    rq::Expression &lvalue_ex = state_ex.getBranch();
+    rq::Expression &lvalue_ex = unascribed_ex.getBranch();
     rq::Expression &rvalue_ex = lvalue_ex.getNext();
     rq::DynamicRvalue rvalue =
-        this->evaluateDynamicRvalue(module, table, rvalue_ex);
+        this->evaluateDynamicRvalue(module, host, rvalue_ex);
     if (rvalue.getIsEmpty()) {
       break;
     }
     rq::DynamicLvalue lvalue =
-        this->evaluateDynamicLvalue(result_type, table, module, lvalue_ex);
+        this->evaluateDynamicLvalue(host, module, lvalue_ex);
     if (lvalue.getIsEmpty()) {
       break;
     }
@@ -343,52 +352,33 @@ bool Evaluator::destroyAllLocalVariables(
     rq::Instruction &inst = this->getContext().acquireInstruction(O::ASSIGN);
     inst.setAddress0(lvalue.getSymbol());
     inst.setAddress1(folded_v);
-    factory.append(inst);
+    dot_factory.append(inst);
     break;
   }
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF: {
-    // TODO
+    RQ_TODO_IMPLEMENTATION();
   }
   case K::ELSE: {
-    // TODO
+    RQ_TODO_IMPLEMENTATION();
   }
   case K::SCOPE: {
-    if (!state_ex.getHasBranch()) {
+    if (!unascribed_ex.getHasBranch()) {
       break;
     }
-    rq::ScopeStatement &scope =
-        this->getContext().allocateValue<rq::ScopeStatement>(
-            table, state_ex, rq::LowFuseFlags::NONE, module);
-    rq::Expression &branch0_ex = state_ex.getBranch();
-    rq::Instruction *next_ptr = this->evaluateLocalScope(
-        function, result_type, scope, module, branch0_ex);
-    if (next_ptr == nullptr) {
-      break;
-    }
-    rq::Instruction &next = rq::dereferencePtr(next_ptr);
-    factory.append(next);
-    break;
+   RQ_TODO_IMPLEMENTATION();
   }
   case K::BLOCK: {
-    if (!state_ex.getHasBranch()) {
+    if (!unascribed_ex.getHasBranch()) {
       break;
     }
-    rq::Expression &branch0_ex = state_ex.getBranch();
-    rq::Instruction *next_ptr = this->evaluateLocalScope(
-        function, result_type, table, module, branch0_ex);
-    if (next_ptr == nullptr) {
-      break;
-    }
-    rq::Instruction &next = rq::dereferencePtr(next_ptr);
-    factory.append(next);
-    break;
+    RQ_TODO_IMPLEMENTATION();
   }
   case K::RETURN: {
     rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
-    factory.append(inst);
-    return rq::Jump(rq::JumpKind::RETURN);
+    dot_factory.append(inst);
+    return rq::Jump(rq::JumpKind::DYNAMIC_RETURN);
   }
   default:
     RQ_UNREACHABLE();
