@@ -23,14 +23,14 @@ void DottedInstructionFactory::append(rq::Entity &entity) {
     return;
   }
   if (this->_last_ptr == nullptr) {
-    rq::Instruction &cons = this->getContext().acquireInstruction(
+    rq::Instruction &cons = this->getContext().allocateValue<rq::Instruction>(
         this->getOpcode(), rq::dereferencePtr(this->_outer_ptr), entity);
     this->_outer_ptr = &cons;
     this->_last_ptr = &cons;
     return;
   }
   rq::Instruction &last = rq::dereferencePtr(this->_last_ptr);
-  rq::Instruction &cons = this->getContext().acquireInstruction(
+  rq::Instruction &cons = this->getContext().allocateValue<rq::Instruction>(
       this->getOpcode(), last.getAddress1(), entity);
   std::ignore = last.replaceAddress1(cons);
   this->_last_ptr = &cons;
@@ -285,9 +285,10 @@ bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
           // NOTE: destroy function should be verified to extend container
           // object, have no args, and have void return.
           rq::Instruction &sret_inst =
-              this->getContext().acquireInstruction(O::REF, local);
-          rq::Instruction &destroy_inst = this->getContext().acquireInstruction(
-              O::CALL, destroy_fn, sret_inst);
+              this->getContext().allocateValue<rq::Instruction>(O::REF, local);
+          rq::Instruction &destroy_inst =
+              this->getContext().allocateValue<rq::Instruction>(
+                  O::CALL, destroy_fn, sret_inst);
           block_factory.append(destroy_inst);
         }
       } else if (llvm::isa<rq::LocalStaticVariable>(symbol)) {
@@ -312,6 +313,7 @@ bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
   using K = rq::Keyword;
   using O = rq::Opcode;
   using LFF = rq::LowFuseFlags;
+  using J = rq::JumpKind;
   switch (unascribed_ex.getKeyword()) {
   case K::ASSIGN: {
     rq::Expression &lvalue_ex = unascribed_ex.getBranch();
@@ -341,7 +343,7 @@ bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
       var.completeType(type_ct);
     }
     rq::Entity &folded_v = this->foldDynamicRvalue(rvalue.getValue(), type);
-    rq::Instruction &inst = this->getContext().acquireInstruction(
+    rq::Instruction &inst = this->getContext().allocateValue<rq::Instruction>(
         O::ASSIGN, lvalue.getSymbol(), folded_v);
     block_factory.append(inst);
     break;
@@ -349,17 +351,22 @@ bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
   case K::IF: {
     rq::IfStatement &if_ = this->getContext().allocateValue<rq::IfStatement>(
         host, unascribed_ex, low_factory.getFuseFlags(), module);
-    rq::Expression* condition_tag_ex_ptr = nullptr;
-    for (rq::Expression& header_ex : unascribed_ex.getBranchSubrange()) {
+    rq::Expression *condition_tag_ex_ptr = nullptr;
+    for (rq::Expression &header_ex : unascribed_ex.getBranchSubrange()) {
       if (header_ex.getIsTag()) {
         condition_tag_ex_ptr = &header_ex;
         break;
       }
       rq::LowFactory low_factory1;
-      rq::Expression& unascribed_ex1 = this->evaluateLowFuseFlags(module, if_, low_factory1, header_ex);
+      rq::Expression &unascribed_ex1 =
+          this->evaluateLowFuseFlags(module, if_, low_factory1, header_ex);
       if (rq::getHasAll(low_factory1.getFuseFlags(), LFF::STATIC)) {
-        rq::Jump jump = this->evaluateStaticLocalStatement(module, )
+        RQ_TODO_IMPLEMENTATION();
+        // continue;
       }
+      rq::Jump jump = this->evaluateDynamicLocalStatement(
+          module, if_, unascribed_ex1, low_factory1, block_factory);
+      std::ignore = jump; // TODO handle jumps
     }
     rq::Expression &condition_tag_ex = rq::dereferencePtr(condition_tag_ex_ptr);
   } break;
@@ -376,7 +383,8 @@ bool Evaluator::destroyAllLocalVariables(rq::SymbolTable &table,
     RQ_TODO_IMPLEMENTATION();
   } break;
   case K::RETURN: {
-    rq::Instruction &inst = this->getContext().acquireInstruction(O::RETURN);
+    rq::Instruction &inst =
+        this->getContext().allocateValue<rq::Instruction>(O::RETURN);
     block_factory.append(inst);
     return rq::Jump(rq::JumpKind::DYNAMIC_RETURN);
   } break;
@@ -668,7 +676,7 @@ Evaluator::evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
     if (comp_rv.getType() != this->getContext().acquireBooleanType()) {
       RQ_UNHANDLED_ERROR("invalid logical complement type");
     }
-    rq::Instruction &negate = this->getContext().acquireInstruction(
+    rq::Instruction &negate = this->getContext().allocateValue<rq::Instruction>(
         O::LOGICAL_COMPLEMENT, comp_rv.getValue());
     return rq::DynamicRvalue(negate, comp_rv.getType());
   }
@@ -726,8 +734,8 @@ Evaluator::evaluateDynamicRvalue(rq::Module &module, rq::SymbolTable &table,
     if (negate_rv.getType().getIsUnsignedType()) {
       RQ_UNHANDLED_ERROR("not signed");
     }
-    rq::Instruction &negate =
-        this->getContext().acquireInstruction(O::NEGATE, negate_rv.getValue());
+    rq::Instruction &negate = this->getContext().allocateValue<rq::Instruction>(
+        O::NEGATE, negate_rv.getValue());
     return rq::DynamicRvalue(negate, negate_rv.getType());
   }
   case K::TRUE: {
@@ -860,10 +868,10 @@ Evaluator::evaluateDynamicOrderedComparisonRvalue(rq::SymbolTable &table,
       this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
   rq::Entity &branch1_v =
       this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
-  rq::Instruction &pair = this->getContext().acquireInstruction(
+  rq::Instruction &pair = this->getContext().allocateValue<rq::Instruction>(
       rq::Opcode::RVALUE_PAIR, branch0_v, branch1_v);
-  rq::Instruction &inst =
-      this->getContext().acquireInstruction(opcode, complete_ty, pair);
+  rq::Instruction &inst = this->getContext().allocateValue<rq::Instruction>(
+      opcode, complete_ty, pair);
   rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
   return rq::DynamicRvalue(inst, boolean_ty);
 }
@@ -920,10 +928,10 @@ Evaluator::evaluateDynamicEquivalenceComparisonRvalue(rq::SymbolTable &table,
       this->foldDynamicRvalue(branch0_rv.getValue(), complete_ty);
   rq::Entity &branch1_v =
       this->foldDynamicRvalue(branch1_rv.getValue(), complete_ty);
-  rq::Instruction &pair = this->getContext().acquireInstruction(
+  rq::Instruction &pair = this->getContext().allocateValue<rq::Instruction>(
       rq::Opcode::RVALUE_PAIR, branch0_v, branch1_v);
-  rq::Instruction &inst =
-      this->getContext().acquireInstruction(opcode, complete_ty, pair);
+  rq::Instruction &inst = this->getContext().allocateValue<rq::Instruction>(
+      opcode, complete_ty, pair);
   rq::Symbol &boolean_ty = this->getContext().acquireBooleanType();
   return rq::DynamicRvalue(inst, boolean_ty);
 }

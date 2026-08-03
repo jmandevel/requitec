@@ -1581,11 +1581,9 @@ Conformity::getInterface() const {
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CONFORMITY);
 }
 
-RQ_ALWAYS_INLINE Block::Block() : Symbol(rq::SymbolKind::BLOCK) {}
-
-void Block::setOuterInstructionPtr(rq::Instruction *instruction_ptr) {
-  rq::assignSingleValue(this->_outer_instruction_ptr, instruction_ptr);
-}
+RQ_ALWAYS_INLINE Block::Block(rq::Instruction *outer_instruction_ptr)
+    : Symbol(rq::SymbolKind::BLOCK),
+      _outer_instruction_ptr(outer_instruction_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
 Block::getOuterInstructionPtr() const {

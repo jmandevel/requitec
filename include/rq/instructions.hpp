@@ -39,6 +39,10 @@ getInfoFlags(rq::Opcode opcode) {
     return OIF::ONE_ADDRESS;
   case O::CONDITIONAL_JUMP:
     return OIF::TWO_ADDRESS;
+  case O::UNLIKELY_CONDITIONAL_JUMP:
+    return OIF::TWO_ADDRESS;
+  case O::LIKELY_CONDITIONAL_JUMP:
+    return OIF::TWO_ADDRESS;
   case O::JUMP:
     return OIF::ONE_ADDRESS;
   case O::LOGICAL_AND:
@@ -111,7 +115,48 @@ struct Instruction final : public rq::Entity {
   rq::Entity *_address1_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode)
-      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET) {}
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET) {
+    RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
+  }
+
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _address0_ptr(&address0) {
+    RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
+  }
+
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0,
+                                        rq::Entity &address1)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _address0_ptr(&address0), _address1_ptr(&address1) {
+    RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
+  }
+
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0,
+                                        rq::Entity *address1_ptr)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _address0_ptr(&address0), _address1_ptr(address1_ptr) {
+    RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
+    RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
+  }
+
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
+                                        rq::Entity *address0_ptr,
+                                        rq::Entity *address1_ptr)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _address0_ptr(address0_ptr), _address1_ptr(address1_ptr) {
+    RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
+    RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
+    RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
+  }
+
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
+                                        rq::Entity *address0_ptr)
+      : Entity(rq::getUnderlying(opcode) + rq::OPCODE_OFFSET),
+        _address0_ptr(address0_ptr) {
+    RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
+    RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
+  }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
     return static_cast<rq::Opcode>(this->getId() - rq::OPCODE_OFFSET);

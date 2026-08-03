@@ -769,13 +769,12 @@ namespace rq {
 struct Block final : public rq::Symbol {
   using Self = rq::Block;
 
-  rq::Instruction *_outer_instruction_ptr{nullptr};
+  rq::Instruction *_outer_instruction_ptr;
   llvm::BasicBlock *_llvm_block_ptr{nullptr};
   rq::Block *_next_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Block();
+  explicit RQ_ALWAYS_INLINE Block(rq::Instruction *outer_instruction_ptr);
 
-  void setOuterInstructionPtr(rq::Instruction *instruction_ptr);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
   getOuterInstructionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getOuterInstructionPtr();

@@ -723,6 +723,8 @@ enum class Opcode : rq::EntityId {
   // address0 = condition rvalue
   // address1 = false target block
   CONDITIONAL_JUMP,
+  LIKELY_CONDITIONAL_JUMP,
+  UNLIKELY_CONDITIONAL_JUMP,
 
   // address0 = block
   JUMP,

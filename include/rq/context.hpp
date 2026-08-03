@@ -87,7 +87,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::C _c{};
   rq::Top _top{};
   rq::Expression *_free_expression_ptr{nullptr};
-  rq::Instruction *_free_instruction_ptr{nullptr};
   rq::IntegerLiteral _integer_literal_type{};
   rq::FloatLiteral _float_literal_type{};
   rq::StringLiteral _string_literal_type{};
@@ -946,64 +945,6 @@ struct Context final : public rq::BumpPtrAllocator {
         this->allocateValue<rq::ConstantSymbol>(flags, symbol);
     this->_symbol_constants.InsertNode(&created, insert_pos);
     return created;
-  }
-
-  [[nodiscard]] inline rq::Instruction &_acquireInstruction(rq::Opcode opcode) {
-    if (this->_free_instruction_ptr != nullptr) {
-      rq::Instruction &next_free =
-          rq::dereferencePtr(this->_free_instruction_ptr);
-      this->_free_instruction_ptr =
-          llvm::cast<rq::Instruction>(next_free._address0_ptr);
-      next_free._id = rq::getUnderlying(opcode) + rq::OPCODE_OFFSET;
-      return next_free;
-    }
-    rq::Instruction &new_instruction =
-        this->allocateValue<rq::Instruction>(opcode);
-    return new_instruction;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &
-  acquireInstruction(rq::Opcode opcode) {
-    RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
-    rq::Instruction &instruction = this->_acquireInstruction(opcode);
-    return instruction;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &
-  acquireInstruction(rq::Opcode opcode, rq::Entity &address0) {
-    RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
-    rq::Instruction &instruction = this->_acquireInstruction(opcode);
-    rq::assignSingleValue(instruction._address0_ptr, &address0);
-    return instruction;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction &
-  acquireInstruction(rq::Opcode opcode, rq::Entity &address0,
-                     rq::Entity &address1) {
-    RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
-    rq::Instruction &instruction = this->_acquireInstruction(opcode);
-    rq::assignSingleValue(instruction._address0_ptr, &address0);
-    rq::assignSingleValue(instruction._address1_ptr, &address1);
-    return instruction;
-  }
-
-  inline void discardInstruction(rq::Instruction &instruction) {
-    if (instruction.getHasAddress0()) {
-      rq::Entity &address0 = instruction.getAddress0();
-      if (address0.getIsInstruction()) {
-        rq::Instruction &address0_inst = llvm::cast<rq::Instruction>(address0);
-        this->discardInstruction(address0_inst);
-      }
-    }
-    if (instruction.getHasAddress1()) {
-      rq::Entity &address1 = instruction.getAddress1();
-      if (address1.getIsInstruction()) {
-        rq::Instruction &address1_inst = llvm::cast<rq::Instruction>(address1);
-        this->discardInstruction(address1_inst);
-      }
-    }
-    instruction._address0_ptr = this->_free_instruction_ptr;
-    this->_free_instruction_ptr = &instruction;
   }
 };
 

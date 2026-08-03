@@ -320,11 +320,10 @@ struct BlockFactory final {
   }
 
   [[nodiscard]] rq::Block &build() {
-    rq::Block &block = this->getContext().allocateValue<rq::Block>();
     rq::Instruction *outer_inst_ptr =
         llvm::cast_or_null<rq::Instruction>(this->_dot_factory.getOuterPtr());
+    rq::Block &block = this->getContext().allocateValue<rq::Block>(outer_inst_ptr);
     this->_dot_factory.clear();
-    block.setOuterInstructionPtr(outer_inst_ptr);
     return block;
   }
 };
