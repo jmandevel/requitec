@@ -497,7 +497,6 @@ enum class SymbolKind : rq::EntityId {
   CODEUNIT_LITERAL_TYPE,
 
   // CONTEXTUAL VALUE
-  OUT_VALUE,
   THIS_VALUE,
   RESULT_VALUE,
   VALUE_VALUE,

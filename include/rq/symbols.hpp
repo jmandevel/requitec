@@ -467,7 +467,6 @@ using StringLiteral =
     rq::DerivedSimpleSymbol<rq::SymbolKind::STRING_LITERAL_TYPE>;
 using CodeunitLiteral =
     rq::DerivedSimpleSymbol<rq::SymbolKind::CODEUNIT_LITERAL_TYPE>;
-using OutValue = rq::DerivedSimpleSymbol<rq::SymbolKind::OUT_VALUE>;
 using ThisValue = rq::DerivedSimpleSymbol<rq::SymbolKind::THIS_VALUE>;
 using ResultValue = rq::DerivedSimpleSymbol<rq::SymbolKind::RESULT_VALUE>;
 using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;

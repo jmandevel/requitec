@@ -23,8 +23,6 @@ namespace rq {
     return "CodeunitLiteralType";
 
   // CONTEXTUAL VALUE
-  case S::OUT_VALUE:
-    return "OutValue";
   case S::THIS_VALUE:
     return "ThisValue";
   case S::RESULT_VALUE:
@@ -383,8 +381,6 @@ namespace rq {
     return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE;
 
   // CONTEXTUAL VALUE
-  case S::OUT_VALUE:
-    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::THIS_VALUE:
     return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL | SIF::CONTEXTUAL_VALUE;
   case S::RESULT_VALUE:

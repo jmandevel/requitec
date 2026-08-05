@@ -91,7 +91,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::FloatLiteral _float_literal_type{};
   rq::StringLiteral _string_literal_type{};
   rq::CodeunitLiteral _codeunit_literal_type{};
-  rq::OutValue _out_value{};
   rq::ThisValue _this_value{};
   rq::ResultValue _result_value{};
   rq::IndexValue _index_value{};
@@ -401,9 +400,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteral &
   acquireCodeunitLiteralType() {
     return this->_codeunit_literal_type;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OutValue &acquireOutValue() {
-    return this->_out_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ThisValue &acquireThisValue() {
     return this->_this_value;
