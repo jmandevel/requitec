@@ -4137,6 +4137,7 @@ struct Expression final : public rq::Entity {
       rq::Expression &branch_last_next = branch.getLastNext();
       branch_last_next.setNext(this->popNext());
     }
+    const bool was_statement = this->getIsStatement();
     this->clear();
     this->setKeyword(branch.getKeyword());
     if (branch.getHasBranch()) {
@@ -4146,12 +4147,16 @@ struct Expression final : public rq::Entity {
       this->setNext(branch.popNext());
     }
     this->setSource(branch);
+    if (was_statement) {
+      this->setIsStatement();
+    }
     branch.clear();
     return branch;
   }
   [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
     rq::Expression &next = this->popNext();
     RQ_ASSERT(!this->getHasBranch(), "has branch");
+    const bool was_statement = this->getIsStatement();
     this->clear();
     this->setKeyword(next.getKeyword());
     if (next.getHasBranch()) {
@@ -4161,6 +4166,9 @@ struct Expression final : public rq::Entity {
       this->setNext(next.popNext());
     }
     this->setSource(next);
+    if (was_statement) {
+      this->setIsStatement();
+    }
     next.clear();
     return next;
   }
