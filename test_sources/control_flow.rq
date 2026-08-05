@@ -1,7 +1,7 @@
 [import "std"];
 
 [function [main], ()[signed_integer],
-    [result] :\[var]=0;
+    [result] <:\[var]=0;
 
     [anchor]::MyWhile
     [while [true],

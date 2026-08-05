@@ -14,5 +14,5 @@
     // y can still be accessed
     y := vector4_b.y;
 
-    [result] := 0;
+    [result] <:= 0;
 ];

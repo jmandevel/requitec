@@ -5,7 +5,7 @@
 
     [public]
     [function create, (> a:[signed_integer], b:[signed_integer] <)MyClass,
-      [result] := MyClass(var=a + b);
+      [result] <:= MyClass(var=a + b);
     ];  
 ];
 
@@ -20,5 +20,5 @@
     // remove the last element
     my_stack.popBack();
     
-    [result] := 0;
+    [result] <:= 0;
 ];

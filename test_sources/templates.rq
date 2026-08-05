@@ -25,5 +25,5 @@
     printType{[single]}();
     printType{[boolean]}();
 
-    [result] := 0;
+    [result] <:= 0;
 ];

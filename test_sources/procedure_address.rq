@@ -3,8 +3,8 @@
         >positional_and_named:[single]=0.0<,
         named:[single]=0.0,
         |locked:[single]=0.0
-    )[void],
-    [result] := positional + positional_and_named + named + locked;
+    )[single],
+    [result] <:= positional + positional_and_named + named + locked;
 ];
 
 [function [main], ()[signed_integer],
@@ -72,5 +72,5 @@
     
     reordered_ptr :?ReorderType= myFunction.[procedure_address].[procedure_cast];
 
-    [result] := 0;  
+    [result] <:= 0;  
 ];

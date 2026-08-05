@@ -2,7 +2,7 @@
 [namespace example,
     [template]::{> Type:[type], LENGTH:[unsigned_index] <}
     [function getElementCount, ()[unsigned_index]=>$LENGTH#Type,
-        [result] := LENGTH;
+        [result] <:= LENGTH;
     ];
 
     [class Foo,];
@@ -21,5 +21,5 @@
     // construct variable of type declared in same table as extension functions
     foo := example.Foo();
 
-    [result] := 0;
+    [result] <:= 0;
 ];

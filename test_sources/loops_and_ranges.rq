@@ -105,5 +105,5 @@
         std.print(line="5 is within interval over 0 to 10");
     ];
 
-    [result] := 0;
+    [result] <:= 0;
 ];

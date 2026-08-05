@@ -17,5 +17,5 @@
     ];
     std.print(line="it starts with " +> my_array.[borrow].[at 0] +> "!");
 
-    [result] := 0;
+    [result] <:= 0;
 ];

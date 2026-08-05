@@ -15,5 +15,5 @@
     // std will probably have an Optional reference template wrapper type that may or may not use null values under hood
     // depending on the platform.
 
-    [result] := var_copy.[cast [signed_integer 32]];
+    [result] <:= var_copy.[cast [signed_integer 32]];
 ];

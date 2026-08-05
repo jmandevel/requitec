@@ -3,7 +3,7 @@
 
 // you have to write the signature again, and it has to be identical
 [implement_function myForwardedAdd, (> a:[single], b:[single] <)[single],
-    [result] := a + b;
+    [result] <:= a + b;
 ];
 
 [function [main], ()[signed_integer],
@@ -13,5 +13,5 @@
             1.0,
             2.0));
 
-    [result] := 0;
+    [result] <:= 0;
 ];

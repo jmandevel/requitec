@@ -17,7 +17,7 @@
     // snippet: "printMe()" line: 18 column: 4
     printMe();
 
-    [result] := 0;
+    [result] <:= 0;
 ];
 
 // [callsite] is only usable for default parameter/property values

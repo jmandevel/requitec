@@ -4,5 +4,5 @@
 [function [main], ()[signed_integer],
     [c].puts("hello, world\n".[of [char]].[data_address]);
 
-    [result] := 0;
+    [result] <:= 0;
 ];

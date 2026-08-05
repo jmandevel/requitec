@@ -8,11 +8,11 @@
     ][else 
         std.print(line="a and b are equal");
     ];
-    [result] := a + b;
+    [result] <:= a + b;
 ];
 
 [function [main], ()[signed_integer],
     std.print(line="the return value is " +> myFunc(1, 2));
 
-    [result] := 0;
+    [result] <:= 0;
 ];

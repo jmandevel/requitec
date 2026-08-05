@@ -4,5 +4,5 @@
 
   int := float.[cast [signed_integer]];
 
-  [result] := int;
+  [result] <:= int;
 ];

@@ -13,5 +13,5 @@
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
-    [result] := 0;
+    [result] <:= 0;
 ];

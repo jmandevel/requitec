@@ -56,5 +56,5 @@
     // if you want to convert between types, you need to use casts
     // see casts.rq
 
-    [result] := 0;
+    [result] <:= 0;
 ];

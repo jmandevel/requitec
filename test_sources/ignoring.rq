@@ -8,5 +8,5 @@
     // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     nodiscard().[ignore]; 
 
-    [result] := 0;
+    [result] <:= 0;
 ];

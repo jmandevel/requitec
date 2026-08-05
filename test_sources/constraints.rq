@@ -7,5 +7,5 @@ integer_value  : integer_type = 0;
 [template]::{> Type:[type] <}
 [constraint]::(Type.[is_integer_type])
 [function addA, (> a:Type, b:Type <)Type,
-    [result] := a + b;
+    [result] <:= a + b;
 ];

@@ -46,5 +46,5 @@
   // if a taken type has an [unno_stable_address] attribute, it will never shallow copy and will also always be passed by address.
   // however, compiler is allowed to optimize other taken things which can fit into a register into a shallow copy.
   // never rely on the address not changing unless the type has [unno_stable_address] attribute!
-  [result] := 0;
+  [result] <:= 0;
 ];

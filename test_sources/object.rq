@@ -9,17 +9,17 @@
 
     [public]
     [function fromScalar, (> scalar:[fast_signed_integer 32] <)MyClass,
-        [result] := MyClass(scalar, scalar, scalar);    
+        [result] <:= MyClass(scalar, scalar, scalar);    
     ];
 
     [public]
     [function getTotal, ()[fast_signed_integer 32]=>$,
-        [result] := [this].x + [this].y + [this].z;
+        [result] <:= [this].x + [this].y + [this].z;
     ];
 
     [public]
     [function add, (>a:MyClass, b:MyClass<)MyClass,
-        [result] :=
+        [result] <:=
             MyClass(
                 a.x + b.x,
                 a.y + b.y,

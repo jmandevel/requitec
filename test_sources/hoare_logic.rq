@@ -5,11 +5,11 @@
 [function divideSquare, ( a:Type, b:Type <)Type,
     divide_result := a / b;
     square := divide_result * divide_result;
-    [result] := square;
+    [result] <:= square;
 ];
 
 [function [main], ()[signed_integer],
     a := divideSquare{[signed_integer]}(6, 2);
     
-    [result] := 0;
+    [result] <:= 0;
 ];

@@ -27,5 +27,5 @@ var1 := 0;
         var1.[symbol].[capture].age +> 
         " years old");
 
-    [result] := 0;
+    [result] <:= 0;
 ];

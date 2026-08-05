@@ -1,6 +1,3 @@
 [function [main], ()[signed_integer],
-  [result] := 0;
-   [block
-    [return];
-   ];
+  [result] <:= 0;
 ];

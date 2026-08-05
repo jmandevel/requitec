@@ -15,5 +15,5 @@
     // more powerful than an assert, this allows optimizer to assume something is always true
     [assume 2+2==a];
     
-    [result] := 0;
+    [result] <:= 0;
 ];

@@ -33,5 +33,5 @@
     // this is unlike how they are written when the type is inferenced.
     explicit :TupleType= { 0, 1, w=2, z=3 };
 
-    [result] := 0;    
+    [result] <:= 0;    
 ];

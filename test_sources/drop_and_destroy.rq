@@ -36,6 +36,6 @@
     // this results in a compile error if uncommented because cannot shallow copy types with destroys 
     // other_copy := with;
 
-    [result] := 0;
+    [result] <:= 0;
 ];
 

@@ -5,5 +5,5 @@
     int32 := binary32.[bitwise_cast [signed_integer 32]];
     std.print(line=binary32 +> " as integer is " +> int32);
     
-    [result] := 0;
+    [result] <:= 0;
 ];

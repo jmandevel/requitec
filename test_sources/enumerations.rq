@@ -27,5 +27,5 @@
                 ];
     ];
 
-    [result] := int;
+    [result] <:= int;
 ];

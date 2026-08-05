@@ -45,5 +45,5 @@
     uptr := UniquePtr{NoAutoDrop}.create(
             MyClass(3.14).[emplace]
         );
-    [result] := 0;
+    [result] <:= 0;
 ];
