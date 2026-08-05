@@ -31,9 +31,9 @@ struct Situator final {
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
   [[nodiscard]] bool situateTagBranch(rq::Situation branch_situation,
-                                         rq::Expression &branch);
-  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);  
-  [[nodiscard]] bool situateChainLinkBranch(rq::Expression &branch);  
+                                      rq::Expression &branch);
+  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);
+  [[nodiscard]] bool situateChainLinkBranch(rq::Expression &branch);
   [[nodiscard]] bool situateVignetteBranch(rq::Expression &branch);
   [[nodiscard]] bool situateVignetteOrRvalueBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullaryExpression(rq::Situation situation,
@@ -93,9 +93,11 @@ struct Situator final {
   situateStatementTagStatementBranches(rq::Situation situation,
                                           rq::Expression &expression);
   // if_chainlink, swtich_chainlink, match_chainlink, spin_chainlink
-  [[nodiscard]] bool situateChainBranches(
-        rq::Situation situation, rq::Expression& expression, rq::Situation start_chainlink, rq::Situation continue_chainlink, rq::Situation finish_chainlink
-  );
+  [[nodiscard]] bool situateChainBranches(rq::Situation situation,
+                                          rq::Expression &expression,
+                                          rq::Situation start_chainlink,
+                                          rq::Situation continue_chainlink,
+                                          rq::Situation finish_chainlink);
   // weave
   [[nodiscard]] bool
   situateStatementVingetteStatementBranches(rq::Situation situation,
