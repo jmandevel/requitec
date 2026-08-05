@@ -341,6 +341,9 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '<':
       switch (this->getRanger().getChar(1)) {
+      case ':':
+        this->tokenizeLengthToken(T::LESS_COLON_OPERATOR, 2);
+        break;
       case '<':
         this->tokenizeLengthToken(T::DOUBLE_LESS_OPERATOR, 2);
         break;
