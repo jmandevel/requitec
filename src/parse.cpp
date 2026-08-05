@@ -878,8 +878,8 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       factory.appendTree(branch);
       continue;
     } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
+      this->getRanger().incrementToken(1);
       if (!chain_factory.getHasExpression()) {
-        this->getRanger().incrementToken(1);
         branch.setIsStatement();
         factory.appendTree(branch);
         continue;
