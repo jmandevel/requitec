@@ -30,8 +30,6 @@ struct Situator final {
   [[nodiscard]] bool situateModule(rq::ModuleFactory &factory);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
-  [[nodiscard]] bool situateValueBranch(rq::Situation branch_situation,
-                                        rq::Expression &branch);
   [[nodiscard]] bool situateTagBranch(rq::Situation branch_situation,
                                          rq::Expression &branch);
   [[nodiscard]] bool situateStatementBranch(rq::Expression &branch, rq::Chain& inout_chain);  
@@ -94,6 +92,10 @@ struct Situator final {
   [[nodiscard]] bool
   situateStatementTagStatementBranches(rq::Situation situation,
                                           rq::Expression &expression);
+  // if_chainlink, swtich_chainlink, match_chainlink, spin_chainlink
+  [[nodiscard]] bool situateChainBranches(
+        rq::Situation situation, rq::Expression& expression, rq::Situation start_chainlink, rq::Situation continue_chainlink, rq::Situation finish_chainlink
+  );
   // weave
   [[nodiscard]] bool
   situateStatementVingetteStatementBranches(rq::Situation situation,

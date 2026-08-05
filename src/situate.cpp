@@ -73,12 +73,12 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &first = expression.getBranch();
-    if (!this->situateValueBranch(S::RVALUE, first)) {
+    if (!this->situateTagBranch(S::RVALUE, first)) {
       is_ok = false;
       break;
     }
     if (first.getHasNext()) {
-      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);      
+      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);
       break;
     }
     this->getContext().discardExpression(expression.mergeAndPopBranch());
@@ -109,7 +109,7 @@ bool Situator::situateTree(rq::Situation situation,
         break;
       }
       rq::Expression &lvalue = expression.getBranch();
-      if (!this->situateValueBranch(S::LVALUE, lvalue)) {
+      if (!this->situateTagBranch(S::LVALUE, lvalue)) {
         is_ok = false;
       }
       if (!lvalue.getHasNext()) {
@@ -119,7 +119,7 @@ bool Situator::situateTree(rq::Situation situation,
         break;
       }
       rq::Expression &rvalue = lvalue.getNext();
-      if (!this->situateValueBranch(S::RVALUE, rvalue)) {
+      if (!this->situateTagBranch(S::RVALUE, rvalue)) {
         is_ok = false;
       }
       if (!is_ok) {
@@ -142,6 +142,62 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, 2, K::ASCRIBE_HIGH,
         S::HIGH_ATTRIBUTE_INSTANTIATION, situation);
     break;
+  case K::UNSITUATED_CHAIN: {
+    if (!expression.getHasBranch()) {
+      if (!expression.getHasBranch()) {
+        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                         1);
+        is_ok = false;
+        break;
+      }
+    }
+    rq::Expression &branch = expression.getBranch();
+    if (!this->situateTagBranch(S::STARTING_CHAINLINK, branch)) {
+      is_ok = false;
+      break;
+    }
+    rq::Expression &unascribed = branch.getUnascribed();
+    K chain_keyword = K::NONE;
+    S continuing_situation = S::NONE;
+    S finishing_situation = S::NONE;
+    switch (unascribed.getKeyword()) {
+    case K::IF: {
+      chain_keyword = K::IF_CHAIN;
+      continuing_situation = S::CONTINUING_IF_CHAINLINK;
+      finishing_situation = S::FINISHING_IF_CHAINLINK;
+    } break;
+    case K::SWITCH: {
+      chain_keyword = K::SWITCH_CHAIN;
+      continuing_situation = S::CONTINUING_SWITCH_CHAINLINK;
+      finishing_situation = S::FINISHING_SWITCH_CHAINLINK;
+    } break;
+    case K::MATCH: {
+      chain_keyword = K::MATCH_CHAIN;
+      continuing_situation = S::CONTINUING_MATCH_CHAINLINK;
+      finishing_situation = S::FINISHING_MATCH_CHAINLINK;
+    } break;
+    case K::SPIN: {
+      chain_keyword = K::SPIN_CHAIN;
+      continuing_situation = S::CONTINUING_SPIN_CHAINLINK;
+      finishing_situation = S::FINISHING_SPIN_CHAINLINK;
+    } break;
+    default:
+      RQ_UNREACHABLE();
+    }
+    for (rq::Expression &branchn : branch.getNextSubrange()) {
+      if (!branchn.getHasNext()) {
+        if (!this->situateTagBranch(finishing_situation, branchn)) {
+          is_ok = false;
+        }
+        break;
+      }
+      if (!this->situateTagBranch(continuing_situation, branchn)) {
+        is_ok = false;
+        break;
+      }
+    }
+    expression.changeKeyword(chain_keyword);
+  } break;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -189,6 +245,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
                                              S::RVALUE);
     break;
+  case K::OUT_BINDING:
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+                                             S::RVALUE);
+    break;
   case K::ASCRIBE_HIGH:
     is_ok = this->situateNaryDifferentFirstValueBranches(
         situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
@@ -209,7 +269,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &branch = expression.getBranch();
-    if (!this->situateValueBranch(S::RVALUE, branch)) {
+    if (!this->situateTagBranch(S::RVALUE, branch)) {
       is_ok = false;
       break;
     }
@@ -217,7 +277,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &attribute_value = branch.getNext();
-    if (!this->situateValueBranch(S::RVALUE, branch)) {
+    if (!this->situateTagBranch(S::RVALUE, branch)) {
       is_ok = false;
       break;
     }
@@ -528,8 +588,7 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, S::FUNCTION_NAME);
     break;
   case K::IMPLEMENT_FUNCTION:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::USE_FUNCTION:
     is_ok = this->situateTernaryValueBranches(situation, expression, S::NAME,
@@ -544,33 +603,33 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::BREAK:
-    [[fallthrough]];
-  case K::CONTINUE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
-  case K::FALLTHROUGH:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::RANGE_OVER:
+  case K::BREAK_OF:
+    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
+    break;
+  case K::CONTINUE:
+    is_ok = this->situateNullaryExpression(situation, expression);
+    break;
+  case K::CONTINUE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
 
   // DECLARED TYPES
   case K::CLASS:
-    is_ok = this->situateNameStatementTagStatementBranches(
-        situation, expression, S::NAME);
+    is_ok = this->situateNameStatementTagStatementBranches(situation,
+                                                           expression, S::NAME);
     break;
   case K::ENUMERATION:
-    is_ok = this->situateNameStatementTagStatementBranches(
-        situation, expression, S::NAME);
+    is_ok = this->situateNameStatementTagStatementBranches(situation,
+                                                           expression, S::NAME);
     break;
   case K::INTERFACE:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::ADAPTER:
-    is_ok = this->situateNameStatementTagStatementBranches(
-        situation, expression, S::NAME);
+    is_ok = this->situateNameStatementTagStatementBranches(situation,
+                                                           expression, S::NAME);
     break;
 
   // VALUES
@@ -681,22 +740,39 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // SCOPES
+  case K::IF_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_IF_CHAINLINK,
+        S::CONTINUING_IF_CHAINLINK, S::FINISHING_IF_CHAINLINK);
+    break;
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::ELSE:
     is_ok = this->situateStatementBranches(expression);
     break;
+  case K::MATCH_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_MATCH_CHAINLINK,
+        S::CONTINUING_MATCH_CHAINLINK, S::FINISHING_MATCH_CHAINLINK);
+    break;
   case K::MATCH:
-    [[fallthrough]];
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
+    break;
+  case K::SWITCH_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_SWITCH_CHAINLINK,
+        S::CONTINUING_SWITCH_CHAINLINK, S::FINISHING_SWITCH_CHAINLINK);
+    break;
   case K::SWITCH:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::CASE:
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
+    break;
+  case K::ARM:
     is_ok =
         this->situateStatementVingetteStatementBranches(situation, expression);
     break;
@@ -708,12 +784,15 @@ bool Situator::situateTree(rq::Situation situation,
                                                                  expression);
     break;
   case K::WHILE:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
+    break;
+  case K::SPIN_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_SPIN_CHAINLINK,
+        S::CONTINUING_SPIN_CHAINLINK, S::FINISHING_SPIN_CHAINLINK);
     break;
   case K::SPIN:
-    is_ok =
-        this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::WEAVE:
     is_ok =
@@ -721,6 +800,9 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::SCOPE:
     is_ok = this->situateStatementBranches(expression);
+    break;
+  case K::FOLD:
+    is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
 
   // RANGES
@@ -732,7 +814,7 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &value = expression.getBranch();
-    is_ok = this->situateValueBranch(S::RVALUE, value);
+    is_ok = this->situateTagBranch(S::RVALUE, value);
     if (!value.getHasNext()) {
       this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
                                                        2);
@@ -740,12 +822,12 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     rq::Expression &stage_one = value.getNext();
-    if (!this->situateValueBranch(S::ARITHMETIC_SEQUENCE_STAGE, stage_one)) {
+    if (!this->situateTagBranch(S::ARITHMETIC_SEQUENCE_STAGE, stage_one)) {
       is_ok = false;
     }
     if (stage_one.getHasNext()) {
       rq::Expression &stage_two = stage_one.getNext();
-      if (!this->situateValueBranch(S::ARITHMETIC_SEQUENCE_STAGE, stage_two)) {
+      if (!this->situateTagBranch(S::ARITHMETIC_SEQUENCE_STAGE, stage_two)) {
         is_ok = false;
       }
       if (stage_two.getHasNext()) {
@@ -1038,7 +1120,7 @@ bool Situator::situateTree(rq::Situation situation,
     rq::Expression &value = expression.popBranch();
     const rq::Situation first_situation =
         situation == S::REFLECTION ? S::REFLECTION : S::RVALUE;
-    if (!this->situateValueBranch(first_situation, value)) {
+    if (!this->situateTagBranch(first_situation, value)) {
       is_ok = false;
     }
     rq::Expression *inner_ptr = &value;
@@ -1053,7 +1135,7 @@ bool Situator::situateTree(rq::Situation situation,
       rq::Expression &inner = rq::dereferencePtr(inner_ptr);
       rq::Expression &next = rq::dereferencePtr(next_ptr);
       next_ptr = next.popNextPtr();
-      if (!this->situateValueBranch(S::REFLECTION, next)) {
+      if (!this->situateTagBranch(S::REFLECTION, next)) {
         is_ok = false;
         continue;
       }
@@ -1333,21 +1415,8 @@ bool Situator::situateTree(rq::Situation situation,
   return is_ok;
 }
 
-bool Situator::situateValueBranch(rq::Situation branch_situation,
-                                  rq::Expression &branch) {
-  if (!branch.getIsTag()) {
-    this->getContext().logErrorExpectedTagExpression(branch);
-    return false;
-  }
-  if (!branch.getCanBeSituation(branch_situation)) {
-    this->getContext().logErrorInvalidBranchSituation(branch_situation, branch);
-    return false;
-  }
-  return this->situateTree(branch_situation, branch);
-}
-
 bool Situator::situateTagBranch(rq::Situation branch_situation,
-                                   rq::Expression &branch) {
+                                rq::Expression &branch) {
   if (!branch.getIsTag()) {
     this->getContext().logErrorExpectedTagExpression(branch);
     return false;
@@ -1517,7 +1586,7 @@ bool Situator::situateNullaryOrUnaryValueBranches(
     return true;
   }
   rq::Expression &branch0 = expression.getBranch();
-  bool is_ok = this->situateValueBranch(branch0_situation, branch0);
+  bool is_ok = this->situateTagBranch(branch0_situation, branch0);
   if (branch0.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
     is_ok = false;
@@ -1533,7 +1602,7 @@ bool Situator::situateUnaryValueBranches(rq::Situation situation,
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  bool is_ok = this->situateValueBranch(branch0_situation, branch0);
+  bool is_ok = this->situateTagBranch(branch0_situation, branch0);
   if (branch0.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount(situation, expression, 1);
     is_ok = false;
@@ -1550,13 +1619,13 @@ bool Situator::situateBinaryValueBranches(rq::Situation situation,
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  bool is_ok = this->situateValueBranch(branch0_situation, branch0);
+  bool is_ok = this->situateTagBranch(branch0_situation, branch0);
   if (!branch0.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression &branch1 = branch0.getNext();
-  if (!this->situateValueBranch(branch1_situation, branch1)) {
+  if (!this->situateTagBranch(branch1_situation, branch1)) {
     is_ok = false;
   }
   if (branch1.getHasNext()) {
@@ -1575,13 +1644,13 @@ bool Situator::situateBinaryValueBranches(rq::Situation situation,
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  bool is_ok = this->situateValueBranch(branch0_situation, branch0);
+  bool is_ok = this->situateTagBranch(branch0_situation, branch0);
   if (!branch0.getHasNext()) {
     this->getContext().logErrorNotExactBranchCount(situation, expression, 3);
     return false;
   }
   rq::Expression &branch1 = branch0.getNext();
-  if (!this->situateValueBranch(branch1_situation, branch1)) {
+  if (!this->situateTagBranch(branch1_situation, branch1)) {
     is_ok = false;
   }
   if (!branch1.getHasNext()) {
@@ -1589,7 +1658,7 @@ bool Situator::situateBinaryValueBranches(rq::Situation situation,
     return false;
   }
   rq::Expression &branch2 = branch1.getNext();
-  if (!this->situateValueBranch(branch2_situation, branch2)) {
+  if (!this->situateTagBranch(branch2_situation, branch2)) {
     is_ok = false;
   }
   if (branch2.getHasNext()) {
@@ -1606,7 +1675,7 @@ bool Situator::situateNaryValueBranches(rq::Situation situation,
   bool is_ok = true;
   unsigned branch_i = 0;
   for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (!this->situateValueBranch(branchn_situation, branch)) {
+    if (!this->situateTagBranch(branchn_situation, branch)) {
       is_ok = false;
     }
     branch_i++;
@@ -1627,12 +1696,12 @@ bool Situator::situateNaryDifferentFirstValueBranches(
   unsigned branch_i = 0;
   if (expression.getHasBranch()) {
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateValueBranch(branch0_situation, branch0)) {
+    if (!this->situateTagBranch(branch0_situation, branch0)) {
       is_ok = false;
     }
     branch_i++;
     for (rq::Expression &branch : branch0.getNextSubrange()) {
-      if (!this->situateValueBranch(branchn_situation, branch)) {
+      if (!this->situateTagBranch(branchn_situation, branch)) {
         is_ok = false;
       }
       branch_i++;
@@ -1655,12 +1724,12 @@ bool Situator::situateNaryDifferentLastValueBranches(
   for (rq::Expression &branch : expression.getBranchSubrange()) {
     branch_i++;
     if (!branch.getHasNext()) {
-      if (!this->situateValueBranch(last_situation, branch)) {
+      if (!this->situateTagBranch(last_situation, branch)) {
         is_ok = false;
       }
       break;
     }
-    if (!this->situateValueBranch(branchn_situation, branch)) {
+    if (!this->situateTagBranch(branchn_situation, branch)) {
       is_ok = false;
     }
   }
@@ -1683,7 +1752,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
   for (rq::Expression &branch : expression.getBranchSubrange()) {
     branch_i++;
     if (!branch.getHasNext()) {
-      if (!this->situateValueBranch(last_situation, branch)) {
+      if (!this->situateTagBranch(last_situation, branch)) {
         is_ok = false;
       }
       if (is_ok) {
@@ -1694,7 +1763,7 @@ bool Situator::situateNaryDifferentLastValueBranches(
       break;
     }
     last_ptr = &branch;
-    if (!this->situateValueBranch(branchn_situation, branch)) {
+    if (!this->situateTagBranch(branchn_situation, branch)) {
       is_ok = false;
     }
   }
@@ -1719,17 +1788,17 @@ bool Situator::situateNaryDifferentFirstAndLastValueBranches(
   unsigned branch_i = 0;
   if (expression.getHasBranch()) {
     rq::Expression &branch0 = expression.getBranch();
-    if (!this->situateValueBranch(branch0_situation, branch0)) {
+    if (!this->situateTagBranch(branch0_situation, branch0)) {
       is_ok = false;
     }
     for (rq::Expression &branch : expression.getBranchSubrange()) {
       if (!branch.getHasNext()) {
-        if (!this->situateValueBranch(last_situation, branch)) {
+        if (!this->situateTagBranch(last_situation, branch)) {
           is_ok = false;
         }
         break;
       }
-      if (!this->situateValueBranch(branchn_situation, branch)) {
+      if (!this->situateTagBranch(branchn_situation, branch)) {
         is_ok = false;
       }
     }
@@ -1749,7 +1818,7 @@ bool Situator::situateNaryDifferentFirstParamterBranches(
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (!this->situateValueBranch(branch0_situation, branch0)) {
+  if (!this->situateTagBranch(branch0_situation, branch0)) {
     return false;
   }
   if (!branch0.getHasNext()) {
@@ -1776,7 +1845,7 @@ bool Situator::situateNaryFromFirstParameterBranches(
   bool found_positional = false;
   bool found_locked = false;
   for (rq::Expression &parameter : first_parameter.getInclusiveNextSubrange()) {
-    if (!this->situateValueBranch(rq::Situation::PARAMETER, parameter)) {
+    if (!this->situateTagBranch(rq::Situation::PARAMETER, parameter)) {
       is_ok = false;
     }
     switch (parameter.getKeyword()) {
@@ -1929,6 +1998,32 @@ bool Situator::situateStatementTagStatementBranches(
   }
   for (rq::Expression &branch : tag.getNextSubrange()) {
     if (!this->situateStatementBranch(branch, chain)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+[[nodiscard]] bool Situator::situateChainBranches(
+    rq::Situation situation, rq::Expression &expression,
+    rq::Situation start_chainlink, rq::Situation continue_chainlink,
+    rq::Situation finish_chainlink) {
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
+    return false;
+  }
+  rq::Expression &branch0 = expression.getBranch();
+  if (!this->situateTagBranch(start_chainlink, branch0)) {
+    return false;
+  }
+  for (rq::Expression &branch : branch0.getNextSubrange()) {
+    if (branch.getHasNext()) {
+      if (!this->situateTagBranch(continue_chainlink, branch)) {
+        return false;
+      }
+      continue;
+    }
+    if (!this->situateTagBranch(finish_chainlink, branch)) {
       return false;
     }
   }

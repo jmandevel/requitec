@@ -17,33 +17,6 @@ void ForestFactory::appendTree(rq::Expression &branch) {
   this->setLast(branch);
 }
 
-void TreeFactory::startTree(rq::Expression &top) {
-  RQ_ASSERT(!top.getHasNext(), "top must not have next");
-  [[unlikely]] if (top.getHasBranch()) {
-    rq::Expression &branch = top.getBranch();
-    RQ_ASSERT(!branch.getHasNext(), "branch must not have next");
-    this->setLast(branch);
-  }
-  this->setExpression(top);
-}
-
-void TreeFactory::appendBranch(rq::Expression &branch) {
-  [[unlikely]] if (this->_last_ptr == nullptr) {
-    rq::Expression &expression = this->getExpression();
-    expression.setBranch(branch);
-    this->setLast(branch);
-    return;
-  }
-  rq::Expression &last = rq::dereferencePtr(this->_last_ptr);
-  last.setNext(branch);
-  this->setLast(branch);
-}
-
-void TreeFactory::finishExpression(const rq::Token &last_token) {
-  rq::Expression &expression = this->getExpression();
-  expression.extendSourceOver(last_token);
-}
-
 void PrecedenceFactory::parseUnary(const rq::Token &token,
                                    rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
@@ -269,6 +242,11 @@ rq::Expression &RequiteParser::parsePrecedence9() {
       precedence_factory.parseBinary(token, rq::Keyword::BINDING);
       precedence_factory.setRecent(this->parsePrecedence8());
       continue;
+    case rq::TokenKind::LESS_COLON_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::OUT_BINDING);
+      precedence_factory.setRecent(this->parsePrecedence8());
+      continue;
     default:
       break;
     }
@@ -420,17 +398,10 @@ rq::Expression &RequiteParser::parsePrecedence6() {
         return precedence_factory.getOuter();
       }
       const rq::Token next_token = this->getRanger().getToken(1);
-      switch (const rq::TokenKind next_kind = next_token.getKind()) {
-      case rq::TokenKind::GREATER_OPERATOR:
-        [[fallthrough]];
-      case rq::TokenKind::LESS_OPERATOR:
+      if (next_token.getIsRightGrouping() ||
+          next_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
         precedence_factory.appendRecent();
         return precedence_factory.getOuter();
-      default:
-        if (rq::getIsExpressionEnd(next_kind)) {
-          precedence_factory.appendRecent();
-          return precedence_factory.getOuter();
-        }
       }
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::GREATER);
@@ -448,17 +419,10 @@ rq::Expression &RequiteParser::parsePrecedence6() {
         return precedence_factory.getOuter();
       }
       const rq::Token next_token = this->getRanger().getToken(1);
-      switch (const rq::TokenKind next_kind = next_token.getKind()) {
-      case rq::TokenKind::GREATER_OPERATOR:
-        [[fallthrough]];
-      case rq::TokenKind::LESS_OPERATOR:
+      if (next_token.getIsRightGrouping() ||
+          next_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
         precedence_factory.appendRecent();
         return precedence_factory.getOuter();
-      default:
-        if (rq::getIsExpressionEnd(next_kind)) {
-          precedence_factory.appendRecent();
-          return precedence_factory.getOuter();
-        }
       }
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::LESS);
@@ -688,7 +652,8 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         inference.setSourceBefore(token);
         precedence_factory.setRecent(inference);
         this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_CONFORMITY);
+        precedence_factory.parseNary(token,
+                                     rq::Keyword::INSTANTIATE_CONFORMITY);
         continue;
       }
       case rq::TokenKind::HASH_OPERATOR: {
@@ -868,6 +833,7 @@ RequiteParser::parseBranches(rq::TokenKind end) {
     this->getRanger().incrementToken(1);
     return rq::ParseBranchesResult(nullptr, first_token, false);
   }
+  rq::ForestFactory chain_factory;
   bool parameter_mark_found = false;
   while (true) {
     const rq::Token next_token = this->getRanger().getToken();
@@ -890,11 +856,10 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       factory.appendTree(mark);
     } else if (next_token.getKind() == end) {
       this->getRanger().incrementToken(1);
-      return rq::ParseBranchesResult(factory.getExpressionPtr(), next_token,
+      return rq::ParseBranchesResult(factory.build(), next_token,
                                      parameter_mark_found);
     }
     rq::Expression &branch = this->parseAscribableExpression();
-    factory.appendTree(branch);
     const rq::Token after_token = this->getRanger().getToken();
     if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
       this->getRanger().incrementToken(1);
@@ -902,21 +867,31 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
       mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
+      factory.appendTree(branch);
       factory.appendTree(mark);
-    }
-    const rq::Token next_after = this->getRanger().getToken();
-    if (next_after.getIsSeparator()) {
-      this->getRanger().incrementToken(1);
-    }
-    if (next_after.getKind() == end ||
-        next_after.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       continue;
-    } else if (next_after.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
-      branch.setIsUltimate();
+    } else if (after_token.getKind() == end ||
+               after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+      factory.appendTree(branch);
+      continue;
+    } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
+      if (!chain_factory.getHasExpression()) {
+        branch.setIsUltimate();
+        factory.appendTree(branch);
+        continue;
+      }
+      chain_factory.appendTree(branch);
+      rq::Expression &chain_first = rq::dereferencePtr(chain_factory.build());
+      rq::Expression &chain = this->getContext().acquireExpression();
+      chain.setSource(chain_first, after_token);
+      chain.setKeyword(rq::Keyword::UNSITUATED_CHAIN);
+      chain.setBranch(chain_first);
+      chain.setIsUltimate();
+      factory.appendTree(chain);
       continue;
     }
     branch.setIsChainLink();
-    continue;
+    chain_factory.appendTree(branch);
   }
   RQ_UNREACHABLE();
 }

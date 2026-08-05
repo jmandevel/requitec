@@ -7,7 +7,7 @@
     [while [true],
         [result] = [result] + 1;
         [if [result] == 10,
-            [break MyWhile];
+            MyWhile.[break];
         ];
     ];
 
@@ -16,20 +16,30 @@
         [result] = [result] + 1;
         [if [result] == 12,
             [result] = [result] + 2;
-            [continue MyWhile];
+            MyWhile.[continue];
         ][else_if [result] == 20,
-            [break MyWhile];
+            MyWhile.[break];
         ];
     ];
 
-    [switch [result],
-    
-        [case 21,
-            
-        ][case 20,
-            [fallthrough];
+    [switch [result]
+        ][case 20, 21,
+            [result] = 2
         ][default
-            [result] = 0;
+            [result] = 3;
         ];    
+
+    [anchor]::F
+    [fold folded:[signed_integer],
+            var := 0;
+            [if [true],
+                [return]; // if folded not set, must break from outer scope too.
+            ];
+            folded <:\[var]= var + 1;
+            folded = 2; // note that within the fold, folded is var, but outside the fold its [no_var].
+            // (folded cannot be mutated after the fold ends)
+            [if [true],
+                F.[break]; // since folded is set, its ok to break outer scope.
+            ];
     ];
 ];

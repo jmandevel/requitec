@@ -267,13 +267,14 @@ struct Jump final {
 struct DottedInstructionFactory final {
   using Self = rq::DottedInstructionFactory;
 
-  rq::Context *_constext_ptr;
+  rq::Context *_context_ptr;
   rq::Opcode _opcode;
   rq::Entity *_outer_ptr{nullptr};
   rq::Instruction *_last_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE DottedInstructionFactory(rq::Context &context,
-                                                     rq::Opcode opcode);
+                                                     rq::Opcode opcode)
+      : _context_ptr(&context), _opcode(opcode) {}
 
   RQ_ALWAYS_INLINE void clear() {
     this->_outer_ptr = nullptr;
@@ -284,10 +285,10 @@ struct DottedInstructionFactory final {
     return this->_opcode;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
-    return rq::dereferencePtr(this->_constext_ptr);
+    return rq::dereferencePtr(this->_context_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return rq::dereferencePtr(this->_constext_ptr);
+    return rq::dereferencePtr(this->_context_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *getOuterPtr() const {
     return this->_outer_ptr;
@@ -322,7 +323,8 @@ struct BlockFactory final {
   [[nodiscard]] rq::Block &build() {
     rq::Instruction *outer_inst_ptr =
         llvm::cast_or_null<rq::Instruction>(this->_dot_factory.getOuterPtr());
-    rq::Block &block = this->getContext().allocateValue<rq::Block>(outer_inst_ptr);
+    rq::Block &block =
+        this->getContext().allocateValue<rq::Block>(outer_inst_ptr);
     this->_dot_factory.clear();
     return block;
   }
@@ -369,15 +371,12 @@ struct Evaluator final {
   void declareFunction(rq::Function &function);
   void implementFunction(rq::Function &function);
 
-  [[nodiscard]] bool
-  destroyAllLocalVariables(rq::SymbolTable &table,
-                           rq::BlockFactory &block_factory);
+  [[nodiscard]] bool destroyAllLocalVariables(rq::SymbolTable &table,
+                                              rq::BlockFactory &block_factory);
 
-  [[nodiscard]] rq::Jump
-  evaluateStaticLocalStatement(rq::Module &module, rq::SymbolTable &host,
-                               rq::Expression &unascribed_ex,
-                               rq::LowFactory &low_factory,
-                               rq::BlockFactory *block_factory_ptr);
+  [[nodiscard]] rq::Jump evaluateStaticLocalStatement(
+      rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
+      rq::LowFactory &low_factory, rq::BlockFactory *block_factory_ptr);
 
   [[nodiscard]] rq::Jump evaluateDynamicLocalStatement(
       rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,

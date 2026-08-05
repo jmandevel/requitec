@@ -626,7 +626,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledUnsignedIntegerType &
   acquireScaledUnsignedIntegerType(rq::ScaleKind kind, unsigned scale,
                                    std::uint64_t synonym_id) {
-    return llvm::cast<ScaledUnsignedIntegerType>(
+    return llvm::cast<rq::ScaledUnsignedIntegerType>(
         this->acquireScaledPrimitiveType(
             rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE, kind, scale,
             synonym_id));
@@ -755,7 +755,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] inline rq::TypeParameter &
   acquireTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                       llvm::StringRef name, rq::ConstantSymbol &type,
+                       rq::Name name, rq::ConstantSymbol &type,
                        unsigned location, bool is_positional) {
     llvm::FoldingSetNodeID id;
     rq::profileTypeParameter(id, kind, next_ptr, name, type, location,
@@ -773,7 +773,7 @@ struct Context final : public rq::BumpPtrAllocator {
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-  acquireProcedureParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+  acquireProcedureParameter(rq::TypeParameter *next_ptr, rq::Name name,
                             rq::ConstantSymbol &type, unsigned location,
                             bool is_positional) {
     return llvm::cast<rq::ProcedureParameter>(this->acquireTypeParameter(
@@ -781,7 +781,7 @@ struct Context final : public rq::BumpPtrAllocator {
         is_positional));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
-  acquireTupleParameter(rq::TypeParameter *next_ptr, llvm::StringRef name,
+  acquireTupleParameter(rq::TypeParameter *next_ptr, rq::Name name,
                         rq::ConstantSymbol &type, unsigned location,
                         bool is_positional) {
     return llvm::cast<rq::TupleParameter>(

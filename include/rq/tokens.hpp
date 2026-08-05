@@ -23,6 +23,7 @@ enum class TokenKind : std::uint_fast8_t {
   WHAT_OPERATOR,              // ?
   COLON_OPERATOR,             // :
   DOUBLE_COLON_OPERATOR,      // ::
+  LESS_COLON_OPERATOR, // <:
   PLUS_OPERATOR,              // +
   DASH_OPERATOR,              // -
   STAR_OPERATOR,              // *
@@ -137,6 +138,8 @@ getName(rq::TokenKind kind) {
     return "colon_operator";
   case T::DOUBLE_COLON_OPERATOR:
     return "double_colon_operator";
+  case T::LESS_COLON_OPERATOR:
+    return "less_colon_operator";
   case T::PLUS_OPERATOR:
     return "plus_operator";
   case T::DASH_OPERATOR:
@@ -299,6 +302,8 @@ getInfoFlags(rq::TokenKind kind) {
   case T::COLON_OPERATOR:
     return TF::OPERATOR;
   case T::DOUBLE_COLON_OPERATOR:
+    return TF::OPERATOR;
+  case T::LESS_COLON_OPERATOR:
     return TF::OPERATOR;
   case T::PLUS_OPERATOR:
     return TF::OPERATOR;

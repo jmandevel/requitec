@@ -8,25 +8,24 @@
 
 [function [main], ()[signed_integer],
     fruit := MyEnum.APPLE(3);
-    [match fruit,
-        [case APPLE, apple:=[value].\[var][borrow], 
-            apple = apple + 1;
-        ][case ORANGE, orange:=[value].\[var][borrow],
-            orange = orange * 2;
+    [match fruit
+        ][arm APPLE, apple:=[value].\[var][borrow], 
+                apple = apple + 1;
+        ][arm ORANGE, orange:=[value].\[var][borrow],
+                orange = orange * 2;
         ][default
-            // do nothing!
+                // do nothing!
         ];
+    [fold int:[signed_integer],
+            [match fruit
+                ][arm APPLE, apple:=[value], 
+                    int <:= apple;
+                ][arm ORANGE, orange:=[value],
+                    int <:= orange.[cast [signed_integer]];
+                ][arm GRAPE, grape:=[value],
+                    int <:= grape.[cast [signed_integer]];
+                ];
     ];
-    value :=
-        [match fruit,
-            [case APPLE, apple:=[value], 
-                [out] := apple;
-            ][case ORANGE, orange:=[value],
-                [out] := orange.[cast [signed_integer]];
-            ][case GRAPE, grape:=[value],
-                [out] := grape.[cast [signed_integer]];
-            ];
-        ];
 
-    [result] := value;
+    [result] := int;
 ];

@@ -319,7 +319,7 @@ enum class EvaluationState : std::uint_fast8_t {
   ERROR
 };
 
-[[nodiscard]] auto operator<=>(rq::EvaluationState rhs,
+[[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::EvaluationState rhs,
                                rq::EvaluationState lhs) {
   return rq::getUnderlying(rhs) <=> rq::getUnderlying(lhs);
 }
@@ -778,7 +778,7 @@ struct Block final : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
   getOuterInstructionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getOuterInstructionPtr();
-  void setLlvmBlock(llvm::BasicBlock &llvm_block);
+  RQ_ALWAYS_INLINE void setLlvmBlock(llvm::BasicBlock &llvm_block);
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::BasicBlock &getLlvmBlock() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::BasicBlock &getLlvmBlock();
 
@@ -920,6 +920,11 @@ struct Name final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const rq::Name &rhs) const {
     return this->getKeyword() != rhs.getKeyword() &&
            this->getText() != rhs.getText();
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
+    out_id.AddString(this->getText());
+    out_id.AddInteger(rq::getUnderlying(this->getKeyword()));
   }
 };
 
@@ -2053,9 +2058,9 @@ struct Function final : public rq::Instance {
   getPostconditionExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   getPostconditionExpressionPtr();
-  void setEntryBlock(rq::Block& block);
-  [[nodiscard]] rq::Block& getEntryBlock();
-  void appendBlock(rq::Block& block);
+  RQ_ALWAYS_INLINE void setEntryBlock(rq::Block &block);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Block &getEntryBlock();
+  inline void appendBlock(rq::Block &block);
   [[nodiscard]] RQ_ALWAYS_INLINE
       std::ranges::subrange<rq::NextIterator<rq::Block>,
                             rq::NextIterator<rq::Block>,

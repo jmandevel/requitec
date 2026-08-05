@@ -93,47 +93,12 @@ struct ForestFactory final {
     return rq::dereferencePtr(this->_last_ptr);
   }
   void appendTree(rq::Expression &tree);
-};
-
-struct TreeFactory final {
-  using Self = rq::TreeFactory;
-
-  rq::Expression *_expression_ptr = nullptr;
-  rq::Expression *_last_ptr = nullptr;
-
-  TreeFactory() = default;
-  TreeFactory(const Self &) = default;
-  TreeFactory(Self &&) = default;
-  ~TreeFactory() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasExpression() const {
-    return this->_expression_ptr != nullptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* build() {
+    rq::Expression *expression_ptr = this->getExpressionPtr();
+    this->_expression_ptr = nullptr;
+    this->_last_ptr = nullptr;
+    return expression_ptr;
   }
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression) {
-    rq::assignSingleValue(this->_expression_ptr, &expression);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLast() const {
-    return this->_last_ptr != nullptr;
-  }
-  RQ_ALWAYS_INLINE void setLast(rq::Expression &last) {
-    this->_last_ptr = &last;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getLast() {
-    return rq::dereferencePtr(this->_last_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getLast() const {
-    return rq::dereferencePtr(this->_last_ptr);
-  }
-  void startTree(rq::Expression &top);
-  void appendBranch(rq::Expression &branch);
-  void finishExpression(const rq::Token &last_token);
 };
 
 struct PrecedenceFactory final {

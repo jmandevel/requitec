@@ -1595,7 +1595,7 @@ Block::getOuterInstructionPtr() {
   return this->_outer_instruction_ptr;
 }
 
-void Block::setLlvmBlock(llvm::BasicBlock &llvm_block) {
+RQ_ALWAYS_INLINE void Block::setLlvmBlock(llvm::BasicBlock &llvm_block) {
   rq::assignSingleValue(this->_llvm_block_ptr, &llvm_block);
 }
 
@@ -2308,12 +2308,12 @@ inline void TypeParameter::Profile(llvm::FoldingSetNodeID &out_id) const {
 
 RQ_ALWAYS_INLINE void
 profileTypeParameter(llvm::FoldingSetNodeID &out_id, rq::SymbolKind kind,
-                     const rq::TypeParameter *next_ptr, llvm::StringRef name,
+                     const rq::TypeParameter *next_ptr, rq::Name name,
                      const rq::ConstantSymbol &type, unsigned location,
                      bool is_positional) {
   out_id.AddInteger(rq::getUnderlying(kind));
   out_id.AddPointer(next_ptr);
-  out_id.AddString(name);
+  out_id.Add(name);
   out_id.AddPointer(&type);
   out_id.AddInteger(location);
   out_id.AddBoolean(is_positional);
@@ -3702,15 +3702,15 @@ Function::getPostconditionExpressionPtr() {
   return this->_postcondition_expression_ptr;
 }
 
-void Function::setEntryBlock(rq::Block &block) {
+RQ_ALWAYS_INLINE void Function::setEntryBlock(rq::Block &block) {
   rq::assignSingleValue(this->_entry_ptr, &block);
 }
 
-[[nodiscard]] rq::Block &Function::getEntryBlock() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Block &Function::getEntryBlock() {
   return rq::dereferencePtr(this->_entry_ptr);
 }
 
-void Function::appendBlock(rq::Block &block) {
+inline void Function::appendBlock(rq::Block &block) {
   rq::Block &entry = this->getEntryBlock();
   rq::assignSingleValue(block._next_ptr, entry._next_ptr);
   entry._next_ptr = block._next_ptr;
