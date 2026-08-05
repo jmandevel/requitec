@@ -968,7 +968,7 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
 
 void Context::logErrorExpectedTagBranch(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " has no comma terminator",
+                   expresison.getName() + " is missing tag branch",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
