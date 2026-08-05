@@ -1,8 +1,8 @@
 [import "std"];
 
-[class WithoutDestroy];
+[class WithoutDestroy, {}];
 
-[class WithDestroy,
+[class WithDestroy, {},
     [function [destroy], ()[void]=>,
         std.print(line="In destroy!");
         [this].[drop];
