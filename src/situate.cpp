@@ -1431,19 +1431,16 @@ bool Situator::situateTagBranch(rq::Situation branch_situation,
 }
 
 bool Situator::situateStatementBranch(rq::Expression &branch) {
+  if (!branch.getIsStatement()) {
+    this->getContext().logErrorExpectedStatementExpression(branch);
+    return false;
+  }
   if (!branch.getCanBeStatement()) {
     this->getContext().logErrorInvalidBranchSituation(rq::Situation::STATEMENT,
                                                       branch);
     return false;
   }
-  if (!this->situateTree(rq::Situation::STATEMENT, branch)) {
-    return false;
-  }
-  if (!branch.getIsStatement()) {
-    this->getContext().logErrorExpectedStatementExpression(branch);
-    return false;
-  }
-  return true;
+  return this->situateTree(rq::Situation::STATEMENT, branch);
 }
 
 bool Situator::situateVignetteBranch(rq::Expression &branch) {
