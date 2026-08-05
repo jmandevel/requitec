@@ -46,12 +46,12 @@
     <},
 
     [template]::{> variability:[var_attribute] <}
-    [function [forward], ()MyClassRanger{variability}=>&\variability,
+    [function [forward], ()MyClassRanger{variability}=>$\variability,
         [result] := MyClassRanger( [this].data.\variability[borrow] , 0);
     ];
 
     [template]::{> variability:[var_attribute] <}
-    [function [backward], ()MyClassRanger{variability}=>&\variability,
+    [function [backward], ()MyClassRanger{variability}=>$\variability,
         [result] := MyClassRanger( [this].data.\variability[borrow] , 9);
     ];
 ];

@@ -9,7 +9,7 @@
 [template]::{Type:[symbol]<}
 [constraint]::(Type.[is_type])
 [class UniquePtr,
-    { [private] ptr:?\[var]Type <},
+    { ptr:?\[var]Type <},
 
     [public][inline]
     [template]::{Placement:[symbol]<}
@@ -34,7 +34,7 @@
 
 [no_stable_address]
 [class MyClass,
-    { val:[single] <}
+    { val:[single] <},
 
     [function [destroy], ()[void]=>,
         [this].[drop];

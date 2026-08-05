@@ -1,5 +1,5 @@
 [class MyObject, 
-    [static] var := 0;.
+    [static] var := 0;
     [static] el := [signed_integer];
     {>[public] arr : var#el<}, 
 ];
