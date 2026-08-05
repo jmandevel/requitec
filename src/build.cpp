@@ -44,8 +44,9 @@ void Builder::build(rq::Function &func) {
   }
   llvm::Function &llvm_func = rq::dereferencePtr(llvm_func_ptr);
   func.setLlvmFunction(llvm_func);
-  rq::Block& entry = func.getEntryBlock();
-  rq::Instruction &instructions = rq::dereferencePtr(entry.getOuterInstructionPtr());
+  rq::Block &entry = func.getEntryBlock();
+  rq::Instruction &instructions =
+      rq::dereferencePtr(entry.getOuterInstructionPtr());
   llvm::BasicBlock *llvm_entry_bb_ptr = llvm::BasicBlock::Create(
       this->getContext().getLlvmContext(), "entry", &llvm_func);
   if (llvm_entry_bb_ptr == nullptr) {
@@ -102,6 +103,7 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
                     rq::Instruction &instructions, llvm::BasicBlock &llvm_bb,
                     llvm::BasicBlock &llvm_exit_bb, llvm::Value *llvm_this_ptr,
                     llvm::Value *llvm_result_ptr, llvm::Value *llvm_out_ptr) {
+  std::ignore = llvm_out_ptr;
   std::ignore = llvm_exit_bb;
   using O = rq::Opcode;
   using K = rq::Keyword;
@@ -117,10 +119,7 @@ Builder::buildScope(rq::Function &func, rq::SymbolTable &scope,
           var.setLlvmLocation(rq::dereferencePtr(llvm_result_ptr));
           continue;
         }
-        if (var.getName().getKeyword() == K::OUT) {
-          var.setLlvmLocation(rq::dereferencePtr(llvm_out_ptr));
-          continue;
-        }
+
         llvm::Type *llvm_type_ptr =
             this->getContext().getLlvmTypePtr(var.getType().getSymbol());
         if (llvm_type_ptr == nullptr) {

@@ -188,8 +188,6 @@ enum class Keyword : rq::EntityId {
   INDEX,
   // vignette or reflected enumerator index.
   DISCRIMINANT,
-  // value returned from a block.
-  OUT,
   // reference to extended value of function or extension_function.
   THIS,
   // value returned from a function.

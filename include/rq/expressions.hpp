@@ -326,8 +326,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "index";
   case K::DISCRIMINANT:
     return "discriminant";
-  case K::OUT:
-    return "out";
   case K::THIS:
     return "this";
   case K::RESULT:
@@ -1197,8 +1195,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE;
   case K::DISCRIMINANT:
     return KIF::RVALUE;
-  case K::OUT:
-    return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT;
   case K::THIS:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RESULT:

@@ -655,8 +655,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::DISCRIMINANT:
     [[fallthrough]];
-  case K::OUT:
-    [[fallthrough]];
   case K::THIS:
     [[fallthrough]];
   case K::RESULT:
