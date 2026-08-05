@@ -105,11 +105,11 @@ struct Situator final {
                                           rq::Situation finish_chainlink);
   // weave
   [[nodiscard]] bool
-  situateStatementVingetteStatementBranches(rq::Situation situation,
+  situateStatementVignetteStatementBranches(rq::Situation situation,
                                             rq::Expression &expression);
   // for
   [[nodiscard]] bool
-  situateStatementMultiVingetteStatementBranches(rq::Situation situation,
+  situateStatementMultiVignetteStatementBranches(rq::Situation situation,
                                                  rq::Expression &expression);
   // interface, namespace
   [[nodiscard]] bool stiuateNameStatementBranches(rq::Situation situation,

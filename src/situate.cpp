@@ -775,13 +775,13 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ARM:
     is_ok =
-        this->situateStatementVingetteStatementBranches(situation, expression);
+        this->situateStatementVignetteStatementBranches(situation, expression);
     break;
   case K::DEFAULT:
     is_ok = this->situateStatementBranches(expression);
     break;
   case K::FOR:
-    is_ok = this->situateStatementMultiVingetteStatementBranches(situation,
+    is_ok = this->situateStatementMultiVignetteStatementBranches(situation,
                                                                  expression);
     break;
   case K::WHILE:
@@ -797,7 +797,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::WEAVE:
     is_ok =
-        this->situateStatementVingetteStatementBranches(situation, expression);
+        this->situateStatementVignetteStatementBranches(situation, expression);
     break;
   case K::SCOPE:
     is_ok = this->situateStatementBranches(expression);
@@ -1959,7 +1959,7 @@ bool Situator::situateStatementMultiTagStatementBranches(
   return true;
 }
 
-bool Situator::situateStatementVingetteStatementBranches(
+bool Situator::situateStatementVignetteStatementBranches(
     rq::Situation situation, rq::Expression &expression) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
@@ -2001,7 +2001,7 @@ bool Situator::situateStatementVingetteStatementBranches(
   return true;
 }
 
-bool Situator::situateStatementMultiVingetteStatementBranches(
+bool Situator::situateStatementMultiVignetteStatementBranches(
     rq::Situation situation, rq::Expression &expression) {
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
