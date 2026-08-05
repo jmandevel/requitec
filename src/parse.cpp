@@ -870,12 +870,16 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       factory.appendTree(branch);
       factory.appendTree(mark);
       continue;
-    } else if (after_token.getKind() == end ||
-               after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+    } else if (after_token.getKind() == end) {
+      factory.appendTree(branch);
+      continue;
+    } else if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+      this->getRanger().incrementToken(1);
       factory.appendTree(branch);
       continue;
     } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       if (!chain_factory.getHasExpression()) {
+        this->getRanger().incrementToken(1);
         branch.setIsUltimate();
         factory.appendTree(branch);
         continue;
