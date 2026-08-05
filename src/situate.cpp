@@ -1924,6 +1924,9 @@ bool Situator::situateStatementMultiTagStatementBranches(
       return false;
     }
   }
+  if (last_ptr == nullptr) {
+    return true;
+  }
   rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
   for (rq::Expression &branch : statement0.getNextSubrange()) {
     if (!this->situateStatementBranch(branch)) {
