@@ -863,6 +863,10 @@ RequiteParser::parseBranches(rq::TokenKind end) {
     const rq::Token after_token = this->getRanger().getToken();
     if (after_token.getKind() == rq::TokenKind::LESS_OPERATOR) {
       this->getRanger().incrementToken(1);
+      const rq::Token next_after_token = this->getRanger().getToken();
+      if (next_after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
+        this->getRanger().incrementToken(1);
+      }
       parameter_mark_found = true;
       rq::Expression &mark = this->getContext().acquireExpression();
       mark.setSource(next_token);
