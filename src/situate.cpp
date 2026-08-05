@@ -2007,7 +2007,6 @@ bool Situator::situateStatementMultiVignetteStatementBranches(
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
     return false;
   }
-
   rq::Expression *last_ptr = nullptr;
   for (rq::Expression &branch : expression.getBranchSubrange()) {
     if (!branch.getIsStatement()) {
