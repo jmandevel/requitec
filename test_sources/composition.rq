@@ -6,11 +6,11 @@
     ];
 ];
 
-[class Dog];
+[class Dog, {},];
 
-[class Cat];
+[class Cat, {},];
 
-[class Rat,
+[class Rat, {},
     [function squeak, ()[void]=>,
         std.print(line="Squeak!");  
     ];
@@ -29,7 +29,7 @@
 ];
 
 [adapter ASpeak, ISpeak..Rat,
-    [use_method speak, Rat.squeak, ()[void]=>$];
+    [use_function speak, Rat.squeak, ()[void]=>$];
 ];
 
 [interface IGreet,
@@ -45,11 +45,11 @@
 ];
 
 [adapter ASpeak, ISpeak..Rat,
-    [use_method speak, rat.squeak, ()[void]=>];
+    [use_function speak, rat.squeak, ()[void]=>];
 ];
 
 [adapter AGreet, IGreet..Rat,
-    [use_method greet, Rat.squeak, ()[void]=>];
+    [use_function greet, Rat.squeak, ()[void]=>];
 ];
 
 [function [main], ()[signed_integer],
