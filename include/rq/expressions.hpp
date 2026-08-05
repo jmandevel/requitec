@@ -1273,7 +1273,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPIN_CHAIN:
     return KIF::STATEMENT;
   case K::IF:
-    return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
+    return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::ELSE_IF:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::IF_CHAINLINK;
@@ -2405,26 +2405,6 @@ getIsChainlinkPosition(rq::Situation situation) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName(rq::Keyword keyword) {
   return keyword == rq::Keyword::IDENTIFY_OF ||
          keyword == rq::Keyword::IDENTIFIER_LITERAL;
-}
-
-enum class ChainKind : std::uint_fast8_t { NONE, UNKNOWN, IF, CASE, ARM };
-
-[[nodiscard]] inline llvm::StringRef getDescription(rq::ChainKind chainKind) {
-  using namespace rq;
-  using CK = ChainKind;
-  switch (chainKind) {
-  case CK::NONE:
-    return "no chain";
-  case CK::UNKNOWN:
-    return "unknown chain";
-  case CK::IF:
-    return "if chain";
-  case CK::CASE:
-    return "case chain";
-  case CK::ARM:
-    return "arm chain";
-  }
-  return "error chain";
 }
 
 enum class LowAttribute : std::uint_fast8_t {
@@ -3654,12 +3634,8 @@ struct Expression;
 
 enum class ExpressionNextInfoFlags : std::uint8_t {
   NONE = 0,
-  // NOTE: a "chain-link" expression has an expression after it, but no
-  // seperator between Used in things like if->else_if->else chains. only occurs
-  // for expressions with certain keywords.
-  CHAINLINK = rq::getBit(0),
-  // NOTE: a "ultimate" expression is one that terminates with a semicolon
-  ULTIMATE = rq::getBit(1)
+  // NOTE: a "statement" expression is one that terminates with a semicolon
+  STATEMENT = rq::getBit(0)
 };
 
 RQ_DEFINE_FLAGS(rq::ExpressionNextInfoFlags);
@@ -3903,14 +3879,13 @@ struct Expression final : public rq::Entity {
     return rq::getHasAll(this->_source_ptr_flags.getFlags(),
                          rq::ExpressionSourceInfoFlags::SITUATOR_ERROR);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUltimate() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatement() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextInfoFlags::ULTIMATE);
+                         rq::ExpressionNextInfoFlags::STATEMENT);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTag() const {
     return rq::getHasNone(this->_next_ptr_flags.getFlags(),
-                          rq::ExpressionNextInfoFlags::ULTIMATE |
-                              rq::ExpressionNextInfoFlags::CHAINLINK);
+                          rq::ExpressionNextInfoFlags::STATEMENT);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
     return this->_source_ptr_flags.getPtr() != nullptr;
@@ -3935,10 +3910,6 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
     return llvm::SMRange(this->getLlvmSourceBegin(), this->getLlvmSourceEnd());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChainLink() const {
-    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
-                         rq::ExpressionNextInfoFlags::CHAINLINK);
   }
   RQ_ALWAYS_INLINE const char *getBeforeSourceTextPtr() const {
     return this->getSourceTextPtr();
@@ -3982,11 +3953,8 @@ struct Expression final : public rq::Entity {
     this->_source_ptr_flags.addFlags(
         rq::ExpressionSourceInfoFlags::SITUATOR_ERROR);
   }
-  void RQ_ALWAYS_INLINE setIsUltimate() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::ULTIMATE);
-  }
-  void RQ_ALWAYS_INLINE setIsChainLink() {
-    this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::CHAINLINK);
+  void RQ_ALWAYS_INLINE setIsStatement() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::STATEMENT);
   }
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");

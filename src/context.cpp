@@ -434,10 +434,8 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
     fout << '\n';
     for (const rq::Expression &branch : top.getBranchSubrange()) {
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (branch.getIsUltimate()) {
+      if (branch.getIsStatement()) {
         fout << ";\n";
-      } else if (branch.getIsChainLink()) {
-        fout << "\n";
       } else {
         if (branch.getHasNext()) {
           fout << ",\n";
@@ -465,10 +463,8 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
   const rq::Expression &top = rq::dereferencePtr(top_ptr);
   for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
-    if (branch.getIsUltimate()) {
+    if (branch.getIsStatement()) {
       fout << ";\n";
-    } else if (branch.getIsChainLink()) {
-      fout << "\n";
     } else {
       if (branch.getHasNext()) {
         fout << ",\n";
@@ -982,32 +978,11 @@ void Context::logErrorExpectedTagExpression(const rq::Expression &expresison) {
                    {expresison.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorExpectedUltimateExpression(
+void Context::logErrorExpectedStatementExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is not ultimate expression",
+                   expression.getName() + " is not statement expression",
                    {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorExpectedChainLinkExpression(
-    const rq::Expression &expresison) {
-  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not chain-link statement",
-                   {expresison.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorExpressionDoesNotContinueChain(
-    const rq::Expression &expresison, rq::Chain chain) {
-  if (chain == rq::Chain::NONE) {
-    this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                     expresison.getName() + " must continue chain",
-                     {expresison.getLlvmSourceRange()}, {});
-    return;
-  }
-  this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " does not continue " +
-                       rq::getDescription(chain),
-                   {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotDeterminateStaticValue(

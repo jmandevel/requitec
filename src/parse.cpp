@@ -880,7 +880,7 @@ RequiteParser::parseBranches(rq::TokenKind end) {
     } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       if (!chain_factory.getHasExpression()) {
         this->getRanger().incrementToken(1);
-        branch.setIsUltimate();
+        branch.setIsStatement();
         factory.appendTree(branch);
         continue;
       }
@@ -890,11 +890,10 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       chain.setSource(chain_first, after_token);
       chain.setKeyword(rq::Keyword::UNSITUATED_CHAIN);
       chain.setBranch(chain_first);
-      chain.setIsUltimate();
+      chain.setIsStatement();
       factory.appendTree(chain);
       continue;
     }
-    branch.setIsChainLink();
     chain_factory.appendTree(branch);
   }
   RQ_UNREACHABLE();
