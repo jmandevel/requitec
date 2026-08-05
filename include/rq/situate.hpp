@@ -84,7 +84,7 @@ struct Situator final {
                                         rq::Expression &first_parameter);
   // scope, block, else, default, main
   [[nodiscard]] bool situateStatementBranches(rq::Expression &expression);
-  // function, function, class, enum, adapter
+  // function, function, implement_function, use_function, class, enum, adapter
   [[nodiscard]] bool
   situateNameStatementTagStatementBranches(rq::Situation situation,
                                            rq::Expression &expression,

@@ -596,15 +596,12 @@ bool Situator::situateTree(rq::Situation situation,
                                              S::RVALUE);
     break;
   case K::FUNCTION:
+    [[fallthrough]];
+  case K::IMPLEMENT_FUNCTION:
+    [[fallthrough]];
+  case K::USE_FUNCTION:
     is_ok = this->situateNameStatementTagStatementBranches(
         situation, expression, S::FUNCTION_NAME);
-    break;
-  case K::IMPLEMENT_FUNCTION:
-    is_ok = this->situateStatementTagStatementBranches(situation, expression);
-    break;
-  case K::USE_FUNCTION:
-    is_ok = this->situateTernaryValueBranches(situation, expression, S::NAME,
-                                              S::RVALUE, S::RVALUE);
     break;
 
   // CONTROL FLOW
