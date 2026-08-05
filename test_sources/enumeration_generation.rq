@@ -1,6 +1,6 @@
 [import "std"];
 
-[enumeration Fruit, [unsigned_integer 32],
+[enum Fruit, [unsigned_integer 32],
 	[anchor]::A
 	[static][for 0.<100, num:=[value],
 		[static] name := std.format(text= "MY_FRUIT" +> num);

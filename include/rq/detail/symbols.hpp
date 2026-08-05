@@ -189,8 +189,8 @@ namespace rq {
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
     return "ClassWeightLevel";
-  case S::ENUMERATION_WEIGHT_LEVEL:
-    return "EnumerationWeightLevel";
+  case S::ENUM_WEIGHT_LEVEL:
+    return "EnumWeightLevel";
   case S::INTERFACE_WEIGHT_LEVEL:
     return "InterfaceWeightLevel";
   case S::ADAPTER_WEIGHT_LEVEL:
@@ -311,8 +311,8 @@ namespace rq {
   // GLOBAL DECLARATION
   case S::CLASS_TYPE:
     return "ClassType";
-  case S::ENUMERATION_TYPE:
-    return "EnumerationType";
+  case S::ENUM_TYPE:
+    return "EnumType";
   case S::INTERFACE:
     return "Interface";
   case S::ADAPTER:
@@ -329,8 +329,8 @@ namespace rq {
   // TEMPLATES
   case S::CLASS_TEMPLATE:
     return "ClassTemplate";
-  case S::ENUMERATION_TEMPLATE:
-    return "EnumerationTemplate";
+  case S::ENUM_TEMPLATE:
+    return "EnumTemplate";
   case S::INTERFACE_TEMPLATE:
     return "InterfaceTemplate";
   case S::ADAPTER_TEMPLATE:
@@ -347,8 +347,8 @@ namespace rq {
     return "FunctionPolymorph";
   case S::CLASS_POLYMORPH:
     return "ClassPolymorph";
-  case S::ENUMERATION_POLYMORPH:
-    return "EnumerationPolymorph";
+  case S::ENUM_POLYMORPH:
+    return "EnumPolymorph";
   case S::INTERFACE_POLYMORPH:
     return "InterfacePolymorph";
   case S::ADAPTER_POLYMORPH:
@@ -572,7 +572,7 @@ namespace rq {
   // WEIGHTS
   case S::CLASS_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
-  case S::ENUMERATION_WEIGHT_LEVEL:
+  case S::ENUM_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
   case S::INTERFACE_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
@@ -698,7 +698,7 @@ namespace rq {
     return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
            SIF::SYMBOL_TABLE | SIF::IS_TYPE | SIF::HAS_LOW_ATTRIBUTES |
            SIF::IS_FRAME_SCOPE | SIF::IS_OBJECT_SCOPE;
-  case S::ENUMERATION_TYPE:
+  case S::ENUM_TYPE:
     return SIF::INSTANCE | SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE |
            SIF::SYMBOL_TABLE | SIF::IS_TYPE | SIF::HAS_LOW_ATTRIBUTES |
            SIF::IS_FRAME_SCOPE | SIF::IS_OBJECT_SCOPE;
@@ -725,7 +725,7 @@ namespace rq {
   case S::CLASS_TEMPLATE:
     return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
            SIF::HAS_LOW_ATTRIBUTES;
-  case S::ENUMERATION_TEMPLATE:
+  case S::ENUM_TEMPLATE:
     return SIF::GLOBAL_DECLARATION | SIF::NAMED_TABLE | SIF::TEMPLATE |
            SIF::HAS_LOW_ATTRIBUTES;
   case S::INTERFACE_TEMPLATE:
@@ -749,7 +749,7 @@ namespace rq {
     return SIF::POLYMORPH;
   case S::CLASS_POLYMORPH:
     return SIF::POLYMORPH;
-  case S::ENUMERATION_POLYMORPH:
+  case S::ENUM_POLYMORPH:
     return SIF::POLYMORPH;
   case S::ADAPTER_POLYMORPH:
     return SIF::POLYMORPH;
@@ -1001,8 +1001,8 @@ getIsGlobalDeclaration(rq::SymbolKind kind) {
   switch (kind) {
   case S::CLASS_TYPE:
     return S::CLASS_POLYMORPH;
-  case S::ENUMERATION_TYPE:
-    return S::ENUMERATION_POLYMORPH;
+  case S::ENUM_TYPE:
+    return S::ENUM_POLYMORPH;
   case S::INTERFACE:
     return S::INTERFACE_POLYMORPH;
   case S::ADAPTER:
@@ -3448,7 +3448,7 @@ GlobalDeclaration::getLowFuseFlags() const {
 [[nodiscard]] RQ_ALWAYS_INLINE bool GlobalDeclaration::getIsMember() const {
   const rq::SymbolKind containing_kind = this->getContainer().getKind();
   return containing_kind == rq::SymbolKind::CLASS_TYPE ||
-         containing_kind == rq::SymbolKind::ENUMERATION_TYPE ||
+         containing_kind == rq::SymbolKind::ENUM_TYPE ||
          containing_kind == rq::SymbolKind::INTERFACE;
 }
 
@@ -3549,21 +3549,21 @@ ClassType::ClassType(rq::SymbolTable &container, rq::Name name,
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CLASS_TYPE);
 }
 
-RQ_ALWAYS_INLINE EnumerationType::EnumerationType(
+RQ_ALWAYS_INLINE EnumType::EnumType(
     rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
     rq::Expression &expression, rq::Expression &name_expression,
     rq::LowFuseFlags flags, rq::Module &module, rq::Template *template_ptr,
     rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::ENUMERATION_TYPE, container, name, host,
+    : Instance(rq::SymbolKind::ENUM_TYPE, container, name, host,
                expression, &name_expression, flags, module, template_ptr,
                first_argument_ptr) {}
 
 [[nodiscard]] inline bool
-EnumerationType::classof(const rq::Entity *entity_ptr) {
+EnumType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ENUMERATION_TYPE);
+                   rq::getUnderlying(rq::SymbolKind::ENUM_TYPE);
 }
 
 RQ_ALWAYS_INLINE

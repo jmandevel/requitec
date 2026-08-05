@@ -629,7 +629,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNameStatementTagStatementBranches(situation,
                                                            expression, S::NAME);
     break;
-  case K::ENUMERATION:
+  case K::ENUM:
     is_ok = this->situateNameStatementTagStatementBranches(situation,
                                                            expression, S::NAME);
     break;

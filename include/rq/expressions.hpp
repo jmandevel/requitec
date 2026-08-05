@@ -306,8 +306,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // DECLARED TYPES
   case K::CLASS:
     return "class";
-  case K::ENUMERATION:
-    return "enumeration";
+  case K::ENUM:
+    return "enum";
   case K::INTERFACE:
     return "interface";
   case K::ADAPTER:
@@ -1177,7 +1177,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // DECLARED TYPES
   case K::CLASS:
     return KIF::STATEMENT;
-  case K::ENUMERATION:
+  case K::ENUM:
     return KIF::STATEMENT;
   case K::INTERFACE:
     return KIF::STATEMENT;

@@ -141,11 +141,11 @@ template <rq::SymbolKind KIND_PARAM>
   if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_TYPE;
-  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
-                       KIND == S::ENUMERATION_TEMPLATE ||
-                       KIND == S::ENUMERATION_POLYMORPH ||
-                       KIND == S::ENUMERATION_TYPE) {
-    return S::ENUMERATION_TYPE;
+  } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
+                       KIND == S::ENUM_TEMPLATE ||
+                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TYPE) {
+    return S::ENUM_TYPE;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
                        KIND == S::INTERFACE_TEMPLATE ||
                        KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
@@ -185,11 +185,11 @@ template <rq::SymbolKind KIND_PARAM>
   if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_WEIGHT_LEVEL;
-  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
-                       KIND == S::ENUMERATION_TEMPLATE ||
-                       KIND == S::ENUMERATION_POLYMORPH ||
-                       KIND == S::ENUMERATION_TYPE) {
-    return S::ENUMERATION_WEIGHT_LEVEL;
+  } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
+                       KIND == S::ENUM_TEMPLATE ||
+                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TYPE) {
+    return S::ENUM_WEIGHT_LEVEL;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
                        KIND == S::INTERFACE_TEMPLATE ||
                        KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
@@ -229,11 +229,11 @@ template <rq::SymbolKind KIND_PARAM>
   if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_TEMPLATE;
-  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
-                       KIND == S::ENUMERATION_TEMPLATE ||
-                       KIND == S::ENUMERATION_POLYMORPH ||
-                       KIND == S::ENUMERATION_TYPE) {
-    return S::ENUMERATION_TEMPLATE;
+  } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
+                       KIND == S::ENUM_TEMPLATE ||
+                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TYPE) {
+    return S::ENUM_TEMPLATE;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
                        KIND == S::INTERFACE_TEMPLATE ||
                        KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
@@ -272,11 +272,11 @@ template <rq::SymbolKind KIND>
   if constexpr (KIND == S::CLASS_WEIGHT_LEVEL || KIND == S::CLASS_TEMPLATE ||
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_POLYMORPH;
-  } else if constexpr (KIND == S::ENUMERATION_WEIGHT_LEVEL ||
-                       KIND == S::ENUMERATION_TEMPLATE ||
-                       KIND == S::ENUMERATION_POLYMORPH ||
-                       KIND == S::ENUMERATION_TYPE) {
-    return S::ENUMERATION_POLYMORPH;
+  } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
+                       KIND == S::ENUM_TEMPLATE ||
+                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TYPE) {
+    return S::ENUM_POLYMORPH;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
                        KIND == S::INTERFACE_TEMPLATE ||
                        KIND == S::INTERFACE_POLYMORPH || KIND == S::INTERFACE) {
@@ -380,7 +380,7 @@ struct Symbol;
       struct GlobalDeclaration;
         struct Instance;
           struct ClassType;
-          struct EnumerationType;
+          struct EnumType;
           struct Interface;
           struct Adapter;
           struct Function;
@@ -1957,14 +1957,14 @@ struct ClassType final : public rq::Instance {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct EnumerationType final : public rq::Instance {
-  using Self = rq::EnumerationType;
+struct EnumType final : public rq::Instance {
+  using Self = rq::EnumType;
 
   rq::Expression *_underlying_expression_ptr{nullptr};
   rq::ConstantSymbol *_underlying_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
-  EnumerationType(rq::SymbolTable &container, rq::Name name,
+  EnumType(rq::SymbolTable &container, rq::Name name,
                   rq::SymbolTable &host, rq::Expression &expression,
                   rq::Expression &name_expression, rq::LowFuseFlags flags,
                   rq::Module &module, rq::Template *template_ptr,
@@ -2147,8 +2147,8 @@ template <> struct derived_instance<rq::SymbolKind::CLASS_TYPE> final {
   using Type = rq::ClassType;
 };
 
-template <> struct derived_instance<rq::SymbolKind::ENUMERATION_TYPE> final {
-  using Type = rq::EnumerationType;
+template <> struct derived_instance<rq::SymbolKind::ENUM_TYPE> final {
+  using Type = rq::EnumType;
 };
 
 template <> struct derived_instance<rq::SymbolKind::INTERFACE> final {
@@ -2252,8 +2252,8 @@ struct DerivedTemplate final : public rq::Template {
 };
 
 using ClassTemplate = rq::DerivedTemplate<rq::SymbolKind::CLASS_TEMPLATE>;
-using EnumerationTemplate =
-    rq::DerivedTemplate<rq::SymbolKind::ENUMERATION_TEMPLATE>;
+using EnumTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::ENUM_TEMPLATE>;
 using InterfaceTemplate =
     rq::DerivedTemplate<rq::SymbolKind::INTERFACE_TEMPLATE>;
 using AdapterTemplate = rq::DerivedTemplate<rq::SymbolKind::ADAPTER_TEMPLATE>;
@@ -2316,8 +2316,8 @@ struct DerivedWeightLevel final : public rq::WeightLevel {
 
 using ClassWeightLevel =
     rq::DerivedWeightLevel<rq::SymbolKind::CLASS_WEIGHT_LEVEL>;
-using EnumerationWeightLevel =
-    rq::DerivedWeightLevel<rq::SymbolKind::ENUMERATION_WEIGHT_LEVEL>;
+using EnumWeightLevel =
+    rq::DerivedWeightLevel<rq::SymbolKind::ENUM_WEIGHT_LEVEL>;
 using InterfaceWeightLevel =
     rq::DerivedWeightLevel<rq::SymbolKind::INTERFACE_WEIGHT_LEVEL>;
 using AdapterWeightLevel =
@@ -2415,8 +2415,8 @@ struct DerivedPolymorph final : public rq::Polymorph {
 using FunctionPolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::FUNCTION_POLYMORPH>;
 using ClassPolymorph = rq::DerivedPolymorph<rq::SymbolKind::CLASS_POLYMORPH>;
-using EnumerationPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::ENUMERATION_POLYMORPH>;
+using EnumPolymorph =
+    rq::DerivedPolymorph<rq::SymbolKind::ENUM_POLYMORPH>;
 using InterfacePolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::INTERFACE_POLYMORPH>;
 
