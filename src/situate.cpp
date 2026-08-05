@@ -101,6 +101,14 @@ bool Situator::situateTree(rq::Situation situation,
       }
       expression.changeKeyword(K::DEFAULT_VALUE_PARAMETER);
     } break;
+    case S::TUPLE_ELEMENT: {
+      if (!this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+                                            S::RVALUE)) {
+        is_ok = false;
+        break;
+      }
+      expression.changeKeyword(K::NAMED_ELEMENT);
+    } break;
     case S::STATEMENT: {
       if (!expression.getHasBranch()) {
         this->getContext().logErrorNotExactBranchCount(situation, expression,
@@ -553,8 +561,12 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = true;
       break;
     }
-    is_ok =
-        this->situateNaryValueBranches(situation, expression, 0, S::ARGUMENT);
+    is_ok = this->situateNaryValueBranches(situation, expression, 0,
+                                           S::TUPLE_ELEMENT);
+    break;
+  case K::NAMED_ELEMENT:
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+                                             S::RVALUE);
     break;
   case K::INSTANTIATE_LAYOUT:
     is_ok = this->situateNaryParameterBranches(situation, expression);
