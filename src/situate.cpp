@@ -770,7 +770,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::CASE:
-    is_ok = this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementMultiTagStatementBranches(
+        situation, S::RVALUE, expression);
     break;
   case K::ARM:
     is_ok =
@@ -802,7 +803,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementBranches(expression);
     break;
   case K::FOLD:
-    is_ok = this->situateStatementTagStatementBranches(situation, expression);
+    is_ok = this->situateStatementMultiTagStatementBranches(
+        situation, S::BINDING, expression);
     break;
 
   // RANGES
@@ -1886,6 +1888,47 @@ bool Situator::situateStatementTagStatementBranches(
     return false;
   }
   for (rq::Expression &branch : tag.getNextSubrange()) {
+    if (!this->situateStatementBranch(branch)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Situator::situateStatementMultiTagStatementBranches(
+    rq::Situation situation, rq::Situation tag_situation,
+    rq::Expression &expression) {
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
+    return false;
+  }
+  rq::Expression *last_ptr = nullptr;
+  for (rq::Expression &branch : expression.getBranchSubrange()) {
+    if (!branch.getIsStatement()) {
+      last_ptr = &branch;
+      break;
+    }
+    if (!this->situateStatementBranch(branch)) {
+      return false;
+    }
+  }
+  if (last_ptr == nullptr) {
+    this->getContext().logErrorExpectedTagBranch(expression);
+    return false;
+  }
+  rq::Expression &tag0 = rq::dereferencePtr(last_ptr);
+  last_ptr = nullptr;
+  for (rq::Expression &branch : tag0.getInclusiveNextSubrange()) {
+    if (branch.getIsStatement()) {
+      last_ptr = &branch;
+      break;
+    }
+    if (!this->situateTagBranch(tag_situation, branch)) {
+      return false;
+    }
+  }
+  rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
+  for (rq::Expression &branch : statement0.getNextSubrange()) {
     if (!this->situateStatementBranch(branch)) {
       return false;
     }

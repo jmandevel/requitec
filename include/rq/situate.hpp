@@ -87,11 +87,16 @@ struct Situator final {
   // function, function, class, enum, adapter
   [[nodiscard]] bool
   situateNameStatementTagStatementBranches(rq::Situation situation,
-                                              rq::Expression &expression, rq::Situation name_situation);
-  // switch, match, if, else_if, while, case, with, forward, backward
+                                           rq::Expression &expression,
+                                           rq::Situation name_situation);
+  // switch, match, if, else_if, while, forward, backward
   [[nodiscard]] bool
-  situateStatementTagStatementBranches(rq::Situation situation,
-                                          rq::Expression &expression);
+    situateStatementTagStatementBranches(rq::Situation situation,
+                                       rq::Expression &expression);
+  // case, fold
+  [[nodiscard]] bool
+  situateStatementMultiTagStatementBranches(rq::Situation situation, rq::Situation tag_situation,
+                                       rq::Expression &expression);
   // if_chainlink, swtich_chainlink, match_chainlink, spin_chainlink
   [[nodiscard]] bool situateChainBranches(rq::Situation situation,
                                           rq::Expression &expression,
@@ -105,10 +110,11 @@ struct Situator final {
   // for
   [[nodiscard]] bool
   situateStatementMultiVingetteStatementBranches(rq::Situation situation,
-                                            rq::Expression &expression);
+                                                 rq::Expression &expression);
   // interface, namespace
   [[nodiscard]] bool stiuateNameStatementBranches(rq::Situation situation,
-                                                  rq::Expression &expression, rq::Situation name_situation);
+                                                  rq::Expression &expression,
+                                                  rq::Situation name_situation);
 };
 
 } // namespace rq
