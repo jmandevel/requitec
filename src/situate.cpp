@@ -1983,7 +1983,7 @@ bool Situator::situateStatementVignetteStatementBranches(
     return false;
   }
   rq::Expression &tag = rq::dereferencePtr(last_ptr);
-  if (this->situateTagBranch(rq::Situation::RVALUE, tag)) {
+  if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
   for (rq::Expression &branch : tag.getNextSubrange()) {
