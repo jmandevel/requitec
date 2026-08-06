@@ -1,0 +1,25 @@
+[import "std"];
+
+[function [main], (>args:@@[char]<)[signed_integer],
+    [if args.[element_count] == 0,
+        [result] <:= 5;
+    ][else 
+        [result] <:= 6;
+    ]
+];
+
+
+
+[function doMath, (>int:[signed_integer]<)[signed_integer],
+    [fold var:[signed_integer],
+        [if int > 7,
+            var <:= 7;
+        ][else_if int > 9,
+            [result] <:= 0; // result must be set before returning
+            [return]; // dont need to set int because returning
+        ][else
+            var <:= 8;
+        ];
+    ];
+    [result] <= var; // result was set in else_if condition which never reaches here, so its ok to initialize it again.
+];
