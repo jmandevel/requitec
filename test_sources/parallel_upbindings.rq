@@ -8,9 +8,13 @@
     ]
 ];
 
-
-
 [function doMath, (>int:[signed_integer]<)[signed_integer],
+
+    // folded variables must be initialized exactly once in each control flow path of fold or function must return before fold is done.
+    // for functions that return, [result] must have upbinding exactly once for each control flow path.
+
+    // binding to variable more than once in any control flow path (upbinding or otherwise) is compiler error.
+
     [fold var:[signed_integer],
         [if int > 7,
             var <:= 7;
