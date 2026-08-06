@@ -244,7 +244,7 @@ rq::Expression &RequiteParser::parsePrecedence9() {
       continue;
     case rq::TokenKind::LESS_COLON_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::OUTER_BINDING);
+      precedence_factory.parseBinary(token, rq::Keyword::UPBINDING);
       precedence_factory.setRecent(this->parsePrecedence8());
       continue;
     default:

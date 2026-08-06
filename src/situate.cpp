@@ -253,8 +253,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
                                              S::RVALUE);
     break;
-  case K::OUTER_BINDING:
-    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
+  case K::UPBINDING:
+    is_ok = this->situateBinaryValueBranches(situati on, expression, S::LVALUE,
                                              S::RVALUE);
     break;
   case K::ASCRIBE_HIGH:

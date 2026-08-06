@@ -92,8 +92,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_conformity";
   case K::BINDING:
     return "_binding";
-  case K::OUTER_BINDING:
-    return "_outer_binding";
+  case K::UPBINDING:
+    return "_upbinding";
   case K::ASCRIBE_HIGH:
     return "_ascribe_high";
   case K::ASCRIBE_LOW:
@@ -961,7 +961,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::BINDING:
     return KIF::LVALUE | KIF::PARAMETER | KIF::ARGUMENT | KIF::BINDING |
            KIF::TUPLE_ELEMENT;
-  case K::OUTER_BINDING:
+  case K::UPBINDING:
     return KIF::LVALUE;
   case K::ASCRIBE_HIGH:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT |
