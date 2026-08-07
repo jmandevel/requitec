@@ -212,36 +212,6 @@ struct DottedInstructionFactory final {
   void append(rq::Entity &entity);
 };
 
-struct BlockFactory final {
-  using Self = rq::BlockFactory;
-
-  rq::DottedInstructionFactory _dot_factory;
-
-  BlockFactory(rq::Context &context)
-      : _dot_factory(context, rq::Opcode::STATEMENT) {}
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
-    return this->_dot_factory.getContext();
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
-    return this->_dot_factory.getContext();
-  }
-
-  RQ_ALWAYS_INLINE void append(rq::Instruction &instruction) {
-    this->_dot_factory.append(instruction);
-  }
-
-  [[nodiscard]] rq::Block &build() {
-    rq::Instruction *outer_inst_ptr =
-        llvm::cast_or_null<rq::Instruction>(this->_dot_factory.getOuterPtr());
-    rq::Block &block =
-        this->getContext().allocateValue<rq::Block>(outer_inst_ptr);
-    this->_dot_factory.clear();
-    return block;
-  }
-};
-
 struct Evaluator final {
   using Self = rq::Evaluator;
 
