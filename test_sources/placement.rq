@@ -32,7 +32,6 @@
 
 ];
 
-[no_stable_address]
 [class MyClass,
     { val:[single] <},
 
@@ -42,7 +41,7 @@
 ];
 
 [function [main], ()[signed_integer],
-    uptr := UniquePtr{NoAutoDrop}.create(
+    uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );
     [result] <:= 0;
