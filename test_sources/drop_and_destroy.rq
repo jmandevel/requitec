@@ -5,7 +5,7 @@
 [class WithDestroy, {},
     [function [destroy], ()[void]=>,
         std.print(line="In destroy!");
-        [this].[drop];
+        [this].[remove];
     ];
 ];
 
@@ -15,14 +15,14 @@
     c := WithDestroy();
     d := WithDestroy();
 
-    // after drop or destroy, variable is invalidated (can no longer be used)
-    a.[drop]; 
+    // after remove or destroy, variable is invalidated (can no longer be used)
+    a.[remove]; 
 
-    // since b's type has no destroy, behaviour is same as b.[drop]
+    // since b's type has no destroy, behaviour is same as b.[remove]
     b.[take].[destroy];
 
     // even though c's type has a destroy, its not called
-    c.[drop];
+    c.[remove];
 
     // d's destroy is called
     d.[take].[destroy];

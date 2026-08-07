@@ -228,10 +228,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "destroy";
   case K::DESTROY_OF:
     return "_destroy_of";
-  case K::DROP:
-    return "drop";
-  case K::DROP_OF:
-    return "_drop_of";
+  case K::REMOVE:
+    return "remove";
+  case K::REMOVE_OF:
+    return "_remove_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
   case K::INPLACE_DESTROY_OF:
@@ -1095,9 +1095,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::ADAPT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DROP:
+  case K::REMOVE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::DROP_OF:
+  case K::REMOVE_OF:
     return KIF::STATEMENT;
   case K::INPLACE_DESTROY:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
@@ -2037,8 +2037,8 @@ getDescription(rq::Situation situation) {
     return K::FORWARD_OF;
   case K::BACKWARD:
     return K::BACKWARD_OF;
-  case K::DROP:
-    return K::DROP_OF;
+  case K::REMOVE:
+    return K::REMOVE_OF;
   case K::INPLACE_DESTROY:
     return K::INPLACE_DESTROY_OF;
   case K::INPLACE_INITIALIZE:

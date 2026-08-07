@@ -27,7 +27,7 @@
     [function [destroy], ()[void]=>,         
         [this].ptr.[content].[inplace_destroy];
         free([this].ptr);
-        [this].[drop];
+        [this].[remove];
     ];
 
 ];
@@ -36,7 +36,7 @@
     { val:[single] <},
 
     [function [destroy], ()[void]=>,
-        [this].[drop];
+        [this].[remove];
     ];
 ];
 

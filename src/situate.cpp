@@ -507,10 +507,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::BACKWARD_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
-  case K::DROP:
+  case K::REMOVE:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::DROP_OF:
+  case K::REMOVE_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::INPLACE_DESTROY:
