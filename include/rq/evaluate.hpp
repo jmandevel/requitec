@@ -121,79 +121,15 @@ enum class JumpKind : std::uint_fast8_t {
   DYNAMIC_RETURN,
   DYNAMIC_BREAK,
   DYNAMIC_CONTINUE,
-  DYNAMIC_FALLTHROUGH,
   STATIC_BREAK,
   STATIC_CONTINUE,
-  STATIC_FALLTHROUGH
 };
-
-enum class JumpInfoFlags : std::uint_fast8_t {
-  NONE = 0,
-
-  IS_DYNAMIC = rq::getBit(0),
-  IS_STATIC = rq::getBit(1),
-  HAS_TARGET = rq::getBit(2),
-  LOOP = rq::getBit(3),
-  CASE = rq::getBit(4),
-  NON_FRAME = rq::getBit(5)
-};
-
-RQ_DEFINE_FLAGS(rq::JumpInfoFlags);
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::JumpInfoFlags
-getInfoFlags(rq::JumpKind kind) {
-  using J = rq::JumpKind;
-  using JF = rq::JumpInfoFlags;
-  switch (kind) {
-  case J::NONE:
-    return JF::NONE;
-  case J::DYNAMIC_RETURN:
-    return JF::IS_DYNAMIC | JF::LOOP | JF::CASE | JF::NON_FRAME;
-  case J::DYNAMIC_BREAK:
-    return JF::IS_DYNAMIC | JF::HAS_TARGET | JF::LOOP | JF::CASE |
-           JF::NON_FRAME;
-  case J::DYNAMIC_CONTINUE:
-    return JF::IS_DYNAMIC | JF::HAS_TARGET | JF::LOOP;
-  case J::DYNAMIC_FALLTHROUGH:
-    return JF::IS_DYNAMIC | JF::CASE;
-  case J::STATIC_BREAK:
-    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
-  case J::STATIC_CONTINUE:
-    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
-  case J::STATIC_FALLTHROUGH:
-    return JF::IS_STATIC | JF::HAS_TARGET | JF::LOOP | JF::CASE | JF::NON_FRAME;
-  }
-  RQ_UNREACHABLE();
-}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::HAS_TARGET);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamic(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::IS_DYNAMIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatic(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::IS_STATIC);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::LOOP);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInCase(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::CASE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInNonFrame(rq::JumpKind kind) {
-  rq::JumpInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::JumpInfoFlags::NON_FRAME);
+  return kind == rq::JumpKind::DYNAMIC_BREAK ||
+         kind == rq::JumpKind::DYNAMIC_CONTINUE ||
+         kind == rq::JumpKind::STATIC_BREAK ||
+         kind == rq::JumpKind::STATIC_CONTINUE;
 }
 
 struct Jump final {
@@ -205,13 +141,13 @@ struct Jump final {
 
   explicit RQ_ALWAYS_INLINE Jump() = default;
   explicit RQ_ALWAYS_INLINE Jump(rq::JumpKind kind) : _kind(kind) {
-    RQ_ASSERT(!rq::getHasTarget(kind), "must have target");
+    RQ_ASSERT(rq::getHasTarget(kind), "must have target");
   }
   explicit RQ_ALWAYS_INLINE Jump(rq::JumpKind kind, rq::Entity &target,
                                  rq::Expression &target_rvalue_ex)
       : _kind(kind), _target_ptr(&target),
         _target_rvalue_ex_ptr(&target_rvalue_ex) {
-    RQ_ASSERT(rq::getHasTarget(kind), "break of kind does not have target");
+    RQ_ASSERT(!rq::getHasTarget(kind), "break of kind does not have target");
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
@@ -237,30 +173,6 @@ struct Jump final {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getTargetRvalueEx() {
     return rq::dereferencePtr(this->_target_rvalue_ex_ptr);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDynamic() const {
-    return rq::getIsDynamic(this->getKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatic() const {
-    return rq::getIsStatic(this->getKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTarget() const {
-    return this->_target_ptr != nullptr;
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInLoop() const {
-    return rq::getCanBeInLoop(this->getKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInCase() const {
-    return rq::getCanBeInCase(this->getKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeInNonFrame() const {
-    return rq::getCanBeInNonFrame(this->getKind());
   }
 };
 
