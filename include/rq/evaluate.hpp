@@ -240,13 +240,14 @@ struct Evaluator final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() const { return this->_is_ok; }
   void setNotOk() { this->_is_ok = false; }
   void evaluateSourceModule();
-  void surveyGlobalScope(rq::Module &module, rq::SymbolTable &host,
-                         rq::Expression &first_ex);
-  [[nodiscard]] rq::Expression &
-  evaluateLowFuseFlags(rq::Module &module, rq::SymbolTable &host,
-                       rq::LowFactory &low_factory, rq::Expression &asc_ex);
   void surveyAllSymbols(rq::Module &module);
   void implementAllSymbols(rq::Module &module);
+  void surveyGlobalScope(rq::Module &module, rq::SymbolTable &host,
+                         rq::Expression &first_ex);
+  void implementGlobalScope(rq::Module& module, rq::SymbolTable& host, rq::Expression& first_ex);
+  [[nodiscard]] rq::Expression *
+  evaluateLowFuseFlags(rq::Module &module, rq::SymbolTable &host,
+                       rq::LowFactory &low_factory, rq::Expression &asc_ex);
   void surveyFunction(rq::Module &module, rq::SymbolTable &container,
                       rq::SymbolTable &host, rq::LowFactory &low_factory,
                       rq::Expression &ex);
@@ -254,15 +255,15 @@ struct Evaluator final {
   void implementFunction(rq::Function &function);
 
   [[nodiscard]] bool destroyAllLocalVariables(rq::SymbolTable &table,
-                                              rq::BlockFactory &block_factory);
+                                              rq::DottedInstructionFactory &inst_factory);
 
   [[nodiscard]] rq::Jump evaluateStaticLocalStatement(
       rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
-      rq::LowFactory &low_factory, rq::BlockFactory *block_factory_ptr);
+      rq::LowFactory &low_factory, rq::DottedInstructionFactory *inst_factory_ptr);
 
   [[nodiscard]] rq::Jump evaluateDynamicLocalStatement(
       rq::Module &module, rq::SymbolTable &host, rq::Expression &unascribed_ex,
-      rq::LowFactory &low_factory, rq::BlockFactory &block_factory);
+      rq::LowFactory &low_factory, rq::DottedInstructionFactory &inst_factory);
 
   [[nodiscard]] rq::DynamicLvalue
   evaluateDynamicLvalue(rq::SymbolTable &host, rq::Module &module,
@@ -302,7 +303,7 @@ struct Evaluator final {
   [[nodiscard]] rq::Name evaluateName(rq::SymbolTable &host, rq::Module &module,
                                       rq::Expression &name_ex);
 
-  [[nodiscard]] rq::SymbolTable &evaluateContainer(rq::Module &module,
+  [[nodiscard]] rq::SymbolTable *evaluateContainer(rq::Module &module,
                                                    rq::SymbolTable &host,
                                                    rq::LowFactory &low_factory);
 
