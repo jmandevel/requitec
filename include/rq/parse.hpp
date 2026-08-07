@@ -259,9 +259,6 @@ struct RequiteParser final {
   parseNonascribableExpression() {
     return this->parsePrecedence10();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseTypeAscribedExpression() {
-    return this->parsePrecedence2(true);
-  }
   [[nodiscard]] rq::Expression &parsePrecedence11();
   [[nodiscard]] rq::Expression &parsePrecedence10();
   [[nodiscard]] rq::Expression &parsePrecedence9();
@@ -271,8 +268,8 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression &parsePrecedence5();
   [[nodiscard]] rq::Expression &parsePrecedence4();
   [[nodiscard]] rq::Expression &parsePrecedence3();
-  [[nodiscard]] rq::Expression &parsePrecedence2(bool is_type_ascribed);
-  [[nodiscard]] rq::Expression &parsePrecedence1(bool is_type_ascribed);
+  [[nodiscard]] rq::Expression &parsePrecedence2();
+  [[nodiscard]] rq::Expression &parsePrecedence1();
   [[nodiscard]] rq::Expression &parsePrecedence0();
   [[nodiscard]] rq::ParseBranchesResult parseBranches(rq::TokenKind end);
   [[nodiscard]] rq::Keyword parseKeyword();

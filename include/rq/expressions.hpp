@@ -102,8 +102,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_reciever";
   case K::INSTANTIATE_LOW_ATTRIBUTE:
     return "_instantiate_low_attribute";
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    return "_instantiate_high_attribute";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -973,8 +971,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_LOW_ATTRIBUTE:
     return KIF::NONE; // LOW_ATTRIBUTE_INSTANTIATION
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    return KIF::NONE; // HIGH_ATTRIBUTE_INSTANTIATION
   case K::IDENTIFY:
     return KIF::REFLECTION | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
@@ -1885,7 +1881,6 @@ enum class Situation : std::uint_fast8_t {
   FUNCTION_NAME,
   ASCRIPTION,
   LOW_ATTRIBUTE_INSTANTIATION,
-  HIGH_ATTRIBUTE_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE,
   STARTING_CHAINLINK,
   CONTINUING_CHAINLINK,
@@ -1943,8 +1938,6 @@ getDescription(rq::Situation situation) {
     return "ascription expression";
   case S::LOW_ATTRIBUTE_INSTANTIATION:
     return "low attribute instantiation";
-  case S::HIGH_ATTRIBUTE_INSTANTIATION:
-    return "high attribute instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   case S::STARTING_CHAINLINK:
@@ -2142,25 +2135,6 @@ getDescription(rq::Situation situation) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::Situation
-getAttributeInstantiationSituation(rq::Keyword keyword) {
-  switch (keyword) {
-  case rq::Keyword::UNSITUATED_ASCRIBE_LOW:
-    [[fallthrough]];
-  case rq::Keyword::ASCRIBE_LOW:
-    return rq::Situation::LOW_ATTRIBUTE_INSTANTIATION;
-  case rq::Keyword::UNSITUATED_ASCRIBE_HIGH:
-    [[fallthrough]];
-  case rq::Keyword::ASCRIBE_HIGH:
-    [[fallthrough]];
-  case rq::Keyword::ASCRIBE_RECIEVER:
-    return rq::Situation::HIGH_ATTRIBUTE_INSTANTIATION;
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone(rq::Keyword keyword) {
   return keyword == rq::Keyword::NONE;
 }
@@ -2232,11 +2206,6 @@ getAttributeInstantiationSituation(rq::Keyword keyword) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeLowAttributeInstantiation(rq::Keyword keyword) {
   return keyword == rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeHighAttributeInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2431,8 +2400,6 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeFunctionName(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
-  case S::HIGH_ATTRIBUTE_INSTANTIATION:
-    return rq::getCanBeHighAttributeInstantiation(keyword);
   case S::LOW_ATTRIBUTE_INSTANTIATION:
     return rq::getCanBeLowAttributeInstantiation(keyword);
   case S::ARITHMETIC_SEQUENCE_STAGE:
@@ -3849,9 +3816,6 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getSituatedAscribe() const {
     return rq::getSituatedAscribeKeyword(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Situation getAttributeSituation() const {
-    return rq::getAttributeInstantiationSituation(this->getKeyword());
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink() const {
     return rq::getCanBeChainLink(this->getKeyword());
   }
@@ -3921,10 +3885,6 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeLowAttributeInstantiation() const {
     return rq::getCanBeLowAttributeInstantiation(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeHighAttributeInstantiation() const {
-    return rq::getCanBeHighAttributeInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeArithmeticSequenceTypeStage() const {

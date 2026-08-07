@@ -1,10 +1,10 @@
 [function [main], ()[signed_integer],
     // an array and its elements share variability
-    arr :\[var]= [array 0, 1, 2, 3];
-    arr.\[var][borrow].[at 1] = 2;
+    arr :[var]\= [array 0, 1, 2, 3];
+    arr.[var]\[borrow].[at 1] = 2;
 
     // a tuple and its elements have different variability
-    vector4 :\[var]= { x:=0, y:\[var]=1, z:=2, w:=3 };
+    vector4 :[var]\= { x:=0, y:[var]\=1, z:=2, w:=3 };
     vector4.y = 3;
 
     // variability of tuple overrides variability of its elements

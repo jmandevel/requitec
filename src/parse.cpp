@@ -529,7 +529,7 @@ rq::Expression &RequiteParser::parsePrecedence4() {
 // NARY AND BINARY BITWISE
 rq::Expression &RequiteParser::parsePrecedence3() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
-  precedence_factory.setRecent(this->parsePrecedence2(false));
+  precedence_factory.setRecent(this->parsePrecedence2());
   while (!this->getRanger().getIsDone()) {
     if (precedence_factory.getRecent().getCanBeChainLink()) {
       break;
@@ -539,27 +539,27 @@ rq::Expression &RequiteParser::parsePrecedence3() {
     case rq::TokenKind::DOUBLE_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_LEFT);
-      precedence_factory.setRecent(this->parsePrecedence2(false));
+      precedence_factory.setRecent(this->parsePrecedence2());
       continue;
     case rq::TokenKind::DOUBLE_LESS_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_RIGHT);
-      precedence_factory.setRecent(this->parsePrecedence2(false));
+      precedence_factory.setRecent(this->parsePrecedence2());
       continue;
     case rq::TokenKind::PIPE_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::BITWISE_OR);
-      precedence_factory.setRecent(this->parsePrecedence2(false));
+      precedence_factory.setRecent(this->parsePrecedence2());
       continue;
     case rq::TokenKind::AMPERSAND_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::BITWISE_AND);
-      precedence_factory.setRecent(this->parsePrecedence2(false));
+      precedence_factory.setRecent(this->parsePrecedence2());
       continue;
     case rq::TokenKind::CAROT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::BITWISE_XOR);
-      precedence_factory.setRecent(this->parsePrecedence2(false));
+      precedence_factory.setRecent(this->parsePrecedence2());
       continue;
     default:
       break;
@@ -571,7 +571,7 @@ rq::Expression &RequiteParser::parsePrecedence3() {
 }
 
 // EARLY UNARY OPERATORS
-rq::Expression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
+rq::Expression &RequiteParser::parsePrecedence2() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
     const rq::Token token = this->getRanger().getToken();
@@ -589,7 +589,7 @@ rq::Expression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
       precedence_factory.parseUnary(token, rq::Keyword::BITWISE_COMPLEMENT);
       continue;
     default:
-      precedence_factory.appendBranch(this->parsePrecedence1(is_type_ascribed));
+      precedence_factory.appendBranch(this->parsePrecedence1());
       break;
     }
     break;
@@ -598,7 +598,7 @@ rq::Expression &RequiteParser::parsePrecedence2(bool is_type_ascribed) {
 }
 
 // LATE UNARY OPERATORS (things get wierd here)
-rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
+rq::Expression &RequiteParser::parsePrecedence1() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   bool previous_horned = false;
   while (!this->getRanger().getIsDone()) {
@@ -606,25 +606,6 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
       const rq::Token token = this->getRanger().getToken();
       const rq::TokenKind kind = token.getKind();
       switch (kind) {
-      case rq::TokenKind::BACKSLASH_OPERATOR: {
-        this->getRanger().incrementToken(1);
-        rq::Expression &attribute = this->parseTypeAscribedExpression();
-        precedence_factory.parseAscribe(token.getSourceText(),
-                                        rq::Keyword::UNSITUATED_ASCRIBE_HIGH);
-        rq::Expression &instantiation = this->getContext().acquireExpression();
-        instantiation.setSource(token, attribute);
-        instantiation.setKeyword(rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE);
-        instantiation.setBranch(attribute);
-        const rq::Token after_token = this->getRanger().getToken();
-        if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
-          this->getRanger().incrementToken(1);
-          rq::Expression &value = this->parseNonascribableExpression();
-          attribute.setNext(value);
-          instantiation.extendSourceOver(value);
-        }
-        precedence_factory.appendBranch(instantiation);
-        continue;
-      }
       case rq::TokenKind::ARROW_OPERATOR: {
         rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
@@ -687,9 +668,6 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
         return precedence_factory.getOuter();
       }
       if (rq::getIsInferenceTerminator(kind)) {
-        if (is_type_ascribed) {
-          break;
-        }
         rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
         inference.setIsInserted();
@@ -712,39 +690,30 @@ rq::Expression &RequiteParser::parsePrecedence1(bool is_type_ascribed) {
     const rq::Token post_token = this->getRanger().getToken();
     switch (post_token.getKind()) {
     case rq::TokenKind::HASH_OPERATOR:
-      if (is_type_ascribed) {
-        precedence_factory.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
                                           rq::Keyword::INSTANTIATE_ARRAY);
       continue;
     case rq::TokenKind::ARROW_OPERATOR:
-      if (is_type_ascribed) {
-        precedence_factory.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token, rq::Keyword::EXTEND);
       continue;
     case rq::TokenKind::THICK_ARROW_OPERATOR:
-      if (is_type_ascribed) {
-        precedence_factory.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
                                           rq::Keyword::INSTANTIATE_EXTENSION);
       continue;
+    case rq::TokenKind::BACKSLASH_OPERATOR: {
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseAscribe(post_token.getSourceText(),
+                                      rq::Keyword::UNSITUATED_ASCRIBE_HIGH);
+      precedence_factory.appendRecent();
+      continue;
+    }
     case rq::TokenKind::DOUBLE_DOT_OPERATOR:
-      if (is_type_ascribed) {
-        precedence_factory.appendRecent();
-        break;
-      }
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,

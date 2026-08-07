@@ -9,9 +9,9 @@
 [function [main], ()[signed_integer],
     fruit := MyEnum.APPLE(3);
     [match fruit
-        ][arm APPLE, apple:=[value].\[var][borrow], 
+        ][arm APPLE, apple:=[value].[var]\[borrow], 
                 apple = apple + 1;
-        ][arm ORANGE, orange:=[value].\[var][borrow],
+        ][arm ORANGE, orange:=[value].[var]\[borrow],
                 orange = orange * 2;
         ][default
                 // do nothing!

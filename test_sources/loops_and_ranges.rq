@@ -3,13 +3,13 @@
 [template]::{> element_variability:[var_attribute] <}
 [ranger]
 [class MyClassRanger,
-    { data:$\element_variability#[fast_signed_integer 32] ,index:[unsigned_index]=0 <},
+    { data:$element_variability\#[fast_signed_integer 32] ,index:[unsigned_index]=0 <},
 
-    [function [increment], ()[void]=>$\[var],
+    [function [increment], ()[void]=>$[var]\,
         [this].index = [this].index + 1;
     ];
 
-    [function [decrement], ()[void]=>$\[var],
+    [function [decrement], ()[void]=>$[var]\,
         [this].index = [this].index - 1;
     ];
 
@@ -19,8 +19,8 @@
 
     [template]::{> return_variability:[var_attribute] <}
     [constraint]::return_variability >= element_variability 
-    [function [element], ()$\return_variability[fast_signed_integer 32]=>$\return_variability,
-        [result] := [this].data.\return_variability[borrow].[at [this].index].\return_variability[borrow];
+    [function [element], ()$return_variability\[fast_signed_integer 32]=>$return_variability\,
+        [result] := [this].data.return_variability\[borrow].[at [this].index].return_variability\[borrow];
     ];
 ];
 
@@ -30,13 +30,13 @@
     <},
 
     [template]::{> variability:[var_attribute] <}
-    [function [forward], ()MyClassRanger{variability}=>$\variability,
-        [result] := MyClassRanger( [this].data.\variability[borrow] , 0);
+    [function [forward], ()MyClassRanger{variability}=>$variability\,
+        [result] := MyClassRanger( [this].data.variability\[borrow] , 0);
     ];
 
     [template]::{> variability:[var_attribute] <}
-    [function [backward], ()MyClassRanger{variability}=>$\variability,
-        [result] := MyClassRanger( [this].data.\variability[borrow] , 9);
+    [function [backward], ()MyClassRanger{variability}=>$variability\,
+        [result] := MyClassRanger( [this].data.variability\[borrow] , 9);
     ];
 ];
 
@@ -46,13 +46,13 @@
     <},
 
     [template]::{> variability:[var_attribute] <}
-    [function [forward], ()MyClassRanger{variability}=>$\variability,
-        [result] := MyClassRanger( [this].data.\variability[borrow] , 0);
+    [function [forward], ()MyClassRanger{variability}=>$variability\,
+        [result] := MyClassRanger( [this].data.variability\[borrow] , 0);
     ];
 
     [template]::{> variability:[var_attribute] <}
-    [function [backward], ()MyClassRanger{variability}=>$\variability,
-        [result] := MyClassRanger( [this].data.\variability[borrow] , 9);
+    [function [backward], ()MyClassRanger{variability}=>$variability\,
+        [result] := MyClassRanger( [this].data.variability\[borrow] , 9);
     ];
 ];
 
@@ -77,7 +77,7 @@
 
     [scope
         // while loop    
-        value : \[var] = 0.[as [fast_signed_integer 32]];
+        value : [var]\ = 0.[as [fast_signed_integer 32]];
         [while value < 10,
             std.print(line="value is " +> value);   
             value = value + 1;

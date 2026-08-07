@@ -1,23 +1,23 @@
 
 
 [opaque][mangle]::malloc
-[function malloc, (size:[unsigned_address]<)?\[var][void]];
+[function malloc, (size:[unsigned_address]<)?[var]\[void]];
 
 [opaque][mangle]::free
-[function free, (ptr:?\[var][void]<)[void]];
+[function free, (ptr:?[var]\[void]<)[void]];
 
 [template]::{Type:[symbol]<}
 [constraint]::(Type.[is_type])
 [class UniquePtr,
-    { ptr:?\[var]Type <},
+    { ptr:?[var]\Type <},
 
     [public][inline]
     [template]::{Placement:[symbol]<}
     [constraint]::Placement.[is_placement_type Type]
     [function create, 
-        (placement:Placement<)\[var]UniquePtr{Type},
+        (placement:Placement<)[var]\UniquePtr{Type},
 
-        ptr := malloc(Type.[byte_size]).[cast ?\[var]Type];
+        ptr := malloc(Type.[byte_size]).[cast ?[var]\Type];
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   

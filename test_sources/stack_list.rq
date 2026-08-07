@@ -11,7 +11,7 @@
 
 [function [main], ()[signed_integer],
     // create stack
-    my_stack :\[var]= std.StackList{MyClass}();
+    my_stack :[var]\= std.StackList{MyClass}();
     
     // push back one element
     // emplace will call the function in the future with the given arguments forwarded

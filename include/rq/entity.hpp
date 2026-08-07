@@ -62,7 +62,6 @@ enum class Keyword : rq::EntityId {
   ASCRIBE_LOW,
   ASCRIBE_RECIEVER,
   INSTANTIATE_LOW_ATTRIBUTE,
-  INSTANTIATE_HIGH_ATTRIBUTE,
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,

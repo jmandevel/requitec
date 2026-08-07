@@ -6,7 +6,7 @@
     // can only be one type-keyed parameter of any given type. this is enforced at compile time.
     // notice that each parameter has a binding with colon. 
     // the binding is required when tuple type is inferenced to specify type attributes per element.
-    inferenced := { named:\[var]="I'm name-keyed", [noname]:\[var]="I'm type-keyed" };
+    inferenced := { named:[var]\="I'm name-keyed", [noname]:[var]\="I'm type-keyed" };
 
     // can determine if tuple has type-keyed value at compile time with .[has] reflection
     [static]
@@ -27,7 +27,7 @@
     // layouts are symbols that can be reflected upon, but they are NOT types. Tuple types are types that can be bound to a variable.
     // see object.rq and templates.rq for examples of layouts.
 
-    [static]TupleType := {> x:\[var][single], y:\[var][single], z:\[var][single] <}.[type];
+    [static]TupleType := {> x:[var]\[single], y:[var]\[single], z:[var]\[single] <}.[type];
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.

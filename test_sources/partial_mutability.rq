@@ -10,10 +10,10 @@
     constant := Partialable();
 
     // all properties are var for fully var values:
-    fully_var : \[var] = Partialiable();
+    fully_var : [var]\ = Partialiable();
 
     // only properties marked with [partial_var] are var for partially var values:
-    partially_var : \[partial_var] = Partialable();
+    partially_var : [partial_var]\ = Partialable();
 
     [result] <:= 0;
 ];

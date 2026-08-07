@@ -10,7 +10,7 @@
     [static] Return := [signed_integer];
     ()Return,
 
-    [result] :\[var]= 0; 
+    [result] :[var]\= 0; 
 
     [if var0 == var1,
         [result] = 1;
@@ -22,4 +22,4 @@
 ];
 
 [opaque][mangle]::puts
-[function [noname], (>str:?\[no_var][char]<) [void]];
+[function [noname], (>str:?[no_var]\[char]<) [void]];

@@ -148,7 +148,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSITUATED_ASCRIBE_HIGH:
     is_ok = this->situateUnsituatedAscribeExpression(
         situation, expression, 2, K::ASCRIBE_HIGH,
-        S::HIGH_ATTRIBUTE_INSTANTIATION, situation);
+        S::RVALUE, situation);
     break;
   case K::UNSITUATED_CHAIN: {
     if (!expression.getHasBranch()) {
@@ -254,12 +254,12 @@ bool Situator::situateTree(rq::Situation situation,
                                              S::RVALUE);
     break;
   case K::UPBINDING:
-    is_ok = this->situateBinaryValueBranches(situati on, expression, S::LVALUE,
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::LVALUE,
                                              S::RVALUE);
     break;
   case K::ASCRIBE_HIGH:
     is_ok = this->situateNaryDifferentFirstValueBranches(
-        situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::RVALUE);
     break;
   case K::ASCRIBE_LOW:
     is_ok = this->situateNaryDifferentFirstValueBranches(
@@ -267,7 +267,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ASCRIBE_RECIEVER:
     is_ok = this->situateNaryDifferentFirstValueBranches(
-        situation, expression, 2, situation, S::HIGH_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::RVALUE);
     break;
   case K::INSTANTIATE_LOW_ATTRIBUTE: {
     if (!expression.getHasBranch()) {
@@ -295,9 +295,6 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = false;
     }
   } break;
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
-    break;
   case K::IDENTIFY:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;

@@ -10,7 +10,7 @@
 
 [function doMath, (>int:[signed_integer]<)[signed_integer],
 
-    other_int :\[var]= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
+    other_int :[var]\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 
     other_int = 3; // to reassign to existing variable dont add the binding.
 
