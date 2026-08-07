@@ -56,7 +56,7 @@ void Evaluator::surveyGlobalScope(rq::Module &module, rq::SymbolTable &host,
             RQ_TODO_IMPLEMENTATION();
         case K::FUNCTION:
             RQ_TODO_IMPLEMENTATION();
-        case K::IMPLEMENT_FUNCTION();
+        case K::IMPLEMENT_FUNCTION:
             RQ_TODO_IMPLEMENTATION();
         case K::USE_FUNCTION:
             RQ_TODO_IMPLEMENTATION();
