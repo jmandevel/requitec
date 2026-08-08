@@ -102,7 +102,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::AnchorAttributeType _anchor_attribute_type{};
   rq::OpaqueAttributeType _opaque_attribute_type{};
   rq::GlobalAttributeType _global_attribute_type{};
-  rq::AccessAttributeType _access_attribute_type{};
+  rq::PublicAttributeType _public_attribute_type{};
   rq::PartialMutateAttributeType _partial_mutate_attribute_type{};
   rq::StaticAttributeType _static_attribute_type{};
   rq::CaptureAttributeType _capture_attribute_type{};
@@ -426,17 +426,17 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &acquireNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &acquireAnchorType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &acquireAnchorAttributeType() {
     return this->_anchor_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &acquireOpaqueType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &acquireOpaqueAttributeType() {
     return this->_opaque_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &acquireGlobalType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &acquireGlobalAttributeType() {
     return this->_global_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessAttributeType &acquireAccessType() {
-    return this->_access_attribute_type;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicAttributeType &acquirePublicAttributeType() {
+    return this->_public_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &
   acquirePartialMutateAttributeType() {

@@ -504,10 +504,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_global";
   case K::GLOBAL:
     return "global";
-  case K::NO_ACCESS:
-    return "no_access";
-  case K::EXPORT:
-    return "export";
+  case K::NO_PUBLIC:
+    return "no_public";
   case K::PUBLIC:
     return "public";
   case K::NO_PARTIAL_MUTATE:
@@ -612,8 +610,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "opaque_attribute";
   case K::GLOBAL_ATTRIBUTE:
     return "global_attribute";
-  case K::ACCESS_ATTRIBUTE:
-    return "access_attribute";
+  case K::PUBLIC_ATTRIBUTE:
+    return "public_attribute";
   case K::PARTIAL_MUTATE_ATTRIBUTE:
     return "partial_mutate_attribute";
   case K::STATIC_ATTRIBUTE:
@@ -1384,10 +1382,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::GLOBAL:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::NO_ACCESS:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::EXPORT:
+  case K::NO_PUBLIC:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::PUBLIC:
@@ -1540,7 +1535,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
   case K::GLOBAL_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
-  case K::ACCESS_ATTRIBUTE:
+  case K::PUBLIC_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
   case K::PARTIAL_MUTATE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
@@ -2465,9 +2460,8 @@ enum class LowAttribute : std::uint_fast8_t {
   // global_attribute
   NO_GLOBAL,
   GLOBAL,
-  // access_attribute
-  NO_ACCESS,
-  EXPORT,
+  // public_attribute
+  NO_PUBLIC,
   PUBLIC,
   // partial_mutate_attribute
   NO_PARTIAL_MUTATE,
@@ -2548,10 +2542,8 @@ enum class LowAttribute : std::uint_fast8_t {
     return "no_global";
   case LA::GLOBAL:
     return "global";
-  case LA::NO_ACCESS:
-    return "no_access";
-  case LA::EXPORT:
-    return "export";
+  case LA::NO_PUBLIC:
+    return "no_public";
   case LA::PUBLIC:
     return "public";
   case LA::NO_PARTIAL_MUTATE:
@@ -2651,10 +2643,8 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::NO_GLOBAL;
   case K::GLOBAL:
     return LA::GLOBAL;
-  case K::NO_ACCESS:
-    return LA::NO_ACCESS;
-  case K::EXPORT:
-    return LA::EXPORT;
+  case K::NO_PUBLIC:
+    return LA::NO_PUBLIC;
   case K::PUBLIC:
     return LA::PUBLIC;
   case K::NO_PARTIAL_MUTATE:
@@ -2738,64 +2728,63 @@ enum class LowFuseFlags : std::uint_fast32_t {
   GLOBAL = rq::getBit(3),
   GLOBAL_MASK = GLOBAL,
 
-  EXPORT = rq::getBit(4),
-  PUBLIC = rq::getBit(5),
-  ACCESS_MASK = EXPORT | PUBLIC,
+  PUBLIC = rq::getBit(4),
+  PUBLIC_MASK = PUBLIC,
 
-  PARTIAL_MUTATE = rq::getBit(6),
+  PARTIAL_MUTATE = rq::getBit(5),
   PARTIAL_MUTATE_MASK = PARTIAL_MUTATE,
 
-  STATIC = rq::getBit(7),
+  STATIC = rq::getBit(6),
   STATIC_MASK = STATIC,
 
-  CAPTURE = rq::getBit(8),
+  CAPTURE = rq::getBit(7),
   CAPTURE_MASK = CAPTURE,
 
-  INLINE = rq::getBit(9),
+  INLINE = rq::getBit(8),
   INLINE_MASK = INLINE,
 
-  MANGLE = rq::getBit(10),
+  MANGLE = rq::getBit(9),
   MANGLE_MASK = MANGLE,
 
-  PACK = rq::getBit(11),
+  PACK = rq::getBit(10),
   PACK_MASK = PACK,
 
-  LIKELY = rq::getBit(12),
-  UNLIKELY = rq::getBit(13),
+  LIKELY = rq::getBit(11),
+  UNLIKELY = rq::getBit(12),
   BRANCH_TREND_MASK = LIKELY | UNLIKELY,
 
-  DEPRECIATED = rq::getBit(14),
-  EXPERIMENTAL = rq::getBit(15),
+  DEPRECIATED = rq::getBit(13),
+  EXPERIMENTAL = rq::getBit(14),
   SUPPORT_STATUS_MASK = DEPRECIATED | EXPERIMENTAL,
 
-  STABLE_ADDRESS = rq::getBit(16),
+  STABLE_ADDRESS = rq::getBit(15),
   STABLE_ADDRESS_MASK = STABLE_ADDRESS,
 
-  VARIADIC = rq::getBit(17),
+  VARIADIC = rq::getBit(16),
   VARIADIC_MASK = VARIADIC,
 
-  LOCATION = rq::getBit(18),
+  LOCATION = rq::getBit(17),
   LOCATION_MASK = LOCATION,
 
-  TEMPLATE = rq::getBit(19),
+  TEMPLATE = rq::getBit(18),
   TEMPLATE_MASK = TEMPLATE,
 
-  CONSTRAINT = rq::getBit(20),
+  CONSTRAINT = rq::getBit(19),
   CONSTRAINT_MASK = CONSTRAINT,
 
-  WEIGHT = rq::getBit(21),
+  WEIGHT = rq::getBit(20),
   WEIGHT_MASK = WEIGHT,
 
-  REQUIRE = rq::getBit(22),
+  REQUIRE = rq::getBit(21),
   REQUIRE_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(23),
+  ENSURE = rq::getBit(22),
   ENSURE_MASK = ENSURE,
 
-  RANGER = rq::getBit(24),
+  RANGER = rq::getBit(23),
   RANGER_MASK = RANGER,
 
-  ALL_MASK = ANCHOR | FLANK | OPAQUE | EXPORT | PUBLIC | PARTIAL_MUTATE |
+  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE |
              STATIC | CAPTURE | INLINE | PACK | LIKELY | UNLIKELY |
              DEPRECIATED | EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION |
              TEMPLATE | CONSTRAINT | WEIGHT | REQUIRE | ENSURE | RANGER
@@ -2826,10 +2815,8 @@ RQ_DEFINE_FLAGS(rq::LowFuseFlags);
     return LFF::NONE;
   case LA::GLOBAL:
     return LFF::GLOBAL;
-  case LA::NO_ACCESS:
+  case LA::NO_PUBLIC:
     return LFF::NONE;
-  case LA::EXPORT:
-    return LFF::EXPORT;
   case LA::PUBLIC:
     return LFF::PUBLIC;
   case LA::NO_PARTIAL_MUTATE:
@@ -2943,10 +2930,8 @@ getInfoFlags(rq::LowAttribute attribute) {
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::GLOBAL:
     return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_ACCESS:
+  case LA::NO_PUBLIC:
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::EXPORT:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::PUBLIC:
     return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::NO_PARTIAL_MUTATE:
@@ -3058,7 +3043,7 @@ enum class LowAttributeKind : std::uint_fast8_t {
   FLANK_ATTRIBUTE,          // no_flank vs flank
   OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
   GLOBAL_ATTRIBUTE,         // no_global vs global
-  ACCESS_ATTRIBUTE,         // no_access vs export vs public
+  PUBLIC_ATTRIBUTE,         // no_public vs public
   PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
   STATIC_ATTRIBUTE,         // no_static vs static
   CAPTURE_ATTRIBUTE,        // no_capture vs capture
@@ -3091,8 +3076,8 @@ enum class LowAttributeKind : std::uint_fast8_t {
     return "opaque_attribute";
   case LAK::GLOBAL_ATTRIBUTE:
     return "global_attribute";
-  case LAK::ACCESS_ATTRIBUTE:
-    return "access_attribute";
+  case LAK::PUBLIC_ATTRIBUTE:
+    return "public_attribute";
   case LAK::PARTIAL_MUTATE_ATTRIBUTE:
     return "partial_mutate_attribute";
   case LAK::STATIC_ATTRIBUTE:
@@ -3153,12 +3138,10 @@ enum class LowAttributeKind : std::uint_fast8_t {
     [[fallthrough]];
   case LA::GLOBAL:
     return LAK::GLOBAL_ATTRIBUTE;
-  case LA::NO_ACCESS:
-    [[fallthrough]];
-  case LA::EXPORT:
+  case LA::NO_PUBLIC:
     [[fallthrough]];
   case LA::PUBLIC:
-    return LAK::ACCESS_ATTRIBUTE;
+    return LAK::PUBLIC_ATTRIBUTE;
   case LA::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case LA::PARTIAL_MUTATE:
@@ -3290,6 +3273,15 @@ struct LowFactory final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getFuseFlags() const {
     return this->_flags;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAll(rq::LowFuseFlags flags) const {
+    return rq::getHasAll(this->_flags, flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSome(rq::LowFuseFlags flags) const {
+    return rq::getHasSome(this->_flags, flags);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNone(rq::LowFuseFlags flags) const {
+    return rq::getHasNone(this->_flags, flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;

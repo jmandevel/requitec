@@ -954,9 +954,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::GLOBAL:
     [[fallthrough]];
-  case K::NO_ACCESS:
-    [[fallthrough]];
-  case K::EXPORT:
+  case K::NO_PUBLIC:
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
@@ -1062,7 +1060,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::GLOBAL_ATTRIBUTE:
     [[fallthrough]];
-  case K::ACCESS_ATTRIBUTE:
+  case K::PUBLIC_ATTRIBUTE:
     [[fallthrough]];
   case K::PARTIAL_MUTATE_ATTRIBUTE:
     [[fallthrough]];

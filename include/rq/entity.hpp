@@ -291,9 +291,8 @@ enum class Keyword : rq::EntityId {
   // global_attribute
   NO_GLOBAL,
   GLOBAL,
-  // access_attribute
-  NO_ACCESS,
-  EXPORT,
+  // public_attribute
+  NO_PUBLIC,
   PUBLIC,
   // partial_mutate_attribute
   NO_PARTIAL_MUTATE,
@@ -369,7 +368,7 @@ enum class Keyword : rq::EntityId {
   OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
   FLANK_ATTRIBUTE,          // no_flank vs flank
   GLOBAL_ATTRIBUTE,         // no_global vs global
-  ACCESS_ATTRIBUTE,         // no_access vs export vs public
+  PUBLIC_ATTRIBUTE,         // no_public vs public
   PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
   STATIC_ATTRIBUTE,         // no_static vs static
   CAPTURE_ATTRIBUTE,        // no_capture vs capture
@@ -512,7 +511,7 @@ enum class SymbolKind : rq::EntityId {
   ANCHOR_ATTRIBUTE_TYPE,
   OPAQUE_ATTRIBUTE_TYPE,
   GLOBAL_ATTRIBUTE_TYPE,
-  ACCESS_ATTRIBUTE_TYPE,
+  PUBLIC_ATTRIBUTE_TYPE,
   PARTIAL_MUTATE_ATTRIBUTE_TYPE,
   STATIC_ATTRIBUTE_TYPE,
   CAPTURE_ATTRIBUTE_TYPE,

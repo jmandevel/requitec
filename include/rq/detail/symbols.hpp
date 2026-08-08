@@ -51,8 +51,8 @@ namespace rq {
     return "OpaqueAttributeType";
   case S::GLOBAL_ATTRIBUTE_TYPE:
     return "GlobalAttributeType";
-  case S::ACCESS_ATTRIBUTE_TYPE:
-    return "AccessAttributeType";
+  case S::PUBLIC_ATTRIBUTE_TYPE:
+    return "PublicAttributeType";
   case S::PARTIAL_MUTATE_ATTRIBUTE_TYPE:
     return "PartialMutateAttributeType";
   case S::STATIC_ATTRIBUTE_TYPE:
@@ -412,7 +412,7 @@ namespace rq {
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::GLOBAL_ATTRIBUTE_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
-  case S::ACCESS_ATTRIBUTE_TYPE:
+  case S::PUBLIC_ATTRIBUTE_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::PARTIAL_MUTATE_ATTRIBUTE_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
