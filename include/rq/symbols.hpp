@@ -483,8 +483,8 @@ using OpaqueAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE>;
 using GlobalAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE>;
-using AccessAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::ACCESS_ATTRIBUTE_TYPE>;
+using PublicAttributeType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::PUBLIC_ATTRIBUTE_TYPE>;
 using PartialMutateAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE>;
 using StaticAttributeType =
