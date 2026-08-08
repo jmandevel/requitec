@@ -350,6 +350,7 @@ struct Symbol;
     struct LocalVariable;
       struct LocalDynamicVariable;
       struct LocalStaticVariable;
+      struct Capture;
       struct TemplateArgument;
       struct FunctionArgument;
   struct Parameter;
