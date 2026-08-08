@@ -142,8 +142,7 @@ template <rq::SymbolKind KIND_PARAM>
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_TYPE;
   } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
-                       KIND == S::ENUM_TEMPLATE ||
-                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TEMPLATE || KIND == S::ENUM_POLYMORPH ||
                        KIND == S::ENUM_TYPE) {
     return S::ENUM_TYPE;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
@@ -186,8 +185,7 @@ template <rq::SymbolKind KIND_PARAM>
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_WEIGHT_LEVEL;
   } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
-                       KIND == S::ENUM_TEMPLATE ||
-                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TEMPLATE || KIND == S::ENUM_POLYMORPH ||
                        KIND == S::ENUM_TYPE) {
     return S::ENUM_WEIGHT_LEVEL;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
@@ -230,8 +228,7 @@ template <rq::SymbolKind KIND_PARAM>
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_TEMPLATE;
   } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
-                       KIND == S::ENUM_TEMPLATE ||
-                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TEMPLATE || KIND == S::ENUM_POLYMORPH ||
                        KIND == S::ENUM_TYPE) {
     return S::ENUM_TEMPLATE;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
@@ -273,8 +270,7 @@ template <rq::SymbolKind KIND>
                 KIND == S::CLASS_POLYMORPH || KIND == S::CLASS_TYPE) {
     return S::CLASS_POLYMORPH;
   } else if constexpr (KIND == S::ENUM_WEIGHT_LEVEL ||
-                       KIND == S::ENUM_TEMPLATE ||
-                       KIND == S::ENUM_POLYMORPH ||
+                       KIND == S::ENUM_TEMPLATE || KIND == S::ENUM_POLYMORPH ||
                        KIND == S::ENUM_TYPE) {
     return S::ENUM_POLYMORPH;
   } else if constexpr (KIND == S::INTERFACE_WEIGHT_LEVEL ||
@@ -320,7 +316,7 @@ enum class EvaluationState : std::uint_fast8_t {
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::EvaluationState rhs,
-                               rq::EvaluationState lhs) {
+                                                rq::EvaluationState lhs) {
   return rq::getUnderlying(rhs) <=> rq::getUnderlying(lhs);
 }
 
@@ -1977,12 +1973,13 @@ struct EnumType final : public rq::Instance {
   rq::Expression *_underlying_expression_ptr{nullptr};
   rq::ConstantSymbol *_underlying_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE
-  EnumType(rq::SymbolTable &container, rq::Name name,
-                  rq::SymbolTable &host, rq::Expression &expression,
-                  rq::Expression &name_expression, rq::LowFuseFlags flags,
-                  rq::Module &module, rq::Template *template_ptr,
-                  rq::TemplateArgument *first_argument_ptr);
+  explicit RQ_ALWAYS_INLINE EnumType(rq::SymbolTable &container, rq::Name name,
+                                     rq::SymbolTable &host,
+                                     rq::Expression &expression,
+                                     rq::Expression &name_expression,
+                                     rq::LowFuseFlags flags, rq::Module &module,
+                                     rq::Template *template_ptr,
+                                     rq::TemplateArgument *first_argument_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2266,8 +2263,7 @@ struct DerivedTemplate final : public rq::Template {
 };
 
 using ClassTemplate = rq::DerivedTemplate<rq::SymbolKind::CLASS_TEMPLATE>;
-using EnumTemplate =
-    rq::DerivedTemplate<rq::SymbolKind::ENUM_TEMPLATE>;
+using EnumTemplate = rq::DerivedTemplate<rq::SymbolKind::ENUM_TEMPLATE>;
 using InterfaceTemplate =
     rq::DerivedTemplate<rq::SymbolKind::INTERFACE_TEMPLATE>;
 using AdapterTemplate = rq::DerivedTemplate<rq::SymbolKind::ADAPTER_TEMPLATE>;
@@ -2429,8 +2425,7 @@ struct DerivedPolymorph final : public rq::Polymorph {
 using FunctionPolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::FUNCTION_POLYMORPH>;
 using ClassPolymorph = rq::DerivedPolymorph<rq::SymbolKind::CLASS_POLYMORPH>;
-using EnumPolymorph =
-    rq::DerivedPolymorph<rq::SymbolKind::ENUM_POLYMORPH>;
+using EnumPolymorph = rq::DerivedPolymorph<rq::SymbolKind::ENUM_POLYMORPH>;
 using InterfacePolymorph =
     rq::DerivedPolymorph<rq::SymbolKind::INTERFACE_POLYMORPH>;
 
