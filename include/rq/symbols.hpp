@@ -1076,6 +1076,20 @@ struct LocalStaticVariable final : public rq::LocalVariable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Capture final : public rq::LocalVariable {
+  using Self = rq::Capture;
+
+  rq::Constant *_value_ptr;
+
+  Capture(rq::SymbolTable &container, rq::SymbolTable &host, rq::Module &module, rq::ConstantSymbol &type,
+          rq::Constant &value);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant& getValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant& getValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity* entity_ptr);
+};
+
 struct TemplateArgument final : public rq::LocalVariable {
   using Self = rq::TemplateArgument;
 

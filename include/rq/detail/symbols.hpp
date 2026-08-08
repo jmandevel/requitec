@@ -223,6 +223,8 @@ namespace rq {
     return "LocalDynamicVariable";
   case S::LOCAL_STATIC_VARIABLE:
     return "LocalStaticVariable";
+  case S::CAPTURE:
+    return "Capture";
   case S::TEMPLATE_ARGUMENT:
     return "TemplateArgument";
   case S::FUNCTION_ARGUMENT:
@@ -608,6 +610,8 @@ namespace rq {
   case S::LOCAL_STATIC_VARIABLE:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE |
            SIF::HAS_LOW_ATTRIBUTES;
+  case S::CAPTURE:
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
   case S::FUNCTION_ARGUMENT:
@@ -1967,6 +1971,26 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
                    rq::getUnderlying(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
+}
+
+Capture::Capture(rq::SymbolTable &container, rq::SymbolTable &host,
+                 rq::Module &module, rq::ConstantSymbol &type,
+                 rq::Constant &value)
+    : LocalVariable(rq::SymbolKind::CAPTURE, rq::Name(rq::Keyword::CAPTURE),
+                    container, host, module, rq::LowFuseFlags::STATIC, type), _value_ptr(&value) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant &Capture::getValue() const {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &Capture::getValue() {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] inline bool Capture::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  const rq::EntityId id = entity.getId();
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CAPTURE);
 }
 
 RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
@@ -3545,21 +3569,20 @@ ClassType::ClassType(rq::SymbolTable &container, rq::Name name,
          rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::CLASS_TYPE);
 }
 
-RQ_ALWAYS_INLINE EnumType::EnumType(
-    rq::SymbolTable &container, rq::Name name, rq::SymbolTable &host,
-    rq::Expression &expression, rq::Expression &name_expression,
-    rq::LowFuseFlags flags, rq::Module &module, rq::Template *template_ptr,
-    rq::TemplateArgument *first_argument_ptr)
-    : Instance(rq::SymbolKind::ENUM_TYPE, container, name, host,
-               expression, &name_expression, flags, module, template_ptr,
+RQ_ALWAYS_INLINE
+EnumType::EnumType(rq::SymbolTable &container, rq::Name name,
+                   rq::SymbolTable &host, rq::Expression &expression,
+                   rq::Expression &name_expression, rq::LowFuseFlags flags,
+                   rq::Module &module, rq::Template *template_ptr,
+                   rq::TemplateArgument *first_argument_ptr)
+    : Instance(rq::SymbolKind::ENUM_TYPE, container, name, host, expression,
+               &name_expression, flags, module, template_ptr,
                first_argument_ptr) {}
 
-[[nodiscard]] inline bool
-EnumType::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool EnumType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET +
-                   rq::getUnderlying(rq::SymbolKind::ENUM_TYPE);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::ENUM_TYPE);
 }
 
 RQ_ALWAYS_INLINE

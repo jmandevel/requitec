@@ -615,6 +615,7 @@ enum class SymbolKind : rq::EntityId {
   // LOCAL VARIABLES => local declaration
   LOCAL_DYNAMIC_VARIABLE,
   LOCAL_STATIC_VARIABLE,
+  CAPTURE,
   TEMPLATE_ARGUMENT,
   FUNCTION_ARGUMENT,
 
