@@ -11,6 +11,37 @@ using S = rq::SymbolKind;
 using LFF = rq::LowFuseFlags;
 using LAK = rq::LowAttributeKind;
 
+// evaluation order:
+// 
+// on survey (from host table):
+// evaluate CAPTURE value
+// container table (using any FLANK attribute) 
+// symbol name from nametag
+// evaluate mangled name and add to C table if have MANGLE attribute
+// 
+// on declare template:
+// WEIGHT value
+// TEMPLATE layout
+// 
+// on declare template instance:
+// check CONSTRAINT
+// evaluate header and then layout/signature/conformity
+// mangled name if not have MANGLE attribute
+// 
+// on declare non-template instance
+// evaluate header and then layout/signature/conformity
+// mangled name if not have MANGLE attribute
+// 
+// on implement:
+// evaluate REQUIRE instructions
+// evaluate ENSURE instructions
+// evaluate body
+// 
+// NOTES:
+// * capture is evaluated first so the captured value can be used by all other things
+// * template layout is evaluated after weight so the calculation of weight cannot refer to the layout
+	
+
 void Evaluator::evaluateSourceModule() {
   rq::Module &module = this->getContext().getSourceModule();
   this->surveyAllSymbols(module);
