@@ -1973,7 +1973,7 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
 }
 
-Capture::Capture(rq::SymbolTable &container, rq::SymbolTable &host,
+RQ_ALWAYS_INLINE Capture::Capture(rq::SymbolTable &container, rq::SymbolTable &host,
                  rq::Module &module, rq::ConstantSymbol &type,
                  rq::Constant &value)
     : LocalVariable(rq::SymbolKind::CAPTURE, rq::Name(rq::Keyword::CAPTURE),
