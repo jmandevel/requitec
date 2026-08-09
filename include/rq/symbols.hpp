@@ -1078,13 +1078,15 @@ struct Capture final : public rq::LocalVariable {
 
   rq::Constant *_value_ptr;
 
-  Capture(rq::SymbolTable &container, rq::SymbolTable &host, rq::Module &module, rq::ConstantSymbol &type,
-          rq::Constant &value);
+  explicit RQ_ALWAYS_INLINE Capture(rq::SymbolTable &container,
+                                     rq::SymbolTable &host, rq::Module &module,
+                                     rq::ConstantSymbol &type,
+                                     rq::Constant &value);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant& getValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant& getValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant &getValue() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &getValue();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity* entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct TemplateArgument final : public rq::LocalVariable {
@@ -2269,6 +2271,8 @@ using InterfaceTemplate =
 using AdapterTemplate = rq::DerivedTemplate<rq::SymbolKind::ADAPTER_TEMPLATE>;
 using GlobalDynamicVariableTemplate =
     rq::DerivedTemplate<rq::SymbolKind::GLOBAL_DYNAMIC_VARIABLE_TEMPLATE>;
+using GlobalStaticVariableTemplate =
+    rq::DerivedTemplate<rq::SymbolKind::GLOBAL_STATIC_VARIABLE_TEMPLATE>;
 using FunctionTemplate = rq::DerivedTemplate<rq::SymbolKind::FUNCTION_TEMPLATE>;
 
 struct WeightLevel : rq::Symbol {
