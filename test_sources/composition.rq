@@ -52,8 +52,14 @@
     [use_function greet, Rat.squeak, ()[void]=>];
 ];
 
-// everything in adapter polymorph B now added to A
-[use_adapter A, B];
+[override A, B.[adapter_overload ISpeak..Rat]];
+[override A, B.[adpater_overload IGreet..Rat]];
+
+// could do with compile time loop instead...
+// [static]
+// [for B.[adapter_overload_range], [static] overload:=[value],
+//    [override A, overload];
+//];
 
 [function [main], ()[signed_integer],
     dog := Dog();
