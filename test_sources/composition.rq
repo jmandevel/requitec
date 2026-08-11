@@ -16,19 +16,19 @@
     ];
 ];
 
-[adapter ASpeak, ISpeak..Dog,
+[adapter A, ISpeak..Dog,
     [function speak, ()[void]=>,
         std.print(line="Woof!");
     ];
 ];
 
-[adapter ASpeak, ISpeak..Cat,
+[adapter A, ISpeak..Cat,
     [function speak, ()[void]=>,
         std.print(line="Meow!");
     ];
 ];
 
-[adapter ASpeak, ISpeak..Rat,
+[adapter A, ISpeak..Rat,
     [use_function speak, Rat.squeak, ()[void]=>$];
 ];
 
@@ -38,33 +38,36 @@
     ];
 ];
 
-[adapter AGreet, IGreet..Dog,
+[adapter A, IGreet..Dog,
     [function greet, ()[void]=>,
         std.print(line="*wags tail*");
     ];
 ];
 
-[adapter ASpeak, ISpeak..Rat,
+[adapter B, ISpeak..Rat,
     [use_function speak, rat.squeak, ()[void]=>];
 ];
 
-[adapter AGreet, IGreet..Rat,
+[adapter B, IGreet..Rat,
     [use_function greet, Rat.squeak, ()[void]=>];
 ];
+
+// everything in adapter polymorph B now added to A
+[use_adapter A, B];
 
 [function [main], ()[signed_integer],
     dog := Dog();
     cat := Cat();
     rat := Rat();
 
-    dog.[adapt ASpeak].speak();
-    dog.[adapt AGreet].greet();
-    cat.[adapt ASpeak].speak();
-    cat.[adapt AGreet].greet();
+    dog.[adapt A, ISpeak].speak();
+    dog.[adapt A, IGreet].greet();
+    cat.[adapt A, ISpeak].speak();
+    cat.[adapt A, IGreet].greet();
 
-    speakAndGreet(animal=dog.[compose ASpeak, AGreet]);
-    speakAndGreet(animal=cat.[compose ASpeak, AGreet]);
-    speakAndGreet(animal=rat.[compose ASpeak, AGreet]);
+    speakAndGreet(animal=dog.[compose A]);
+    speakAndGreet(animal=cat.[compose A]);
+    speakAndGreet(animal=rat.[compose A]);
 
     [result] <:= 0;
 ];
