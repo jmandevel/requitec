@@ -511,7 +511,7 @@ using ConstraintAttributeType =
 using WeightAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
 using AutoAttributeType =
-  rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
+    rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
 using RequireAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
 using EnsureAttributeType =

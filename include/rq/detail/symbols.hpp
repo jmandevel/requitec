@@ -81,6 +81,8 @@ namespace rq {
     return "ConstraintAttributeType";
   case S::WEIGHT_ATTRIBUTE_TYPE:
     return "WeightAttributeType";
+  case S::AUTO_ATTRIBUTE_TYPE:
+    return "AutoAttributeType";
   case S::REQUIRE_ATTRIBUTE_TYPE:
     return "RequireAttributeType";
   case S::ENSURE_ATTRIBUTE_TYPE:
@@ -444,6 +446,8 @@ namespace rq {
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
   case S::WEIGHT_ATTRIBUTE_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
+  case S::AUTO_ATTRIBUTE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::LOW_ATTRIBUTE_TYPE | SIF::IS_TYPE;
 
   // HIGH ATTRIBUTES
   case S::VAR_ATTRIBUTE_TYPE:
@@ -611,7 +615,8 @@ namespace rq {
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE |
            SIF::HAS_LOW_ATTRIBUTES;
   case S::CAPTURE:
-    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE | SIF::HAS_LOW_ATTRIBUTES;
+    return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE |
+           SIF::HAS_LOW_ATTRIBUTES;
   case S::TEMPLATE_ARGUMENT:
     return SIF::LOCAL_DECLARATION | SIF::LOCAL_VARIABLE;
   case S::FUNCTION_ARGUMENT:
