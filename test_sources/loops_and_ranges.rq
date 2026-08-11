@@ -1,6 +1,6 @@
 [import "std"];
 
-[template]::{> element_variability:[var_attribute] <}
+[template]::{> [auto] element_variability:[var_attribute] <}
 [ranger]
 [class MyClassRanger,
     { data:$element_variability\#[fast_signed_integer 32] ,index:[unsigned_index]=0 <},
@@ -17,7 +17,7 @@
         [result] := [this].index < [this].data.[element_count];
     ];
 
-    [template]::{> return_variability:[var_attribute] <}
+    [template]::{> [auto] return_variability:[var_attribute] <}
     [constraint]::return_variability >= element_variability 
     [function [element], ()$return_variability\[fast_signed_integer 32]=>$return_variability\,
         [result] := [this].data.return_variability\[borrow].[at [this].index].return_variability\[borrow];
@@ -29,12 +29,12 @@
         [public] data:10#[fast_signed_integer 32]=[array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     <},
 
-    [template]::{> variability:[var_attribute] <}
+    [template]::{> [auto] variability:[var_attribute] <}
     [function [forward], ()MyClassRanger{variability}=>$variability\,
         [result] := MyClassRanger( [this].data.variability\[borrow] , 0);
     ];
 
-    [template]::{> variability:[var_attribute] <}
+    [template]::{> [auto] variability:[var_attribute] <}
     [function [backward], ()MyClassRanger{variability}=>$variability\,
         [result] := MyClassRanger( [this].data.variability\[borrow] , 9);
     ];
@@ -45,12 +45,12 @@
         [public] data:10#[fast_signed_integer 32]=[array 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     <},
 
-    [template]::{> variability:[var_attribute] <}
+    [template]::{> [auto] variability:[var_attribute] <}
     [function [forward], ()MyClassRanger{variability}=>$variability\,
         [result] := MyClassRanger( [this].data.variability\[borrow] , 0);
     ];
 
-    [template]::{> variability:[var_attribute] <}
+    [template]::{> [auto] variability:[var_attribute] <}
     [function [backward], ()MyClassRanger{variability}=>$variability\,
         [result] := MyClassRanger( [this].data.variability\[borrow] , 9);
     ];

@@ -1,6 +1,6 @@
 [import "std"];
 
-[template]::{> List:[symbol] <}
+[template]::{> [auto] List:[symbol] <}
 [function printList, (> list:List <)[void],
     std.print(line="begin!");
     [spin list,

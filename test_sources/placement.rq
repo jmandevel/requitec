@@ -6,7 +6,7 @@
 [opaque][mangle]::free
 [function free, (ptr:?[var]\[void]<)[void]];
 
-[template]::{Type:[symbol]<}
+[template]::{ Type:[symbol]<}
 [constraint]::(Type.[is_type])
 [class UniquePtr,
     { ptr:?[var]\Type <},

@@ -1,0 +1,21 @@
+// use auto attribute on template parameters to mark as auto deducing from arguments and/or return type
+
+[template]::{> [auto] Type:[symbol] <}
+[constraint]::Type.[is_type]
+[function add, (> a:Type, b:Type <)Type,
+    [result] := a + b;
+];
+
+[function, [main], ()[signed_integer],
+    var0 :[signed_integer] = add(1, 2); // Type is [signed_integer]
+
+    var1 := add(1.[as [double]], 2.[as [double]]); // Type is [double]
+
+    var2 := add(1, 2); // Type is [signed_integer]
+
+    var3 := add(1.0, 2.0); // Type is [single]
+
+    add(2.[as [quadruple], 3.[as [quadruple]]]).[ignore]; // Type is [quadruple]
+
+    [result] := add(1.0, 2.0).[cast]; // Type is [single]
+];
