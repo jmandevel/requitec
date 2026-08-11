@@ -867,14 +867,13 @@ enum class KeywordInfoFlags : std::uint32_t {
   BINDING = rq::getBit(20),
   NAME = rq::getBit(21),
   NAMESPACE = rq::getBit(22),
-  FUNCTION_NAME = rq::getBit(23),
-  ASCRIPTION = rq::getBit(24),
-  LOW_ATTRIBUTE = rq::getBit(25),
-  HIGH_ATTRIBUTE = rq::getBit(26),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(27),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(28),
+  ASCRIPTION = rq::getBit(23),
+  LOW_ATTRIBUTE = rq::getBit(24),
+  HIGH_ATTRIBUTE = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
-                   PARAMETER | BINDING | NAME | NAMESPACE | FUNCTION_NAME |
+                   PARAMETER | BINDING | NAME | NAMESPACE |
                    ASCRIPTION | HIGH_ATTRIBUTE | LOW_ATTRIBUTE |
                    ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
@@ -906,7 +905,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::REFLECTION | KIF::ARGUMENT | KIF::PARAMETER |
-           KIF::TUPLE_ELEMENT | KIF::NAME | KIF::NAMESPACE | KIF::FUNCTION_NAME;
+           KIF::TUPLE_ELEMENT | KIF::NAME | KIF::NAMESPACE;
 
   // ERRORS
   case K::ERROR:
@@ -915,8 +914,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::PARAMETER |
-           KIF::TUPLE_ELEMENT | KIF::LVALUE | KIF::NAME | KIF::NAMESPACE |
-           KIF::FUNCTION_NAME | KIF::ARITHMETIC_SEQUENCE_STEP |
+           KIF::TUPLE_ELEMENT | KIF::LVALUE | KIF::NAME | KIF::NAMESPACE | KIF::ARITHMETIC_SEQUENCE_STEP |
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
@@ -981,7 +979,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::NAMESPACE | KIF::FUNCTION_NAME;
+           KIF::TUPLE_ELEMENT | KIF::NAMESPACE;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1132,7 +1130,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::LOCKED_PARAMETERS_BEGIN:
     return KIF::PARAMETER;
   case K::NONAME:
-    return KIF::NAME | KIF::LVALUE | KIF::FUNCTION_NAME;
+    return KIF::NAME | KIF::LVALUE;
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -1605,8 +1603,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::REFLECTION | KIF::ARGUMENT | KIF::PARAMETER |
            KIF::TUPLE_ELEMENT | KIF::ARITHMETIC_SEQUENCE_STEP |
-           KIF::ARITHMETIC_SEQUENCE_CONDITION | KIF::NAMESPACE |
-           KIF::FUNCTION_NAME;
+           KIF::ARITHMETIC_SEQUENCE_CONDITION | KIF::NAMESPACE;
   case K::MEMBER_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::PARAMETER |
            KIF::TUPLE_ELEMENT;
@@ -1690,19 +1687,19 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::AS_EXTENSION_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INCREMENT:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::INCREMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DECREMENT:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::DECREMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::WHILST:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::WHILST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ELEMENT:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::ELEMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AT:
@@ -1710,21 +1707,21 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::AT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DESTROY:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::DESTROY_OF:
     return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::MAIN:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
     return KIF::RVALUE | KIF::ARGUMENT;
   case K::MAIN_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::FORWARD:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
     return KIF::RVALUE | KIF::ARGUMENT;
   case K::FORWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BACKWARD:
-    return KIF::FUNCTION_NAME | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::BACKWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
@@ -1891,7 +1888,6 @@ enum class Situation : std::uint_fast8_t {
   BINDING,
   NAME,
   NAMESPACE,
-  FUNCTION_NAME,
   ASCRIPTION,
   LOW_ATTRIBUTE_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE,
@@ -1945,8 +1941,6 @@ getDescription(rq::Situation situation) {
     return "name expression";
   case S::NAMESPACE:
     return "namespace expression";
-  case S::FUNCTION_NAME:
-    return "function name expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::LOW_ATTRIBUTE_INSTANTIATION:
@@ -2206,11 +2200,6 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::NAMESPACE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFunctionName(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::FUNCTION_NAME);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::ASCRIPTION);
@@ -2409,8 +2398,6 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeName(keyword);
   case S::NAMESPACE:
     return rq::getCanBeNamespace(keyword);
-  case S::FUNCTION_NAME:
-    return rq::getCanBeFunctionName(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::LOW_ATTRIBUTE_INSTANTIATION:
@@ -3914,9 +3901,6 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNamespace() const {
     return rq::getCanBeNamespace(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFunctionName() const {
-    return rq::getCanBeFunctionName(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

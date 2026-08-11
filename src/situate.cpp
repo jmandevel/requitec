@@ -598,8 +598,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IMPLEMENT_FUNCTION:
     [[fallthrough]];
   case K::USE_FUNCTION:
-    is_ok = this->situateNameStatementTagStatementBranches(
-        situation, expression, S::FUNCTION_NAME);
+    is_ok =
+        this->situateNameStatementTagStatementBranches(situation, expression);
     break;
 
   // CONTROL FLOW
@@ -624,23 +624,23 @@ bool Situator::situateTree(rq::Situation situation,
 
   // DECLARED TYPES
   case K::CLASS:
-    is_ok = this->situateNameStatementTagStatementBranches(situation,
-                                                           expression, S::NAME);
+    is_ok =
+        this->situateNameStatementTagStatementBranches(situation, expression);
     break;
   case K::ENUM:
-    is_ok = this->situateNameStatementTagStatementBranches(situation,
-                                                           expression, S::NAME);
+    is_ok =
+        this->situateNameStatementTagStatementBranches(situation, expression);
     break;
   case K::INTERFACE:
     is_ok = this->situateStatementTagStatementBranches(situation, expression);
     break;
   case K::ADAPTER:
-    is_ok = this->situateNameStatementTagStatementBranches(situation,
-                                                           expression, S::NAME);
+    is_ok =
+        this->situateNameStatementTagStatementBranches(situation, expression);
     break;
   case K::USE_ADAPTER:
-    is_ok = this->situateNameStatementTagStatementBranches(situation,
-                                                           expression, S::NAME);
+    is_ok =
+        this->situateNameStatementTagStatementBranches(situation, expression);
     break;
 
   // VALUES
@@ -1832,14 +1832,14 @@ bool Situator::situateStatementBranches(rq::Expression &expression) {
 }
 
 bool Situator::situateNameStatementTagStatementBranches(
-    rq::Situation situation, rq::Expression &expression,
-    rq::Situation name_situation) {
+    rq::Situation situation, rq::Expression &expression) {
+  using S = rq::Situation;
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression &branch0 = expression.getBranch();
-  if (!this->situateTagBranch(name_situation, branch0)) {
+  if (!this->situateTagBranch(S::NAME, branch0)) {
     return false;
   }
   if (!branch0.getHasNext()) {
