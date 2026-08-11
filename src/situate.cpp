@@ -147,8 +147,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::UNSITUATED_ASCRIBE_HIGH:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_HIGH,
-        S::RVALUE, situation);
+        situation, expression, 2, K::ASCRIBE_HIGH, S::RVALUE, situation);
     break;
   case K::UNSITUATED_CHAIN: {
     if (!expression.getHasBranch()) {
@@ -478,10 +477,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
     break;
   case K::ADAPT:
-    is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
+    is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
+                                             S::RVALUE);
     break;
   case K::ADAPT_OF:
-    is_ok = this->situateNaryValueBranches(situation, expression, 2, S::RVALUE);
+    is_ok = this->situateTernaryValueBranches(situation, expression, S::RVALUE,
+                                              S::RVALUE, S::RVALUE);
     break;
   case K::DESTROY:
     is_ok = this->situateNullaryExpression(situation, expression);
