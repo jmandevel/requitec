@@ -117,6 +117,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::TemplateAttributeType _template_attribute_type{};
   rq::ConstraintAttributeType _constraint_attribute_type{};
   rq::WeightAttributeType _weight_attribute_type{};
+  rq::AutoAttributeType _auto_attribute_type{};
   rq::RequireAttributeType _require_attribute_type{};
   rq::EnsureAttributeType _ensure_attribute_type{};
   rq::VarAttributeType _var_attribute_type{};
@@ -493,6 +494,9 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightAttributeType &
   acquireWeightAttributeType() {
     return this->_weight_attribute_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AutoAttributeType & acquireAutoAttributeType() {
+    return this->_auto_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &
   acquireRequireAttributeType() {

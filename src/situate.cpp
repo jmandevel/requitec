@@ -1023,6 +1023,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::WEIGHT:
     [[fallthrough]];
+  case K::NO_AUTO:
+    [[fallthrough]];
+  case K::AUTO:
+    [[fallthrough]];
   case K::NO_REQUIRE:
     [[fallthrough]];
   case K::REQUIRE:
@@ -1094,6 +1098,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::CONSTRAINT_ATTRIBUTE:
     [[fallthrough]];
   case K::WEIGHT_ATTRIBUTE:
+    [[fallthrough]];
+  case K::AUTO_ATTRIBUTE:
     [[fallthrough]];
   case K::REQUIRE_ATTRIBUTE:
     [[fallthrough]];

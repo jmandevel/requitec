@@ -510,6 +510,8 @@ using ConstraintAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE>;
 using WeightAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
+using AutoAttributeType =
+  rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
 using RequireAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
 using EnsureAttributeType =
@@ -1079,9 +1081,9 @@ struct Capture final : public rq::LocalVariable {
   rq::Constant *_value_ptr;
 
   explicit RQ_ALWAYS_INLINE Capture(rq::SymbolTable &container,
-                                     rq::SymbolTable &host, rq::Module &module,
-                                     rq::ConstantSymbol &type,
-                                     rq::Constant &value);
+                                    rq::SymbolTable &host, rq::Module &module,
+                                    rq::ConstantSymbol &type,
+                                    rq::Constant &value);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant &getValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &getValue();
@@ -1731,12 +1733,11 @@ struct SymbolTable : public rq::Symbol {
   using Self = rq::SymbolTable;
 
   llvm::DenseMap<rq::Name, rq::BumpPtrList<rq::Symbol>> _member_map{};
-  rq::SymbolTable *_container_ptr;
-  rq::Function *_function_container_ptr;
-  rq::GlobalDeclaration *_object_container_ptr;
+  rq::SymbolTable *_container_ptr{nullptr};
+  rq::Function *_function_container_ptr{nullptr};
+  rq::GlobalDeclaration *_object_container_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind,
-                                        rq::SymbolTable *container_ptr);
+  explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
@@ -1867,12 +1868,13 @@ using ScopeStatement = rq::DerivedLocalScope<rq::SymbolKind::SCOPE_STATEMENT>;
 struct NamedTable : public rq::SymbolTable {
   using Self = rq::NamedTable;
 
-  rq::Name _name;
+  rq::Name _name{};
   llvm::StringRef _mangled_name{};
 
   explicit RQ_ALWAYS_INLINE
-  NamedTable(rq::SymbolKind kind, rq::SymbolTable &container, rq::Name name);
+  NamedTable(rq::SymbolKind kind, rq::Name name);
 
+  RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
   RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
@@ -1892,24 +1894,21 @@ struct Namespace final : public rq::NamedTable {
 struct GlobalDeclaration : public rq::NamedTable {
   using Self = rq::GlobalDeclaration;
 
+  rq::Module *_module_ptr;
   rq::SymbolTable *_host_ptr;
   rq::Expression *_expression_ptr;
   rq::Expression *_name_expression_ptr;
   rq::LowFuseFlags _flags;
-  rq::Module *_module_ptr;
   rq::EvaluationState _state{rq::EvaluationState::NONE};
 
   explicit RQ_ALWAYS_INLINE
-  GlobalDeclaration(rq::SymbolKind kind, rq::SymbolTable &container,
-                    rq::Name name, rq::SymbolTable &host,
+  GlobalDeclaration(rq::SymbolKind kind, rq::Module &module, rq::SymbolTable& host,
                     rq::Expression &expression,
-                    rq::Expression *name_expression_ptr, rq::LowFuseFlags flags,
-                    rq::Module &module);
+                    rq::Expression *name_expression_ptr,
+                    rq::LowFuseFlags flags);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationState getState() const;
   RQ_ALWAYS_INLINE void setState(rq::EvaluationState state);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getContainer() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainer();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHost() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHost();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;

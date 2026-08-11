@@ -283,7 +283,7 @@ enum class Keyword : rq::EntityId {
   // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
-  //
+  // opaque_attribute
   NO_OPAQUE,
   OPAQUE,
   // flank_attribute
@@ -339,6 +339,9 @@ enum class Keyword : rq::EntityId {
   // weight_attribute
   NO_WEIGHT,
   WEIGHT,
+  // auto_attribute
+  NO_AUTO,
+  AUTO,
   // ranger_attribute
   NO_RANGER,
   RANGER,
@@ -384,6 +387,7 @@ enum class Keyword : rq::EntityId {
   TEMPLATE_ATTRIBUTE,       // no_template vs template
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
+  AUTO_ATTRIBUTE,              // no_auto vs auto
   RANGER_ATTRIBUTE,         // no_ranger vs ranger
 
   // HIGH ATTRIBUTE TYPES
@@ -527,6 +531,7 @@ enum class SymbolKind : rq::EntityId {
   TEMPLATE_ATTRIBUTE_TYPE,
   CONSTRAINT_ATTRIBUTE_TYPE,
   WEIGHT_ATTRIBUTE_TYPE,
+  AUTO_ATTRIBUTE_TYPE,
 
   // HIGH ATTRIBUTES
   VAR_ATTRIBUTE_TYPE,
