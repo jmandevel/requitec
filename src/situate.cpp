@@ -638,6 +638,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNameStatementTagStatementBranches(situation,
                                                            expression, S::NAME);
     break;
+  case K::USE_ADAPTER:
+      is_ok = this->situateNameStatementTagStatementBranches(situation, expression, S::NAME);
+      break;
 
   // VALUES
   case K::ARRAY:

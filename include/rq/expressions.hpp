@@ -310,6 +310,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "interface";
   case K::ADAPTER:
     return "adapter";
+  case K::USE_ADAPTER:
+    return "use_adapter";
 
   // VALUES
   case K::ARRAY:
@@ -1174,6 +1176,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::INTERFACE:
     return KIF::STATEMENT;
   case K::ADAPTER:
+    return KIF::STATEMENT;
+  case K::USE_ADAPTER:
     return KIF::STATEMENT;
 
   // VALUES

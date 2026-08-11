@@ -176,6 +176,7 @@ enum class Keyword : rq::EntityId {
   ENUM,
   INTERFACE,
   ADAPTER,
+  USE_ADAPTER,
 
   // VALUES
   ARRAY,
