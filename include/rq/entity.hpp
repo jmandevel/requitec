@@ -176,8 +176,6 @@ enum class Keyword : rq::EntityId {
   ENUM,
   INTERFACE,
   ADAPTER,
-  USE_ADAPTER,
-  OVERLOAD_ADAPTER,
 
   // VALUES
   ARRAY,
@@ -272,6 +270,12 @@ enum class Keyword : rq::EntityId {
   NAMESPACE,
   C,
   TOP,
+  OVERRIDE,
+  OVERLOAD,
+  OVERLOAD_OF,
+  OVERLOAD_RANGE,
+  OVERLOAD_RANGE_OF,
+  USE,
 
   // HINTS
   DEBUG_BREAK,

@@ -1978,11 +1978,12 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
                    rq::getUnderlying(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
 }
 
-RQ_ALWAYS_INLINE Capture::Capture(rq::SymbolTable &container, rq::SymbolTable &host,
-                 rq::Module &module, rq::ConstantSymbol &type,
-                 rq::Constant &value)
+RQ_ALWAYS_INLINE Capture::Capture(rq::SymbolTable &container,
+                                  rq::SymbolTable &host, rq::Module &module,
+                                  rq::ConstantSymbol &type, rq::Constant &value)
     : LocalVariable(rq::SymbolKind::CAPTURE, rq::Name(rq::Keyword::CAPTURE),
-                    container, host, module, rq::LowFuseFlags::STATIC, type), _value_ptr(&value) {}
+                    container, host, module, rq::LowFuseFlags::STATIC, type),
+      _value_ptr(&value) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant &Capture::getValue() const {
   return rq::dereferencePtr(this->_value_ptr);

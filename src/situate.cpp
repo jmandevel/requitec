@@ -638,10 +638,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateNameStatementTagStatementBranches(situation, expression);
     break;
-  case K::OVERLOAD_ADAPTER:
-    is_ok =
-        this->situateBinaryValueBranches(situation, expression, S::RVALUE);
-    break;
 
   // VALUES
   case K::ARRAY:

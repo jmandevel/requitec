@@ -1739,6 +1739,7 @@ struct SymbolTable : public rq::Symbol {
 
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind);
 
+  RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Function *
@@ -1871,8 +1872,7 @@ struct NamedTable : public rq::SymbolTable {
   rq::Name _name{};
   llvm::StringRef _mangled_name{};
 
-  explicit RQ_ALWAYS_INLINE
-  NamedTable(rq::SymbolKind kind, rq::Name name);
+  explicit RQ_ALWAYS_INLINE NamedTable(rq::SymbolKind kind, rq::Name name);
 
   RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
@@ -1902,8 +1902,8 @@ struct GlobalDeclaration : public rq::NamedTable {
   rq::EvaluationState _state{rq::EvaluationState::NONE};
 
   explicit RQ_ALWAYS_INLINE
-  GlobalDeclaration(rq::SymbolKind kind, rq::Module &module, rq::SymbolTable& host,
-                    rq::Expression &expression,
+  GlobalDeclaration(rq::SymbolKind kind, rq::Module &module,
+                    rq::SymbolTable &host, rq::Expression &expression,
                     rq::Expression *name_expression_ptr,
                     rq::LowFuseFlags flags);
 
