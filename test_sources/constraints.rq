@@ -1,8 +1,7 @@
 
-[global][static]
-integer_type  : [symbol]  = [unsigned_integer 32];
+[static] u32 := [unsigned_integer 32];
  
-integer_value  : integer_type = 0;
+integer_value  : u32 = 0;
 
 [template]::{> Type:[symbol] <}
 [constraint]::(Type.[is_integer_type])
