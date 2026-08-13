@@ -20,7 +20,7 @@
 
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
     [template]::{| [auto] var:[var_attribute] }
-    [function getNumRef, ()$var\[signed_integer]=>var\,
+    [function getNumRef, ()$var\[signed_integer]=>$var\,
         [result] <:var\= [this].num.[borrow];
     ];
 
