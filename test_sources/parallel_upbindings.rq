@@ -5,7 +5,7 @@
         [result] <:= 5;
     ][else 
         [result] <:= 6;
-    ]
+    ];
 ];
 
 [function doMath, (>int:[signed_integer]<)[signed_integer],
