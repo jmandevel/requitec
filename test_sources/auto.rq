@@ -1,4 +1,4 @@
-// use auto attribute on template parameters to mark as auto deducing from arguments and/or return type
+// use auto attribute on template parameters to mark as auto deducing from arguments, reciever, or lvalue
 
 [template]::{> [auto] Type:[symbol] <}
 [constraint]::Type.[is_type]
