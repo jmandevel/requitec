@@ -7,6 +7,34 @@
     [result] <:= positional + positional_and_named + named + locked;
 ];
 
+[function myOtherFunction, ( 
+        positional:[single]=0.0,
+        >positional_and_named:[single]=0.0<,
+        named:[single]=0.0,
+        |locked:[single]=0.0
+    )[single],
+    [result] <:= 0;
+];
+
+[function myThirdFunction, ( 
+        positional:[single]=0.0,
+        >positional_and_named:[single]=0.0<,
+        named:[single]=0.0 * 0.0,
+        |locked:[single]=0.0
+    )[single],
+    [result] <:= 0;
+];
+
+[function myFourthFunction, ( 
+        first_arg:[single]=0.0,
+        >positional_and_named:[single]=0.0<,
+        named:[single]=0.0,
+        |locked:[single]=0.0
+    )[single],
+    [result] <:= 0;
+];
+
+
 [function [main], ()[signed_integer],
     // calling directly from myFunction
     // default values are used
@@ -22,55 +50,31 @@
     g := myFunction(1.0, positional_and_named=2.0, named=3.0);
 
     // call from a pointer to myFunction
-    ptr := myFunction.[procedure_address];
-    // default values are forgotten
-    // locked parameters are unlocked
-    // positional and name passing rules still respected
+    ptr :\[var]= myFunction.[procedure_address];
+    // you can call from ptr just like myFunction
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
+    i := ptr();
+    j := ptr(1.0);
+    k := ptr(1.0, 2.0);
+    l := ptr(1.0, positional_and_named);
+    m := ptr(1.0, named=2.0);
+    n := ptr(1.0, named=2.0, positional_and_named=3.0);
+    o := ptr(1.0, 2.0, named=3.0);
+    p := ptr(1.0, positional_and_named=2.0, named=3.0);
 
-    // procedure pointers can be written explicitly
-    // signatures are symbols, but they are not types!
-    // need to convert to a procedure_type with .[type] reflection.
-    // note that there is no need to specify names for parameters that are only positional and never named
-    // note that parameters that can be named must have name specified
-    // the actual order of the parameters does matter!
+    // can assign different function to variable if its [var] and has EXACTLY the same signature.
+    // the default values need to have identical expressions when situated.
+    ptr = myOtherFunction;
+    ptr();
 
-    [static] Signature := ([single],> positional_and_named:[single]<, named:[single],| locked:[single])[void];
-    [static] ProcedureType := Signature.[type];
+    // type is different even if default value evaluates to the same result.
+    // ptr = myThirdFunction; 
+    // this would result in compile error because named parameter's default value is wrong.
+    // its wrong even though it still evaluates to 0.
 
-    // .[procedure_address] returns a function pointer. Note need to make the ProcedureType a pointer with ?
-    other_ptr :?ProcedureType= myFunction.[procedure_address];
-
-    // you can use procedure_cast reflection to cast to different ptr type
-    // arguments must be in the same order
-    [static] RemixType :=
-        (
-            (
-               > 
-               a:[single],
-               b:[single],
-               c:[single],
-               d:[single]
-            )[void]
-        ).[type];
-    
-    remix_ptr :?RemixType= myFunction.[procedure_address].[procedure_cast];
-
-    // you can make positional passing order different than the underlying order by using [location] attribute
-    // note that any arguments with [variadic] attribute are always in the last location even if no location is specified
-    // for the following, a is positional_and_named, b is positional, c is locked, and d is named
-    [static] ReorderType := 
-        (
-            (
-                [location]::1 a:[single],
-                [location]::0 b:[single],
-                [location]::3 c:[single],
-                [location]::2 d:[single]
-                <
-            )[void]
-        ).[type];
-    
-    reordered_ptr :?ReorderType= myFunction.[procedure_address].[procedure_cast];
+    // however, its ok if unamed arguments are named differently
+    ptr = myFourthFunction;
+    ptr();
 
     [result] <:= 0;  
 ];
