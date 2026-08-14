@@ -29,7 +29,7 @@
 ];
 
 [adapter A, ISpeak..Rat,
-    [override speak, Rat.squeak.[plain_variant].[overload ()[void]=>$]];
+    [override speak, Rat.squeak.[overload ()[void]=>]];
 ];
 
 [interface IGreet,
@@ -45,15 +45,15 @@
 ];
 
 [adapter B, ISpeak..Rat,
-    [override speak, rat.squeak.[plain_variant].[overload ()[void]=>]];
+    [override speak, rat.squeak.[overload ()[void]=>]];
 ];
 
 [adapter B, IGreet..Rat,
-    [override greet, Rat.squeak.[plain_variant].[overload ()[void]=>]];
+    [override greet, Rat.squeak.[overload ()[void]=>]];
 ];
 
-[override A, B.[plain_variant].[overload ISpeak..Rat]];
-[override A, B.[plain_variant].[overload IGreet..Rat]];
+[override A, B.[overload ISpeak..Rat]];
+[override A, B.[overload IGreet..Rat]];
 
 // could do with compile time loop instead...
 // [static]
