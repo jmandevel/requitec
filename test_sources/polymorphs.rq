@@ -1,0 +1,73 @@
+// a polymorph is a symbol that contains multiple overloads/variants
+// types of polymorphs include classes, interfaces, adapters, functions, global dynamic variables, and global static variables
+// this example source shows function polymorphs and how they work. other kinds are similar but a bit different.
+// for example, classes have layouts instead of signatures. adapters have conformities. 
+// interfaces and global variables have no tag. they only have at most one overload in their plain variant.
+
+// there are two kinds of variants: plain variants and template variants
+
+// template variants refeer to declarations with template attributes
+
+[template]::{> NUM:[signed_integer] <}
+[function getNum, ()[signed_integer],
+    [result] <:= NUM;
+];
+
+// template variants have different overloads attached to them, one for each specialization
+
+/// plain variants are declarations without template attributes
+[function getNum, ()[signed_integer],
+    [result] <:= 0;
+];
+
+[function getNum, (> num:[signed_integer] <)[signed_integer],
+    [result] <:= num;
+];
+
+// every polymorph has at most one plain variant
+// for the case of functions, plain variants have overloads attached, one for each unique signature
+
+// polymorphs can be stored in variables
+
+[static][global] getNumPolymorph := getNum;
+
+// to get the plain variant, just say getNum.[plain_variant]
+
+[static][global] getNumPlainVariant := getNum.[plain_variant];
+
+// to get a template variant, need to specify layout with .[template_variant]
+// the layout needs to be EXACTLY the same.
+[static][global] getNumTemplateVariant := getNum.[template_variant {> NUM:[signed_integer] <}];
+
+// to get a specific overload of plain variant, use .[overload] with signature that is EXACTLY the same.
+// can retrieve overload from either variant or the polymorph.
+[static][global] getNumPlainVariantNoArg := getNumPlainVariant.[overload ()[signed_integer]];
+[static][global] getNumNoArg := getNum.[overload ()[signed_integer]];
+
+// can get template overload of template variant by specializing it with {}.
+[static][global] getNumTemplateVariantNoArg := getNumTemplateVariant{ NUM=0 };
+
+// can get template overload of polymorph by specializing it and using .[overload]
+[static][global] getNumTemplatePolymorphNoArg := getNumPolymorph{ NUM=0 }.[overload ()[signed_integer]];
+
+// note that if getting template overload from polymorph, require BOTH specialization and overload in same expression.
+
+// can loop over overloads, variants, and template weight levels of polymorphs, varients, weight levels at compile time
+// see templates.rq to understand weight levels
+
+[static]
+[for getNumPolymorph.[overload_range], [static] overload:=[value],
+    // etc
+];
+
+[static]
+[for getNumPolymorph.[weight_level_range], [static] weight_level := [value],
+    [static]
+    [for weight_level.[variant_range], [static] variant := [value],
+        [static]
+        [for variant.[overload_range], [static] weight_level := [value],
+            // etc
+        ];
+    ];
+];
+
