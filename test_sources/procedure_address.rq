@@ -50,7 +50,7 @@
     g := myFunction(1.0, positional_and_named=2.0, named=3.0);
 
     // call from a pointer to myFunction
-    ptr :\[var]= myFunction.[procedure_address];
+    ptr :\[var]= myFunction.[function_address];
     // you can call from ptr just like myFunction
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();
@@ -64,16 +64,19 @@
 
     // can assign different function to variable if its [var] and has EXACTLY the same signature.
     // the default values need to have identical expressions when situated.
-    ptr = myOtherFunction;
+    ptr = myOtherFunction.[function_address];
     ptr();
 
     // type is different even if default value evaluates to the same result.
-    // ptr = myThirdFunction; 
+    // ptr = myThirdFunction.[procedure_address]; 
     // this would result in compile error because named parameter's default value is wrong.
     // its wrong even though it still evaluates to 0.
-
-    // however, its ok if unamed arguments are named differently
-    ptr = myFourthFunction;
+    // need to use signature_cast
+    ptr = myThirdFunction.[function_address].[signature_cast];
+    ptr();
+    
+    // need to cast if parameters are named differently
+    ptr = myFourthFunction.[function_address].[signature_cast];
     ptr();
 
     [result] <:= 0;  

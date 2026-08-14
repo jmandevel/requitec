@@ -18,20 +18,11 @@
         // see captures.rq for more example usage of this feature
     ];
 
-    // parser knows {} is a "layout" when it finds parameter marks between the braces.
-    // see parameter_marks.rq
-    // layouts are symbols that can be turned into a "tuple type" using .[type] reflection.
-    // when a layout is turned into a tuple type, all default values are forgotten and locked parameters are unlocked.
-    // layouts are symbols used to define layout of a class or template.
-    // think of tuple types like a "subset" of layouts that have less features.
-    // layouts are symbols that can be reflected upon, but they are NOT types. Tuple types are types that can be bound to a variable.
-    // see object.rq and templates.rq for examples of layouts.
-
-    [static]TupleType := {> x:[var]\[single], y:[var]\[single], z:[var]\[single] <}.[type];
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.
-    explicit :TupleType= { 0, 1, w=2, z=3 };
+    [static] Layout := {> x:[var]\[single], y:[var]\[single], z:[var]\[single] <};
+    explicit :Layout= { 0, 1, w=2, z=3 };
 
     [result] <:= 0;    
 ];
