@@ -16,15 +16,15 @@ var1 := 0;
 
 [function [main], ()[signed_integer],
     [static]
-    [if var0.[variable].[overload].[capture].[type].[has Foo],
-        std.print(line=var0.[overload].[capture].[get Foo].string);    
+    [if var0.[variable].[plain_variant].[capture].[type].[has Foo],
+        std.print(line=var0.[plain_variant].[capture].[get Foo].string);    
     ];
 
     std.print(line=
         "Hello, my name is " +> 
-        var1.[variable].[overload].[capture].name +> 
+        var1.[variable].[plain_variant].[capture].name +> 
         " and I am " +> 
-        var1.[variable].[overload].[capture].age +> 
+        var1.[variable].[plain_variant].[capture].age +> 
         " years old");
 
     [result] <:= 0;
