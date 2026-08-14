@@ -357,11 +357,11 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;
-  case K::PROCEDURE_CAST:
+  case K::SIGNATURE_CAST:
     is_ok = this->situateNullaryOrUnaryValueBranches(situation, expression,
                                                      S::RVALUE);
     break;
-  case K::PROCEDURE_CAST_OF:
+  case K::SIGNATURE_CAST_OF:
     is_ok = this->situateBinaryValueBranches(situation, expression, S::RVALUE,
                                              S::RVALUE);
     break;

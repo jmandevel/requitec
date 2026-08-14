@@ -144,10 +144,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "bitwise_cast";
   case K::BITWISE_CAST_OF:
     return "_bitwise_cast_of";
-  case K::PROCEDURE_CAST:
-    return "procedure_cast";
-  case K::PROCEDURE_CAST_OF:
-    return "_procedure_cast_of";
+  case K::SIGNATURE_CAST:
+    return "signature_cast";
+  case K::SIGNATURE_CAST_OF:
+    return "_signature_cast_of";
 
   // BITWISE
   case K::BITWISE_OR:
@@ -1029,9 +1029,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::BITWISE_CAST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_CAST:
+  case K::SIGNATURE_CAST:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::PROCEDURE_CAST_OF:
+  case K::SIGNATURE_CAST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // BITWISE
@@ -2024,8 +2024,8 @@ getDescription(rq::Situation situation) {
     return K::CAST_OF;
   case K::BITWISE_CAST:
     return K::BITWISE_CAST_OF;
-  case K::PROCEDURE_CAST:
-    return K::PROCEDURE_CAST_OF;
+  case K::SIGNATURE_CAST:
+    return K::SIGNATURE_CAST_OF;
   // MEMORY
   case K::CONTENT:
     return K::CONTENT_OF;
