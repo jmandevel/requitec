@@ -411,10 +411,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SLICE_OF:
     is_ok = this->situateNaryValueBranches(situation, expression, 1, S::RVALUE);
     break;
-  case K::PROCEDURE_ADDRESS:
+  case K::FUNCTION_ADDRESS:
     is_ok = this->situateNullaryExpression(situation, expression);
     break;
-  case K::PROCEDURE_ADDRESS_OF:
+  case K::FUNCTION_ADDRESS_OF:
     is_ok = this->situateUnaryValueBranches(situation, expression, S::RVALUE);
     break;
   case K::BORROW:

@@ -68,7 +68,7 @@
     ptr();
 
     // type is different even if default value evaluates to the same result.
-    // ptr = myThirdFunction.[procedure_address]; 
+    // ptr = myThirdFunction.[function_address]; 
     // this would result in compile error because named parameter's default value is wrong.
     // its wrong even though it still evaluates to 0.
     // need to use signature_cast

@@ -182,10 +182,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "slice";
   case K::SLICE_OF:
     return "_slice_of";
-  case K::PROCEDURE_ADDRESS:
-    return "procedure_address";
-  case K::PROCEDURE_ADDRESS_OF:
-    return "_procedure_address_of";
+  case K::FUNCTION_ADDRESS:
+    return "function_address";
+  case K::FUNCTION_ADDRESS_OF:
+    return "_function_address_of";
   case K::BORROW:
     return "borrow";
   case K::BORROW_OF:
@@ -1067,9 +1067,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::SLICE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_ADDRESS:
+  case K::FUNCTION_ADDRESS:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::PROCEDURE_ADDRESS_OF:
+  case K::FUNCTION_ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BORROW:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
@@ -2033,8 +2033,8 @@ getDescription(rq::Situation situation) {
     return K::ADDRESS_OF;
   case K::SLICE:
     return K::SLICE_OF;
-  case K::PROCEDURE_ADDRESS:
-    return K::PROCEDURE_ADDRESS_OF;
+  case K::FUNCTION_ADDRESS:
+    return K::FUNCTION_ADDRESS_OF;
   case K::BORROW:
     return K::BORROW_OF;
   case K::DATA_ADDRESS:
