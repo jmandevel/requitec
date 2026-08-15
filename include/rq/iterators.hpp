@@ -20,32 +20,34 @@ struct NextIterator final {
   using pointer = Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
-  using NextPtr = decltype(std::declval<Element>()._next_ptr);
-  using Next = std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-  static_assert(std::is_pointer_v<NextPtr>);
-  static_assert(std::derived_from<Derived, Base>);
-  static_assert(std::same_as<Next, Base>);
 
   Element *_cur_ptr{nullptr};
 
   NextIterator() = default;
   explicit RQ_ALWAYS_INLINE NextIterator(Base *cur_ptr)
-      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {}
+      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {
+    using NextPtr = decltype(std::declval<Element>()._next_ptr);
+    using Next =
+        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
+
+    static_assert(std::is_pointer_v<NextPtr>);
+    static_assert(std::derived_from<Derived, Base>);
+    static_assert(std::same_as<Next, Base>);
+  }
   NextIterator(const Self &) = default;
   NextIterator(Self &&) = default;
   ~NextIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr =
-        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    this->_cur_ptr = llvm::cast_or_null<Element>(
+        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return *this;
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     rq::NextIterator<Element> temp = *this;
-    this->_cur_ptr =
-        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    this->_cur_ptr = llvm::cast_or_null<Element>(
+        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return temp;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
@@ -82,18 +84,19 @@ struct NextIterator<ElementParam, ElementParam> final {
   using pointer = Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
-  using NextPtr = decltype(std::declval<Element>()._next_ptr);
-  using Next = std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-  static_assert(std::is_pointer_v<NextPtr>);
-  static_assert(std::derived_from<Derived, Base>);
-  static_assert(std::same_as<Next, Base>);
 
   Element *_cur_ptr{nullptr};
 
   NextIterator() = default;
-  explicit RQ_ALWAYS_INLINE NextIterator(Element *cur_ptr)
-      : _cur_ptr(cur_ptr) {}
+  explicit RQ_ALWAYS_INLINE NextIterator(Element *cur_ptr) : _cur_ptr(cur_ptr) {
+    using NextPtr = decltype(std::declval<Element>()._next_ptr);
+    using Next =
+        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
+
+    static_assert(std::is_pointer_v<NextPtr>);
+    static_assert(std::derived_from<Derived, Base>);
+    static_assert(std::same_as<Next, Base>);
+  }
   NextIterator(const Self &) = default;
   NextIterator(Self &&) = default;
   ~NextIterator() = default;
@@ -131,12 +134,13 @@ struct NextIterator<ElementParam, ElementParam> final {
   }
 };
 
-template<typename BeginParam, typename EndParam = BeginParam>
+template <typename BeginParam, typename EndParam = BeginParam>
 using Subrange = std::ranges::subrange<BeginParam, EndParam,
-                            std::ranges::subrange_kind::unsized>;
+                                       std::ranges::subrange_kind::unsized>;
 
-template<typename BaseParam, typename DerivedParam = BaseParam>
-using NextSubrange = rq::Subrange<rq::NextIterator<BaseParam, DerivedParam>, rq::NextIterator<BaseParam, DerivedParam>>;
+template <typename BaseParam, typename DerivedParam = BaseParam>
+using NextSubrange = rq::Subrange<rq::NextIterator<BaseParam, DerivedParam>,
+                                  rq::NextIterator<BaseParam, DerivedParam>>;
 
 template <typename BaseParam, typename DerivedParam = BaseParam>
 struct ConstNextIterator final {
@@ -149,32 +153,35 @@ struct ConstNextIterator final {
   using pointer = Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
-  using NextPtr = std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
-  using Next = std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-  static_assert(std::is_pointer_v<NextPtr>);
-  static_assert(std::derived_from<Derived, Base>);
-  static_assert(std::same_as<Next, Base>);
 
   const Element *_cur_ptr{nullptr};
 
   ConstNextIterator() = default;
   explicit RQ_ALWAYS_INLINE ConstNextIterator(const Base *cur_ptr)
-      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {}
+      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {
+    using NextPtr =
+        std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
+    using Next =
+        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
+
+    static_assert(std::is_pointer_v<NextPtr>);
+    static_assert(std::derived_from<Derived, Base>);
+    static_assert(std::same_as<Next, Base>);
+  }
   ConstNextIterator(const Self &) = default;
   ConstNextIterator(Self &&) = default;
   ~ConstNextIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr =
-        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    this->_cur_ptr = llvm::cast_or_null<Element>(
+        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return *this;
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
     rq::NextIterator<Element> temp = *this;
-    this->_cur_ptr =
-        llvm::cast_or_null<Element>(rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    this->_cur_ptr = llvm::cast_or_null<Element>(
+        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
     return temp;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
@@ -205,18 +212,21 @@ struct ConstNextIterator<ElementParam, ElementParam> final {
   using pointer = const Element *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
-  using NextPtr = std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
-  using Next = std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-  static_assert(std::is_pointer_v<NextPtr>);
-  static_assert(std::derived_from<Derived, Base>);
-  static_assert(std::same_as<Next, Base>);
 
   const Element *_cur_ptr{nullptr};
 
   ConstNextIterator() = default;
   explicit RQ_ALWAYS_INLINE ConstNextIterator(const Element *cur_ptr)
-      : _cur_ptr(cur_ptr) {}
+      : _cur_ptr(cur_ptr) {
+    using NextPtr =
+        std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
+    using Next =
+        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
+
+    static_assert(std::is_pointer_v<NextPtr>);
+    static_assert(std::derived_from<Derived, Base>);
+    static_assert(std::same_as<Next, Base>);
+  }
   ConstNextIterator(const Self &) = default;
   ConstNextIterator(Self &&) = default;
   ~ConstNextIterator() = default;
@@ -248,8 +258,9 @@ struct ConstNextIterator<ElementParam, ElementParam> final {
   }
 };
 
-template<typename BaseParam, typename DerivedParam = BaseParam>
-using ConstNextSubrange = rq::Subrange<rq::ConstNextIterator<BaseParam, DerivedParam>, rq::ConstNextIterator<BaseParam, DerivedParam>>;
-
+template <typename BaseParam, typename DerivedParam = BaseParam>
+using ConstNextSubrange =
+    rq::Subrange<rq::ConstNextIterator<BaseParam, DerivedParam>,
+                 rq::ConstNextIterator<BaseParam, DerivedParam>>;
 
 } // namespace rq
