@@ -35,9 +35,9 @@ struct Constant : public rq::Entity {
 struct Symbol;
 enum class HighFuseFlags : std::uint_fast8_t;
 
-inline void profileConstantWord(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantWord(llvm::FoldingSetNodeID &inout_id,
                                 const llvm::APInt &word) {
-  word.Profile(out_id);
+  word.Profile(inout_id);
 }
 
 struct ConstantWord final : public rq::Constant, public llvm::FoldingSetNode {
@@ -93,16 +93,16 @@ struct ConstantWord final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::WORD);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) const {
-    rq::profileConstantWord(out_id, this->_word);
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    rq::profileConstantWord(inout_id, this->_word);
   }
 };
 
-inline void profileConstantArray(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantArray(llvm::FoldingSetNodeID &inout_id,
                                  llvm::ArrayRef<rq::Constant *> array) {
-  out_id.AddInteger(array.size());
+  inout_id.AddInteger(array.size());
   for (const rq::Constant *constant_ptr : array) {
-    out_id.AddPointer(constant_ptr);
+    inout_id.AddPointer(constant_ptr);
   }
 }
 
@@ -126,16 +126,16 @@ struct ConstantArray final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileConstantArray(out_id, this->getArray());
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+    rq::profileConstantArray(inout_id, this->getArray());
   }
 };
 
-inline void profileConstantDataArray(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantDataArray(llvm::FoldingSetNodeID &inout_id,
                                      llvm::ArrayRef<std::byte> data_array) {
-  out_id.AddInteger(data_array.size());
+  inout_id.AddInteger(data_array.size());
   for (std::byte byte : data_array) {
-    out_id.AddInteger(static_cast<std::uint8_t>(byte));
+    inout_id.AddInteger(static_cast<std::uint8_t>(byte));
   }
 }
 
@@ -161,16 +161,16 @@ struct ConstantDataArray final : public rq::Constant,
                      rq::getUnderlying(rq::ConstantKind::DATA_ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileConstantDataArray(out_id, this->getDataArray());
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+    rq::profileConstantDataArray(inout_id, this->getDataArray());
   }
 };
 
-inline void profileConstantSymbol(llvm::FoldingSetNodeID &out_id,
+inline void profileConstantSymbol(llvm::FoldingSetNodeID &inout_id,
                                   rq::HighFuseFlags flags,
                                   const rq::Symbol &symbol) {
-  out_id.AddInteger(rq::getUnderlying(flags));
-  out_id.AddPointer(&symbol);
+  inout_id.AddInteger(rq::getUnderlying(flags));
+  inout_id.AddPointer(&symbol);
 }
 
 struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
@@ -203,8 +203,8 @@ struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &out_id) {
-    rq::profileConstantSymbol(out_id, this->getInfoFlags(), this->getSymbol());
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+    rq::profileConstantSymbol(inout_id, this->getInfoFlags(), this->getSymbol());
   }
 };
 
