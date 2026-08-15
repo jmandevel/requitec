@@ -3,7 +3,7 @@
 #include <rq/bump_ptr_list.hpp>
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
-#include <rq/next_iterator.hpp>
+#include <rq/iterators.hpp>
 #include <rq/static_value.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rq/utility.hpp>
+#include <rq/iterators.hpp>
 
 #include <llvm/ADT/Hashing.h>
 
