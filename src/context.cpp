@@ -950,7 +950,7 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
 
 void Context::logErrorTooManyBranchCount(rq::Situation situation,
                                          const rq::Expression &expression,
-                                         unsigned count) {
+                                         unsigned max_cou t) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must not have more than " +

@@ -344,7 +344,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                      unsigned count);
   void logErrorTooManyBranchCount(rq::Situation situation,
                                   const rq::Expression &expression,
-                                  unsigned count);
+                                  unsigned max_count);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
   void logErrorExpectedTagBranch(const rq::Expression &expresison);
