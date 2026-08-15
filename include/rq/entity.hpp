@@ -666,19 +666,7 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // VARIANTS => global declaration => named table => symbol table
-  CLASS_VARIANT,
-  ENUM_VARIANT,
-  INTERFACE_VARIANT,
-  ADAPTER_VARIANT,
-  FUNCTION_VARIANT,
-
-  // GLOBAL VARIABLES => variant => global declaration => named table => symbol
-  // table
-  GLOBAL_DYNAMIC_VARIABLE_VARIANT,
-  GLOBAL_STATIC_VARIABLE_VARIANT,
-
-  // OVERLOADS => variant
+  // OVERLOADS => variant => global declaration => named table
   CLASS_OVERLOAD,
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
@@ -687,7 +675,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_OVERLOAD,
   GLOBAL_STATIC_VARIABLE_OVERLOAD,
 
-  // SPECIALIZATIONS
+  // SPECIALIZATIONS => varaint => global declaration => named table
   CLASS_SPECIALIZATION,
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
@@ -705,7 +693,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   GLOBAL_STATIC_VARIABLE_TEMPLATE,
 
-  // POLYMORPHS
+  // POLYMORPHS => override parent => symbol
   CLASS_POLYMORPH,
   ENUM_POLYMORPH,
   INTERFACE_POLYMORPH,
@@ -714,7 +702,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   GLOBAL_STATIC_VARIABLE_POLYMORPH,
 
-  // WEIGHT_LEVELS
+  // WEIGHT_LEVELS => override parent => symbol
   CLASS_WEIGHT_LEVEL,
   ENUM_WEIGHT_LEVEL,
   INTERFACE_WEIGHT_LEVEL,

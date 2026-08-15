@@ -91,8 +91,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::FloatLiteral _float_literal_type{};
   rq::StringLiteral _string_literal_type{};
   rq::CodeunitLiteral _codeunit_literal_type{};
-  rq::ThisValue _this_value{};
-  rq::ResultValue _result_value{};
   rq::IndexValue _index_value{};
   rq::DiscriminantValue _discrimnant_value{};
   rq::CallsiteValue _callsite_value{};
@@ -125,6 +123,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::AtomicAttributeType _atomic_attribute_type{};
   rq::NullTerminateAttributeType _null_terminate_attribute_type{};
   rq::SymbolType _symbol_type{};
+  rq::SymbolRangeType _symbol_range_type{};
   rq::ExpressionType _expression_type{};
   rq::BooleanType _boolean_type{};
   rq::HalfType _half_type{};
@@ -152,10 +151,9 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::JuxtapositionalListItem> _juxtapositional_list_items{};
   llvm::FoldingSet<rq::JuxtapositionalListType> _juxtapositional_list_types{};
   llvm::FoldingSet<rq::ArithmeticSequenceType> _arithmetic_sequence_types{};
-  llvm::FoldingSet<rq::TypeParameter> _type_parameters{};
-  llvm::FoldingSet<rq::ProcedureType> _procedure_types{};
-  llvm::FoldingSet<rq::TupleType> _tuple_types{};
-  llvm::FoldingSet<rq::PlacementType> _placement_types{};
+  llvm::FoldingSet<rq::Parameter> _parameters{};
+  llvm::FoldingSet<rq::SignatureType> _signature_types{};
+  llvm::FoldingSet<rq::LayoutType> _layout_types{};
   llvm::FoldingSet<rq::CompositionComponent> _composition_components{};
   llvm::FoldingSet<rq::CompositionType> _composition_types{};
   llvm::FoldingSet<rq::ConstantWord> _word_constants{};
@@ -427,16 +425,20 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &acquireNoReturnType() {
     return this->_no_return_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &acquireAnchorAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorAttributeType &
+  acquireAnchorAttributeType() {
     return this->_anchor_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &acquireOpaqueAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueAttributeType &
+  acquireOpaqueAttributeType() {
     return this->_opaque_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &acquireGlobalAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalAttributeType &
+  acquireGlobalAttributeType() {
     return this->_global_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicAttributeType &acquirePublicAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicAttributeType &
+  acquirePublicAttributeType() {
     return this->_public_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutateAttributeType &
@@ -495,7 +497,8 @@ struct Context final : public rq::BumpPtrAllocator {
   acquireWeightAttributeType() {
     return this->_weight_attribute_type;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AutoAttributeType & acquireAutoAttributeType() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AutoAttributeType &
+  acquireAutoAttributeType() {
     return this->_auto_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireAttributeType &
@@ -524,6 +527,9 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolType &acquireSymbolType() {
     return this->_symbol_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolRangeType &acquireSymbolRangeType() {
+    return this->_symbol_range_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &acquireExpressionType() {
     return this->_expression_type;
@@ -750,81 +756,57 @@ struct Context final : public rq::BumpPtrAllocator {
             rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE, child, condition,
             step));
   }
-  [[nodiscard]] inline rq::TypeParameter &
-  acquireTypeParameter(rq::SymbolKind kind, rq::TypeParameter *next_ptr,
-                       rq::Name name, rq::ConstantSymbol &type,
-                       unsigned location, bool is_positional) {
+  [[nodiscard]] inline rq::Parameter &
+  acquireParameter(rq::Parameter *next_ptr, rq::Name name,
+                   rq::ConstantSymbol &type, rq::ParameterInfoFlags param_flags,
+                   rq::LowFuseFlags low_flags,
+                   rq::Expression *default_value_expression_ptr) {
     llvm::FoldingSetNodeID id;
-    rq::profileTypeParameter(id, kind, next_ptr, name, type, location,
-                             is_positional);
+    rq::profileParameter(id, next_ptr, name, type, low_flags, param_flags,
+                         default_value_expression_ptr);
     void *insert_pos;
-    rq::TypeParameter *found_ptr =
-        this->_type_parameters.FindNodeOrInsertPos(id, insert_pos);
+    rq::Parameter *found_ptr =
+        this->_parameters.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::TypeParameter &found = rq::dereferencePtr(found_ptr);
+      rq::Parameter &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::TypeParameter &created = this->allocateValue<rq::TypeParameter>(
-        kind, next_ptr, name, type, location, is_positional);
-    this->_type_parameters.InsertNode(&created, insert_pos);
+    rq::Parameter &created = this->allocateValue<rq::Parameter>(
+        next_ptr, name, type, low_flags, param_flags,
+        default_value_expression_ptr);
+    this->_parameters.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureParameter &
-  acquireProcedureParameter(rq::TypeParameter *next_ptr, rq::Name name,
-                            rq::ConstantSymbol &type, unsigned location,
-                            bool is_positional) {
-    return llvm::cast<rq::ProcedureParameter>(this->acquireTypeParameter(
-        rq::SymbolKind::PROCEDURE_PARAMETER, next_ptr, name, type, location,
-        is_positional));
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TupleParameter &
-  acquireTupleParameter(rq::TypeParameter *next_ptr, rq::Name name,
-                        rq::ConstantSymbol &type, unsigned location,
-                        bool is_positional) {
-    return llvm::cast<rq::TupleParameter>(
-        this->acquireTypeParameter(rq::SymbolKind::TUPLE_PARAMETER, next_ptr,
-                                   name, type, location, is_positional));
-  }
-  [[nodiscard]] inline rq::ProcedureType &acquireProcedureType(
-      rq::ProcedureParameter *first_parameter_ptr, unsigned parameter_count,
-      unsigned positional_parameter_count,
-      unsigned nonpositional_parameter_count, rq::ConstantSymbol &return_type,
-      rq::ConstantSymbol *reciever_type_ptr) {
+  [[nodiscard]] inline rq::SignatureType &
+  acquireSignatureType(rq::Parameter *first_ptr,
+                       rq::ConstantSymbol &return_type) {
     llvm::FoldingSetNodeID id;
-    rq::profileProcedureType(id, first_parameter_ptr, return_type,
-                             reciever_type_ptr);
+    rq::profileSignatureType(id, first_ptr, return_type);
     void *insert_pos;
-    rq::ProcedureType *found_ptr =
-        this->_procedure_types.FindNodeOrInsertPos(id, insert_pos);
+    rq::SignatureType *found_ptr =
+        this->_signature_types.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::ProcedureType &found = rq::dereferencePtr(found_ptr);
+      rq::SignatureType &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::ProcedureType &created = this->allocateValue<rq::ProcedureType>(
-        first_parameter_ptr, parameter_count, positional_parameter_count,
-        nonpositional_parameter_count, return_type, reciever_type_ptr);
-    this->_procedure_types.InsertNode(&created, insert_pos);
+    rq::SignatureType &created =
+        this->allocateValue<rq::SignatureType>(first_ptr, return_type);
+    this->_signature_types.InsertNode(&created, insert_pos);
     return created;
   }
-  [[nodiscard]] inline rq::TupleType &
-  acquireTupleType(rq::TupleParameter *first_parameter_ptr,
-                   unsigned parameter_count,
-                   unsigned positional_parameter_count,
-                   unsigned nonpositional_parameter_count,
-                   unsigned type_keyed_parameter_count) {
+  [[nodiscard]] inline rq::LayoutType &
+  acquireLayoutType(rq::Parameter *first_ptr) {
     llvm::FoldingSetNodeID id;
-    rq::profileTupleType(id, first_parameter_ptr);
+    rq::profileLayoutType(id, first_ptr);
     void *insert_pos;
-    rq::TupleType *found_ptr =
-        this->_tuple_types.FindNodeOrInsertPos(id, insert_pos);
+    rq::LayoutType *found_ptr =
+        this->_layout_types.FindNodeOrInsertPos(id, insert_pos);
     if (found_ptr != nullptr) {
-      rq::TupleType &found = rq::dereferencePtr(found_ptr);
+      rq::LayoutType &found = rq::dereferencePtr(found_ptr);
       return found;
     }
-    rq::TupleType &created = this->allocateValue<rq::TupleType>(
-        first_parameter_ptr, parameter_count, positional_parameter_count,
-        nonpositional_parameter_count, type_keyed_parameter_count);
-    this->_tuple_types.InsertNode(&created, insert_pos);
+    rq::LayoutType &created = this->allocateValue<rq::LayoutType>(first_ptr);
+    this->_layout_types.InsertNode(&created, insert_pos);
     return created;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PlacementType &
