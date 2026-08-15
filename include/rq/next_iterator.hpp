@@ -2,6 +2,8 @@
 
 #include <rq/utility.hpp>
 
+#include <llvm/Support/Casting.h>
+
 #include <concepts>
 #include <type_traits>
 
@@ -129,6 +131,13 @@ struct NextIterator<ElementParam, ElementParam> final {
   }
 };
 
+template<typename BeginParam, typename EndParam = BeginParam>
+using Subrange = std::ranges::subrange<BeginParam, EndParam,
+                            std::ranges::subrange_kind::unsized>;
+
+template<typename BaseParam, typename DerivedParam = BaseParam>
+using NextSubrange = rq::Subrange<rq::NextIterator<BaseParam, DerivedParam>, rq::NextIterator<BaseParam, DerivedParam>>;
+
 template <typename BaseParam, typename DerivedParam = BaseParam>
 struct ConstNextIterator final {
   using Base = BaseParam;
@@ -238,5 +247,9 @@ struct ConstNextIterator<ElementParam, ElementParam> final {
     return this->_cur_ptr != nullptr;
   }
 };
+
+template<typename BaseParam, typename DerivedParam = BaseParam>
+using ConstNextSubrange = rq::Subrange<rq::ConstNextIterator<BaseParam, DerivedParam>, rq::ConstNextIterator<BaseParam, DerivedParam>>;
+
 
 } // namespace rq
