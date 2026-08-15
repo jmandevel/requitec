@@ -6,6 +6,7 @@
 #include <rq/iterators.hpp>
 
 #include <llvm/ADT/DenseMap.h>
+#include <llvm/ADT/FoldingSet.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/SMLoc.h>
@@ -287,8 +288,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
-  case K::USE_FUNCTION:
-    return "use_function";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -333,6 +332,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "callsite";
 
   // BUILTIN TYPES
+  case K::SYMBOL:
+    return "symbol";
   case K::INFERENCE:
     return "_inference";
   case K::EXPRESSION:
@@ -475,18 +476,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "top";
-  case K::OVERRIDE:
-    return "override";
-  case K::OVERLOAD:
-    return "overload";
-  case K::OVERLOAD_OF:
-    return "_overload_of";
-  case K::OVERLOAD_RANGE:
-    return "overload_range";
-  case K::OVERLOAD_RANGE_OF:
-    return "_overload_range_of";
-  case K::USE:
-    return "use";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -725,14 +714,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "holds";
   case K::HOLDS_OF:
     return "_holds_of";
+  case K::VARIABLE:
+    return "variable";
+  case K::VARIABLE_OF:
+    return "_variable_of";
   case K::TYPE:
     return "type";
   case K::TYPE_OF:
     return "_type_of";
-  case K::SYMBOL:
-    return "symbol";
-  case K::SYMBOL_OF:
-    return "_symbol_of";
   case K::HAS_MEMBER:
     return "has_member";
   case K::HAS_MEMBER_OF:
@@ -791,6 +780,30 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "backward";
   case K::BACKWARD_OF:
     return "_backward_of";
+  case K::OVERRIDE:
+    return "override";
+  case K::TEMPLATE_OF:
+    return "_template_of";
+  case K::OVERLOAD_RANGE:
+    return "overload_range";
+  case K::OVERLOAD_RANGE_OF:
+    return "_overload_range_of";
+  case K::SPECIALIZATION_RANGE:
+    return "specialization_range";
+  case K::SPECIALIZATION_RANGE_OF:
+    return "_specialization_range_of";
+  case K::VARIANT_RANGE:
+    return "variant_range";
+  case K::VARIANT_RANGE_OF:
+    return "_variant_range_of";
+  case K::WEIGHT_LEVEL:
+    return "weight_level";
+  case K::WEIGHT_LEVEL_OF:
+    return "_weight_level_of";
+  case K::WEIGHT_LEVEL_RANGE:
+    return "weight_level_range";
+  case K::WEIGHT_LEVEL_RANGE_OF:
+    return "_weight_level_range_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -1152,7 +1165,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::INSTANTIATE_LAYOUT:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_TEMPLATE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::REFLECTION |
+           KIF::UNIVERSALIZABLE;
 
   // PROCEDURES
   case K::NAMED_ARGUMENT:
@@ -1168,8 +1182,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::FUNCTION:
     return KIF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
-    return KIF::STATEMENT;
-  case K::USE_FUNCTION:
     return KIF::STATEMENT;
 
   // CONTROL FLOW
@@ -1215,6 +1227,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE;
 
   // BUILTIN TYPES
+  case K::SYMBOL:
+    return KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::INFERENCE:
     return KIF::RVALUE | KIF::ARGUMENT;
   case K::EXPRESSION:
@@ -1362,18 +1376,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::TOP:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT; // TOP
-  case K::OVERRIDE:
-    return KIF::STATEMENT;
-  case K::OVERLOAD:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::OVERLOAD_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::OVERLOAD_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::OVERLOAD_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::USE:
-    return KIF::STATEMENT;
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -1672,13 +1674,13 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::HOLDS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::VARIABLE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::VARIABLE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SYMBOL:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::SYMBOL_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HAS_MEMBER:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
@@ -1744,6 +1746,30 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::BACKWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::TEMPLATE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::OVERRIDE:
+    return KIF::STATEMENT;
+  case K::OVERLOAD_RANGE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::OVERLOAD_RANGE_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::SPECIALIZATION_RANGE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::SPECIALIZATION_RANGE_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_LEVEL:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::WEIGHT_LEVEL_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_LEVEL_RANGE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::WEIGHT_LEVEL_RANGE_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::VARIANT_RANGE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::VARIANT_RANGE_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::IS_TYPE_OF:
@@ -2112,10 +2138,10 @@ getDescription(rq::Situation situation) {
     return K::IS_TYPE;
   case K::HOLDS:
     return K::HOLDS_OF;
+  case K::VARIABLE:
+    return K::VARIABLE_OF;
   case K::TYPE:
     return K::TYPE_OF;
-  case K::SYMBOL:
-    return K::SYMBOL_OF;
   case K::HAS_MEMBER:
     return K::HAS_MEMBER_OF;
   case K::HAS:
@@ -2130,6 +2156,18 @@ getDescription(rq::Situation situation) {
     return K::CAPTURE_OF;
   case K::AS_EXTENSION:
     return K::AS_EXTENSION_OF;
+  case K::TEMPLATE:
+    return K::TEMPLATE_OF;
+  case K::OVERLOAD_RANGE:
+    return K::OVERLOAD_RANGE_OF;
+  case K::SPECIALIZATION_RANGE:
+    return K::SPECIALIZATION_RANGE_OF;
+  case K::WEIGHT_LEVEL:
+    return K::WEIGHT_LEVEL_OF;
+  case K::WEIGHT_LEVEL_RANGE:
+    return K::WEIGHT_LEVEL_RANGE_OF;
+  case K::VARIANT_RANGE:
+    return K::VARIANT_RANGE_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:
@@ -4268,49 +4306,46 @@ struct Expression final : public rq::Entity {
     return *this;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ExpressionIterator>
       getInclusiveNextSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this),
+    return rq::Subrange<rq::ExpressionIterator>(rq::ExpressionIterator(this),
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ConstExpressionIterator>
       getInclusiveNextSubrange() const {
-    return std::ranges::subrange(rq::ConstExpressionIterator(this),
+    return rq::Subrange<rq::ConstExpressionIterator>(rq::ConstExpressionIterator(this),
                                  rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ExpressionIterator>
       getNextSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this->getNextPtr()),
+    return rq::Subrange(rq::ExpressionIterator(this->getNextPtr()),
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ConstExpressionIterator>
       getNextSubrange() const {
-    return std::ranges::subrange(
+    return rq::Subrange<rq::ConstExpressionIterator>(
         rq::ConstExpressionIterator(this->getNextPtr()),
         rq::ConstExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ExpressionIterator, rq::ExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ExpressionIterator>
       getBranchSubrange() {
-    return std::ranges::subrange(rq::ExpressionIterator(this->getBranchPtr()),
+    return rq::Subrange<rq::ExpressionIterator>(rq::ExpressionIterator(this->getBranchPtr()),
                                  rq::ExpressionIterator());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE
-      std::ranges::subrange<rq::ConstExpressionIterator,
-                            rq::ConstExpressionIterator,
-                            std::ranges::subrange_kind::unsized>
+      rq::Subrange<rq::ConstExpressionIterator>
       getBranchSubrange() const {
-    return std::ranges::subrange(
+    return rq::Subrange<rq::ConstExpressionIterator>(rq::ConstExpressionIterator(this->getBranchPtr()),
+                                 rq::ConstExpressionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::Subrange<rq::ConstExpressionIterator>
+      getConstBranchSubrange() const {
+    return rq::Subrange<rq::ConstExpressionIterator>(
         rq::ConstExpressionIterator(this->getBranchPtr()),
         rq::ConstExpressionIterator());
   }
@@ -4319,6 +4354,25 @@ struct Expression final : public rq::Entity {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    inout_id.AddInteger(rq::getUnderlying(this->getKeyword()));
+    if (this->getIsStatement()) {
+      inout_id.AddInteger(1);
+    } else {
+      inout_id.AddInteger(0);
+    }
+    if (this->getHasBranch()) {
+      inout_id.Add(this->getBranch());
+    } else {
+      inout_id.AddInteger(0);
+    }
+    if (this->getHasNext()) {
+      inout_id.Add(this->getNext());
+    } else {
+      inout_id.AddInteger(0);
+    }
   }
 };
 

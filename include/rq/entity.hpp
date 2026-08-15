@@ -163,7 +163,6 @@ enum class Keyword : rq::EntityId {
   DEFAULT_VALUE_PARAMETER,
   FUNCTION,
   IMPLEMENT_FUNCTION,
-  USE_FUNCTION,
 
   // CONTROL FLOW
   RETURN,
@@ -196,6 +195,7 @@ enum class Keyword : rq::EntityId {
   CALLSITE,
 
   // BUILTIN TYPES
+  SYMBOL,
   INFERENCE,
   EXPRESSION,
   VOID,
@@ -272,11 +272,6 @@ enum class Keyword : rq::EntityId {
   C,
   TOP,
   OVERRIDE,
-  OVERLOAD,
-  OVERLOAD_OF,
-  OVERLOAD_RANGE,
-  OVERLOAD_RANGE_OF,
-  USE,
 
   // HINTS
   DEBUG_BREAK,
@@ -393,7 +388,7 @@ enum class Keyword : rq::EntityId {
   TEMPLATE_ATTRIBUTE,       // no_template vs template
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
-  AUTO_ATTRIBUTE,              // no_auto vs auto
+  AUTO_ATTRIBUTE,           // no_auto vs auto
   RANGER_ATTRIBUTE,         // no_ranger vs ranger
 
   // HIGH ATTRIBUTE TYPES
@@ -429,10 +424,10 @@ enum class Keyword : rq::EntityId {
   IS_OF,
   HOLDS,
   HOLDS_OF,
+  VARIABLE,
+  VARIABLE_OF,
   TYPE,
   TYPE_OF,
-  SYMBOL,
-  SYMBOL_OF,
   HAS_MEMBER,
   HAS_MEMBER_OF,
   HAS,
@@ -466,6 +461,17 @@ enum class Keyword : rq::EntityId {
   FORWARD_OF,
   BACKWARD,
   BACKWARD_OF,
+  TEMPLATE_OF,
+  OVERLOAD_RANGE,
+  OVERLOAD_RANGE_OF,
+  SPECIALIZATION_RANGE,
+  SPECIALIZATION_RANGE_OF,
+  VARIANT_RANGE,
+  VARIANT_RANGE_OF,
+  WEIGHT_LEVEL,
+  WEIGHT_LEVEL_OF,
+  WEIGHT_LEVEL_RANGE,
+  WEIGHT_LEVEL_RANGE_OF,
   IS_TYPE,
   IS_TYPE_OF,
   IS_RANGE_TYPE,
@@ -506,8 +512,6 @@ enum class SymbolKind : rq::EntityId {
   CODEUNIT_LITERAL_TYPE,
 
   // CONTEXTUAL VALUE
-  THIS_VALUE,
-  RESULT_VALUE,
   VALUE_VALUE,
   INDEX_VALUE,
   DISCRIMINANT_VALUE,
@@ -518,7 +522,7 @@ enum class SymbolKind : rq::EntityId {
   VOID_TYPE,
   NO_RETURN_TYPE,
 
-  // LOW ATTRIBUTES
+  // LOW ATTRIBUTE TYPES
   ANCHOR_ATTRIBUTE_TYPE,
   OPAQUE_ATTRIBUTE_TYPE,
   GLOBAL_ATTRIBUTE_TYPE,
@@ -539,7 +543,7 @@ enum class SymbolKind : rq::EntityId {
   WEIGHT_ATTRIBUTE_TYPE,
   AUTO_ATTRIBUTE_TYPE,
 
-  // HIGH ATTRIBUTES
+  // HIGH ATTRIBUTE TYPES
   VAR_ATTRIBUTE_TYPE,
   VOLATILE_ATTRIBUTE_TYPE,
   ATOMIC_ATTRIBUTE_TYPE,
@@ -547,11 +551,12 @@ enum class SymbolKind : rq::EntityId {
   REQUIRE_ATTRIBUTE_TYPE,
   ENSURE_ATTRIBUTE_TYPE,
 
-  // REFLECTIVE
+  // REFLECTIVE TYPES
   SYMBOL_TYPE,
+  SYMBOL_RANGE_TYPE,
   EXPRESSION_TYPE,
 
-  // PLATFORM PRIMITIVE
+  // PLATFORM PRIMITIVE TYPES
   BOOLEAN_TYPE,
   HALF_TYPE,
   SINGLE_TYPE,
@@ -565,7 +570,7 @@ enum class SymbolKind : rq::EntityId {
   UNSIGNED_ADDRESS_TYPE,
   CHAR_TYPE,
 
-  // STANDARD PRIMITIVE
+  // STANDARD PRIMITIVE TYPE
   BINARY16_TYPE,
   BINARY32_TYPE,
   BINARY64_TYPE,
@@ -577,18 +582,18 @@ enum class SymbolKind : rq::EntityId {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS_TYPE,
 
-  // SCALED PRIMITIVES
+  // SCALED PRIMITIVE TYPES
   SCALED_SIGNED_INTEGER_TYPE,
   SCALED_UNSIGNED_INTEGER_TYPE,
 
   // SUBTYPES
-  ARRAY_SUBTYPE,
-
-  // UNCOUNTED SUBTYPES => SUBTYPES
   REFERENCE_SUBTYPE,
   POINTER_SUBTYPE,
   SLICE_SUBTYPE,
   INFERENCE_COUNT_ARRAY_SUBTYPE,
+
+  // COUNTED SUBTYPES => SUBTYPES
+  ARRAY_SUBTYPE,
 
   // MODULES
   MODULE,
@@ -601,15 +606,6 @@ enum class SymbolKind : rq::EntityId {
 
   // BLOCK
   BLOCK,
-
-  // WEIGHTS
-  CLASS_WEIGHT_LEVEL,
-  ENUM_WEIGHT_LEVEL,
-  INTERFACE_WEIGHT_LEVEL,
-  ADAPTER_WEIGHT_LEVEL,
-  GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
-  GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
-  FUNCTION_WEIGHT_LEVEL,
 
   // JUXTAPOSITIONAL LIST
   JUXTAPOSITIONAL_LIST_ITEM,
@@ -631,21 +627,12 @@ enum class SymbolKind : rq::EntityId {
   TEMPLATE_ARGUMENT,
   FUNCTION_ARGUMENT,
 
-  // SYMBOL PARAMETERS
-  SIGNATURE_PARAMETER,
-  LAYOUT_PARAMETER,
+  // PARAMETERS => local variable
+  PARAMETER,
 
-  // TYPE PARAMETERS
-  TUPLE_PARAMETER,
-  PROCEDURE_PARAMETER,
-
-  // SYMBOL PARAMETER LISTS
+  // PARAMETER LISTS
   SIGNATURE,
   LAYOUT,
-
-  // TYPE PARAMETER LISTS
-  TUPLE_TYPE,
-  PROCEDURE_TYPE,
 
   // PLACEMENTS
   PLACEMENT_TYPE,
@@ -679,35 +666,75 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // INSTANCES => global declaration => named table => symbol table`
-  CLASS_TYPE,
-  ENUM_TYPE,
-  INTERFACE,
-  ADAPTER,
-  FUNCTION,
+  // VARIANTS => global declaration => named table => symbol table
+  CLASS_VARIANT,
+  ENUM_VARIANT,
+  INTERFACE_VARIANT,
+  ADAPTER_VARIANT,
+  FUNCTION_VARIANT,
 
-  // GLOBAL VARIABLE => instance => global declaration => named table => symbol
+  // GLOBAL VARIABLES => variant => global declaration => named table => symbol
   // table
-  GLOBAL_DYNAMIC_VARIABLE,
-  GLOBAL_STATIC_VARIABLE,
+  GLOBAL_DYNAMIC_VARIABLE_VARIANT,
+  GLOBAL_STATIC_VARIABLE_VARIANT,
 
-  // TEMPLATES
+  // OVERLOADS => variant
+  CLASS_OVERLOAD,
+  ENUM_OVERLOAD,
+  INTERFACE_OVERLOAD,
+  ADAPTER_OVERLOAD,
+  FUNCTION_OVERLOAD,
+  GLOBAL_DYNAMIC_VARIABLE_OVERLOAD,
+  GLOBAL_STATIC_VARIABLE_OVERLOAD,
+
+  // SPECIALIZATIONS
+  CLASS_SPECIALIZATION,
+  ENUM_SPECIALIZATION,
+  INTERFACE_SPECIALIZATION,
+  ADAPTER_SPECIALIZATION,
+  FUNCTION_SPECIALIZATION,
+  GLOBAL_DYNAMIC_VARIABLE_SPECIALIZATION,
+  GLOBAL_STATIC_VARIABLE_SPECIALIZATION,
+
+  // TEMPLATES => global declaration
   CLASS_TEMPLATE,
   ENUM_TEMPLATE,
   INTERFACE_TEMPLATE,
   ADAPTER_TEMPLATE,
+  FUNCTION_TEMPLATE,
   GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
   GLOBAL_STATIC_VARIABLE_TEMPLATE,
-  FUNCTION_TEMPLATE,
 
   // POLYMORPHS
-  FUNCTION_POLYMORPH,
   CLASS_POLYMORPH,
   ENUM_POLYMORPH,
   INTERFACE_POLYMORPH,
   ADAPTER_POLYMORPH,
+  FUNCTION_POLYMORPH,
   GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   GLOBAL_STATIC_VARIABLE_POLYMORPH,
+
+  // WEIGHT_LEVELS
+  CLASS_WEIGHT_LEVEL,
+  ENUM_WEIGHT_LEVEL,
+  INTERFACE_WEIGHT_LEVEL,
+  ADAPTER_WEIGHT_LEVEL,
+  FUNCTION_WEIGHT_LEVEL,
+  GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
+  GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
+
+  // OVERLOAD OVERRIDES => override => symbol
+  ADAPTER_OVERLOAD_OVERRIDE,
+  FUNCTION_OVERLOAD_OVERRIDE,
+
+  // TEMPLATE OVERRIDES => override => symbol
+  CLASS_TEMPLATE_OVERRIDE,
+  ENUM_TEMPLATE_OVERRIDE,
+  INTERFACE_TEMPLATE_OVERRIDE,
+  ADAPTER_TEMPLATE_OVERRIDE,
+  FUNCTION_TEMPLATE_OVERRIDE,
+  GLOBAL_DYNAMIC_VARIABLE_TEMPLATE_OVERRIDE,
+  GLOBAL_STATIC_VARIABLE_TEMPLATE_OVERRIDE,
 
   LAST
 };
@@ -915,18 +942,22 @@ struct Entity {
     return this->_id >= rq::OPCODE_OFFSET;
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getDottedSubrange(rq::Opcode opcode) {
-    return std::ranges::subrange<rq::DottedInstructionIterator,
-                                 rq::DottedInstructionIterator,
-                                 std::ranges::subrange_kind::unsized>(
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::DottedInstructionIterator>
+  getDottedSubrange(rq::Opcode opcode) {
+    return rq::Subrange<rq::DottedInstructionIterator>(
         rq::DottedInstructionIterator(this, opcode),
         rq::DottedInstructionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE auto
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::Subrange<rq::ConstDottedInstructionIterator>
+      getDottedSubrange(rq::Opcode opcode) const {
+    return rq::Subrange<rq::ConstDottedInstructionIterator>(
+        rq::ConstDottedInstructionIterator(this, opcode),
+        rq::ConstDottedInstructionIterator());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstDottedInstructionIterator>
   getConstDottedSubrange(rq::Opcode opcode) const {
-    return std::ranges::subrange<rq::ConstDottedInstructionIterator,
-                                 rq::ConstDottedInstructionIterator,
-                                 std::ranges::subrange_kind::unsized>(
+    return rq::Subrange<rq::ConstDottedInstructionIterator>(
         rq::ConstDottedInstructionIterator(this, opcode),
         rq::ConstDottedInstructionIterator());
   }
