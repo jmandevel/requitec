@@ -70,28 +70,67 @@ enum class SymbolInfoFlags : std::uint64_t {
   TEMPLATE = rq::getBit(33),
   POLYMORPH = rq::getBit(34),
   WEIGHT_LEVEL = rq::getBit(35),
-  OVERRIDE_PARENT = rq::getBit(36),
-  OVERRIDE = rq::getBit(37),
-  OVERLOAD_OVERRIDE = rq::getBit(38),
-  TEMPLATE_OVERRIDE = rq::getBit(39),
+  OVERRIDE = rq::getBit(36),
+  OVERLOAD_OVERRIDE = rq::getBit(37),
+  TEMPLATE_OVERRIDE = rq::getBit(38),
 
   // SYMBOL DETAILS
-  IS_TYPE = rq::getBit(40),
-  IS_SIGNED_TYPE = rq::getBit(41),
-  IS_UNSIGNED_TYPE = rq::getBit(42),
-  IS_INTEGER_TYPE = rq::getBit(43),
-  IS_FLOAT_TYPE = rq::getBit(44),
-  IS_BINARY_TYPE = rq::getBit(45),
-  IS_BFLOAT_TYPE = rq::getBit(46),
-  IS_CODEUNIT_TYPE = rq::getBit(47),
-  HAS_LOW_ATTRIBUTES = rq::getBit(48),
-  IS_FRAME_SCOPE = rq::getBit(49),
-  IS_OBJECT_SCOPE = rq::getBit(50)
+  IS_TYPE = rq::getBit(39),
+  IS_SIGNED_TYPE = rq::getBit(40),
+  IS_UNSIGNED_TYPE = rq::getBit(41),
+  IS_INTEGER_TYPE = rq::getBit(42),
+  IS_FLOAT_TYPE = rq::getBit(43),
+  IS_BINARY_TYPE = rq::getBit(44),
+  IS_BFLOAT_TYPE = rq::getBit(45),
+  IS_CODEUNIT_TYPE = rq::getBit(46),
+  HAS_LOW_ATTRIBUTES = rq::getBit(47),
+  IS_FRAME_SCOPE = rq::getBit(48),
+  IS_OBJECT_SCOPE = rq::getBit(49)
 };
 
 RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
 [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind);
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttributeType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArgument(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
@@ -199,23 +238,22 @@ struct Symbol;
         struct FunctionTemplate;
         struct GlobalDynamicVariableTemplate;
         struct GlobalStaticVariableTemplate;
-  struct OverrideParent;
-    struct Polymorph;
-      struct ClassPolymorph;
-      struct EnumPolymorph;
-      struct InterfacePolymorph;
-      struct AdapterPolymorph;
-      struct FunctionPolymorph;
-      struct GlobalDynamicVariablePolymorph;
-      struct GlobalStaticVariablePolymorph;
-    struct WeightLevel;
-      struct ClassWeightLevel;
-      struct EnumWeightLevel;
-      struct InterfaceWeightLevel;
-      struct AdapterWeightLevel;
-      struct FunctionWeightLevel;
-      struct GlobalDynamicVariableWeightLevel;
-      struct GlobalStaticVariableWeightLevel;
+  struct Polymorph;
+    struct ClassPolymorph;
+    struct EnumPolymorph;
+    struct InterfacePolymorph;
+    struct AdapterPolymorph;
+    struct FunctionPolymorph;
+    struct GlobalDynamicVariablePolymorph;
+    struct GlobalStaticVariablePolymorph;
+  struct WeightLevel;
+    struct ClassWeightLevel;
+    struct EnumWeightLevel;
+    struct InterfaceWeightLevel;
+    struct AdapterWeightLevel;
+    struct FunctionWeightLevel;
+    struct GlobalDynamicVariableWeightLevel;
+    struct GlobalStaticVariableWeightLevel;
   struct Overload;
     struct OverloadOverride;
       struct AdapterOverloadOverride;
@@ -1908,15 +1946,7 @@ struct GlobalStaticVariableTemplate final : public rq::Template {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct OverrideParent : public rq::Symbol {
-  using Self = rq::OverrideParent;
-
-  explicit RQ_ALWAYS_INLINE OverrideParent(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Polymorph : public rq::OverrideParent {
+struct Polymorph : public rq::Symbol {
   using Self = rq::Polymorph;
 
   rq::Variant *_first_overload_ptr{nullptr};
@@ -2156,7 +2186,7 @@ struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct WeightLevel : public rq::OverrideParent {
+struct WeightLevel : public rq::Symbol {
   using Self = rq::WeightLevel;
 
   rq::WeightLevel *_next_ptr{nullptr};
@@ -2442,13 +2472,13 @@ struct GlobalStaticVariableWeightLevel final : public rq::WeightLevel {
 struct Override : public rq::Symbol {
   using Self = rq::Override;
 
-  rq::OverrideParent *_parent_ptr{nullptr};
+  rq::Symbol *_parent_ptr{nullptr};
   rq::GlobalDeclaration *_overriden_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Override(rq::SymbolKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::OverrideParent *getParentPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::OverrideParent *getParentPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getParentSymbolPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getParentSymbolPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDeclaration *
   getOverridenGlobalDeclarationPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDeclaration *
