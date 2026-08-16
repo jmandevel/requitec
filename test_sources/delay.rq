@@ -3,6 +3,7 @@
 [class DoubleArray,
 
     // delay means that this static global is not evaluated until specialization
+    // its is surveyed but the value is not calculated until specialization
     // things before layout tag are normally evaluated at class survey time
     // note that this would not be evaluatable at class survey time because it needs value of template argument.
     [delay][global][static]
