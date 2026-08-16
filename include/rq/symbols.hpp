@@ -43,50 +43,51 @@ enum class SymbolInfoFlags : std::uint64_t {
   REFLECTIVE_TYPE = rq::getBit(6),
   PRIMITIVE_TYPE = rq::getBit(7),
   PLATFORM_PRIMITIVE_TYPE = rq::getBit(8),
-  STANDARD_PRIMITIVE_TYPE = rq::getBit(9),
-  SCALED_PRIMITIVE_TYPE = rq::getBit(10),
-  SUBTYPE = rq::getBit(11),
-  COUNTED_SUBTYPE = rq::getBit(12),
-  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(13),
-  LOCAL_DECLARATION = rq::getBit(14),
-  LOCAL_VARIABLE = rq::getBit(15),
-  ARGUMENT = rq::getBit(16),
-  PARAMETER_LIST = rq::getBit(17),
-  SYMBOL_TABLE = rq::getBit(18),
-  LOCAL_STATEMENT = rq::getBit(19),
-  NAMED_TABLE = rq::getBit(20),
-  GLOBAL_DECLARATION = rq::getBit(21),
-  VARIANT = rq::getBit(22),
-  CLASS_VARIANT = rq::getBit(23),
-  ENUM_VARIANT = rq::getBit(24),
-  INTERFACE_VARIANT = rq::getBit(25),
-  ADAPTER_VARIANT = rq::getBit(26),
-  CONSTRUCTOR_VARIANT = rq::getBit(27),
-  FUNCTION_VARIANT = rq::getBit(28),
-  GLOBAL_DYNAMIC_VARIABLE_VARIANT = rq::getBit(29),
-  GLOBAL_STATIC_VARIABLE_VARIANT = rq::getBit(30),
-  OVERLOAD = rq::getBit(31),
-  SPECIALIZATION = rq::getBit(32),
-  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(33),
-  TEMPLATE = rq::getBit(34),
-  POLYMORPH = rq::getBit(35),
-  WEIGHT_LEVEL = rq::getBit(36),
-  OVERRIDE = rq::getBit(37),
-  OVERLOAD_OVERRIDE = rq::getBit(38),
-  TEMPLATE_OVERRIDE = rq::getBit(39),
+  FITTING_PRIMITIVE_TYPE = rq::getBit(9),
+  STANDARD_PRIMITIVE_TYPE = rq::getBit(10),
+  SCALED_PRIMITIVE_TYPE = rq::getBit(11),
+  SUBTYPE = rq::getBit(12),
+  COUNTED_SUBTYPE = rq::getBit(13),
+  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(14),
+  LOCAL_DECLARATION = rq::getBit(15),
+  LOCAL_VARIABLE = rq::getBit(16),
+  ARGUMENT = rq::getBit(17),
+  PARAMETER_LIST = rq::getBit(18),
+  SYMBOL_TABLE = rq::getBit(19),
+  LOCAL_STATEMENT = rq::getBit(20),
+  NAMED_TABLE = rq::getBit(21),
+  GLOBAL_DECLARATION = rq::getBit(22),
+  VARIANT = rq::getBit(23),
+  CLASS_VARIANT = rq::getBit(24),
+  ENUM_VARIANT = rq::getBit(25),
+  INTERFACE_VARIANT = rq::getBit(26),
+  ADAPTER_VARIANT = rq::getBit(27),
+  CONSTRUCTOR_VARIANT = rq::getBit(28),
+  FUNCTION_VARIANT = rq::getBit(29),
+  GLOBAL_DYNAMIC_VARIABLE_VARIANT = rq::getBit(30),
+  GLOBAL_STATIC_VARIABLE_VARIANT = rq::getBit(31),
+  OVERLOAD = rq::getBit(32),
+  SPECIALIZATION = rq::getBit(33),
+  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(34),
+  TEMPLATE = rq::getBit(35),
+  POLYMORPH = rq::getBit(36),
+  WEIGHT_LEVEL = rq::getBit(37),
+  OVERRIDE = rq::getBit(38),
+  OVERLOAD_OVERRIDE = rq::getBit(39),
+  TEMPLATE_OVERRIDE = rq::getBit(40),
 
   // SYMBOL DETAILS
-  IS_TYPE = rq::getBit(40),
-  IS_SIGNED_TYPE = rq::getBit(41),
-  IS_UNSIGNED_TYPE = rq::getBit(42),
-  IS_INTEGER_TYPE = rq::getBit(43),
-  IS_FLOAT_TYPE = rq::getBit(44),
-  IS_BINARY_TYPE = rq::getBit(45),
-  IS_BFLOAT_TYPE = rq::getBit(46),
-  IS_CODEUNIT_TYPE = rq::getBit(47),
-  HAS_LOW_ATTRIBUTES = rq::getBit(48),
-  IS_FRAME_SCOPE = rq::getBit(49),
-  IS_OBJECT_SCOPE = rq::getBit(50)
+  IS_TYPE = rq::getBit(41),
+  IS_SIGNED_TYPE = rq::getBit(42),
+  IS_UNSIGNED_TYPE = rq::getBit(43),
+  IS_INTEGER_TYPE = rq::getBit(44),
+  IS_FLOAT_TYPE = rq::getBit(45),
+  IS_BINARY_TYPE = rq::getBit(46),
+  IS_BFLOAT_TYPE = rq::getBit(47),
+  IS_CODEUNIT_TYPE = rq::getBit(48),
+  HAS_LOW_ATTRIBUTES = rq::getBit(49),
+  IS_FRAME_SCOPE = rq::getBit(50),
+  IS_OBJECT_SCOPE = rq::getBit(51)
 };
 
 RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
@@ -104,6 +105,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsPlatformPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsFittingPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsStandardPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -436,6 +439,14 @@ using SignedAddressType =
 using UnsignedAddressType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_ADDRESS_TYPE>;
 using CharType = rq::DerivedSimpleSymbol<rq::SymbolKind::CHAR_TYPE>;
+using FastSignedIntegerType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::FAST_SIGNED_INTEGER_TYPE>;
+using FastUnsignedIntegerType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::FAST_UNSIGNED_INTEGER_TYPE>;
+using LeastSignedIntegerType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::LEAST_SIGNED_INTEGER_TYPE>;
+using LeastUnsignedIntegerType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::LEAST_UNSIGNED_INTEGER_TYPE>;
 using Binary16Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY16_TYPE>;
 using Binary32Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY32_TYPE>;
 using Binary64Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY64_TYPE>;
