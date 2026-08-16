@@ -893,6 +893,22 @@ struct Anchor final : public rq::LocalDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Enumerator final : public rq::LocalDeclaration {
+  using Self = rq::Enumerator;
+
+  rq::ConstantInteger *_underlying_value_ptr;
+
+  explicit RQ_ALWAYS_INLINE Anchor(rq::Name name, rq::SymbolTable &container,
+                                   rq::Module &module,
+                                   rq::ConstantInteger &underlying_value);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantInteger &
+  getUnderlyingValue() const;
+  [[nodsicard]] RQ_ALWAYS_INLINE rq::ConstantInteger &getUnderlyingValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+}
+
 struct LocalVariable : public rq::LocalDeclaration {
   using Self = rq::LocalVariable;
 
@@ -1543,10 +1559,11 @@ struct EnumVariant : public rq::Variant {
 
   explicit RQ_ALWAYS_INLINE EnumVariant(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setUNDERLYING_VALUEType(rq::ConstantSymbol &type);
+  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol &type);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
-  getUNDERLYING_VALUETypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getUNDERLYING_VALUETypePtr();
+  getUnderlyingTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
+  getUnderlyingTypePtr();
   RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
   getEnumPolymorphPtr() const;
