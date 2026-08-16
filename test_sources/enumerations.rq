@@ -1,31 +1,11 @@
-[import "std"];
-
-[enum MyEnum, [fast_unsigned_integer 32],
-    APPLE  :[fast_unsigned_integer 32]  = 0;
-    ORANGE :[fast_unsigned_integer 32] = 2;
-    GRAPE  :[binary32] = 3;
+[enum Fruit, [fast_signed_integer],
+    APPLE,
+    ORANGE,
+    GRAPE
 ];
 
 [function [main], ()[signed_integer],
-    fruit := MyEnum.APPLE(3);
-    [match fruit
-        ][arm APPLE, apple:=[value].[var]\[borrow], 
-                apple = apple + 1;
-        ][arm ORANGE, orange:=[value].[var]\[borrow],
-                orange = orange * 2;
-        ][default
-                // do nothing!
-        ];
-    [fold int:[signed_integer],
-            [match fruit
-                ][arm APPLE, apple:=[value], 
-                    int <:= apple;
-                ][arm ORANGE, orange:=[value],
-                    int <:= orange.[cast [signed_integer]];
-                ][arm GRAPE, grape:=[value],
-                    int <:= grape.[cast [signed_integer]];
-                ];
-    ];
+    fruit := Fruit.APPLE;
 
-    [result] <:= int;
+    [result] <:= fruit.[cast [signed_integer]];
 ];
