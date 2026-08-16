@@ -94,6 +94,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType(rq::SymbolKind kind);
@@ -151,7 +152,6 @@ getIsGlobalVariableOverload(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLowAttributes(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope(rq::SymbolKind kind);
-[[nodiscard]] inline rq::SymbolKind getPolymorphKind(rq::SymbolKind kind);
 
 enum class EvaluationState : std::uint_fast8_t {
   NONE,
@@ -353,7 +353,6 @@ using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;
 using IndexValue = rq::DerivedSimpleSymbol<rq::SymbolKind::INDEX_VALUE>;
 using DiscriminantValue =
     rq::DerivedSimpleSymbol<rq::SymbolKind::DISCRIMINANT_VALUE>;
-using CallsiteValue = rq::DerivedSimpleSymbol<rq::SymbolKind::CALLSITE_VALUE>;
 using InferenceType = rq::DerivedSimpleSymbol<rq::SymbolKind::INFERENCE_TYPE>;
 using VoidType = rq::DerivedSimpleSymbol<rq::SymbolKind::VOID_TYPE>;
 using NoReturnType = rq::DerivedSimpleSymbol<rq::SymbolKind::NO_RETURN_TYPE>;
@@ -2502,9 +2501,9 @@ struct OverloadOverride : public rq::Override {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *
   getParentPolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getParentPolymorphPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Overload *
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Variant *
   getOverridenOverloadPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Overload *getOverridenOverloadPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Variant *getOverridenOverloadPtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };

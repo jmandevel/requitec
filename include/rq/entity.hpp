@@ -515,7 +515,6 @@ enum class SymbolKind : rq::EntityId {
   VALUE_VALUE,
   INDEX_VALUE,
   DISCRIMINANT_VALUE,
-  CALLSITE_VALUE,
 
   // CONTEXTUAL TYPE
   INFERENCE_TYPE,
@@ -624,6 +623,8 @@ enum class SymbolKind : rq::EntityId {
   LOCAL_DYNAMIC_VARIABLE,
   LOCAL_STATIC_VARIABLE,
   CAPTURE,
+
+  // ARGUMENTS => local variables
   TEMPLATE_ARGUMENT,
   FUNCTION_ARGUMENT,
 
@@ -702,7 +703,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
   GLOBAL_STATIC_VARIABLE_POLYMORPH,
 
-  // WEIGHT_LEVELS => override parent => symbol
+  // WEIGHT LEVELS => override parent => symbol
   CLASS_WEIGHT_LEVEL,
   ENUM_WEIGHT_LEVEL,
   INTERFACE_WEIGHT_LEVEL,
