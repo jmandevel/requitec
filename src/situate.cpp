@@ -911,6 +911,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::STATIC:
     [[fallthrough]];
+  case K::NO_DELAY:
+    [[fallthrough]];
+  case K::DELAY:
+    [[fallthrough]];
   case K::NO_CAPTURE:
     [[fallthrough]];
   case K::CAPTURE:
@@ -1014,6 +1018,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::PARTIAL_MUTATE_ATTRIBUTE:
     [[fallthrough]];
   case K::STATIC_ATTRIBUTE:
+    [[fallthrough]];
+  case K::DELAY_ATTRIBUTE:
     [[fallthrough]];
   case K::CAPTURE_ATTRIBUTE:
     [[fallthrough]];
@@ -1262,24 +1268,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ELEMENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::OVERLOAD:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::OVERLOAD_OF:
-    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
-    break;
-  case K::NO_TEMPLATE_VARIANT:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::NO_TEMPLATE_VARIANT_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::TEMPLATE_VARIANT:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::TEMPLATE_VARIANT_OF:
-    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::OVERLOAD_RANGE:
     is_ok = this->situateNullary(situation, expression);

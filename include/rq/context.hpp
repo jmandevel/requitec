@@ -102,6 +102,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::PublicAttributeType _public_attribute_type{};
   rq::PartialMutateAttributeType _partial_mutate_attribute_type{};
   rq::StaticAttributeType _static_attribute_type{};
+  rq::DelayAttributeType _delay_attribute_type{};
   rq::CaptureAttributeType _capture_attribute_type{};
   rq::InlineAttributeType _inline_attribute_type{};
   rq::MangleAttributeType _mangle_attribute_type{};
@@ -438,6 +439,10 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticAttributeType &
   acquireStaticAttributeType() {
     return this->_static_attribute_type;
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DelayAttributeType &
+  acquireDelayAttributeType() {
+    return this->_delay_attribute_type;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureAttributeType &
   acquireCaptureAttributeType() {

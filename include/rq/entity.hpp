@@ -304,6 +304,9 @@ enum class Keyword : rq::EntityId {
   // static_attribute
   NO_STATIC,
   STATIC,
+  // delay_attribute
+  NO_DELAY,
+  DELAY,
   // capture_attribute
   NO_CAPTURE,
   CAPTURE,
@@ -378,6 +381,7 @@ enum class Keyword : rq::EntityId {
   PUBLIC_ATTRIBUTE,         // no_public vs public
   PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
   STATIC_ATTRIBUTE,         // no_static vs static
+  DELAY_ATTRIBUTE,          // no_delay vs delay
   CAPTURE_ATTRIBUTE,        // no_capture vs capture
   INLINE_ATTRIBUTE,         // no_inline vs inline
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
@@ -530,6 +534,7 @@ enum class SymbolKind : rq::EntityId {
   PUBLIC_ATTRIBUTE_TYPE,
   PARTIAL_MUTATE_ATTRIBUTE_TYPE,
   STATIC_ATTRIBUTE_TYPE,
+  DELAY_ATTRIBUTE_TYPE,
   CAPTURE_ATTRIBUTE_TYPE,
   INLINE_ATTRIBUTE_TYPE,
   MANGLE_ATTRIBUTE_TYPE,

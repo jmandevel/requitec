@@ -368,6 +368,8 @@ using PartialMutateAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE>;
 using StaticAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::STATIC_ATTRIBUTE_TYPE>;
+using DelayAttributeType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::DELAY_ATTRIBUTE_TYPE>;
 using CaptureAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE>;
 using InlineAttributeType =

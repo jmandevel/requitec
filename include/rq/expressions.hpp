@@ -522,6 +522,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_static";
   case K::STATIC:
     return "static";
+  case K::NO_DELAY:
+    return "no_delay";
+  case K::DELAY:
+    return "delay";
   case K::NO_CAPTURE:
     return "no_capture";
   case K::CAPTURE:
@@ -626,6 +630,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "partial_mutate_attribute";
   case K::STATIC_ATTRIBUTE:
     return "static_attribute";
+  case K::DELAY_ATTRIBUTE:
+    return "delay_attribute";
   case K::CAPTURE_ATTRIBUTE:
     return "capture_attribute";
   case K::INLINE_ATTRIBUTE:
@@ -1440,6 +1446,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::STATIC:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
+  case K::NO_DELAY:
+    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::DELAY:
+    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
   case K::NO_CAPTURE:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -1586,6 +1598,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::PARTIAL_MUTATE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STATIC_ATTRIBUTE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DELAY_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CAPTURE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2540,6 +2554,9 @@ enum class LowAttribute : std::uint_fast8_t {
   // static_attribute
   NO_STATIC,
   STATIC,
+  // delay_attribute
+  NO_DELAY,
+  DELAY,
   // capture_attribute
   NO_CAPTURE,
   CAPTURE,
@@ -2628,6 +2645,10 @@ enum class LowAttribute : std::uint_fast8_t {
     return "no_static";
   case LA::STATIC:
     return "static";
+  case LA::NO_DELAY:
+    return "no_delay";
+  case LA::DELAY:
+    return "delay";
   case LA::NO_CAPTURE:
     return "no_capture";
   case LA::CAPTURE:
@@ -2733,6 +2754,10 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::NO_STATIC;
   case K::STATIC:
     return LA::STATIC;
+  case K::NO_DELAY:
+    return LA::NO_DELAY;
+  case K::DELAY:
+    return LA::DELAY;
   case K::NO_CAPTURE:
     return LA::NO_CAPTURE;
   case K::CAPTURE:
@@ -2819,57 +2844,60 @@ enum class LowFuseFlags : std::uint_fast32_t {
   STATIC = rq::getBit(6),
   STATIC_MASK = STATIC,
 
-  CAPTURE = rq::getBit(7),
+  DELAY = rq::getBit(7),
+  DELAY_MASK = DELAY,
+
+  CAPTURE = rq::getBit(8),
   CAPTURE_MASK = CAPTURE,
 
-  INLINE = rq::getBit(8),
+  INLINE = rq::getBit(9),
   INLINE_MASK = INLINE,
 
-  MANGLE = rq::getBit(9),
+  MANGLE = rq::getBit(10),
   MANGLE_MASK = MANGLE,
 
-  PACK = rq::getBit(10),
+  PACK = rq::getBit(11),
   PACK_MASK = PACK,
 
-  LIKELY = rq::getBit(11),
-  UNLIKELY = rq::getBit(12),
+  LIKELY = rq::getBit(12),
+  UNLIKELY = rq::getBit(13),
   BRANCH_TREND_MASK = LIKELY | UNLIKELY,
 
-  DEPRECIATED = rq::getBit(13),
-  EXPERIMENTAL = rq::getBit(14),
+  DEPRECIATED = rq::getBit(14),
+  EXPERIMENTAL = rq::getBit(15),
   SUPPORT_STATUS_MASK = DEPRECIATED | EXPERIMENTAL,
 
-  STABLE_ADDRESS = rq::getBit(15),
+  STABLE_ADDRESS = rq::getBit(16),
   STABLE_ADDRESS_MASK = STABLE_ADDRESS,
 
-  VARIADIC = rq::getBit(16),
+  VARIADIC = rq::getBit(17),
   VARIADIC_MASK = VARIADIC,
 
-  LOCATION = rq::getBit(17),
+  LOCATION = rq::getBit(18),
   LOCATION_MASK = LOCATION,
 
-  TEMPLATE = rq::getBit(18),
+  TEMPLATE = rq::getBit(19),
   TEMPLATE_MASK = TEMPLATE,
 
-  CONSTRAINT = rq::getBit(19),
+  CONSTRAINT = rq::getBit(20),
   CONSTRAINT_MASK = CONSTRAINT,
 
-  WEIGHT = rq::getBit(20),
+  WEIGHT = rq::getBit(21),
   WEIGHT_MASK = WEIGHT,
 
-  AUTO = rq::getBit(21),
+  AUTO = rq::getBit(22),
   AUTO_MASK = AUTO,
 
-  REQUIRE = rq::getBit(22),
+  REQUIRE = rq::getBit(23),
   REQUIRE_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(23),
+  ENSURE = rq::getBit(24),
   ENSURE_MASK = ENSURE,
 
-  RANGER = rq::getBit(24),
+  RANGER = rq::getBit(25),
   RANGER_MASK = RANGER,
 
-  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC |
+  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC | DELAY |
              CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
              EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
              CONSTRAINT | WEIGHT | AUTO | REQUIRE | ENSURE | RANGER
@@ -2912,6 +2940,10 @@ RQ_DEFINE_FLAGS(rq::LowFuseFlags);
     return LFF::NONE;
   case LA::STATIC:
     return LFF::STATIC;
+  case LA::NO_DELAY:
+    return LFF::NONE;
+  case LA::DELAY:
+    return LFF::DELAY;
   case LA::NO_CAPTURE:
     return LFF::NONE;
   case LA::CAPTURE:
@@ -3031,6 +3063,10 @@ getInfoFlags(rq::LowAttribute attribute) {
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::STATIC:
     return LIF::MUST_NOT_HAVE_ATTACHMENT;
+  case LA::NO_DELAY:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
+  case LA::DELAY:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::NO_CAPTURE:
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::CAPTURE:
@@ -3139,6 +3175,7 @@ enum class LowAttributeKind : std::uint_fast8_t {
   PUBLIC_ATTRIBUTE,         // no_public vs public
   PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
   STATIC_ATTRIBUTE,         // no_static vs static
+  DELAY_ATTRIBUTE,          // no_delay vs delay
   CAPTURE_ATTRIBUTE,        // no_capture vs capture
   INLINE_ATTRIBUTE,         // no_inline vs inline
   MANGLE_ATTRIBUTE,         // no_mangle vs mangle
@@ -3176,6 +3213,8 @@ enum class LowAttributeKind : std::uint_fast8_t {
     return "partial_mutate_attribute";
   case LAK::STATIC_ATTRIBUTE:
     return "static_attribute";
+  case LAK::DELAY_ATTRIBUTE:
+    return "delay_attribute";
   case LAK::CAPTURE_ATTRIBUTE:
     return "capture_attribute";
   case LAK::INLINE_ATTRIBUTE:
@@ -3246,6 +3285,10 @@ enum class LowAttributeKind : std::uint_fast8_t {
     [[fallthrough]];
   case LA::STATIC:
     return LAK::STATIC_ATTRIBUTE;
+  case LA::NO_DELAY:
+    [[fallthrough]];
+  case LA::DELAY:
+    return LAK::DELAY_ATTRIBUTE;
   case LA::NO_CAPTURE:
     [[fallthrough]];
   case LA::CAPTURE:
