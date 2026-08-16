@@ -1,0 +1,23 @@
+[template]::{> count_div_2:[unsigned_index], [auto] Element:[symbol] <}
+[constraint]::(count_div_2 >= 0 && Element.[is_type])
+[class DoubleArray,
+
+    // delay means that this static global is not evaluated until specialization
+    // things before layout tag are normally evaluated at class survey time
+    // note that this would not be evaluatable at class survey time because it needs value of template argument.
+    [delay][global][static]
+    count := count_div_2 * 2; 
+
+    [public][layout_constructor];
+
+    // note that Type is still auto, so its still possible to infer type from caller.
+    {> data:count#Type <},
+
+];
+
+[function [main], ()[signed_integer],
+
+    my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
+
+    [result] <:= 0;
+];
