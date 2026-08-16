@@ -1,4 +1,4 @@
-[template]::{> auto Element:[symbol] <}
+[template]::{> [auto] Element:[symbol] <}
 [class Vector4,
     // everything before layout is surveyed (not evaluated) at class survey time.
     // constructors before signature can use auto template parameters.
