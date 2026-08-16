@@ -100,12 +100,16 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttributeType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsStandardPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsScaledPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsArithmeticSequenceType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArgument(rq::SymbolKind kind);
@@ -120,11 +124,14 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionVariant(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDynamicVariableVariant(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalStaticVariableVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalDynamicVariableVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalStaticVariableVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverload(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecialization(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariableOverload(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalVariableOverload(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
