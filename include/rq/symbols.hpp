@@ -171,7 +171,7 @@ enum class EvaluationState : std::uint_fast8_t {
 
 [[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::EvaluationState rhs,
                                                 rq::EvaluationState lhs) {
-  return rq::getUnderlying(rhs) <=> rq::getUnderlying(lhs);
+  return rq::getUNDERLYING_VALUE(rhs) <=> rq::getUNDERLYING_VALUE(lhs);
 }
 
 // clang-format off
@@ -360,8 +360,6 @@ using CodeunitLiteral =
     rq::DerivedSimpleSymbol<rq::SymbolKind::CODEUNIT_LITERAL_TYPE>;
 using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;
 using IndexValue = rq::DerivedSimpleSymbol<rq::SymbolKind::INDEX_VALUE>;
-using DiscriminantValue =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::DISCRIMINANT_VALUE>;
 using InferenceType = rq::DerivedSimpleSymbol<rq::SymbolKind::INFERENCE_TYPE>;
 using VoidType = rq::DerivedSimpleSymbol<rq::SymbolKind::VOID_TYPE>;
 using NoReturnType = rq::DerivedSimpleSymbol<rq::SymbolKind::NO_RETURN_TYPE>;
@@ -823,7 +821,7 @@ struct Name final {
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     inout_id.AddString(this->getText());
-    inout_id.AddInteger(rq::getUnderlying(this->getKeyword()));
+    inout_id.AddInteger(rq::getUNDERLYING_VALUE(this->getKeyword()));
   }
 };
 
@@ -891,25 +889,6 @@ struct Anchor final : public rq::LocalDeclaration {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getVessel() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getVessel();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Enumerator final : rq::LocalDeclaration {
-  using Self = rq::Enumerator;
-
-  rq::ConstantSymbol *_type_ptr;
-  llvm::APInt _discriminant_value;
-
-  explicit RQ_ALWAYS_INLINE
-  Enumerator(rq::Name name, rq::SymbolTable &container, rq::SymbolTable &host,
-             rq::Module &module, rq::ConstantSymbol *type_ptr,
-             llvm::APInt discriminant);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt getDiscriminantValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt getDiscriminantValue();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1562,14 +1541,14 @@ struct ClassSpecialization final : public rq::ClassVariant {
 struct EnumVariant : public rq::Variant {
   using Self = rq::EnumVariant;
 
-  rq::ConstantSymbol *_discriminant_type_ptr{nullptr};
+  rq::ConstantSymbol *_underlying_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE EnumVariant(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setDiscriminantType(rq::ConstantSymbol &type);
+  RQ_ALWAYS_INLINE void setUNDERLYING_VALUEType(rq::ConstantSymbol &type);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
-  getDiscriminantType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getDiscriminantType();
+  getUNDERLYING_VALUETypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getUNDERLYING_VALUETypePtr();
   RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
   getEnumPolymorphPtr() const;

@@ -19,7 +19,7 @@ struct Constant : public rq::Entity {
   using Self = rq::Constant;
 
   explicit RQ_ALWAYS_INLINE Constant(rq::ConstantKind kind)
-      : Entity(rq::getUnderlying(kind) + rq::CONSTANT_OFFSET) {}
+      : Entity(rq::getUNDERLYING_VALUE(kind) + rq::CONSTANT_OFFSET) {}
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind getConstantKind() const {
     return static_cast<rq::ConstantKind>(this->_id - rq::CONSTANT_OFFSET);
@@ -90,7 +90,7 @@ struct ConstantWord final : public rq::Constant, public llvm::FoldingSetNode {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id ==
-           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::WORD);
+           rq::CONSTANT_OFFSET + rq::getUNDERLYING_VALUE(rq::ConstantKind::WORD);
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -123,7 +123,7 @@ struct ConstantArray final : public rq::Constant, public llvm::FoldingSetNode {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id ==
-           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::ARRAY);
+           rq::CONSTANT_OFFSET + rq::getUNDERLYING_VALUE(rq::ConstantKind::ARRAY);
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) {
@@ -158,7 +158,7 @@ struct ConstantDataArray final : public rq::Constant,
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id == rq::CONSTANT_OFFSET +
-                     rq::getUnderlying(rq::ConstantKind::DATA_ARRAY);
+                     rq::getUNDERLYING_VALUE(rq::ConstantKind::DATA_ARRAY);
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) {
@@ -169,7 +169,7 @@ struct ConstantDataArray final : public rq::Constant,
 inline void profileConstantSymbol(llvm::FoldingSetNodeID &inout_id,
                                   rq::HighFuseFlags flags,
                                   const rq::Symbol &symbol) {
-  inout_id.AddInteger(rq::getUnderlying(flags));
+  inout_id.AddInteger(rq::getUNDERLYING_VALUE(flags));
   inout_id.AddPointer(&symbol);
 }
 
@@ -200,7 +200,7 @@ struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id ==
-           rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::SYMBOL);
+           rq::CONSTANT_OFFSET + rq::getUNDERLYING_VALUE(rq::ConstantKind::SYMBOL);
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) {

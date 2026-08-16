@@ -794,6 +794,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "backward";
   case K::BACKWARD_OF:
     return "_backward_of";
+  case K::UNDERLYING_VALUE:
+    return "underlying_value";
+  case K::UNDERLYING_VALUE_OF:
+    return "_underlying_value_of";
+  case K::UNDERLYING_TYPE:
+    return "underlying_type";
+  case K::UNDERLYING_TYPE_OF:
+    return "_underlying_type_of";
   case K::OVERRIDE:
     return "override";
   case K::TEMPLATE_OF:
@@ -1782,6 +1790,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::BACKWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::UNDERLYING_VALUE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::UNDERLYING_VALUE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::UNDERLYING_TYPE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::UNDERLYING_TYPE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TEMPLATE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OVERRIDE:
@@ -2200,6 +2216,10 @@ getDescription(rq::Situation situation) {
     return K::CAPTURE_OF;
   case K::AS_EXTENSION:
     return K::AS_EXTENSION_OF;
+  case K::UNDERLYING_VALUE:
+    return K::UNDERLYING_TYPE_OF;
+  case K::UNDERLYING_TYPE:
+    return K::UNDERLYING_TYPE_OF;
   case K::TEMPLATE:
     return K::TEMPLATE_OF;
   case K::OVERLOAD_RANGE:
@@ -3946,7 +3966,7 @@ struct Expression final : public rq::Entity {
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
-  explicit Expression() : Entity(rq::getUnderlying(rq::Keyword::NONE)) {}
+  explicit Expression() : Entity(rq::getUNDERLYING_VALUE(rq::Keyword::NONE)) {}
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
     return static_cast<rq::Keyword>(this->getId());
   }
@@ -4122,27 +4142,27 @@ struct Expression final : public rq::Entity {
     return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
   }
   RQ_ALWAYS_INLINE void clear() {
-    this->_id = rq::getUnderlying(rq::Keyword::NONE);
+    this->_id = rq::getUNDERLYING_VALUE(rq::Keyword::NONE);
     this->_next_ptr_flags = {};
     this->_branch_ptr = nullptr;
     this->_source_ptr_flags = {};
     this->_source_text_length = 0;
   }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id == rq::getUnderlying(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id == rq::getUNDERLYING_VALUE(rq::Keyword::NONE),
               "keyword must not already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUnderlying(keyword);
+    this->_id = rq::getUNDERLYING_VALUE(keyword);
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id != rq::getUnderlying(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id != rq::getUNDERLYING_VALUE(rq::Keyword::NONE),
               "keyword must already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUnderlying(keyword);
+    this->_id = rq::getUNDERLYING_VALUE(keyword);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceInfoFlags::INSERTED);
@@ -4428,7 +4448,7 @@ struct Expression final : public rq::Entity {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
-    inout_id.AddInteger(rq::getUnderlying(this->getKeyword()));
+    inout_id.AddInteger(rq::getUNDERLYING_VALUE(this->getKeyword()));
     if (this->getIsStatement()) {
       inout_id.AddInteger(1);
     } else {

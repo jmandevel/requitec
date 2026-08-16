@@ -189,8 +189,6 @@ enum class Keyword : rq::EntityId {
   VALUE,
   // vignette index.
   INDEX,
-  // vignette or reflected enumerator index.
-  DISCRIMINANT,
   // reference to extended value of function or extension_function.
   THIS,
   // value returned from a function.
@@ -469,6 +467,10 @@ enum class Keyword : rq::EntityId {
   FORWARD_OF,
   BACKWARD,
   BACKWARD_OF,
+  UNDERLYING_VALUE,
+  UNDERLYING_VALUE_OF,
+  UNDERLYING_TYPE,
+  UNDERLYING_TYPE_OF,
   TEMPLATE_OF,
   OVERLOAD_RANGE,
   OVERLOAD_RANGE_OF,
@@ -525,7 +527,6 @@ enum class SymbolKind : rq::EntityId {
   // CONTEXTUAL VALUE
   VALUE_VALUE,
   INDEX_VALUE,
-  DISCRIMINANT_VALUE,
 
   // CONTEXTUAL TYPE
   INFERENCE_TYPE,
@@ -830,13 +831,13 @@ enum class Opcode : rq::EntityId {
 
 constexpr rq::EntityId KEYWORD_OFFSET = 0;
 
-constexpr rq::EntityId SYMBOL_OFFSET = rq::getUnderlying(rq::Keyword::LAST);
+constexpr rq::EntityId SYMBOL_OFFSET = rq::getUNDERLYING_VALUE(rq::Keyword::LAST);
 
 constexpr rq::EntityId CONSTANT_OFFSET =
-    rq::SYMBOL_OFFSET + rq::getUnderlying(rq::SymbolKind::LAST);
+    rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::LAST);
 
 constexpr rq::EntityId OPCODE_OFFSET =
-    rq::CONSTANT_OFFSET + rq::getUnderlying(rq::ConstantKind::LAST);
+    rq::CONSTANT_OFFSET + rq::getUNDERLYING_VALUE(rq::ConstantKind::LAST);
 
 struct Entity;
 
@@ -940,7 +941,7 @@ struct Entity {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
-    return this->_id < rq::getUnderlying(rq::Keyword::LAST);
+    return this->_id < rq::getUNDERLYING_VALUE(rq::Keyword::LAST);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
@@ -981,6 +982,6 @@ struct Entity {
 
 namespace llvm {
 RQ_ALWAYS_INLINE llvm::hash_code hash_value(const rq::Keyword &value) {
-  return llvm::hash_value(rq::getUnderlying(value));
+  return llvm::hash_value(rq::getUNDERLYING_VALUE(value));
 }
 } // namespace llvm
