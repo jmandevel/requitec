@@ -261,7 +261,7 @@ struct Symbol;
     struct FunctionWeightLevel;
     struct GlobalDynamicVariableWeightLevel;
     struct GlobalStaticVariableWeightLevel;
-  struct Overload;
+  struct Override;
     struct OverloadOverride;
       struct AdapterOverloadOverride;
       struct FunctionOverloadOverride;
