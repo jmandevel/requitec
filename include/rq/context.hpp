@@ -92,7 +92,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::StringLiteral _string_literal_type{};
   rq::CodeunitLiteral _codeunit_literal_type{};
   rq::IndexValue _index_value{};
-  rq::DiscriminantValue _discrimnant_value{};
   rq::InferenceType _inference_type{};
   rq::VoidType _void_type{};
   rq::NoReturnType _no_return_type{};
@@ -402,10 +401,6 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::IndexValue &acquireIndexValue() {
     return this->_index_value;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::DiscriminantValue &
-  acquireDiscriminantValue() {
-    return this->_discrimnant_value;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &acquireInferenceType() {
     return this->_inference_type;
