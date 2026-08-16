@@ -818,6 +818,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weight_level_range";
   case K::WEIGHT_LEVEL_RANGE_OF:
     return "_weight_level_range_of";
+  case K::CONSTRUCTOR_RANGE:
+    return "constructor_range";
+  case K::CONSTRUCTOR_RANGE_OF:
+    return "_constructor_range_of";
+  case K::LAYOUT_CONSTRUCTOR_OF:
+    return "_layout_constructor_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -1204,7 +1210,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CONSTRUCTOR:
     return KIF::STATEMENT;
   case K::LAYOUT_CONSTRUCTOR:
-    return KIF::STATEMENT;
+    return KIF::STATEMENT | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1796,6 +1802,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::WEIGHT_LEVEL_RANGE_OF:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::CONSTRUCTOR_RANGE:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::CONSTRUCTOR_RANGE_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::LAYOUT_CONSTRUCTOR_OF:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::VARIANT_RANGE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::VARIANT_RANGE_OF:
@@ -2198,6 +2210,10 @@ getDescription(rq::Situation situation) {
     return K::WEIGHT_LEVEL_OF;
   case K::WEIGHT_LEVEL_RANGE:
     return K::WEIGHT_LEVEL_RANGE_OF;
+  case K::CONSTRUCTOR_RANGE:
+    return K::CONSTRUCTOR_RANGE_OF;
+  case K::LAYOUT_CONSTRUCTOR:
+    return K::LAYOUT_CONSTRUCTOR_OF;
   case K::VARIANT_RANGE:
     return K::VARIANT_RANGE_OF;
   case K::IS_TYPE:

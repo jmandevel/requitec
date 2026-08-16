@@ -1288,6 +1288,15 @@ bool Situator::situateTree(rq::Situation situation,
   case K::WEIGHT_LEVEL_OF:
     is_ok - this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
+  case K::CONSTRUCTOR_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::CONSTRUCTOR_RANGE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::LAYOUT_CONSTRUCTOR_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
   case K::VARIANT_RANGE:
     is_ok = this->situateNullary(situation, expression);
     break;
