@@ -1505,12 +1505,20 @@ struct ClassVariant : public rq::Variant {
   using Self = rq::ClassVariant;
 
   rq::LayoutType *_layout_ptr{nullptr};
+  rq::ConstructorVariant *_first_constructor_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ClassVariant(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
   [[nodiscard]] const rq::LayoutType *getLayoutTypePtr() const;
   [[nodiscard]] rq::LayoutType *getLayoutTypePtr();
+  RQ_ALWAYS_INLINE void addConstructorVariant(rq::ConstructorVariant &variant);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorVariant>
+  getConstructorVariantSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+  getConstructorVariantSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+  getConstConstructorVariantSubrange() const;
   RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
   getClassPolymorphPtr() const;
@@ -1660,12 +1668,17 @@ struct ConstructorVariant : public rq::Variant {
 
   rq::ConstructorVariant *_next_ptr{nullptr};
   rq::LayoutType *_layout_ptr{nullptr};
+  rq::ClassVariant *_class_variant_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ConstructorVariant(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutTypePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutTypePtr();
+  RQ_ALWAYS_INLINE vodi setClassVariant(rq::ClassVariant &variant);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassVariant *
+  getClassVariantPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassVariant *getClassVariantPtr();
   RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
   getClassPolymorphPtr() const;
@@ -1849,6 +1862,8 @@ struct Template : public rq::GlobalDeclaration {
 struct ClassTemplate final : public rq::Template {
   using Self = rq::ClassTemplate;
 
+  rq::ConstructorVariant *_first_constructor_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE ClassTemplate();
 
   RQ_ALWAYS_INLINE void
@@ -1863,6 +1878,16 @@ struct ClassTemplate final : public rq::Template {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Variant, rq::ClassSpecialization>
       getConstClassSpecializationSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+      getConstClassWeightLevelSubrange() const;
+  RQ_ALWAYS_INLINE void addConstructorVariant(rq::ConstructorVariant &variant);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorVariant>
+  getConstructorVariantSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+  getConstructorVariantSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+  getConstConstructorVariantSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2024,8 +2049,6 @@ struct Polymorph : public rq::Symbol {
 struct ClassPolymorph final : public rq::Polymorph {
   using Self = rq::ClassPolymorph;
 
-  rq::ConstructorVariant *_first_constructor_ptr{nullptr};
-
   explicit RQ_ALWAYS_INLINE ClassPolymorph();
 
   RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &overload);
@@ -2045,13 +2068,6 @@ struct ClassPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
       getConstClassWeightLevelSubrange() const;
-  RQ_ALWAYS_INLINE void addConstructorVariant(rq::ConstructorVariant &variant);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorVariant>
-    getConstructorVariantSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
-    getConstructorVariantSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
-    getConstConstructorVariantSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
