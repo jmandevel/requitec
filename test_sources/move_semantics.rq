@@ -1,10 +1,10 @@
 [import "std"];
 
-[class MyClass, {}];
+[class MyClass, [public][layout_constructor]; {}];
 
 // This class has stable_address attribute, so it cannnot be moved to a new memory address
 [stable_address]
-[class MyPinned, {}];
+[class MyPinned, [public][layout_constructor]; {}];
 
 [function takeReciever, ()[void]=>MyPinned,
 

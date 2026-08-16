@@ -6,11 +6,11 @@
     ];
 ];
 
-[class Dog, {},];
+[class Dog, [public][layout_constructor]; {},];
 
-[class Cat, {},];
+[class Cat, [public][layout_constructor]; {},];
 
-[class Rat, {},
+[class Rat, [public][layout_constructor]; {},
     [function squeak, ()[void]=>,
         std.print(line="Squeak!");  
     ];

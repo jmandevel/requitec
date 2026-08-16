@@ -26,9 +26,9 @@
 
 // parameter marks work the same way for template layouts and class layouts
 [template]::{a:=0, > b:=1 <, c:=2, | d:=3}
-[class MyTemplateClass, {}];
+[class MyTemplateClass, [public][layout_constructor]; {}];
 
-[class MyClass,
+[class MyClass, [public][layout_constructor];
     {a:=0, > b:=1 <, c:=2, | d:=3},
 ];
 

@@ -1,6 +1,6 @@
 [import "std"];
 
-[class MyClass,
+[class MyClass, [public][layout_constructor];
     {>
         [public] x : [fast_signed_integer 32] = 0,
         [public] y : [fast_signed_integer 32] = 0,

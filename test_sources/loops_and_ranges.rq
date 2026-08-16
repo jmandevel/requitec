@@ -2,7 +2,7 @@
 
 [template]::{> [auto] element_variability:[var_attribute] <}
 [ranger]
-[class MyClassRanger,
+[class MyClassRanger, [public][layout_constructor];
     { data:$element_variability\#[fast_signed_integer 32] ,index:[unsigned_index]=0 <},
 
     [function [increment], ()[void]=>$[var]\,
@@ -24,7 +24,7 @@
     ];
 ];
 
-[class MyClass,
+[class MyClass, [public][layout_constructor];
     {> 
         [public] data:10#[fast_signed_integer 32]=[array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     <},

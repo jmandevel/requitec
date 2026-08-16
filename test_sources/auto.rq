@@ -2,7 +2,12 @@
 
 [template]::{> [auto] Type:[symbol] <}
 [constraint]::Type.[is_type]
-[function add, (> a:Type, b:Type <)Type,
+[function add, 
+    // statements before signature are surveyed (not evaluated) at template survey time.
+    // everything before signature must be static.
+    // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
+    (> a:Type, b:Type <)Type,
+    // statements after signature are evaluated at specialization implementation time
     [result] := a + b;
 ];
 

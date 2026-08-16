@@ -1,6 +1,6 @@
 [import "std"];
 
-[class MyClass,
+[class MyClass, [public][layout_constructor];
     {> [public] var:[signed_integer] },
 
     [public]

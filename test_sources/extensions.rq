@@ -5,7 +5,7 @@
         [result] <:= LENGTH;
     ];
 
-    [class Foo, {}];
+    [class Foo, [public][layout_constructor]; {}];
 
     [function bar, ()[void]=>$Foo,
     

@@ -1,4 +1,4 @@
-[class Partialable,
+[class Partialable, [public][layout_constructor];
     {>
         [public][partial_mutate] property_a : [fast_signed_integer 32]= 0,
         [public] property_b : [fast_signed_integer 32] = 0
