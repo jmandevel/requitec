@@ -132,6 +132,8 @@ enum class Keyword : rq::EntityId {
   ADAPT_OF,
   REMOVE,
   REMOVE_OF,
+  INIT,
+  INIT_OF,
   INPLACE_DESTROY,
   INPLACE_DESTROY_OF,
   INPLACE_INITIALIZE,

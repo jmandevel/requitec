@@ -2,8 +2,8 @@
 
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/entity.hpp>
-#include <rq/utility.hpp>
 #include <rq/iterators.hpp>
+#include <rq/utility.hpp>
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/FoldingSet.h>
@@ -236,6 +236,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_remove_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
+  case K::INIT:
+    return "init";
+  case K::INIT_OF:
+    return "_init_of";
   case K::INPLACE_DESTROY_OF:
     return "_inplace_destroy_of";
   case K::INPLACE_INITIALIZE:
@@ -1138,6 +1142,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::REMOVE_OF:
     return KIF::STATEMENT;
+  case K::INIT:
+    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+  case K::INIT_OF:
+    return KIF::RVALUE | KIF::STATEMENT;
   case K::INPLACE_DESTROY:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
   case K::INPLACE_DESTROY_OF:
@@ -2114,6 +2122,8 @@ getDescription(rq::Situation situation) {
     return K::BACKWARD_OF;
   case K::REMOVE:
     return K::REMOVE_OF;
+  case K::INIT:
+    return K::INIT_OF;
   case K::INPLACE_DESTROY:
     return K::INPLACE_DESTROY_OF;
   case K::INPLACE_INITIALIZE:
@@ -2897,8 +2907,8 @@ enum class LowFuseFlags : std::uint_fast32_t {
   RANGER = rq::getBit(25),
   RANGER_MASK = RANGER,
 
-  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC | DELAY |
-             CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
+  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC |
+             DELAY | CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
              EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
              CONSTRAINT | WEIGHT | AUTO | REQUIRE | ENSURE | RANGER
 };
@@ -4356,46 +4366,40 @@ struct Expression final : public rq::Entity {
     }
     return *this;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ExpressionIterator>
-      getInclusiveNextSubrange() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ExpressionIterator>
+  getInclusiveNextSubrange() {
     return rq::Subrange<rq::ExpressionIterator>(rq::ExpressionIterator(this),
-                                 rq::ExpressionIterator());
+                                                rq::ExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstExpressionIterator>
-      getInclusiveNextSubrange() const {
-    return rq::Subrange<rq::ConstExpressionIterator>(rq::ConstExpressionIterator(this),
-                                 rq::ConstExpressionIterator());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstExpressionIterator>
+  getInclusiveNextSubrange() const {
+    return rq::Subrange<rq::ConstExpressionIterator>(
+        rq::ConstExpressionIterator(this), rq::ConstExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ExpressionIterator>
-      getNextSubrange() {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ExpressionIterator>
+  getNextSubrange() {
     return rq::Subrange(rq::ExpressionIterator(this->getNextPtr()),
-                                 rq::ExpressionIterator());
+                        rq::ExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstExpressionIterator>
-      getNextSubrange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstExpressionIterator>
+  getNextSubrange() const {
     return rq::Subrange<rq::ConstExpressionIterator>(
         rq::ConstExpressionIterator(this->getNextPtr()),
         rq::ConstExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ExpressionIterator>
-      getBranchSubrange() {
-    return rq::Subrange<rq::ExpressionIterator>(rq::ExpressionIterator(this->getBranchPtr()),
-                                 rq::ExpressionIterator());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ExpressionIterator>
+  getBranchSubrange() {
+    return rq::Subrange<rq::ExpressionIterator>(
+        rq::ExpressionIterator(this->getBranchPtr()), rq::ExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstExpressionIterator>
-      getBranchSubrange() const {
-    return rq::Subrange<rq::ConstExpressionIterator>(rq::ConstExpressionIterator(this->getBranchPtr()),
-                                 rq::ConstExpressionIterator());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstExpressionIterator>
+  getBranchSubrange() const {
+    return rq::Subrange<rq::ConstExpressionIterator>(
+        rq::ConstExpressionIterator(this->getBranchPtr()),
+        rq::ConstExpressionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstExpressionIterator>
-      getConstBranchSubrange() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstExpressionIterator>
+  getConstBranchSubrange() const {
     return rq::Subrange<rq::ConstExpressionIterator>(
         rq::ConstExpressionIterator(this->getBranchPtr()),
         rq::ConstExpressionIterator());

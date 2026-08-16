@@ -496,6 +496,13 @@ bool Situator::situateTree(rq::Situation situation,
   case K::REMOVE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
+  case K::INIT:
+    is_ok = this->situateNaryTag(situation, expression, 0, S::ARGUMENT);
+    break;
+  case K::INIT_OF:
+    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
+                                               situation, S::ARGUMENT);
+    break;
   case K::INPLACE_DESTROY:
     is_ok = this->situateNullary(situation, expression);
     break;
