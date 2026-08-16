@@ -1658,6 +1658,7 @@ struct AdapterSpecialization final : public rq::AdapterVariant {
 struct ConstructorVariant : public rq::Variant {
   using Self = rq::ConstructorVariant;
 
+  rq::ConstructorVariant *_next_ptr{nullptr};
   rq::LayoutType *_layout_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ConstructorVariant(rq::SymbolKind kind);
@@ -2023,6 +2024,8 @@ struct Polymorph : public rq::Symbol {
 struct ClassPolymorph final : public rq::Polymorph {
   using Self = rq::ClassPolymorph;
 
+  rq::ConstructorVariant *_first_constructor_ptr{nullptr};
+
   explicit RQ_ALWAYS_INLINE ClassPolymorph();
 
   RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &overload);
@@ -2042,6 +2045,13 @@ struct ClassPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
       getConstClassWeightLevelSubrange() const;
+  RQ_ALWAYS_INLINE void addConstructorVariant(rq::ConstructorVariant &variant);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorVariant>
+    getConstructorVariantSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+    getConstructorVariantSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorVariant>
+    getConstConstructorVariantSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
