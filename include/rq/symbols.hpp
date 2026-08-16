@@ -66,7 +66,7 @@ enum class SymbolInfoFlags : std::uint64_t {
   GLOBAL_STATIC_VARIABLE_VARIANT = rq::getBit(29),
   OVERLOAD = rq::getBit(30),
   SPECIALIZATION = rq::getBit(31),
-  GLOBAL_VARIABLE = rq::getBit(32),
+  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(32),
   TEMPLATE = rq::getBit(33),
   POLYMORPH = rq::getBit(34),
   WEIGHT_LEVEL = rq::getBit(35),
@@ -109,28 +109,28 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArgument(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDynamicVariableVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalStaticVariableVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverload(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecialization(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariableOverload(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverride(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverloadOverride(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateOverride(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
