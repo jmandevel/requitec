@@ -1,7 +1,7 @@
-[enum Fruit, [fast_signed_integer],
-    APPLE,
-    ORANGE,
-    GRAPE
+[enum Fruit, [fast_signed_integer], // will use the fastest signed integer that fits all values
+    APPLE, // values that are not set will start at 0
+    ORANGE = 3, // explicitly set orange to use underlying value of 3
+    GRAPE // this will automatically be set to 4, the previous value incremented by 1.
 ];
 
 [function [main], ()[signed_integer],
