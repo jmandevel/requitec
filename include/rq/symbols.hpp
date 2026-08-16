@@ -61,31 +61,32 @@ enum class SymbolInfoFlags : std::uint64_t {
   ENUM_VARIANT = rq::getBit(24),
   INTERFACE_VARIANT = rq::getBit(25),
   ADAPTER_VARIANT = rq::getBit(26),
-  FUNCTION_VARIANT = rq::getBit(27),
-  GLOBAL_DYNAMIC_VARIABLE_VARIANT = rq::getBit(28),
-  GLOBAL_STATIC_VARIABLE_VARIANT = rq::getBit(29),
-  OVERLOAD = rq::getBit(30),
-  SPECIALIZATION = rq::getBit(31),
-  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(32),
-  TEMPLATE = rq::getBit(33),
-  POLYMORPH = rq::getBit(34),
-  WEIGHT_LEVEL = rq::getBit(35),
-  OVERRIDE = rq::getBit(36),
-  OVERLOAD_OVERRIDE = rq::getBit(37),
-  TEMPLATE_OVERRIDE = rq::getBit(38),
+  CONSTRUCTOR_VARIANT = rq::getBit(27),
+  FUNCTION_VARIANT = rq::getBit(28),
+  GLOBAL_DYNAMIC_VARIABLE_VARIANT = rq::getBit(29),
+  GLOBAL_STATIC_VARIABLE_VARIANT = rq::getBit(30),
+  OVERLOAD = rq::getBit(31),
+  SPECIALIZATION = rq::getBit(32),
+  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(33),
+  TEMPLATE = rq::getBit(34),
+  POLYMORPH = rq::getBit(35),
+  WEIGHT_LEVEL = rq::getBit(36),
+  OVERRIDE = rq::getBit(37),
+  OVERLOAD_OVERRIDE = rq::getBit(38),
+  TEMPLATE_OVERRIDE = rq::getBit(39),
 
   // SYMBOL DETAILS
-  IS_TYPE = rq::getBit(39),
-  IS_SIGNED_TYPE = rq::getBit(40),
-  IS_UNSIGNED_TYPE = rq::getBit(41),
-  IS_INTEGER_TYPE = rq::getBit(42),
-  IS_FLOAT_TYPE = rq::getBit(43),
-  IS_BINARY_TYPE = rq::getBit(44),
-  IS_BFLOAT_TYPE = rq::getBit(45),
-  IS_CODEUNIT_TYPE = rq::getBit(46),
-  HAS_LOW_ATTRIBUTES = rq::getBit(47),
-  IS_FRAME_SCOPE = rq::getBit(48),
-  IS_OBJECT_SCOPE = rq::getBit(49)
+  IS_TYPE = rq::getBit(40),
+  IS_SIGNED_TYPE = rq::getBit(41),
+  IS_UNSIGNED_TYPE = rq::getBit(42),
+  IS_INTEGER_TYPE = rq::getBit(43),
+  IS_FLOAT_TYPE = rq::getBit(44),
+  IS_BINARY_TYPE = rq::getBit(45),
+  IS_BFLOAT_TYPE = rq::getBit(46),
+  IS_CODEUNIT_TYPE = rq::getBit(47),
+  HAS_LOW_ATTRIBUTES = rq::getBit(48),
+  IS_FRAME_SCOPE = rq::getBit(49),
+  IS_OBJECT_SCOPE = rq::getBit(50)
 };
 
 RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
@@ -124,6 +125,8 @@ getIsArithmeticSequenceType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterVariant(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsConstructorVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionVariant(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsGlobalDynamicVariableVariant(rq::SymbolKind kind);
@@ -227,6 +230,9 @@ struct Symbol;
           struct AdapterVariant;
             struct AdapterOverload;
             struct AdapterSpecialization;
+          struct ConstructorVariant;
+            struct ConstructorOverload;
+            struct LayoutConstructorOverload;
           struct FunctionVariant;
             struct FunctionOverload;
             struct FunctionSpecialization;
@@ -1645,6 +1651,40 @@ struct AdapterSpecialization final : public rq::AdapterVariant {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterTemplate *
   getAdapterTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterTemplate *getAdapterTemplatePtr();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstructorVariant : public rq::Variant {
+  using Self = rq::ConstructorVariant;
+
+  rq::LayoutType *_layout_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE ConstructorVariant(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutTypePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutTypePtr();
+  RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
+  getClassPolymorphPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *getClassPolymorphPtr();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstructorOverload final : public rq::ConstructorVariant {
+  using Self = rq::ConstructorOverload;
+
+  explicit RQ_ALWAYS_INLINE ConstructorOverload();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LayoutConstructorOverload final : public rq::LayoutConstructorOverload {
+  using Self = rq::LayoutConstructorOverload;
+
+  explicit RQ_ALWAYS_INLINE LayoutConstructorOverload();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
