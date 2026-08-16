@@ -288,6 +288,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "function";
   case K::IMPLEMENT_FUNCTION:
     return "implement_function";
+  case K::CONSTRUCTOR:
+    return "constructor";
+  case K::LAYOUT_CONSTRUCTOR:
+    return "layout_constructor";
 
   // CONTROL FLOW
   case K::RETURN:
@@ -1182,6 +1186,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::FUNCTION:
     return KIF::STATEMENT;
   case K::IMPLEMENT_FUNCTION:
+    return KIF::STATEMENT;
+  case K::CONSTRUCTOR:
+    return KIF::STATEMENT;
+  case K::LAYOUT_CONSTRUCTOR:
     return KIF::STATEMENT;
 
   // CONTROL FLOW

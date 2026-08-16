@@ -575,6 +575,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IMPLEMENT_FUNCTION:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
+  case K::CONSTRUCTOR:
+    is_ok = this->situateStatementTagStatement(situation, expression);
+    break;
+  case K::LAYOUT_CONSTRUCTOR:
+    is_ok = this->situateNullary(situation, expression);
+    break;
 
   // CONTROL FLOW
   case K::RETURN:

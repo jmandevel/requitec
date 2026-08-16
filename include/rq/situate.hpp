@@ -91,11 +91,11 @@ struct Situator final {
                                         rq::Expression &first_parameter);
   // scope, block, else, default, main
   [[nodiscard]] bool situateStatement(rq::Expression &expression);
-  // function, function, implement_function, use_function, class, enum, adapter
+  // function, function, implement_function, class, enum, adapter
   [[nodiscard]] bool
   situateNameStatementTagStatement(rq::Situation situation,
                                            rq::Expression &expression);
-  // switch, match, if, else_if, while, forward, backward
+  // switch, match, if, else_if, while, constructor
   [[nodiscard]] bool
   situateStatementTagStatement(rq::Situation situation,
                                        rq::Expression &expression);
