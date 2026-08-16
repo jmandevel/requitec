@@ -1411,10 +1411,8 @@ using IfStatement = rq::DerivedLocalScope<rq::SymbolKind::IF_STATEMENT>;
 using ElseIfStatement =
     rq::DerivedLocalScope<rq::SymbolKind::ELSE_IF_STATEMENT>;
 using ElseStatement = rq::DerivedLocalScope<rq::SymbolKind::ELSE_STATEMENT>;
-using MatchStatement = rq::DerivedLocalScope<rq::SymbolKind::MATCH_STATEMENT>;
 using SwitchStatement = rq::DerivedLocalScope<rq::SymbolKind::SWITCH_STATEMENT>;
 using CaseStatement = rq::DerivedLocalScope<rq::SymbolKind::CASE_STATEMENT>;
-using WithStatement = rq::DerivedLocalScope<rq::SymbolKind::WITH_STATEMENT>;
 using DefaultStatement =
     rq::DerivedLocalScope<rq::SymbolKind::DEFAULT_STATEMENT>;
 using ForStatement = rq::DerivedLocalScope<rq::SymbolKind::FOR_STATEMENT>;

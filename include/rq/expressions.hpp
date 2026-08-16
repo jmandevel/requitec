@@ -414,8 +414,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_if_chain";
   case K::SWITCH_CHAIN:
     return "_switch_chain";
-  case K::MATCH_CHAIN:
-    return "_match_chain";
   case K::SPIN_CHAIN:
     return "_spin_chain";
   case K::IF:
@@ -424,14 +422,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "else_if";
   case K::ELSE:
     return "else";
-  case K::MATCH:
-    return "match";
   case K::SWITCH:
     return "switch";
   case K::CASE:
     return "case";
-  case K::ARM:
-    return "arm";
   case K::DEFAULT:
     return "default";
   case K::FOR:
@@ -904,24 +898,23 @@ enum class KeywordInfoFlags : std::uint32_t {
   FINISHING_CHAINLINK = rq::getBit(8),
   IF_CHAINLINK = rq::getBit(9),
   SWITCH_CHAINLINK = rq::getBit(10),
-  MATCH_CHAINLINK = rq::getBit(11),
-  SPIN_CHAINLINK = rq::getBit(12),
+  SPIN_CHAINLINK = rq::getBit(11),
   // TOP
-  STATEMENT = rq::getBit(13),
-  RVALUE = rq::getBit(14),
-  LVALUE = rq::getBit(15),
-  REFLECTION = rq::getBit(16),
-  ARGUMENT = rq::getBit(17),
-  PARAMETER = rq::getBit(18),
-  TUPLE_ELEMENT = rq::getBit(19),
-  BINDING = rq::getBit(20),
-  NAME = rq::getBit(21),
-  NAMESPACE = rq::getBit(22),
-  ASCRIPTION = rq::getBit(23),
-  LOW_ATTRIBUTE = rq::getBit(24),
-  HIGH_ATTRIBUTE = rq::getBit(25),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
+  STATEMENT = rq::getBit(12),
+  RVALUE = rq::getBit(13),
+  LVALUE = rq::getBit(14),
+  REFLECTION = rq::getBit(15),
+  ARGUMENT = rq::getBit(16),
+  PARAMETER = rq::getBit(17),
+  TUPLE_ELEMENT = rq::getBit(18),
+  BINDING = rq::getBit(19),
+  NAME = rq::getBit(20),
+  NAMESPACE = rq::getBit(21),
+  ASCRIPTION = rq::getBit(22),
+  LOW_ATTRIBUTE = rq::getBit(23),
+  HIGH_ATTRIBUTE = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    HIGH_ATTRIBUTE | LOW_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
@@ -1335,8 +1328,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::SWITCH_CHAIN:
     return KIF::STATEMENT;
-  case K::MATCH_CHAIN:
-    return KIF::STATEMENT;
   case K::SPIN_CHAIN:
     return KIF::STATEMENT;
   case K::IF:
@@ -1346,19 +1337,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::IF_CHAINLINK;
   case K::ELSE:
     return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK;
-  case K::MATCH:
-    return KIF::STARTING_CHAINLINK | KIF::MATCH_CHAINLINK;
   case K::SWITCH:
     return KIF::STARTING_CHAINLINK | KIF::SWITCH_CHAINLINK;
   case K::CASE:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::SWITCH_CHAINLINK;
-  case K::ARM:
-    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::MATCH_CHAINLINK;
   case K::DEFAULT:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::SWITCH_CHAINLINK | KIF::MATCH_CHAINLINK;
+           KIF::SWITCH_CHAINLINK;
   case K::FOR:
     return KIF::STATEMENT;
   case K::WHILE:
@@ -1996,7 +1982,6 @@ enum class Situation : std::uint_fast8_t {
   FINISHING_CHAINLINK,
   IF_CHAINLINK,
   SWITCH_CHAINLINK,
-  MATCH_CHAINLINK,
   SPIN_CHAINLINK,
   STARTING_IF_CHAINLINK,
   CONTINUING_IF_CHAINLINK,
@@ -2004,9 +1989,6 @@ enum class Situation : std::uint_fast8_t {
   STARTING_SWITCH_CHAINLINK,
   CONTINUING_SWITCH_CHAINLINK,
   FINISHING_SWITCH_CHAINLINK,
-  STARTING_MATCH_CHAINLINK,
-  CONTINUING_MATCH_CHAINLINK,
-  FINISHING_MATCH_CHAINLINK,
   STARTING_SPIN_CHAINLINK,
   CONTINUING_SPIN_CHAINLINK,
   FINISHING_SPIN_CHAINLINK
@@ -2057,8 +2039,6 @@ getDescription(rq::Situation situation) {
     return "if chainlink";
   case S::SWITCH_CHAINLINK:
     return "switch chainlink";
-  case S::MATCH_CHAINLINK:
-    return "match chainlink";
   case S::SPIN_CHAINLINK:
     return "spin chainlink";
   case S::STARTING_IF_CHAINLINK:
@@ -2073,12 +2053,6 @@ getDescription(rq::Situation situation) {
     return "continuing switch chainlink";
   case S::FINISHING_SWITCH_CHAINLINK:
     return "finishing switch chainlink";
-  case S::STARTING_MATCH_CHAINLINK:
-    return "starting match chainlink";
-  case S::CONTINUING_MATCH_CHAINLINK:
-    return "continuing match chainlink";
-  case S::FINISHING_MATCH_CHAINLINK:
-    return "finishing match chainlink";
   case S::STARTING_SPIN_CHAINLINK:
     return "starting spin chainlink";
   case S::CONTINUING_SPIN_CHAINLINK:
@@ -2382,12 +2356,6 @@ getCanBeSwitchChainlink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::SWITCH_CHAINLINK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeMatchChainlink(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSpinChainlink(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::SPIN_CHAINLINK);
@@ -2436,27 +2404,6 @@ getCanBeFinishingSwitchChainlink(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeStartingMatchChainlink(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
-                                  rq::KeywordInfoFlags::STARTING_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeContinuingMatchChainlink(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
-                                  rq::KeywordInfoFlags::CONTINUING_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeFinishingMatchChainlink(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
-                                  rq::KeywordInfoFlags::FINISHING_CHAINLINK);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeStartingSpinChainlink(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::SPIN_CHAINLINK |
@@ -2481,7 +2428,7 @@ getCanBeFinishingSpinChainlink(rq::Keyword keyword) {
 getIsChainlinkKind(rq::Situation situation) {
   using S = rq::Situation;
   return situation == S::IF_CHAINLINK || situation == S::SWITCH_CHAINLINK ||
-         situation == S::MATCH_CHAINLINK || situation == S::SPIN_CHAINLINK;
+         situation == S::SPIN_CHAINLINK;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2536,8 +2483,6 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeIfChainlink(keyword);
   case S::SWITCH_CHAINLINK:
     return rq::getCanBeSwitchChainlink(keyword);
-  case S::MATCH_CHAINLINK:
-    return rq::getCanBeMatchChainlink(keyword);
   case S::SPIN_CHAINLINK:
     return rq::getCanBeSpinChainlink(keyword);
   case S::STARTING_IF_CHAINLINK:
@@ -2552,12 +2497,6 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeContinuingSwitchChainlink(keyword);
   case S::FINISHING_SWITCH_CHAINLINK:
     return rq::getCanBeFinishingSwitchChainlink(keyword);
-  case S::STARTING_MATCH_CHAINLINK:
-    return rq::getCanBeStartingMatchChainlink(keyword);
-  case S::CONTINUING_MATCH_CHAINLINK:
-    return rq::getCanBeContinuingMatchChainlink(keyword);
-  case S::FINISHING_MATCH_CHAINLINK:
-    return rq::getCanBeFinishingMatchChainlink(keyword);
   case S::STARTING_SPIN_CHAINLINK:
     return rq::getCanBeStartingSpinChainlink(keyword);
   case S::CONTINUING_SPIN_CHAINLINK:
