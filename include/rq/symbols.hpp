@@ -896,18 +896,22 @@ struct Anchor final : public rq::LocalDeclaration {
 struct Enumerator final : public rq::LocalDeclaration {
   using Self = rq::Enumerator;
 
-  rq::ConstantInteger *_underlying_value_ptr;
+  rq::ConstantWord *_underlying_value_ptr{nullptr};
+  rq::ContantSymbol *_underlying_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Anchor(rq::Name name, rq::SymbolTable &container,
-                                   rq::Module &module,
-                                   rq::ConstantInteger &underlying_value);
+                                   rq::Module &module);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantInteger &
+  RQ_ALWAYS_INLINE void setUnderlyingValue(rq::ConstantWord& value);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantWord &
   getUnderlyingValue() const;
-  [[nodsicard]] RQ_ALWAYS_INLINE rq::ConstantInteger &getUnderlyingValue();
+  [[nodsicard]] RQ_ALWAYS_INLINE rq::ConstantWord &getUnderlyingValue();
+  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getUnderlyingType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol& getUnderlyignType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-}
+};
 
 struct LocalVariable : public rq::LocalDeclaration {
   using Self = rq::LocalVariable;
