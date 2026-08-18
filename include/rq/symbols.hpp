@@ -412,10 +412,16 @@ using WeightAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
 using AutoAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
+using VirtualAttributeType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::VIRTUAL_ATTRIBUTE_TYPE>;
+using AutoAttributeType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
 using RequireAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
 using EnsureAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE>;
+using RangerAttributeType =
+    rq::DerivedSimpleSymbol<rq::SymbolKind::RANGER_ATTRIBUTE_TYPE>;
 using VarAttributeType =
     rq::DerivedSimpleSymbol<rq::SymbolKind::VAR_ATTRIBUTE_TYPE>;
 using VolatileAttributeType =

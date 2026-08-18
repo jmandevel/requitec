@@ -345,6 +345,9 @@ enum class Keyword : rq::EntityId {
   // auto_attribute
   NO_AUTO,
   AUTO,
+  // virtual_attribute
+  NO_VIRTUAL,
+  VIRTUAL,
   // ranger_attribute
   NO_RANGER,
   RANGER,
@@ -392,6 +395,7 @@ enum class Keyword : rq::EntityId {
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
   AUTO_ATTRIBUTE,           // no_auto vs auto
+  VIRTUAL_ATTRIBUTE,        // no_virtual vs virtual
   RANGER_ATTRIBUTE,         // no_ranger vs ranger
 
   // HIGH ATTRIBUTE TYPES
@@ -551,14 +555,16 @@ enum class SymbolKind : rq::EntityId {
   CONSTRAINT_ATTRIBUTE_TYPE,
   WEIGHT_ATTRIBUTE_TYPE,
   AUTO_ATTRIBUTE_TYPE,
+  VIRTUAL_ATTRIBUTE_TYPE,
+  ENSURE_ATTRIBUTE_TYPE,
+  REQUIRE_ATTRIBUTE_TYPE,
+  RANGER_ATTRIBUTE_TYPE,
 
   // HIGH ATTRIBUTE TYPES
   VAR_ATTRIBUTE_TYPE,
   VOLATILE_ATTRIBUTE_TYPE,
   ATOMIC_ATTRIBUTE_TYPE,
   NULL_TERMINATE_ATTRIBUTE_TYPE,
-  REQUIRE_ATTRIBUTE_TYPE,
-  ENSURE_ATTRIBUTE_TYPE,
 
   // REFLECTIVE TYPES
   SYMBOL_TYPE,

@@ -976,6 +976,10 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::AUTO:
     [[fallthrough]];
+  case K::NO_VIRTUAL:
+    [[fallthrough]];
+  case K::VIRTUAL:
+    [[fallthrough]];
   case K::NO_REQUIRE:
     [[fallthrough]];
   case K::REQUIRE:

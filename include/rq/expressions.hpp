@@ -578,6 +578,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_auto";
   case K::AUTO:
     return "auto";
+  case K::NO_VIRTUAL:
+    return "no_virtual";
+  case K::VIRTUAL:
+    return "virtual";
   case K::NO_REQUIRE:
     return "no_require";
   case K::REQUIRE:
@@ -654,6 +658,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weight_attribute";
   case K::AUTO_ATTRIBUTE:
     return "auto_attribute";
+  case K::VIRTUAL_ATTRIBUTE:
+    return "virtual_attribute";
   case K::REQUIRE_ATTRIBUTE:
     return "require_attribute";
   case K::ENSURE_ATTRIBUTE:
@@ -1540,6 +1546,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::AUTO:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
+  case K::NO_VIRTUAL:
+    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VIRTUAL:
+    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
   case K::NO_REQUIRE:
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -1630,6 +1642,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::WEIGHT_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AUTO_ATTRIBUTE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::VIRTUAL_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REQUIRE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2579,6 +2593,9 @@ enum class LowAttribute : std::uint_fast8_t {
   // auto_attribute
   NO_AUTO,
   AUTO,
+  // virtual_attribute
+  NO_VIRTUAL,
+  VIRTUAL,
   // require_attribute
   NO_REQUIRE,
   REQUIRE,
@@ -2686,6 +2703,10 @@ enum class LowAttribute : std::uint_fast8_t {
     return "no_auto";
   case LA::AUTO:
     return "auto";
+  case LA::NO_VIRTUAL:
+    return "no_virtual";
+  case LA::VIRTUAL:
+    return "virtual";
   case LA::NO_REQUIRE:
     return "no_require";
   case LA::REQUIRE:
@@ -2795,6 +2816,22 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::NO_AUTO;
   case K::AUTO:
     return LA::AUTO;
+  case K::NO_VIRTUAL:
+    return LA::NO_VIRTUAL;
+  case K::VIRTUAL:
+    return LA::VIRTUAL;
+  case K::NO_ENSURE:
+    return LA::NO_ENSURE;
+  case K::ENSURE:
+    return LA::ENSURE;
+  case K::NO_REQUIRE:
+    return LA::NO_REQUIRE;
+  case K::REQUIRE:
+    return LA::REQUIRE;
+  case K::NO_RANGER:
+    return LA::NO_RANGER;
+  case K::RANGER:
+    return LA::RANGER;
   default:
     break;
   }
@@ -2869,19 +2906,22 @@ enum class LowFuseFlags : std::uint_fast32_t {
   AUTO = rq::getBit(22),
   AUTO_MASK = AUTO,
 
-  REQUIRE = rq::getBit(23),
+  VIRTUAL = rq::getBit(23),
+  VIRTUAL_MASK = VIRTUAL,
+
+  REQUIRE = rq::getBit(24),
   REQUIRE_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(24),
+  ENSURE = rq::getBit(25),
   ENSURE_MASK = ENSURE,
 
-  RANGER = rq::getBit(25),
+  RANGER = rq::getBit(26),
   RANGER_MASK = RANGER,
 
   ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC |
              DELAY | CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
              EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
-             CONSTRAINT | WEIGHT | AUTO | REQUIRE | ENSURE | RANGER
+             CONSTRAINT | WEIGHT | AUTO | VIRTUAL | REQUIRE | ENSURE | RANGER
 };
 
 RQ_DEFINE_FLAGS(rq::LowFuseFlags);
@@ -2981,6 +3021,10 @@ RQ_DEFINE_FLAGS(rq::LowFuseFlags);
     return LFF::NONE;
   case LA::AUTO:
     return LFF::AUTO;
+  case LA::NO_VIRTUAL:
+    return LFF::NONE;
+  case LA::VIRTUAL:
+    return LFF::VIRTUAL;
   case LA::NO_REQUIRE:
     return LFF::NONE;
   case LA::REQUIRE:
@@ -3104,6 +3148,10 @@ getInfoFlags(rq::LowAttribute attribute) {
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::AUTO:
     return LIF::MUST_NOT_HAVE_ATTACHMENT;
+  case LA::NO_VIRTUAL:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
+  case LA::VIRTUAL:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::NO_REQUIRE:
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::REQUIRE:
@@ -3170,6 +3218,7 @@ enum class LowAttributeKind : std::uint_fast8_t {
   CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
   WEIGHT_ATTRIBUTE,         // no_weight vs weight
   AUTO_ATTRIBUTE,           // no_auto vs auto
+  VIRTUAL_ATTRIBUTE,        // no_virtual vs virtual
   REQUIRE_ATTRIBUTE,        // no_require vs require
   ENSURE_ATTRIBUTE,         // no_ensure vs ensure
   RANGER_ATTRIBUTE          // no_ranger vs ranger
@@ -3222,6 +3271,8 @@ enum class LowAttributeKind : std::uint_fast8_t {
     return "weight_attribute";
   case LAK::AUTO_ATTRIBUTE:
     return "auto_attribute";
+  case LAK::VIRTUAL_ATTRIBUTE:
+    return "virtual_attribute";
   case LAK::REQUIRE_ATTRIBUTE:
     return "require_attribute";
   case LAK::ENSURE_ATTRIBUTE:
@@ -3326,6 +3377,10 @@ enum class LowAttributeKind : std::uint_fast8_t {
     [[fallthrough]];
   case LA::AUTO:
     return LAK::AUTO_ATTRIBUTE;
+  case LA::NO_VIRTUAL:
+    [[fallthrough]];
+  case LA::VIRTUAL:
+    return LAK::VIRTUAL_ATTRIBUTE;
   case LA::NO_REQUIRE:
     [[fallthrough]];
   case LA::REQUIRE:
