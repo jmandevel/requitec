@@ -1,9 +1,18 @@
 [import "std"];
 
 [interface ISpeak,
+    // this function is virtual so can be overriden by adapters
+    // its not opaque, so it does not have to be overriden
+    [virtual]
     [function speak, ()[void]=>,
         std.print(line="I don't speak.");
     ];
+
+    // this function is not opaque so it cannot be overriden by adapters
+    [function doSomething, ()[void]=>,
+        std.print(line="do something now!");
+    ];
+
 ];
 
 [class Dog, [public][layout_constructor]; {},];
@@ -33,9 +42,9 @@
 ];
 
 [interface IGreet,
-    [function greet, ()[void]=>,
-        std.print(line="I don't greet.");
-    ];
+    // virtual and opqaque, so there is no default implementation and adapters must implement it.
+    [virtual][opaque]
+    [function greet, ()[void]=>];
 ];
 
 [adapter A, IGreet..Dog,
