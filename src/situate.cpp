@@ -1295,10 +1295,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::LAYOUT_CONSTRUCTOR_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::VARIANT_RANGE:
+  case K::GENRE_RANGE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::VARIANT_RANGE_OF:
+  case K::GENRE_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::IS_TYPE:

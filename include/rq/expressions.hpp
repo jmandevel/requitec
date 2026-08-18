@@ -806,10 +806,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "specialization_range";
   case K::SPECIALIZATION_RANGE_OF:
     return "_specialization_range_of";
-  case K::VARIANT_RANGE:
-    return "variant_range";
-  case K::VARIANT_RANGE_OF:
-    return "_variant_range_of";
+  case K::GENRE_RANGE:
+    return "genre_range";
+  case K::GENRE_RANGE_OF:
+    return "_genre_range_of";
   case K::WEIGHT_LEVEL:
     return "weight_level";
   case K::WEIGHT_LEVEL_OF:
@@ -1806,9 +1806,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::LAYOUT_CONSTRUCTOR_OF:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::VARIANT_RANGE:
+  case K::GENRE_RANGE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::VARIANT_RANGE_OF:
+  case K::GENRE_RANGE_OF:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
@@ -2204,8 +2204,8 @@ getDescription(rq::Situation situation) {
     return K::CONSTRUCTOR_RANGE_OF;
   case K::LAYOUT_CONSTRUCTOR:
     return K::LAYOUT_CONSTRUCTOR_OF;
-  case K::VARIANT_RANGE:
-    return K::VARIANT_RANGE_OF;
+  case K::GENRE_RANGE:
+    return K::GENRE_RANGE_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:

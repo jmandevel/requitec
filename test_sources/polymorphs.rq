@@ -2,7 +2,7 @@
 // types of polymorphs include classes, interfaces, adapters, functions, global dynamic variables, and global static variables
 // this example source shows function polymorphs and how they work. other kinds are similar but a bit different.
 // for example, classes have layouts instead of signatures. adapters have conformities. 
-// interfaces and global variables have no tag. they only have at most one overload in their no template variant.
+// interfaces and global variables have no tag. they only have at most one overload in their no template genre.
 
 // templates refeer to declarations with template attributes
 
@@ -43,8 +43,8 @@
     ];
 ];
 
-// loop over all variants of polymorph (overloads and specializations)
+// loop over all genres of polymorph (overloads and specializations)
 [static]
-[for getNum.[variant_range], [static] variant := [value],
+[for getNum.[genre_range], [static] genre := [value],
     // etc
 ];

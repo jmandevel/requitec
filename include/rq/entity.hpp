@@ -473,8 +473,8 @@ enum class Keyword : rq::EntityId {
   OVERLOAD_RANGE_OF,
   SPECIALIZATION_RANGE,
   SPECIALIZATION_RANGE_OF,
-  VARIANT_RANGE,
-  VARIANT_RANGE_OF,
+  GENRE_RANGE,
+  GENRE_RANGE_OF,
   WEIGHT_LEVEL,
   WEIGHT_LEVEL_OF,
   WEIGHT_LEVEL_RANGE,
@@ -681,7 +681,7 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // OVERLOADS => variant => global declaration => named table
+  // OVERLOADS => genre => global declaration => named table
   CLASS_OVERLOAD,
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
@@ -692,7 +692,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_OVERLOAD,
   GLOBAL_STATIC_VARIABLE_OVERLOAD,
 
-  // SPECIALIZATIONS => varaint => global declaration => named table
+  // SPECIALIZATIONS => genre => global declaration => named table
   CLASS_SPECIALIZATION,
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
