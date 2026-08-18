@@ -8,7 +8,7 @@
         std.print(line="I don't speak.");
     ];
 
-    // this function is not opaque so it cannot be overriden by adapters
+    // this function is not virtual so it cannot be overriden by adapters
     [public]
     [function doSomething, ()[void]=>,
         std.print(line="do something now!");
