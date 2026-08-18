@@ -3,12 +3,13 @@
 [interface ISpeak,
     // this function is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
-    [virtual]
+    [public][virtual]
     [function speak, ()[void]=>,
         std.print(line="I don't speak.");
     ];
 
     // this function is not opaque so it cannot be overriden by adapters
+    [public]
     [function doSomething, ()[void]=>,
         std.print(line="do something now!");
     ];
@@ -20,18 +21,21 @@
 [class Cat, [public][layout_constructor]; {},];
 
 [class Rat, [public][layout_constructor]; {},
+    [public]
     [function squeak, ()[void]=>,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, ISpeak..Dog,
+    [public]
     [function speak, ()[void]=>,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter A, ISpeak..Cat,
+    [public]
     [function speak, ()[void]=>,
         std.print(line="Meow!");
     ];
@@ -43,11 +47,12 @@
 
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
-    [virtual][opaque]
+    [public][virtual][opaque]
     [function greet, ()[void]=>];
 ];
 
 [adapter A, IGreet..Dog,
+    [public]
     [function greet, ()[void]=>,
         std.print(line="*wags tail*");
     ];
