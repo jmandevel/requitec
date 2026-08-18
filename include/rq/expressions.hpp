@@ -794,8 +794,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "underlying_type";
   case K::UNDERLYING_TYPE_OF:
     return "_underlying_type_of";
-  case K::OVERRIDE:
-    return "override";
+  case K::USE:
+    return "use";
   case K::TEMPLATE_OF:
     return "_template_of";
   case K::OVERLOAD_RANGE:
@@ -1782,7 +1782,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TEMPLATE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::OVERRIDE:
+  case K::USE:
     return KIF::STATEMENT;
   case K::OVERLOAD_RANGE:
     return KIF::REFLECTION | KIF::UNIVERSALIZABLE;

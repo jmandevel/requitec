@@ -7,7 +7,7 @@
     vector4 :[var]\= { x:=0, y:[var]\=1, z:=2, w:=3 };
     vector4.y = 3;
 
-    // variability of tuple overrides variability of its elements
+    // variability of tuple uses variability of its elements
     vector4_b := vector4;
     // y cannot be set again
 

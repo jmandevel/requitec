@@ -72,9 +72,9 @@ enum class SymbolInfoFlags : std::uint64_t {
   TEMPLATE = rq::getBit(35),
   POLYMORPH = rq::getBit(36),
   WEIGHT_LEVEL = rq::getBit(37),
-  OVERRIDE = rq::getBit(38),
-  OVERLOAD_OVERRIDE = rq::getBit(39),
-  TEMPLATE_OVERRIDE = rq::getBit(40),
+  USE = rq::getBit(38),
+  OVERLOAD_USE = rq::getBit(39),
+  TEMPLATE_USE = rq::getBit(40),
 
   // SYMBOL DETAILS
   IS_TYPE = rq::getBit(41),
@@ -142,9 +142,9 @@ getIsGlobalVariableOverload(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverride(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverloadOverride(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateOverride(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUse(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverloadUse(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateUse(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
@@ -222,9 +222,11 @@ struct Symbol;
       struct GlobalDeclaration;
         struct Genre;
           struct ClassGenre;
+            struct ClassPrototype;
             struct ClassOverload;
             struct ClassSpecialization;
           struct EnumGenre;
+            struct EnumPrototype;
             struct EnumOverload;
             struct EnumSpecialization;
           struct InterfaceGenre;
@@ -234,13 +236,20 @@ struct Symbol;
             struct AdapterOverload;
             struct AdapterSpecialization;
           struct ConstructorGenre;
-            struct ConstructorOverload;
-            struct LayoutConstructorOverload;
+            struct ConstructorPrototype;
+            struct LayoutConstructorPrototype;
+            struct ConstructorImplementation;
+              struct ConstructorOverload;
+              struct LayoutConstructorOverload;
           struct FunctionGenre;
-            struct FunctionOverload;
-            struct FunctionSpecialization;
+            struct FunctionPrototype;
+            struct FunctionRequisite;
+            struct FunctionImplementation;
+              struct FunctionOverload;
+              struct FunctionSpecialization;
           struct GlobalVariableGenre;
             struct GlobalDynamicVariableGenre;
+              struct GlobalDynamicVariablePrototype;
               struct GlobalDynamicVariableOverload;
               struct GlobalDynnamicVariableSpecialization;
             struct GlobalStaticVariableGenre;
@@ -270,18 +279,18 @@ struct Symbol;
     struct FunctionWeightLevel;
     struct GlobalDynamicVariableWeightLevel;
     struct GlobalStaticVariableWeightLevel;
-  struct Override;
-    struct OverloadOverride;
-      struct AdapterOverloadOverride;
-      struct FunctionOverloadOverride;
-    struct TemplateOverride;
-      struct ClassTemplateOverride;
-      struct EnumTemplateOverride;
-      struct InterfaceTemplateOverride;
-      struct AdapterTemplateOverride;
-      struct FunctionTemplateOverride;
-      struct GlobalDynamicVariableTemplateOverride;
-      struct GlobalStaticVariableTemplateOverride;
+  struct Use;
+    struct OverloadUse;
+      struct AdapterOverloadUse;
+      struct FunctionOverloadUse;
+    struct TemplateUse;
+      struct ClassTemplateUse;
+      struct EnumTemplateUse;
+      struct InterfaceTemplateUse;
+      struct AdapterTemplateUse;
+      struct FunctionTemplateUse;
+      struct GlobalDynamicVariableTemplateUse;
+      struct GlobalStaticVariableTemplateUse;
 // clang-format on
 
 struct Symbol : public rq::Entity {
@@ -2132,7 +2141,7 @@ struct InterfacePolymorph final : public rq::Polymorph {
 struct AdapterPolymorph final : public rq::Polymorph {
   using Self = rq::AdapterPolymorph;
 
-  rq::AdapterOverloadOverride *_first_override_ptr{nullptr};
+  rq::AdapterOverloadUse *_first_use_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE AdapterPolymorph();
 
@@ -2155,15 +2164,15 @@ struct AdapterPolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
       getConstAdapterWeightLevelSubrange() const;
   RQ_ALWAYS_INLINE void
-  addAdapterOverloadOverride(rq::AdapterOverloadOverride &override);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::AdapterOverloadOverride>
-  getAdapterOverloadOverrideSubrange();
+  addAdapterOverloadUse(rq::AdapterOverloadUse &use);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::AdapterOverloadUse>
+  getAdapterOverloadUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::AdapterOverloadOverride>
-      getAdapterOverloadOverrideSubrange() const;
+      rq::ConstNextSubrange<rq::AdapterOverloadUse>
+      getAdapterOverloadUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::AdapterOverloadOverride>
-      getConstAdapterOverrideSubrange() const;
+      rq::ConstNextSubrange<rq::AdapterOverloadUse>
+      getConstAdapterUseSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2171,7 +2180,7 @@ struct AdapterPolymorph final : public rq::Polymorph {
 struct FunctionPolymorph final : public rq::Polymorph {
   using Self = rq::FunctionPolymorph;
 
-  rq::FunctionOverloadOverride *_first_override_ptr{nullptr};
+  rq::FunctionOverloadUse *_first_use_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE FunctionPolymorph();
 
@@ -2194,15 +2203,15 @@ struct FunctionPolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::FunctionWeightLevel>
       getConstFunctionWeightLevelSubrange() const;
   RQ_ALWAYS_INLINE void
-  addFunctionOverloadOverride(rq::FunctionOverloadOverride &override);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::FunctionOverloadOverride>
-  getFunctionOverloadOverrideSubrange();
+  addFunctionOverloadUse(rq::FunctionOverloadUse &use);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::FunctionOverloadUse>
+  getFunctionOverloadUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::FunctionOverloadOverride>
-      getFunctionOverloadOverrideSubrange() const;
+      rq::ConstNextSubrange<rq::FunctionOverloadUse>
+      getFunctionOverloadUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::FunctionOverloadOverride>
-      getConstFunctionOverloadOverrideSubrange() const;
+      rq::ConstNextSubrange<rq::FunctionOverloadUse>
+      getConstFunctionOverloadUseSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2270,7 +2279,7 @@ struct WeightLevel : public rq::Symbol {
 
   rq::WeightLevel *_next_ptr{nullptr};
   rq::Template *_first_template_ptr{nullptr};
-  rq::TemplateOverride *_first_override_ptr{nullptr};
+  rq::TemplateUse *_first_use_ptr{nullptr};
   rq::Polymorph *_polymorph_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE WeightLevel(rq::SymbolKind kind);
@@ -2282,13 +2291,13 @@ struct WeightLevel : public rq::Symbol {
   getTemplateSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextIterator<rq::Template>
   getConstTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverride() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::TemplateOverride>
-  getTemplateOverrideSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateOverride>
-  getTemplateOverrideSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateOverride>
-  getConstTemplateOverrideSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUse() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::TemplateUse>
+  getTemplateUseSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateUse>
+  getTemplateUseSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateUse>
+  getConstTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *getPolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getPolymorphPtr();
 
@@ -2311,16 +2320,16 @@ struct ClassWeightLevel final : public rq::WeightLevel {
       rq::ConstNextIterator<rq::Template, rq::ClassTemplate>
       getConstClassTemplateSubrange() const;
   RQ_ALWAYS_INLINE void
-  addClassTemplateOverride(rq::ClassTemplateOverride &override);
+  addClassTemplateUse(rq::ClassTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride, rq::ClassTemplateOverride>
-      getClassTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse, rq::ClassTemplateUse>
+      getClassTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::ClassTemplateOverride>
-      getClassTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::ClassTemplateUse>
+      getClassTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::ClassTemplateOverride>
-      getConstClassTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::ClassTemplateUse>
+      getConstClassTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
   getClassPolymorphPtr() const;
@@ -2345,16 +2354,16 @@ struct EnumWeightLevel final : public rq::WeightLevel {
       rq::ConstNextIterator<rq::Template, rq::EnumTemplate>
       getConstEnumTemplateSubrange() const;
   RQ_ALWAYS_INLINE void
-  addEnumTemplateOverride(rq::EnumTemplateOverride &override);
+  addEnumTemplateUse(rq::EnumTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride, rq::EnumTemplateOverride>
-      getEnumTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse, rq::EnumTemplateUse>
+      getEnumTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::EnumTemplateOverride>
-      getEnumTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::EnumTemplateUse>
+      getEnumTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::EnumTemplateOverride>
-      getConstEnumTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::EnumTemplateUse>
+      getConstEnumTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
   getEnumPolymorphPtr() const;
@@ -2379,16 +2388,16 @@ struct InterfaceWeightLevel final : public rq::WeightLevel {
       rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>
       getConstInterfaceTemplateSubrange() const;
   RQ_ALWAYS_INLINE void
-  addInterfaceTemplateOverride(rq::InterfaceTemplateOverride &override);
+  addInterfaceTemplateUse(rq::InterfaceTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride, rq::InterfaceTemplateOverride>
-      getInterfaceTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
+      getInterfaceTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::InterfaceTemplateOverride>
-      getInterfaceTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
+      getInterfaceTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::InterfaceTemplateOverride>
-      getConstInterfaceTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
+      getConstInterfaceTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void
   setInterfacePolymorph(rq::InterfacePolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfacePolymorph *
@@ -2415,16 +2424,16 @@ struct AdapterWeightLevel final : public rq::WeightLevel {
       rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>
       getConstAdapterTemplateSubrange() const;
   RQ_ALWAYS_INLINE void
-  addAdapterTemplateOverride(rq::AdapterTemplateOverride &override);
+  addAdapterTemplateUse(rq::AdapterTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride, rq::AdapterTemplateOverride>
-      getAdapterTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
+      getAdapterTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::AdapterTemplateOverride>
-      getAdapterTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
+      getAdapterTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::AdapterTemplateOverride>
-      getConstAdapterTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
+      getConstAdapterTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setAdapterPolymorph(rq::AdapterPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
   getAdapterPolymorphPtr() const;
@@ -2449,16 +2458,16 @@ struct FunctionWeightLevel final : public rq::WeightLevel {
       rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>
       getConstFunctionTemplateSubrange() const;
   RQ_ALWAYS_INLINE void
-  addFunctionTemplateOverride(rq::FunctionTemplateOverride &override);
+  addFunctionTemplateUse(rq::FunctionTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride, rq::FunctionTemplateOverride>
-      getFunctionTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
+      getFunctionTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::FunctionTemplateOverride>
-      getFunctionTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
+      getFunctionTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride, rq::FunctionTemplateOverride>
-      getConstFunctionTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
+      getConstFunctionTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setFunctionPolymorph(rq::FunctionPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionPolymorph *
   getFunctionPolymorphPtr() const;
@@ -2484,20 +2493,20 @@ struct GlobalDynamicVariableWeightLevel final : public rq::WeightLevel {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>
       getConstGlobalDynamicVariableTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalDynamicVariableTemplateOverride(
-      rq::GlobalDynamicVariableTemplateOverride &override);
+  RQ_ALWAYS_INLINE void addGlobalDynamicVariableTemplateUse(
+      rq::GlobalDynamicVariableTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride,
-                       rq::GlobalDynamicVariableTemplateOverride>
-      getGlobalDynamicVariableTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse,
+                       rq::GlobalDynamicVariableTemplateUse>
+      getGlobalDynamicVariableTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride,
-                            rq::GlobalDynamicVariableTemplateOverride>
-      getGlobalDynamicVariableTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse,
+                            rq::GlobalDynamicVariableTemplateUse>
+      getGlobalDynamicVariableTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride,
-                            rq::GlobalDynamicVariableTemplateOverride>
-      getConstGlobalDynamicVariableTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse,
+                            rq::GlobalDynamicVariableTemplateUse>
+      getConstGlobalDynamicVariableTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setGlobalDynamicVariablePolymorph(
       rq::GlobalDynamicVariablePolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariablePolymorph *
@@ -2524,20 +2533,20 @@ struct GlobalStaticVariableWeightLevel final : public rq::WeightLevel {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextIterator<rq::Template, rq::GlobalStaticVariableTemplate>
       getConstGlobalStaticVariableTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalStaticVariableTemplateOverride(
-      rq::GlobalStaticVariableTemplateOverride &override);
+  RQ_ALWAYS_INLINE void addGlobalStaticVariableTemplateUse(
+      rq::GlobalStaticVariableTemplateUse &use);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateOverride,
-                       rq::GlobalStaticVariableTemplateOverride>
-      getGlobalStaticVariableTemplateOverrideSubrange();
+      rq::NextIterator<rq::TemplateUse,
+                       rq::GlobalStaticVariableTemplateUse>
+      getGlobalStaticVariableTemplateUseSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride,
-                            rq::GlobalStaticVariableTemplateOverride>
-      getGlobalStaticVariableTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse,
+                            rq::GlobalStaticVariableTemplateUse>
+      getGlobalStaticVariableTemplateUseSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateOverride,
-                            rq::GlobalStaticVariableTemplateOverride>
-      getConstGlobalStaticVariableTemplateOverrideSubrange() const;
+      rq::ConstNextIterator<rq::TemplateUse,
+                            rq::GlobalStaticVariableTemplateUse>
+      getConstGlobalStaticVariableTemplateUseSubrange() const;
   RQ_ALWAYS_INLINE void setGlobalStaticVariablePolymorph(
       rq::GlobalStaticVariablePolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariablePolymorph *
@@ -2548,43 +2557,43 @@ struct GlobalStaticVariableWeightLevel final : public rq::WeightLevel {
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct Override : public rq::Symbol {
-  using Self = rq::Override;
+struct Use : public rq::Symbol {
+  using Self = rq::Use;
 
   rq::Symbol *_parent_ptr{nullptr};
-  rq::GlobalDeclaration *_overriden_ptr{nullptr};
+  rq::GlobalDeclaration *_usen_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Override(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Use(rq::SymbolKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getParentSymbolPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getParentSymbolPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDeclaration *
-  getOverridenGlobalDeclarationPtr() const;
+  getUsenGlobalDeclarationPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDeclaration *
-  getOverridenGlobalDeclarationPtr();
+  getUsenGlobalDeclarationPtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct OverloadOverride : public rq::Override {
-  using Self = rq::OverloadOverride;
+struct OverloadUse : public rq::Use {
+  using Self = rq::OverloadUse;
 
-  explicit RQ_ALWAYS_INLINE OverloadOverride(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE OverloadUse(rq::SymbolKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *
   getParentPolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getParentPolymorphPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Genre *
-  getOverridenOverloadPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Genre *getOverridenOverloadPtr();
+  getUsenOverloadPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Genre *getUsenOverloadPtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct AdapterOverloadOverride final : public rq::OverloadOverride {
-  using Self = rq::AdapterOverloadOverride;
+struct AdapterOverloadUse final : public rq::OverloadUse {
+  using Self = rq::AdapterOverloadUse;
 
-  explicit RQ_ALWAYS_INLINE AdapterOverloadOverride();
+  explicit RQ_ALWAYS_INLINE AdapterOverloadUse();
 
   RQ_ALWAYS_INLINE void
   setParentAdapterPolymorph(rq::AdapterPolymorph &polymorph);
@@ -2593,19 +2602,19 @@ struct AdapterOverloadOverride final : public rq::OverloadOverride {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *
   getParentAdapterPolymorphPtr();
   RQ_ALWAYS_INLINE void
-  setOverridenAdapterOverload(rq::AdapterOverload &overload);
+  setUsenAdapterOverload(rq::AdapterOverload &overload);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterOverload &
-  getOverridenAdapterOverload() const;
+  getUsenAdapterOverload() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterOverload &
-  getOverridenAdapterOverload();
+  getUsenAdapterOverload();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct FunctionOverloadOverride final : public rq::OverloadOverride {
-  using Self = rq::FunctionOverloadOverride;
+struct FunctionOverloadUse final : public rq::OverloadUse {
+  using Self = rq::FunctionOverloadUse;
 
-  explicit RQ_ALWAYS_INLINE FunctionOverloadOverride();
+  explicit RQ_ALWAYS_INLINE FunctionOverloadUse();
 
   RQ_ALWAYS_INLINE void
   setParentFunctionPolymorph(rq::FunctionPolymorph &polymorph);
@@ -2614,34 +2623,34 @@ struct FunctionOverloadOverride final : public rq::OverloadOverride {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionPolymorph *
   getParentFunctionPolymorphPtr();
   RQ_ALWAYS_INLINE void
-  setOverridenFunctionOverload(rq::FunctionOverload &overload);
+  setUsenFunctionOverload(rq::FunctionOverload &overload);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionOverload *
-  getOverridenFunctionOverloadPtr() const;
+  getUsenFunctionOverloadPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionOverload *
-  getOverridenFunctionOverloadPtr();
+  getUsenFunctionOverloadPtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct TemplateOverride : public rq::Override {
-  using Self = rq::TemplateOverride;
+struct TemplateUse : public rq::Use {
+  using Self = rq::TemplateUse;
 
-  explicit RQ_ALWAYS_INLINE TemplateOverride(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE TemplateUse(rq::SymbolKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::WeightLevel *
   getParentWeightLevelPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightLevel *getParentWeightLevelPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *
-  getOverridenTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *getOverridenTemplatePtr();
+  getUsenTemplatePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *getUsenTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct ClassTemplateOverride final : public rq::TemplateOverride {
-  using Self = rq::ClassTemplateOverride;
+struct ClassTemplateUse final : public rq::TemplateUse {
+  using Self = rq::ClassTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE ClassTemplateOverride();
+  explicit RQ_ALWAYS_INLINE ClassTemplateUse();
 
   RQ_ALWAYS_INLINE void
   setParentClassWeightLevel(rq::ClassWeightLevel &weight_level);
@@ -2649,38 +2658,38 @@ struct ClassTemplateOverride final : public rq::TemplateOverride {
   getParentClassWeightLevelPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassWeightLevel *
   getParentClassWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setOverridenClassTemplate(rq::ClassTemplate &template_);
+  RQ_ALWAYS_INLINE void setUsenClassTemplate(rq::ClassTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassTemplate *
-  getOverridenClassTemplatePtr() const;
+  getUsenClassTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassTemplate *
-  getOverridenClassTemplatePtr();
+  getUsenClassTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct EnumTemplateOverride final : public rq::TemplateOverride {
-  using Self = rq::EnumTemplateOverride;
+struct EnumTemplateUse final : public rq::TemplateUse {
+  using Self = rq::EnumTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE EnumTemplateOverride();
+  explicit RQ_ALWAYS_INLINE EnumTemplateUse();
 
   RQ_ALWAYS_INLINE void setParentEnumWeightLevel(rq::WeightLevel &weight_level);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumWeightLevel *
   getParentEnumWeightLevelPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumWeightLevel *
   getParentEnumWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setOverridenEnumTemplate(rq::EnumTemplate &template_);
+  RQ_ALWAYS_INLINE void setUsenEnumTemplate(rq::EnumTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
-  getOverridenEnumTemplatePtr() const;
+  getUsenEnumTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *
-  getOverridenEnumTemplatePtr();
+  getUsenEnumTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct InterfaceTemplateOverride final : public rq::TemplateOverride {
-  using Self = rq::InterfaceTemplateOverride;
+struct InterfaceTemplateUse final : public rq::TemplateUse {
+  using Self = rq::InterfaceTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE InterfaceTemplateOverride();
+  explicit RQ_ALWAYS_INLINE InterfaceTemplateUse();
 
   RQ_ALWAYS_INLINE void
   setParentInterfaceWeightLevel(rq::InterfaceWeightLevel &weight_level);
@@ -2689,19 +2698,19 @@ struct InterfaceTemplateOverride final : public rq::TemplateOverride {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceWeightLevel *
   getParentInterfaceWeightLevelPtr();
   RQ_ALWAYS_INLINE void
-  setOverridenInterfaceTemplate(rq::InterfaceTemplate &template_);
+  setUsenInterfaceTemplate(rq::InterfaceTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceTemplate *
-  getOverridenInterfaceTemplatePtr() const;
+  getUsenInterfaceTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceTemplate *
-  getOverridenInterfaceTemplatePtr();
+  getUsenInterfaceTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct AdapterTemplateOverride final : public rq::TemplateOverride {
-  using Self = rq::AdapterTemplateOverride;
+struct AdapterTemplateUse final : public rq::TemplateUse {
+  using Self = rq::AdapterTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE AdapterTemplateOverride();
+  explicit RQ_ALWAYS_INLINE AdapterTemplateUse();
 
   RQ_ALWAYS_INLINE void
   setParentAdapterWeightLevel(rq::AdapterWeightLevel &weight_level);
@@ -2710,19 +2719,19 @@ struct AdapterTemplateOverride final : public rq::TemplateOverride {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterWeightLevel *
   getParentAdapterWeightLevelPtr();
   RQ_ALWAYS_INLINE void
-  setOverridenAdapterTemplate(rq::AdapterTemplate &template_);
+  setUsenAdapterTemplate(rq::AdapterTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterTemplate *
-  getOverridenAdapterTemplatePtr() const;
+  getUsenAdapterTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterTemplate *
-  getOverridenAdapterTemplatePtr();
+  getUsenAdapterTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct FunctionTemplateOverride final : public rq::TemplateOverride {
-  using Self = rq::FunctionTemplateOverride;
+struct FunctionTemplateUse final : public rq::TemplateUse {
+  using Self = rq::FunctionTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE FunctionTemplateOverride();
+  explicit RQ_ALWAYS_INLINE FunctionTemplateUse();
 
   RQ_ALWAYS_INLINE void
   setParentFunctionWeightLevel(rq::FunctionWeightLevel &weight_level);
@@ -2731,20 +2740,20 @@ struct FunctionTemplateOverride final : public rq::TemplateOverride {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionWeightLevel *
   getParentFunctionWeightLevelPtr();
   RQ_ALWAYS_INLINE void
-  setOverridenFunctionTemplate(rq::FunctionTemplate &template_);
+  setUsenFunctionTemplate(rq::FunctionTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionTemplate *
-  getOverridenFunctionTemplatePtr() const;
+  getUsenFunctionTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionTemplate *
-  getOverridenFunctionTemplatePtr();
+  getUsenFunctionTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalDynamicVariableTemplateOverride final
-    : public rq::TemplateOverride {
-  using Self = rq::GlobalDynamicVariableTemplateOverride;
+struct GlobalDynamicVariableTemplateUse final
+    : public rq::TemplateUse {
+  using Self = rq::GlobalDynamicVariableTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplateOverride();
+  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplateUse();
 
   RQ_ALWAYS_INLINE void setParentGlobalDynamicVariableWeightLevel(
       rq::GlobalDynamicVariableWeightLevel &weight_level);
@@ -2752,21 +2761,21 @@ struct GlobalDynamicVariableTemplateOverride final
   getParentGlobalDynamicVariableWeightLevelPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariableWeightLevel *
   getParentGlobalDynamicVariableWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setOverridenGlobalDynamicVariableTemplate(
+  RQ_ALWAYS_INLINE void setUsenGlobalDynamicVariableTemplate(
       rq::GlobalDynamicVariableTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariableTemplate *
-  getOverridenGlobalDynamicVariableTemplatePtr() const;
+  getUsenGlobalDynamicVariableTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariableTemplate *
-  getOverridenGlobalDynamicVariableTemplatePtr();
+  getUsenGlobalDynamicVariableTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalStaticVariableTemplateOverride final
-    : public rq::TemplateOverride {
-  using Self = rq::GlobalStaticVariableTemplateOverride;
+struct GlobalStaticVariableTemplateUse final
+    : public rq::TemplateUse {
+  using Self = rq::GlobalStaticVariableTemplateUse;
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplateOverride();
+  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplateUse();
 
   RQ_ALWAYS_INLINE void setParentGlobalStaticVariableWeightLevel(
       rq::GlobalStaticVariableWeightLevel &weight_level);
@@ -2774,12 +2783,12 @@ struct GlobalStaticVariableTemplateOverride final
   getParentGlobalStaticVariableWeightLevelPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariableWeightLevel *
   getParentGlobalStaticVariableWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setOverridenGlobalStaticVariableTemplate(
+  RQ_ALWAYS_INLINE void setUsenGlobalStaticVariableTemplate(
       rq::GlobalStaticVariableTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariableTemplate *
-  getOverridenGlobalStaticVariableTemplatePtr() const;
+  getUsenGlobalStaticVariableTemplatePtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariableTemplate *
-  getOverridenGlobalStaticVariableTemplatePtr();
+  getUsenGlobalStaticVariableTemplatePtr();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
