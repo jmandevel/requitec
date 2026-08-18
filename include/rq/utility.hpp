@@ -309,11 +309,11 @@ getMaskValue(FlagsParam flags, FlagsParam mask) {
 enum class Error : std::uint_fast32_t { OK };
 
 struct ErrorCategory final : public std::error_category {
-  [[nodiscard]] RQ_ALWAYS_INLINE const char *name() const noexcept use {
+  [[nodiscard]] RQ_ALWAYS_INLINE const char *name() const noexcept override {
     return "requitec";
   }
 
-  [[nodiscard]] inline std::string message(int ec) const use {
+  [[nodiscard]] inline std::string message(int ec) const override {
     switch (static_cast<rq::Error>(ec)) {
     case rq::Error::OK:
       return "ok";
