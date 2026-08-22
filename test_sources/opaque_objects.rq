@@ -5,7 +5,23 @@
 [opaque][mangle]::getInstanceRef
 [function getInstance, ()$MyClass];
 
+// when this class is defined, it can be a maximum of 64 bits in size
+[opaque][mangle]::SizedClass
+[class SizedClass, [unknown_greatest 64],
+
+    [opaque]
+    [function doSomething, ()[void]=>$[var]\];
+];
+
+[opaque][mangle]::getSized
+[function getSized, ()MyClass];
+
 [function [main], ()[signed_integer],
     ref := getInstanceRef().[borrow];
+    sized := getSized(); 
+    // Sized uses 64 bits of memory in the stack.
+    // However, the class layout is unknown.
+    // Its not possible to access members directly.
+    sized.[borrow].doSomething();
     [result] <:= ref.[address].[cast];
 ];
