@@ -1,12 +1,11 @@
 [import "std"];
 
 [class MyClass, [public][layout_constructor];
-    {> [public] var:[signed_integer] },
-
-    [public]
-    [function create, (> a:[signed_integer], b:[signed_integer] <)MyClass,
-      [result] <:= MyClass(var=a + b);
-    ];  
+    [public][layout_constructor];
+    [public][constructor {> a:[signed_integer], b:[signed_integer] <},
+        [result] <:= MyClass.[init a + b];
+    ];
+    {> [public] var:[signed_integer] }
 ];
 
 [function [main], ()[signed_integer],
@@ -15,7 +14,7 @@
     
     // push back one element
     // emplace will call the function in the future with the given arguments forwarded
-    my_stack.pushBack(MyClass.create(1, 2).[emplace]);
+    my_stack.pushBack(MyClass(1, 2).[emplace]);
 
     // remove the last element
     my_stack.popBack();
