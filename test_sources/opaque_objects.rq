@@ -1,0 +1,11 @@
+
+[opaque][mangle]::MyClass
+[class MyClass, [unknown]];
+
+[opaque][mangle]::getInstanceRef
+[function getInstance, ()$MyClass];
+
+[function [main], ()[signed_integer],
+    ref := getInstanceRef().[borrow];
+    [result] <:= ref.[address].[cast];
+];
