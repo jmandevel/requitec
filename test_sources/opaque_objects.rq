@@ -7,7 +7,7 @@
 
 // when this class is defined, it can be a maximum of 64 bits in size
 [opaque][mangle]::SizedClass
-[class SizedClass, [unknown_greatest 64],
+[class SizedClass, [greatest_unknown 64],
 
     [opaque]
     [function doSomething, ()[void]=>$[var]\];
@@ -22,6 +22,6 @@
     // Sized uses 64 bits of memory in the stack.
     // However, the class layout is unknown.
     // Its not possible to access members directly.
-    sized.[borrow].doSomething();
+    sized.[var]\[borrow].doSomething();
     [result] <:= ref.[address].[cast];
 ];
