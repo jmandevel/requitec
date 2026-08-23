@@ -58,14 +58,6 @@
     ];
 ];
 
-[adapter B, ISpeak..Rat,
-    [use speak, rat.squeak.[reflect].[resolve_function ()[void]=>]];
-];
-
-[adapter B, IGreet..Rat,
-    [use greet, Rat.squeak.[reflect].[resolve_function ()[void]=>]];
-];
-
 [function [main], ()[signed_integer],
     dog := Dog();
     cat := Cat();
