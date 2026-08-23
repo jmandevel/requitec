@@ -62,47 +62,47 @@
 
     // equal limit interval
     [for 0.!=9, value:=[value],
-        std.print(line="value is " +> value);    
+        std.printJuxt(line="value is " +> value);    
     ];
 
     // less limit interval
     [for 0.<10, value:=[value], 
-        std.print(line="value is " +> value);    
+        std.printJuxt(line="value is " +> value);    
     ];
 
     // interval
     [for 0.<10.+1, value:=[value], 
-        std.print(line="value is " +> value);    
+        std.printJuxt(line="value is " +> value);    
     ];
 
     [scope
         // while loop    
         value : [var]\ = 0.[as [fast_signed_integer 32]];
         [while value < 10,
-            std.print(line="value is " +> value);   
+            std.printJuxt(line="value is " +> value);   
             value = value + 1;
         ];
     ];
 
     // array element range
     [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].[borrow].[forward], value:=[value],     
-        std.print(line="value is " +> value);
+        std.printJuxt(line="value is " +> value);
     ];
 
     // forward ranger range
     class := MyClass();
     [for class.[borrow].[forward], value:=[value], 
-        std.print(line="value is " +> value);
+        std.printJuxt(line="value is " +> value);
     ];
 
     // backward ranger range
     reverse_class := MyReverseClass();
     [for reverse_class.[borrow].[backward], value:=[value],
-        std.print(line="value is " +> value);
+        std.printJuxt(line="value is " +> value);
     ];
 
     [if (0.<10)->std.getContains(5),
-        std.print(line="5 is within interval over 0 to 10");
+        std.printJuxt(line="5 is within interval over 0 to 10");
     ];
 
     [result] <:= 0;

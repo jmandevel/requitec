@@ -9,5 +9,5 @@ GLOBALVAR := 5;
 
 [public]
 [function printHelloWorld, ()[void],
-    std.print(line = "Hello, world!");
+    std.printJuxt(line = "Hello, world!");
 ];

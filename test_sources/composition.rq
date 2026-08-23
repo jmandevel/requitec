@@ -5,13 +5,13 @@
     // its not opaque, so it does not have to be overriden
     [public][virtual]
     [function speak, ()[void]=>,
-        std.print(line="I don't speak.");
+        std.printJuxt(line="I don't speak.");
     ];
 
     // this function is not virtual so it cannot be overriden by adapters
     [public]
     [function doSomething, ()[void]=>,
-        std.print(line="do something now!");
+        std.printJuxt(line="do something now!");
     ];
 
 ];
@@ -23,21 +23,21 @@
 [class Rat, [public][layout_constructor]; {},
     [public]
     [function squeak, ()[void]=>,
-        std.print(line="Squeak!");  
+        std.printJuxt(line="Squeak!");  
     ];
 ];
 
 [adapter A, ISpeak..Dog,
     [public]
     [function speak, ()[void]=>,
-        std.print(line="Woof!");
+        std.printJuxt(line="Woof!");
     ];
 ];
 
 [adapter A, ISpeak..Cat,
     [public]
     [function speak, ()[void]=>,
-        std.print(line="Meow!");
+        std.printJuxt(line="Meow!");
     ];
 ];
 
@@ -54,7 +54,7 @@
 [adapter A, IGreet..Dog,
     [public]
     [function greet, ()[void]=>,
-        std.print(line="*wags tail*");
+        std.printJuxt(line="*wags tail*");
     ];
 ];
 

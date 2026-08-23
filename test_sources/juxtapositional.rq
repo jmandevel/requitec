@@ -2,17 +2,17 @@
 
 [template]::{> [auto] List:[symbol] <}
 [function printList, (> list:List <)[void],
-    std.print(line="begin!");
+    std.printJuxt(line="begin!");
     [spin list,
-        std.print(line="weave!");
+        std.printJuxt(line="weave!");
         ][weave [value].[type].[is_integer_type], int:=[value],
-            std.print(line="found integer: " +> int);    
+            std.printJuxt(line="found integer: " +> int);    
         ][weave [value].[type].[is_float_type], float:=[value],
-            std.print(line="found float: " +> float);
+            std.printJuxt(line="found float: " +> float);
         ][weave [true], any:=[value],
-            std.print(line="found something else: " +> any.[borrow]);
+            std.printJuxt(line="found something else: " +> any.[borrow]);
         ];
-    std.print(line="end!");
+    std.printJuxt(line="end!");
 ];
 
 [function [main], ()[signed_integer],

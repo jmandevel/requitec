@@ -2,17 +2,17 @@
 
 [function myFunc, (>a:[fast_signed_integer 32], b:[fast_signed_integer 32]<)[fast_signed_integer 32],
     [if a > b,
-        std.print(line="a is greater than b");
+        std.printJuxt(line="a is greater than b");
     ][else_if b > a,
-        std.print(line="b is greater than a");
+        std.printJuxt(line="b is greater than a");
     ][else 
-        std.print(line="a and b are equal");
+        std.printJuxt(line="a and b are equal");
     ];
     [result] <:= a + b;
 ];
 
 [function [main], ()[signed_integer],
-    std.print(line="the return value is " +> myFunc(1, 2));
+    std.printJuxt(line="the return value is " +> myFunc(1, 2));
 
     [result] <:= 0;
 ];

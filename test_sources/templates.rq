@@ -4,20 +4,20 @@
 [constraint]::(Type.[is_float_type])
 [weight]::1
 [function printType, ( var:Type <)[void],
-    std.print(line="Its a float");
+    std.printJuxt(line="Its a float");
 ];
 
 [template]::{> Type:[symbol] <}
 [constraint]::(Type.[is_integer_type])
 [weight]::1
 [function printType, ( var:Type <)[void],
-    std.print(line="Its an integer");
+    std.printJuxt(line="Its an integer");
 ];
 
 [template]::{> Type:[symbol] <}
 [constraint]::(Type.[is_type])
 [function printType, ( var:Type <)[void],
-    std.print(line="Its something");
+    std.printJuxt(line="Its something");
 ];
 
 [function [main], ()[signed_integer],

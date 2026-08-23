@@ -7,7 +7,7 @@
 ];
 
 [function [main], ()[signed_integer],
-    std.print(
+    std.printJuxt(
         "the result is " +>
         myForwardedAdd(
             1.0,

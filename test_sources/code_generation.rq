@@ -10,7 +10,7 @@
 [function [main], ()[signed_integer],
     [static][for 0.<=10, [static] num:=[value],
         [static] varname :std.String= std.format(text="VAR" +> num);
-        std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
+        std.printJuxt(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
     [result] <:= 0;

@@ -4,7 +4,7 @@
 
 [class WithDestroy, [public][layout_constructor]; {},
     [function [destroy], ()[void]=>,
-        std.print(line="In destroy!");
+        std.printJuxt(line="In destroy!");
         [this].[remove];
     ];
 ];

@@ -16,6 +16,6 @@
 GLOBAL_NUMBER := num;
 
 [function [main], ()[signed_integer],
-    std.print(line=GLOBAL_NUMBER);
+    std.printJuxt(line=GLOBAL_NUMBER);
     [result] <:= 0;
 ];

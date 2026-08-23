@@ -1,7 +1,7 @@
 [import "std"];
 
 [function [main], ()[signed_integer],
-    std.print(line="Hello, world!");
+    std.printJuxt(line="Hello, world!");
 
     [result] <:= 0;
 ];

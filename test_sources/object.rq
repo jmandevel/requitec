@@ -34,7 +34,7 @@
     b := MyClass(1, 2, 3);
     c := MyClass.fromScalar(4);
 
-    std.print(line="a total:{a.[borrow].getTotal()}");
+    std.printJuxt(line="a total:{a.[borrow].getTotal()}");
 
     added := MyClass.add(b, c);
 

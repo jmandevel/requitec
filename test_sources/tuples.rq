@@ -14,7 +14,7 @@
         // can get the value with .[get] reflection
         // errors with .[get] are caught at compile time, so this is very safe.
         type_keyed_text := inferenced.[get @[utf8]];
-        std.print(line=type_keyed_text);
+        std.printJuxt(line=type_keyed_text);
         // see captures.rq for more example usage of this feature
     ];
 
