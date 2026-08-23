@@ -10,7 +10,7 @@
 
     // can determine if tuple has type-keyed value at compile time with .[has] reflection
     [static]
-    [if inferenced.[type].[has @[utf8]],
+    [if inferenced.[variable].[type].[has @[utf8]],
         // can get the value with .[get] reflection
         // errors with .[get] are caught at compile time, so this is very safe.
         type_keyed_text := inferenced.[get @[utf8]];

@@ -1,13 +1,14 @@
 
+// the layout of this prototype is unknown. it can be defined later if the class is fully implemented.
 [opaque][mangle]::MyClass
 [class MyClass, [unknown]];
 
 [opaque][mangle]::getInstanceRef
 [function getInstance, ()$MyClass];
 
-// when this class is defined, it can be a maximum of 64 bits in size
+// when this class fully implemented, it can be a maximum of 64 bits in size
 [opaque][mangle]::SizedClass
-[class SizedClass, [greatest_unknown 64],
+[class SizedClass, [greatest]::64\[unknown],
 
     [opaque]
     [function doSomething, ()[void]=>$[var]\];

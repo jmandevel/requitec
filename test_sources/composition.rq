@@ -42,7 +42,7 @@
 ];
 
 [adapter A, ISpeak..Rat,
-    [use speak, Rat.squeak.[plain_genre].[overload ()[void]=>$]];
+    [use speak, Rat.squeak.[plain_implementation].[resolve ()[void]=>$]];
 ];
 
 [interface IGreet,
@@ -59,21 +59,12 @@
 ];
 
 [adapter B, ISpeak..Rat,
-    [use speak, rat.squeak.[plain_genre].[overload ()[void]=>]];
+    [use speak, rat.squeak.[plain_implementation].[resolve ()[void]=>]];
 ];
 
 [adapter B, IGreet..Rat,
-    [use greet, Rat.squeak.[plain_genre].[overload ()[void]=>]];
+    [use greet, Rat.squeak.[plain_implementation].[resolve ()[void]=>]];
 ];
-
-[use A, B.[plain_genre].[overload ISpeak..Rat]];
-[use A, B.[plain_genre].[overload IGreet..Rat]];
-
-// could do with compile time loop instead...
-// [static]
-// [for B.[overload_range], [static] overload:=[value],
-//    [use A, overload];
-//];
 
 [function [main], ()[signed_integer],
     dog := Dog();
@@ -92,7 +83,7 @@
     [result] <:= 0;
 ];
 
-[function speakAndGreet, (> animal:[composition ISpeak, IGreet] <)[void],
+[function speakAndGreet, (> animal:[greatest]::64\[composition ISpeak, IGreet] <)[void],
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

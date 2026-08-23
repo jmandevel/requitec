@@ -2,7 +2,7 @@
 // types of polymorphs include classes, interfaces, adapters, functions, global dynamic variables, and global static variables
 // this example source shows function polymorphs and how they work. other kinds are similar but a bit different.
 // for example, classes have layouts instead of signatures. adapters have conformities. 
-// interfaces and global variables have no tag. they only have at most one overload in their no template genre.
+// interfaces and global variables have no tag. they only have at most one overload in their no template implementation.
 
 // templates refeer to declarations with template attributes
 
@@ -24,15 +24,21 @@
     [result] <:= num;
 ];
 
-// get overload with no args
-[static][global] noArgs := getNum.[resolve ()[signed_integer]];
+// store polymorph in variable
+[static][global] poly := getNum.[polymorph];
+
+// get overload with no args.
+[static][global] noArgs := getNum.[polymorph].[resolve ()[signed_integer]];
+
+// get overload from variable containing polymorph
+[static][global] noArgs1 := poly.[resolve ()[signed_integer]];
 
 // get specialization with signature and given template args
 [static][global] templateNoArgs := getNum{ NUM=0 }.[resolve ()[signed_integer]];
 
-// loop over all weight levels of polymorph
+// loop over all template specializations of polymorph
 [static]
-[for getNum.[weight_level_range], [static] weight_level := [value],
+[for getNum.[polymorph].[weight_level_range], [static] weight_level := [value],
     // loop over all templates of weight level
     [static]
     [for weight_level.[template_range], [static] template := [value],
@@ -43,8 +49,8 @@
     ];
 ];
 
-// loop over all genres of polymorph (overloads and specializations)
+// loop over all overloads of polymorph
 [static]
-[for getNum.[genre_range], [static] genre := [value],
+[for getNum.[polymorph].[overload_range], [static] implementation := [value],
     // etc
 ];
