@@ -42,7 +42,7 @@
 ];
 
 [adapter A, ISpeak..Rat,
-    [use speak, Rat.squeak.[plain_implementation].[resolve ()[void]=>$]];
+    [use speak, Rat.squeak.[polymorph].[resolve_function ()[void]=>$]];
 ];
 
 [interface IGreet,
@@ -59,11 +59,11 @@
 ];
 
 [adapter B, ISpeak..Rat,
-    [use speak, rat.squeak.[plain_implementation].[resolve ()[void]=>]];
+    [use speak, rat.squeak.[polymorph].[resolve_function ()[void]=>]];
 ];
 
 [adapter B, IGreet..Rat,
-    [use greet, Rat.squeak.[plain_implementation].[resolve ()[void]=>]];
+    [use greet, Rat.squeak.[polymorph].[resolve_function ()[void]=>]];
 ];
 
 [function [main], ()[signed_integer],

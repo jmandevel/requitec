@@ -28,13 +28,13 @@
 [static][global] poly := getNum.[polymorph];
 
 // get overload with no args.
-[static][global] noArgs := getNum.[polymorph].[resolve ()[signed_integer]];
+[static][global] noArgs := getNum.[polymorph].[resolve_function ()[signed_integer]];
 
 // get overload from variable containing polymorph
-[static][global] noArgs1 := poly.[resolve ()[signed_integer]];
+[static][global] noArgs1 := poly.[resolve_function ()[signed_integer]];
 
 // get specialization with signature and given template args
-[static][global] templateNoArgs := getNum{ NUM=0 }.[resolve ()[signed_integer]];
+[static][global] templateNoArgs := getNum{ NUM=0 }.[resolve_function ()[signed_integer]];
 
 // loop over all template specializations of polymorph
 [static]
