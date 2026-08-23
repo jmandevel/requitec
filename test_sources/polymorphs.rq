@@ -25,10 +25,10 @@
 ];
 
 // store polymorph in variable
-[static][global] poly := getNum.[polymorph];
+[static][global] poly := getNum.[reflect];
 
 // get overload with no args.
-[static][global] noArgs := getNum.[polymorph].[resolve_function ()[signed_integer]];
+[static][global] noArgs := getNum.[reflect].[resolve_function ()[signed_integer]];
 
 // get overload from variable containing polymorph
 [static][global] noArgs1 := poly.[resolve_function ()[signed_integer]];
@@ -38,7 +38,7 @@
 
 // loop over all template specializations of polymorph
 [static]
-[for getNum.[polymorph].[weight_level_range], [static] weight_level := [value],
+[for getNum.[reflect].[weight_level_range], [static] weight_level := [value],
     // loop over all templates of weight level
     [static]
     [for weight_level.[template_range], [static] template := [value],
@@ -51,6 +51,6 @@
 
 // loop over all overloads of polymorph
 [static]
-[for getNum.[polymorph].[overload_range], [static] implementation := [value],
+[for getNum.[reflect].[overload_range], [static] implementation := [value],
     // etc
 ];
