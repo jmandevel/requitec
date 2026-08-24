@@ -63,12 +63,12 @@
     cat := Cat();
     rat := Rat();
 
-    dog_adapter :ISpeak= dog.[adapt A..ISpeak];
+    dog_adapter :ISpeak= dog.[compose A..ISpeak];
     dog_adapter.speak();
 
     dog_composition:[composition ISpeak, IGreet]= dog.[compose A..IGreet, A..ISpeak];
     dog_greet_adapter :IGreet= dog_composition.[decompose IGreet];
-    
+
     speakAndGreet(animal=dog.[compose A..ISpeak, A..IGreet]);
     speakAndGreet(animal=cat.[compose A..ISpeak, A..IGreet]);
     speakAndGreet(animal=rat.[compose A..ISpeak, A..IGreet]);
