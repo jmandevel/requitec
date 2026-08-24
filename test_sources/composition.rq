@@ -63,7 +63,7 @@
     cat := Cat();
     rat := Rat();
 
-    dog_adapter :ISpeak= dog.[compose A..ISpeak];
+    dog_adapter :[composition ISpeak]= dog.[compose A..ISpeak];
     dog_adapter.speak();
 
     dog_composition:[composition ISpeak, IGreet]= dog.[compose A..IGreet, A..ISpeak];
