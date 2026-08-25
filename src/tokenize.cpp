@@ -357,7 +357,13 @@ void Tokenizer::_tokenizeSourceText() {
     case '=':
       switch (this->getRanger().getChar(1)) {
       case '=':
-        this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
+        switch (this->getRanger().getChar(2)) {
+        case '>':
+          this->tokenizeLengthToken(T::DOUBLE_THICK_ARROW_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(T::DOUBLE_EQUAL_OPERATOR, 2);
+        }
         break;
       case '>':
         this->tokenizeLengthToken(T::THICK_ARROW_OPERATOR, 2);
