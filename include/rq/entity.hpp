@@ -37,6 +37,7 @@ enum class Keyword : rq::EntityId {
   UNSITUATED_ASCRIBE_LOW,
   UNSITUATED_ASCRIBE_HIGH,
   UNSITUATED_CHAIN,
+  UNSITUATED_TRAIN,
 
   // LOGICAL
   LOGICAL_AND,
@@ -57,12 +58,14 @@ enum class Keyword : rq::EntityId {
   EXTEND,
   INSTANTIATE_EXTENSION,
   INSTANTIATE_CONFORMITY,
+  INSTANTIATE_ADAPTION,
   BINDING,
   UPBINDING,
   ASCRIBE_HIGH,
   ASCRIBE_LOW,
-  ASCRIBE_RECIEVER,
+  ASCRIBE_HIGH_RECIEVER,
   INSTANTIATE_LOW_ATTRIBUTE,
+  INSTANTIATE_HIGH_ATTRIBUTE,
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,
@@ -128,16 +131,14 @@ enum class Keyword : rq::EntityId {
   COMPOSE_OF,
   DECOMPOSE,
   DECOMPOSE_OF,
-  ADAPT,
-  ADAPT_OF,
   REMOVE,
   REMOVE_OF,
   INIT,
   INIT_OF,
   INPLACE_DESTROY,
   INPLACE_DESTROY_OF,
-  INPLACE_INITIALIZE,
-  INPLACE_INITIALIZE_OF,
+  INPLACE_INIT,
+  INPLACE_INIT_OF,
 
   // SUBTYPE
   INSTANTIATE_ARRAY,
@@ -155,7 +156,7 @@ enum class Keyword : rq::EntityId {
   INSTANTIATE_TUPLE,
   NAMED_ELEMENT,
   INSTANTIATE_LAYOUT,
-  INSTANTIATE_TEMPLATE,
+  SPECIALIZE,
 
   // PROCEDURES
   NAMED_ARGUMENT,
@@ -270,7 +271,6 @@ enum class Keyword : rq::EntityId {
   NAMESPACE,
   C,
   TOP,
-  USE,
 
   // HINTS
   DEBUG_BREAK,
@@ -283,12 +283,12 @@ enum class Keyword : rq::EntityId {
   // anchor_attribute
   NO_ANCHOR,
   ANCHOR,
-  // opaque_attribute
-  NO_OPAQUE,
-  OPAQUE,
   // flank_attribute
   NO_FLANK,
   FLANK,
+  // opaque_attribute
+  NO_OPAQUE,
+  OPAQUE,
   // global_attribute
   NO_GLOBAL,
   GLOBAL,
@@ -351,6 +351,12 @@ enum class Keyword : rq::EntityId {
   // ranger_attribute
   NO_RANGER,
   RANGER,
+  // require_attribute
+  NO_REQUIRE,
+  REQUIRE,
+  // ensure_attribute
+  NO_ENSURE,
+  ENSURE,
 
   // HIGH ATTRIBUTES
   // var_attribute
@@ -366,17 +372,14 @@ enum class Keyword : rq::EntityId {
   // null_terminate_attribute
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  // require_attribute
-  NO_REQUIRE,
-  REQUIRE,
-  // ensure_attribute
-  NO_ENSURE,
-  ENSURE,
+  // greatest_attribute
+  NO_GREATEST,
+  GREATEST,
 
   // LOW ATTRIBUTE TYPES
   ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
-  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
   FLANK_ATTRIBUTE,          // no_flank vs flank
+  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
   GLOBAL_ATTRIBUTE,         // no_global vs global
   PUBLIC_ATTRIBUTE,         // no_public vs public
   PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
@@ -397,17 +400,17 @@ enum class Keyword : rq::EntityId {
   AUTO_ATTRIBUTE,           // no_auto vs auto
   VIRTUAL_ATTRIBUTE,        // no_virtual vs virtual
   RANGER_ATTRIBUTE,         // no_ranger vs ranger
+  REQUIRE_ATTRIBUTE,        // no_require vs require
+  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
 
   // HIGH ATTRIBUTE TYPES
   VAR_ATTRIBUTE,            // no_var vs var vs partial_var
   VOLATILE_ATTRIBUTE,       // no_volatile vs volatile
   ATOMIC_ATTRIBUTE,         // no_atomic vs atomic
   NULL_TERMINATE_ATTRIBUTE, // no_null_terminate vs null_terminate
-  REQUIRE_ATTRIBUTE,        // no_require vs require
-  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
+  GREATEST_ATTRIBUTE,       // no_greatest vs greatest
 
   // REFLECTIONS
-  REFLECT,
   MEMBER_OF,
   BAKE,
   BAKE_OF,
@@ -431,8 +434,6 @@ enum class Keyword : rq::EntityId {
   IS_OF,
   HOLDS,
   HOLDS_OF,
-  VARIABLE,
-  VARIABLE_OF,
   TYPE,
   TYPE_OF,
   HAS_MEMBER,
@@ -447,9 +448,6 @@ enum class Keyword : rq::EntityId {
   // can use platform specific values for bit depth only if type is a synonym
   SYNONYM,
   SYNONYM_OF,
-  CAPTURE_OF,
-  AS_EXTENSION,
-  AS_EXTENSION_OF,
   INCREMENT,
   INCREMENT_OF,
   DECREMENT,
@@ -472,20 +470,32 @@ enum class Keyword : rq::EntityId {
   UNDERLYING_VALUE_OF,
   UNDERLYING_TYPE,
   UNDERLYING_TYPE_OF,
-  TEMPLATE_OF,
+  REFLECT,
+  REFLECT_OF,
+  POLYMORPH,
+  POLYMORPH_OF,
+  OVERLOAD,
+  OVERLOAD_OF,
   OVERLOAD_RANGE,
   OVERLOAD_RANGE_OF,
   SPECIALIZATION_RANGE,
   SPECIALIZATION_RANGE_OF,
-  GENRE_RANGE,
-  GENRE_RANGE_OF,
   WEIGHT_LEVEL,
   WEIGHT_LEVEL_OF,
   WEIGHT_LEVEL_RANGE,
   WEIGHT_LEVEL_RANGE_OF,
+  WEIGHT_OF,
+  TEMPLATE_OF,
+  TEMPLATE_RANGE,
+  TEMPLATE_RANGE_OF,
   CONSTRUCTOR_RANGE,
   CONSTRUCTOR_RANGE_OF,
-  LAYOUT_CONSTRUCTOR_OF,
+  RESOLVE_TEMPLATE,
+  RESOLVE_TEMPLATE_OF,
+  RESOLVE_FUNCTION,
+  RESOLVE_FUNCTION_OF,
+  RESOLVE_ADAPTER,
+  RESOLVE_ADAPTER_OF,
   IS_TYPE,
   IS_TYPE_OF,
   IS_RANGE_TYPE,
@@ -526,10 +536,12 @@ enum class SymbolKind : rq::EntityId {
   CODEUNIT_LITERAL_TYPE,
 
   // CONTEXTUAL VALUE
+  UNKNOWN_VALUE,
   VALUE_VALUE,
   INDEX_VALUE,
 
   // CONTEXTUAL TYPE
+  UNKNOWN_TYPE,
   INFERENCE_TYPE,
   VOID_TYPE,
   NO_RETURN_TYPE,
@@ -565,11 +577,13 @@ enum class SymbolKind : rq::EntityId {
   VOLATILE_ATTRIBUTE_TYPE,
   ATOMIC_ATTRIBUTE_TYPE,
   NULL_TERMINATE_ATTRIBUTE_TYPE,
+  GREATEST_ATTRIBUTE_TYPE,
 
   // REFLECTIVE TYPES
   SYMBOL_TYPE,
   SYMBOL_RANGE_TYPE,
-  EXPRESSION_TYPE,
+  EXPRESSION,
+  EXPRESSION_RANGE_TYPE,
 
   // PLATFORM PRIMITIVE TYPES
   BOOLEAN_TYPE,
@@ -612,8 +626,6 @@ enum class SymbolKind : rq::EntityId {
   POINTER_SUBTYPE,
   SLICE_SUBTYPE,
   INFERENCE_COUNT_ARRAY_SUBTYPE,
-
-  // COUNTED SUBTYPES => SUBTYPES
   ARRAY_SUBTYPE,
 
   // MODULES
@@ -625,12 +637,12 @@ enum class SymbolKind : rq::EntityId {
   // CONFORMITY
   CONFORMITY,
 
-  // BLOCK
-  BLOCK,
+  // ADAPTION
+  ADAPTAION,
 
-  // JUXTAPOSITIONAL LIST
-  JUXTAPOSITIONAL_LIST_ITEM,
-  JUXTAPOSITIONAL_LIST_TYPE,
+  // JUXT LIST
+  JUXT_LIST_TYPE,
+  JUXT_LIST_ITEM,
 
   // ARITHMETIC SEQUENCES
   ARITHMETIC_INTERVAL_TYPE,
@@ -640,22 +652,19 @@ enum class SymbolKind : rq::EntityId {
   // LOCAL DECLARATIONS
   ANCHOR,
   ENUMERATOR,
-
-  // LOCAL VARIABLES => local declaration
   LOCAL_DYNAMIC_VARIABLE,
-  LOCAL_STATIC_VARIABLE,
-  CAPTURE,
-
-  // ARGUMENTS => local variables
-  TEMPLATE_ARGUMENT,
   FUNCTION_ARGUMENT,
+  LOCAL_STATIC_VARIABLE,
+  LOCAL_CONSTANT_VARIABLE,
+  CAPTURE_ARGUMENT,
+  TEMPLATE_ARGUMENT,
 
   // PARAMETERS => local variable
   PARAMETER,
 
   // PARAMETER LISTS
-  SIGNATURE,
-  LAYOUT,
+  SIGNATURE_TYPE,
+  LAYOUT_TYPE,
 
   // PLACEMENTS
   PLACEMENT_TYPE,
@@ -668,8 +677,8 @@ enum class SymbolKind : rq::EntityId {
   SYNONYM_TYPE,
 
   // SYMBOL TABLES
-  C,
-  TOP,
+  C_TABLE,
+  TOP_TABLE,
 
   // LOCAL STATEMENTS => symbol table
   IF_STATEMENT,
@@ -687,7 +696,7 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // OVERLOADS => genre => global declaration => named table
+  // OVERLOADS => implementation => global declaration => named table
   CLASS_OVERLOAD,
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
@@ -698,7 +707,7 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_OVERLOAD,
   GLOBAL_STATIC_VARIABLE_OVERLOAD,
 
-  // SPECIALIZATIONS => genre => global declaration => named table
+  // SPECIALIZATIONS => implementation => global declaration => named table
   CLASS_SPECIALIZATION,
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
@@ -706,19 +715,6 @@ enum class SymbolKind : rq::EntityId {
   FUNCTION_SPECIALIZATION,
   GLOBAL_DYNAMIC_VARIABLE_SPECIALIZATION,
   GLOBAL_STATIC_VARIABLE_SPECIALIZATION,
-
-  // PROTOTYPES => genre => global declaration => named table
-  CLASS_PROTOTYPE,
-  ENUM_PROTOTYPE,
-  FUNCTION_PROTOTYPE,
-  CONSTRUCTOR_PROTOTYPE,
-  LAYOUT_CONSTRUCTOR_PROTOTYPE,
-  GLOBAL_DYNAMIC_VARIABLE_PROTOTYPE,
-
-  // REQUISITES => global declaration => named table
-  FUNCTION_REQUISITE,
-  CONSTRUCTOR_REQUISITE,
-  LAYOUT_CONSTRUCTOR_REQUISITE,
 
   // TEMPLATES => global declaration
   CLASS_TEMPLATE,
@@ -747,19 +743,6 @@ enum class SymbolKind : rq::EntityId {
   GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
   GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
 
-  // OVERLOAD USES => use => symbol
-  ADAPTER_OVERLOAD_USE,
-  FUNCTION_OVERLOAD_USE,
-
-  // TEMPLATE USES => use => symbol
-  CLASS_TEMPLATE_USE,
-  ENUM_TEMPLATE_USE,
-  INTERFACE_TEMPLATE_USE,
-  ADAPTER_TEMPLATE_USE,
-  FUNCTION_TEMPLATE_USE,
-  GLOBAL_DYNAMIC_VARIABLE_TEMPLATE_USE,
-  GLOBAL_STATIC_VARIABLE_TEMPLATE_USE,
-
   LAST
 };
 
@@ -770,6 +753,8 @@ enum class ConstantKind : rq::EntityId {
   ARRAY,
   DATA_ARRAY,
   SYMBOL,
+  ENTITY_RANGE,
+  ARITHMETIC_SEQUENCE,
 
   LAST
 };
@@ -845,13 +830,15 @@ enum class Opcode : rq::EntityId {
 
 constexpr rq::EntityId KEYWORD_OFFSET = 0;
 
-constexpr rq::EntityId SYMBOL_OFFSET = rq::getUNDERLYING_VALUE(rq::Keyword::LAST);
+constexpr rq::EntityId SYMBOL_OFFSET = rq::getUnderlyingValue(rq::Keyword::LAST);
 
 constexpr rq::EntityId CONSTANT_OFFSET =
-    rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::LAST);
+    rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
 constexpr rq::EntityId OPCODE_OFFSET =
-    rq::CONSTANT_OFFSET + rq::getUNDERLYING_VALUE(rq::ConstantKind::LAST);
+    rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::LAST);
+
+constexpr rq::EntityId CFG_BLOCK_ID = OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
 
 struct Entity;
 
@@ -955,7 +942,7 @@ struct Entity {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
-    return this->_id < rq::getUNDERLYING_VALUE(rq::Keyword::LAST);
+    return this->_id < rq::getUnderlyingValue(rq::Keyword::LAST);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
@@ -996,6 +983,6 @@ struct Entity {
 
 namespace llvm {
 RQ_ALWAYS_INLINE llvm::hash_code hash_value(const rq::Keyword &value) {
-  return llvm::hash_value(rq::getUNDERLYING_VALUE(value));
+  return llvm::hash_value(rq::getUnderlyingValue(value));
 }
 } // namespace llvm
