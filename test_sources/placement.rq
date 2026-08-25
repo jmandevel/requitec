@@ -21,7 +21,7 @@
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
-        [this].ptr.[inplace_initialize placement.[invoke]];
+        [this].ptr.[inplace_init placement.[invoke]];
     ];
 
     [function [destroy], ()[void]=>,         
