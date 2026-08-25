@@ -157,7 +157,7 @@ concept flags = rq::is_flags<FlagsParam>::value;
 
 template <typename FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<FlagsParam>
-getUNDERLYING_VALUE(FlagsParam flags) {
+getUnderlyingValue(FlagsParam flags) {
   return static_cast<std::underlying_type_t<FlagsParam>>(flags);
 }
 
@@ -169,65 +169,65 @@ getBit(std::uint64_t bit_i) {
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator|(FlagsParam lhs,
                                                               FlagsParam rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) |
-                                 rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) |
+                                 rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator|(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) | rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) | rhs);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator|(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
-  return static_cast<FlagsParam>(lhs | rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(lhs | rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator&(FlagsParam lhs,
                                                               FlagsParam rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) &
-                                 rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) &
+                                 rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator&(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) & rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) & rhs);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator&(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
-  return static_cast<FlagsParam>(lhs & rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(lhs & rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator^(FlagsParam lhs,
                                                               FlagsParam rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) ^
-                                 rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) ^
+                                 rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator^(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) & rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) & rhs);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator^(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
-  return static_cast<FlagsParam>(lhs ^ rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(lhs ^ rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 RQ_ALWAYS_INLINE constexpr FlagsParam &operator|=(FlagsParam &lhs,
                                                   FlagsParam rhs) {
   lhs =
-      static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) | rq::getUNDERLYING_VALUE(rhs));
+      static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) | rq::getUnderlyingValue(rhs));
   return lhs;
 }
 
@@ -235,51 +235,51 @@ template <rq::flags FlagsParam>
 RQ_ALWAYS_INLINE constexpr FlagsParam &operator&=(FlagsParam &lhs,
                                                   FlagsParam rhs) {
   lhs =
-      static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) & rq::getUNDERLYING_VALUE(rhs));
+      static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) & rq::getUnderlyingValue(rhs));
   return lhs;
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator<<(FlagsParam lhs,
                                                                FlagsParam rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs)
-                                 << rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs)
+                                 << rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator<<(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) << rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) << rhs);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator<<(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
-  return static_cast<FlagsParam>(lhs << rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(lhs << rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator>>(FlagsParam lhs,
                                                                FlagsParam rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) >>
-                                 rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) >>
+                                 rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator>>(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUNDERLYING_VALUE(lhs) >> rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) >> rhs);
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator>>(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
-  return static_cast<FlagsParam>(lhs >> rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(lhs >> rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam operator~(FlagsParam rhs) {
-  return static_cast<FlagsParam>(~rq::getUNDERLYING_VALUE(rhs));
+  return static_cast<FlagsParam>(~rq::getUnderlyingValue(rhs));
 }
 
 template <rq::flags FlagsParam>
@@ -303,7 +303,7 @@ template <rq::flags FlagsParam>
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<FlagsParam>
 getMaskValue(FlagsParam flags, FlagsParam mask) {
-  return rq::getUNDERLYING_VALUE(flags & mask);
+  return rq::getUnderlyingValue(flags & mask);
 }
 
 enum class Error : std::uint_fast32_t { OK };
@@ -375,7 +375,7 @@ struct PtrWithFlags {
   }
   RQ_ALWAYS_INLINE void addFlags(Flags flags) {
 #if defined(_NDEBUG)
-    this->_ptr_int_pair.getInt() |= rq::getUNDERLYING_VALUE(flags);
+    this->_ptr_int_pair.getInt() |= rq::getUnderlyingValue(flags);
 #else
     this->_flags |= flags;
 #endif

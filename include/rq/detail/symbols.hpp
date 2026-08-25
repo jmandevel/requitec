@@ -1131,7 +1131,7 @@ getIsGlobalVariableOverload(rq::SymbolKind kind) {
 }
 
 RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
-    : Entity(rq::getUNDERLYING_VALUE(kind) + rq::SYMBOL_OFFSET) {}
+    : Entity(rq::getUnderlyingValue(kind) + rq::SYMBOL_OFFSET) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::operator==(const Self &rhs) const {
   return this == &rhs;
@@ -1375,7 +1375,7 @@ template <rq::SymbolKind KIND_PARAM>
 DerivedSimpleSymbol<KIND_PARAM>::classof(const Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(KIND_PARAM);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE
@@ -1424,8 +1424,8 @@ RQ_ALWAYS_INLINE void
 profileScaledPrimitiveType(llvm::FoldingSetNodeID &inout_id,
                            rq::SymbolKind kind, rq::ScaleKind scale_kind,
                            unsigned scale, std::uint64_t synonum_id) {
-  inout_id.AddInteger(rq::getUNDERLYING_VALUE(kind));
-  inout_id.AddInteger(rq::getUNDERLYING_VALUE(scale_kind));
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
+  inout_id.AddInteger(rq::getUnderlyingValue(scale_kind));
   inout_id.AddInteger(scale);
   inout_id.AddInteger(synonum_id);
 }
@@ -1441,7 +1441,7 @@ template <rq::SymbolKind KIND_PARAM>
 DerivedScaledPrimitiveType<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(KIND_PARAM);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
@@ -1480,7 +1480,7 @@ RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(rq::ConstantSymbol &child,
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::ARRAY_SUBTYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::ARRAY_SUBTYPE);
 }
 
 inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -1519,7 +1519,7 @@ inline void UncountedSubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
 RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &inout_id,
                                               rq::SymbolKind kind,
                                               const rq::ConstantSymbol &child) {
-  inout_id.AddInteger(rq::getUNDERLYING_VALUE(kind));
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
   inout_id.AddPointer(&child);
 }
 
@@ -1534,7 +1534,7 @@ template <rq::SymbolKind KIND_PARAM>
 DerivedUncountableSubtype<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(KIND_PARAM);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE
@@ -1691,7 +1691,7 @@ Conformity::getInterface() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::CONFORMITY);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::CONFORMITY);
 }
 
 RQ_ALWAYS_INLINE Block::Block(rq::Instruction *outer_instruction_ptr)
@@ -1724,7 +1724,7 @@ Block::getLlvmBlock() const {
 [[nodiscard]] inline bool Block::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::BLOCK);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::BLOCK);
 }
 
 RQ_ALWAYS_INLINE
@@ -1748,7 +1748,7 @@ JuxtapositionalListItem::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::JUXTAPOSITIONAL_LIST_ITEM);
+                   rq::getUnderlyingValue(rq::SymbolKind::JUXTAPOSITIONAL_LIST_ITEM);
 }
 
 inline void
@@ -1801,7 +1801,7 @@ JuxtapositionalListType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE);
+                   rq::getUnderlyingValue(rq::SymbolKind::JUXTAPOSITIONAL_LIST_TYPE);
 }
 
 inline void
@@ -1881,7 +1881,7 @@ template <rq::SymbolKind KIND_PARAM>
     const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(KIND_PARAM);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE
@@ -1955,7 +1955,7 @@ Anchor::getVessel() const {
 [[nodiscard]] inline bool Anchor::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::ANCHOR);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::ANCHOR);
 }
 
 RQ_ALWAYS_INLINE
@@ -1988,7 +1988,7 @@ Enumerator::getDiscriminantValue() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::ENUMERATOR);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::ENUMERATOR);
 }
 
 RQ_ALWAYS_INLINE
@@ -2058,7 +2058,7 @@ LocalDynamicVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE);
+                   rq::getUnderlyingValue(rq::SymbolKind::LOCAL_DYNAMIC_VARIABLE);
 }
 
 RQ_ALWAYS_INLINE LocalStaticVariable::LocalStaticVariable(
@@ -2084,7 +2084,7 @@ LocalStaticVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
+                   rq::getUnderlyingValue(rq::SymbolKind::LOCAL_STATIC_VARIABLE);
 }
 
 RQ_ALWAYS_INLINE Capture::Capture(rq::SymbolTable &container,
@@ -2105,7 +2105,7 @@ RQ_ALWAYS_INLINE Capture::Capture(rq::SymbolTable &container,
 [[nodiscard]] inline bool Capture::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::CAPTURE);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::CAPTURE);
 }
 
 RQ_ALWAYS_INLINE TemplateArgument::TemplateArgument(
@@ -2140,7 +2140,7 @@ TemplateArgument::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::TEMPLATE_ARGUMENT);
+                   rq::getUnderlyingValue(rq::SymbolKind::TEMPLATE_ARGUMENT);
 }
 
 RQ_ALWAYS_INLINE
@@ -2166,7 +2166,7 @@ FunctionArgument::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::FUNCTION_ARGUMENT);
+                   rq::getUnderlyingValue(rq::SymbolKind::FUNCTION_ARGUMENT);
 }
 
 RQ_ALWAYS_INLINE
@@ -2348,7 +2348,7 @@ SignatureParameter::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::SIGNATURE_PARAMETER);
+                   rq::getUnderlyingValue(rq::SymbolKind::SIGNATURE_PARAMETER);
 }
 
 RQ_ALWAYS_INLINE LayoutParameter::LayoutParameter(
@@ -2378,7 +2378,7 @@ LayoutParameter::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::LAYOUT_PARAMETER);
+                   rq::getUnderlyingValue(rq::SymbolKind::LAYOUT_PARAMETER);
 }
 
 RQ_ALWAYS_INLINE
@@ -2447,7 +2447,7 @@ profileTypeParameter(llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
                      const rq::TypeParameter *next_ptr, rq::Name name,
                      const rq::ConstantSymbol &type, unsigned location,
                      bool is_positional) {
-  inout_id.AddInteger(rq::getUNDERLYING_VALUE(kind));
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
   inout_id.AddPointer(next_ptr);
   inout_id.Add(name);
   inout_id.AddPointer(&type);
@@ -2467,7 +2467,7 @@ ProcedureParameter::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::PROCEDURE_PARAMETER);
+                   rq::getUnderlyingValue(rq::SymbolKind::PROCEDURE_PARAMETER);
 }
 
 RQ_ALWAYS_INLINE
@@ -2482,7 +2482,7 @@ TupleParameter::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::TUPLE_PARAMETER);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::TUPLE_PARAMETER);
 }
 
 RQ_ALWAYS_INLINE
@@ -2752,7 +2752,7 @@ Signature::getSignatureParameterSubrange() const {
 [[nodiscard]] inline bool Signature::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::SIGNATURE);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::SIGNATURE);
 }
 
 RQ_ALWAYS_INLINE
@@ -2817,7 +2817,7 @@ Layout::getLayoutParameterSubrange() const {
 [[nodiscard]] inline bool Layout::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::LAYOUT);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAYOUT);
 }
 
 RQ_ALWAYS_INLINE
@@ -2973,7 +2973,7 @@ ProcedureType::getProcedureParameterSubrange() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::PROCEDURE_TYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::PROCEDURE_TYPE);
 }
 
 inline void ProcedureType::Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -3091,7 +3091,7 @@ TupleType::getTupleParameterSubrange() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::TUPLE_TYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::TUPLE_TYPE);
 }
 
 inline void TupleType::Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -3121,7 +3121,7 @@ PlacementType::getFunction() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::PLACEMENT_TYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::PLACEMENT_TYPE);
 }
 
 inline void PlacementType::Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -3203,7 +3203,7 @@ CompositionType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id == rq::SYMBOL_OFFSET +
-                   rq::getUNDERLYING_VALUE(rq::SymbolKind::COMPOSITION_TYPE);
+                   rq::getUnderlyingValue(rq::SymbolKind::COMPOSITION_TYPE);
 }
 
 inline void CompositionType::Profile(llvm::FoldingSetNodeID &inout_id) const {
@@ -3235,7 +3235,7 @@ SynonymType::getOriginal() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id ==
-         rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::SYNONYM_TYPE);
+         rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::SYNONYM_TYPE);
 }
 
 RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::SymbolKind kind,
@@ -3409,7 +3409,7 @@ RQ_ALWAYS_INLINE C::C() : SymbolTable(rq::SymbolKind::C, nullptr) {}
 [[nodiscard]] inline bool C::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::C);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::C);
 }
 
 RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}
@@ -3417,7 +3417,7 @@ RQ_ALWAYS_INLINE Top::Top() : SymbolTable(rq::SymbolKind::TOP, nullptr) {}
 [[nodiscard]] inline bool Top::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::TOP);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::TOP);
 }
 
 RQ_ALWAYS_INLINE
@@ -3471,7 +3471,7 @@ template <rq::SymbolKind KIND_PARAM>
 DerivedLocalScope<KIND_PARAM>::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(KIND_PARAM);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(KIND_PARAM);
 }
 
 RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::SymbolKind kind,
@@ -3511,7 +3511,7 @@ RQ_ALWAYS_INLINE Namespace::Namespace(rq::SymbolTable &container, rq::Name name)
 [[nodiscard]] inline bool Namespace::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
-  return id == rq::SYMBOL_OFFSET + rq::getUNDERLYING_VALUE(rq::SymbolKind::NAMESPACE);
+  return id == rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::NAMESPACE);
 }
 
 } // namespace rq
