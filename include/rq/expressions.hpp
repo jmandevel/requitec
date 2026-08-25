@@ -29,7 +29,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   using K = Keyword;
   switch (keyword) {
   case K::NONE:
-    return "none";
+    return "_none";
 
     // LITERALS
   case K::INTEGER_LITERAL:
@@ -45,7 +45,7 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // ERRORS
   case K::ERROR:
-    return "__error";
+    return "_error";
 
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
@@ -58,6 +58,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_unsituated_ascribe_high";
   case K::UNSITUATED_CHAIN:
     return "_unsituated_chain";
+  case K::UNSITUATED_TRAIN:
+    return "_unsituated_train";
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -92,6 +94,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_extension";
   case K::INSTANTIATE_CONFORMITY:
     return "_instantiate_conformity";
+  case K::INSTANTIATE_ADAPTION:
+    return "_instantiate_adaption";
   case K::BINDING:
     return "_binding";
   case K::UPBINDING:
@@ -100,10 +104,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_high";
   case K::ASCRIBE_LOW:
     return "_ascribe_low";
-  case K::ASCRIBE_RECIEVER:
-    return "_ascribe_reciever";
+  case K::ASCRIBE_HIGH_RECIEVER:
+    return "_ascribe_high_reciever";
   case K::INSTANTIATE_LOW_ATTRIBUTE:
     return "_instantiate_low_attribute";
+  case K::INSTANTIATE_HIGH_ATTRIBUTE:
+    return "_instantiate_high_attribute";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -222,30 +228,22 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "decompose";
   case K::DECOMPOSE_OF:
     return "_decompose_of";
-  case K::ADAPT:
-    return "adapt";
-  case K::ADAPT_OF:
-    return "_adapt_of";
-  case K::DESTROY:
-    return "destroy";
-  case K::DESTROY_OF:
-    return "_destroy_of";
   case K::REMOVE:
     return "remove";
   case K::REMOVE_OF:
     return "_remove_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
+  case K::INPLACE_DESTROY_OF:
+    return "_inplace_destroy_of";
   case K::INIT:
     return "init";
   case K::INIT_OF:
     return "_init_of";
-  case K::INPLACE_DESTROY_OF:
-    return "_inplace_destroy_of";
-  case K::INPLACE_INITIALIZE:
-    return "inplace_initialize";
-  case K::INPLACE_INITIALIZE_OF:
-    return "_inplace_initialize_of";
+  case K::INPLACE_INIT:
+    return "inplace_init";
+  case K::INPLACE_INIT_OF:
+    return "_inplace_init_of";
 
   // SUBTYPE
   case K::INSTANTIATE_ARRAY:
@@ -274,8 +272,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_named_element";
   case K::INSTANTIATE_LAYOUT:
     return "_instantiate_layout";
-  case K::INSTANTIATE_TEMPLATE:
-    return "_instantiate_template";
+  case K::SPECIALIZE:
+    return "_specialize";
 
   // PROCEDURES
   case K::NAMED_ARGUMENT:
@@ -582,6 +580,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_virtual";
   case K::VIRTUAL:
     return "virtual";
+  case K::NO_RANGER:
+    return "no_ranger";
+  case K::RANGER:
+    return "ranger";
   case K::NO_REQUIRE:
     return "no_require";
   case K::REQUIRE:
@@ -590,10 +592,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_ensure";
   case K::ENSURE:
     return "ensure";
-  case K::NO_RANGER:
-    return "no_ranger";
-  case K::RANGER:
-    return "ranger";
 
   // TYPE ATTRIBUTES
   case K::NO_VAR:
@@ -614,14 +612,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
+  case K::NO_GREATEST:
+    return "no_greatest";
+  case K::GREATEST:
+    return "greatest";
 
   // LOW ATTRIBUTE TYPES
   case K::ANCHOR_ATTRIBUTE:
     return "anchor_attribute";
-  case K::FLANK_ATTRIBUTE:
-    return "flank_attribute";
   case K::OPAQUE_ATTRIBUTE:
     return "opaque_attribute";
+  case K::FLANK_ATTRIBUTE:
+    return "flank_attribute";
   case K::GLOBAL_ATTRIBUTE:
     return "global_attribute";
   case K::PUBLIC_ATTRIBUTE:
@@ -660,12 +662,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "auto_attribute";
   case K::VIRTUAL_ATTRIBUTE:
     return "virtual_attribute";
+  case K::RANGER_ATTRIBUTE:
+    return "ranger_attribute";
   case K::REQUIRE_ATTRIBUTE:
     return "require_attribute";
   case K::ENSURE_ATTRIBUTE:
     return "ensure_attribute";
-  case K::RANGER_ATTRIBUTE:
-    return "ranger_attribute";
 
   // HIGH ATTRIBUTE TYPES
   case K::VAR_ATTRIBUTE:
@@ -676,20 +678,20 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "atomic_attribute";
   case K::NULL_TERMINATE_ATTRIBUTE:
     return "null_terminate_attribute";
+  case K::GREATEST_ATTRIBUTE:
+    return "greatest_attribute";
 
   // REFLECTIONS
-  case K::REFLECT:
-    return "_reflect";
   case K::MEMBER_OF:
     return "_member_of";
-  case K::IGNORE:
-    return "ignore";
-  case K::IGNORE_OF:
-    return "_ignore_of";
   case K::BAKE:
     return "bake";
   case K::BAKE_OF:
     return "_bake_of";
+  case K::IGNORE:
+    return "ignore";
+  case K::IGNORE_OF:
+    return "_ignore_of";
   case K::BYTE_SIZE:
     return "byte_size";
   case K::BYTE_SIZE_OF:
@@ -726,10 +728,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "holds";
   case K::HOLDS_OF:
     return "_holds_of";
-  case K::VARIABLE:
-    return "variable";
-  case K::VARIABLE_OF:
-    return "_variable_of";
   case K::TYPE:
     return "type";
   case K::TYPE_OF:
@@ -754,12 +752,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "synonym";
   case K::SYNONYM_OF:
     return "_synonym_of";
-  case K::CAPTURE_OF:
-    return "_capture_of";
-  case K::AS_EXTENSION:
-    return "_as_extension";
-  case K::AS_EXTENSION_OF:
-    return "_as_extension_of";
   case K::INCREMENT:
     return "increment";
   case K::INCREMENT_OF:
@@ -784,6 +776,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "main";
   case K::MAIN_OF:
     return "main_of";
+  case K::DESTROY:
+    return "destroy";
+  case K::DESTROY_OF:
+    return "_destroy_of";
   case K::FORWARD:
     return "forward";
   case K::FORWARD_OF:
@@ -800,10 +796,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "underlying_type";
   case K::UNDERLYING_TYPE_OF:
     return "_underlying_type_of";
-  case K::USE:
-    return "use";
-  case K::TEMPLATE_OF:
-    return "_template_of";
+  case K::REFLECT:
+    return "reflect";
+  case K::REFLECT_OF:
+    return "_reflect_of";
+  case K::POLYMORPH:
+    return "polymorph";
+  case K::POLYMORPH_OF:
+    return "_polymorph_of";
+  case K::OVERLOAD:
+    return "overload";
+  case K::OVERLOAD_OF:
+    return "_overload_of";
   case K::OVERLOAD_RANGE:
     return "overload_range";
   case K::OVERLOAD_RANGE_OF:
@@ -812,10 +816,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "specialization_range";
   case K::SPECIALIZATION_RANGE_OF:
     return "_specialization_range_of";
-  case K::GENRE_RANGE:
-    return "genre_range";
-  case K::GENRE_RANGE_OF:
-    return "_genre_range_of";
   case K::WEIGHT_LEVEL:
     return "weight_level";
   case K::WEIGHT_LEVEL_OF:
@@ -824,12 +824,22 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "weight_level_range";
   case K::WEIGHT_LEVEL_RANGE_OF:
     return "_weight_level_range_of";
+  case K::WEIGHT_OF:
+    return "_weight_of";
+  case K::TEMPLATE_OF:
+    return "_template_of";
+  case K::TEMPLATE_RANGE:
+    return "template_range";
+  case K::TEMPLATE_RANGE_OF:
+    return "_template_range_of";
   case K::CONSTRUCTOR_RANGE:
     return "constructor_range";
   case K::CONSTRUCTOR_RANGE_OF:
     return "_constructor_range_of";
-  case K::LAYOUT_CONSTRUCTOR_OF:
-    return "_layout_constructor_of";
+  case K::RESOLVE_TEMPLATE:
+    return "resolve_template";
+  case K::RESOLVE_TEMPLATE_OF:
+    return "_resolve_template_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -867,7 +877,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::IS_BFLOAT_TYPE_OF:
     return "_is_bfloat_type_of";
   case K::IS_STRING_TYPE:
-    return "is_string_teyp";
+    return "is_string_type";
   case K::IS_STRING_TYPE_OF:
     return "_is_string_type_of";
   case K::IS_CODEUNIT_TYPE:
@@ -879,9 +889,9 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::IS_LOW_ATTRIBUTE_TYPE_OF:
     return "_is_low_attribute_type_of";
   case K::IS_HIGH_ATTRIBUTE_TYPE:
-    return "is_type_attribute_type";
+    return "is_high_attribute_type";
   case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
-    return "_is_type_attribute_type_of";
+    return "_is_high_attribute_type_of";
 
   case K::LAST:
     break;
@@ -898,30 +908,29 @@ enum class KeywordInfoFlags : std::uint32_t {
   UNQUOTED_LEFT = rq::getBit(2),
   UNQUOTED_RIGHT = rq::getBit(3),
   INTERNAL = rq::getBit(4),
-  UNIVERSALIZABLE = rq::getBit(5),
-  STARTING_CHAINLINK = rq::getBit(6),
-  CONTINUING_CHAINLINK = rq::getBit(7),
-  FINISHING_CHAINLINK = rq::getBit(8),
-  IF_CHAINLINK = rq::getBit(9),
-  SWITCH_CHAINLINK = rq::getBit(10),
-  SPIN_CHAINLINK = rq::getBit(11),
+  STARTING_CHAINLINK = rq::getBit(5),
+  CONTINUING_CHAINLINK = rq::getBit(6),
+  FINISHING_CHAINLINK = rq::getBit(7),
+  IF_CHAINLINK = rq::getBit(8),
+  SWITCH_CHAINLINK = rq::getBit(9),
+  SPIN_CHAINLINK = rq::getBit(10),
   // TOP
-  STATEMENT = rq::getBit(12),
-  RVALUE = rq::getBit(13),
-  LVALUE = rq::getBit(14),
-  REFLECTION = rq::getBit(15),
-  ARGUMENT = rq::getBit(16),
-  PARAMETER = rq::getBit(17),
-  TUPLE_ELEMENT = rq::getBit(18),
-  BINDING = rq::getBit(19),
-  NAME = rq::getBit(20),
-  NAMESPACE = rq::getBit(21),
-  ASCRIPTION = rq::getBit(22),
-  LOW_ATTRIBUTE = rq::getBit(23),
-  HIGH_ATTRIBUTE = rq::getBit(24),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
-  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | REFLECTION | ARGUMENT |
+  STATEMENT = rq::getBit(11),
+  RVALUE = rq::getBit(12),
+  LVALUE = rq::getBit(13),
+  RAILCAR = rq::getBit(14),
+  ARGUMENT = rq::getBit(15),
+  PARAMETER = rq::getBit(16),
+  TUPLE_ELEMENT = rq::getBit(17),
+  BINDING = rq::getBit(18),
+  NAME = rq::getBit(19),
+  NAMESPACE = rq::getBit(20),
+  ASCRIPTION = rq::getBit(21),
+  LOW_ATTRIBUTE = rq::getBit(22),
+  HIGH_ATTRIBUTE = rq::getBit(23),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
+  ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
                    PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
                    HIGH_ATTRIBUTE | LOW_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
                    ARITHMETIC_SEQUENCE_CONDITION,
@@ -953,7 +962,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::TUPLE_ELEMENT;
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
-           KIF::REFLECTION | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
+           KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
            KIF::NAMESPACE;
 
   // ERRORS
@@ -969,14 +978,19 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
-  case K::UNSITUATED_ASCRIBE_HIGH:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::REFLECTION |
-           KIF::ASCRIPTION;
   case K::UNSITUATED_ASCRIBE_LOW:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
+  case K::UNSITUATED_ASCRIBE_HIGH:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
+           KIF::ASCRIPTION;
   case K::UNSITUATED_CHAIN:
     return KIF::STATEMENT;
+  case K::UNSITUATED_TRAIN:
+    return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
+           KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
+           KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
+           KIF::NAMESPACE;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -1011,22 +1025,26 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_CONFORMITY:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::INSTANTIATE_ADAPTION:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BINDING:
     return KIF::LVALUE | KIF::PARAMETER | KIF::ARGUMENT | KIF::BINDING |
            KIF::TUPLE_ELEMENT;
   case K::UPBINDING:
     return KIF::LVALUE;
   case K::ASCRIBE_HIGH:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::REFLECTION |
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
   case K::ASCRIBE_LOW:
     return KIF::STATEMENT | KIF::PARAMETER;
-  case K::ASCRIBE_RECIEVER:
+  case K::ASCRIBE_HIGH_RECIEVER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_LOW_ATTRIBUTE:
     return KIF::NONE; // LOW_ATTRIBUTE_INSTANTIATION
+  case K::INSTANTIATE_HIGH_ATTRIBUTE:
+    return KIF::NONE; // HIGH_ATTRIBUTE_INSTANTIATION
   case K::IDENTIFY:
-    return KIF::REFLECTION | KIF::ASCRIPTION;
+    return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::NAMESPACE;
@@ -1053,23 +1071,23 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // CASTS
   case K::AS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::AS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OF:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::OF_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CAST:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::CAST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BITWISE_CAST:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BITWISE_CAST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SIGNATURE_CAST:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::SIGNATURE_CAST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
@@ -1095,75 +1113,71 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ASSIGN:
     return KIF::STATEMENT;
   case K::CONTENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::CONTENT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ADDRESS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SLICE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::SLICE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::FUNCTION_ADDRESS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::FUNCTION_ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BORROW:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BORROW_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DATA_ADDRESS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::DATA_ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MOVE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::MOVE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TAKE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::TAKE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CALL:
     return KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::EMPLACE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::EMPLACE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INVOKE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::INVOKE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::COMPOSE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::COMPOSE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DECOMPOSE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::DECOMPOSE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ADAPT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::ADAPT_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REMOVE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::REMOVE_OF:
     return KIF::STATEMENT;
   case K::INIT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::INIT_OF:
     return KIF::RVALUE | KIF::STATEMENT;
   case K::INPLACE_DESTROY:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::INPLACE_DESTROY_OF:
     return KIF::STATEMENT;
-  case K::INPLACE_INITIALIZE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::INPLACE_INITIALIZE_OF:
+  case K::INPLACE_INIT:
+    return KIF::RAILCAR;
+  case K::INPLACE_INIT_OF:
     return KIF::STATEMENT;
 
   // SUBTYPE
@@ -1193,9 +1207,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_LAYOUT:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::INSTANTIATE_TEMPLATE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::REFLECTION |
-           KIF::UNIVERSALIZABLE;
+  case K::SPECIALIZE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR;
 
   // PROCEDURES
   case K::NAMED_ARGUMENT:
@@ -1215,17 +1228,17 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CONSTRUCTOR:
     return KIF::STATEMENT;
   case K::LAYOUT_CONSTRUCTOR:
-    return KIF::STATEMENT | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::STATEMENT | KIF::RAILCAR;
 
   // CONTROL FLOW
   case K::RETURN:
     return KIF::STATEMENT;
   case K::BREAK:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BREAK_OF:
     return KIF::STATEMENT;
   case K::CONTINUE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::CONTINUE_OF:
     return KIF::STATEMENT;
 
@@ -1319,11 +1332,11 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::VARIADIC_ARGUMENTS:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::FIRST_VARIADIC_ARGUMENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::FIRST_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NEXT_VARIADIC_ARGUMENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VARIADIC_ARGUMENTS_TYPE:
@@ -1466,8 +1479,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::CAPTURE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT | KIF::REFLECTION |
-           KIF::UNIVERSALIZABLE | KIF::TUPLE_ELEMENT;
+    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR |
+           KIF::TUPLE_ELEMENT;
   case K::NO_INLINE:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -1552,6 +1565,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::VIRTUAL:
     return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
+  case K::NO_RANGER:
+    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::RANGER:
+    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
   case K::NO_REQUIRE:
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -1562,12 +1581,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::ENSURE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_RANGER:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::RANGER:
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
 
@@ -1597,6 +1610,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE:
+    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::NO_GREATEST:
+    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::GREATEST:
     return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
 
@@ -1645,11 +1664,11 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VIRTUAL_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RANGER_ATTRIBUTE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REQUIRE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ENSURE_ATTRIBUTE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::RANGER_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // HIGH ATTRIBUTE TYPES
@@ -1661,219 +1680,226 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE_ATTRIBUTE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::GREATEST_ATTRIBUTE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
-  case K::REFLECT:
-    return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
-           KIF::REFLECTION | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::NAMESPACE;
   case K::MEMBER_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BAKE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BAKE_OF:
     return KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::IGNORE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IGNORE_OF:
     return KIF::STATEMENT;
   case K::BYTE_SIZE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BYTE_SIZE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BIT_DEPTH:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BIT_DEPTH_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ELEMENT_COUNT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::ELEMENT_COUNT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SNIPPET:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::SNIPPET_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NAME:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::NAME_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LINE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::LINE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::COLUMN:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::COLUMN_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HOLDS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::HOLDS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIABLE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::VARIABLE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR;
   case K::TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HAS_MEMBER:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::HAS_MEMBER_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HAS:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::HAS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::GET:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::GET_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SIGNATURE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::SIGNATURE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SYNONYM:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::SYNONYM_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::CAPTURE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::AS_EXTENSION:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::AS_EXTENSION_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INCREMENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::INCREMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DECREMENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::DECREMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::WHILST:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::WHILST_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ELEMENT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::ELEMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AT:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::AT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DESTROY:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::DESTROY_OF:
-    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::MAIN:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-    return KIF::RVALUE | KIF::ARGUMENT;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR;
   case K::MAIN_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DESTROY:
+    return KIF::RAILCAR;
+  case K::DESTROY_OF:
+    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::FORWARD:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-    return KIF::RVALUE | KIF::ARGUMENT;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR;
   case K::FORWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BACKWARD:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::BACKWARD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::UNDERLYING_VALUE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::UNDERLYING_VALUE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::UNDERLYING_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::UNDERLYING_TYPE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::REFLECT:
+    return KIF::RAILCAR;
+  case K::REFLECT_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::POLYMORPH:
+    return KIF::RAILCAR;
+  case K::POLYMORPH_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::OVERLOAD:
+    return KIF::RAILCAR;
+  case K::OVERLOAD_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::OVERLOAD_RANGE:
+    return KIF::RAILCAR;
+  case K::OVERLOAD_RANGE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SPECIALIZATION_RANGE:
+    return KIF::RAILCAR;
+  case K::SPECIALIZATION_RANGE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_LEVEL:
+    return KIF::RAILCAR;
+  case K::WEIGHT_LEVEL_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_LEVEL_RANGE:
+    return KIF::RAILCAR;
+  case K::WEIGHT_LEVEL_RANGE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TEMPLATE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::USE:
-    return KIF::STATEMENT;
-  case K::OVERLOAD_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::OVERLOAD_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::SPECIALIZATION_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::SPECIALIZATION_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_LEVEL:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::WEIGHT_LEVEL_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_LEVEL_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::WEIGHT_LEVEL_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::TEMPLATE_RANGE:
+    return KIF::RAILCAR;
+  case K::TEMPLATE_RANGE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CONSTRUCTOR_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::CONSTRUCTOR_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::LAYOUT_CONSTRUCTOR_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
-  case K::GENRE_RANGE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
-  case K::GENRE_RANGE_OF:
-    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RESOLVE_TEMPLATE:
+    return KIF::RAILCAR;
+  case K::RESOLVE_TEMPLATE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RESOLVE_FUNCTION:
+    return KIF::RAILCAR;
+  case K::RESOLVE_FUNCTION_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RESOLVE_ADAPTER:
+    return KIF::RAILCAR;
+  case K::RESOLVE_ADAPTER_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_RANGE_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_RANGE_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_PLACEMENT_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_PLACEMENT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_SIGNED_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_SIGNED_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_UNSIGNED_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_UNSIGNED_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_INTEGER_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_INTEGER_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_FLOAT_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_FLOAT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_BINARY_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_BINARY_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_BFLOAT_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_BFLOAT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_STRING_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_STRING_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_CODEUNIT_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_CODEUNIT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_LOW_ATTRIBUTE_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_LOW_ATTRIBUTE_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_HIGH_ATTRIBUTE_TYPE:
-    return KIF::REFLECTION | KIF::UNIVERSALIZABLE;
+    return KIF::RAILCAR;
   case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
@@ -1935,11 +1961,6 @@ getSituatedAscribeKeyword(rq::Keyword keyword) {
          keyword == rq::Keyword::FLOAT_LITERAL;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasSome(flags, rq::KeywordInfoFlags::UNIVERSALIZABLE);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeChainLink(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasSome(flags, rq::KeywordInfoFlags::STARTING_CHAINLINK |
@@ -1981,7 +2002,7 @@ enum class Situation : std::uint_fast8_t {
   STATEMENT,
   LVALUE,
   RVALUE,
-  REFLECTION,
+  RAILCAR,
   ARGUMENT,
   PARAMETER,
   TUPLE_ELEMENT,
@@ -1990,6 +2011,7 @@ enum class Situation : std::uint_fast8_t {
   NAMESPACE,
   ASCRIPTION,
   LOW_ATTRIBUTE_INSTANTIATION,
+  HIGH_ATTRIBUTE_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE,
   STARTING_CHAINLINK,
   CONTINUING_CHAINLINK,
@@ -2023,8 +2045,8 @@ getDescription(rq::Situation situation) {
     return "lvalue expression";
   case S::RVALUE:
     return "rvalue expression";
-  case S::REFLECTION:
-    return "reflection expression";
+  case S::RAILCAR:
+    return "railcar expression";
   case S::ARGUMENT:
     return "argument expression";
   case S::PARAMETER:
@@ -2041,6 +2063,8 @@ getDescription(rq::Situation situation) {
     return "ascription expression";
   case S::LOW_ATTRIBUTE_INSTANTIATION:
     return "low attribute instantiation";
+  case S::HIGH_ATTRIBUTE_INSTANTIATION:
+    return "high attribute instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   case S::STARTING_CHAINLINK:
@@ -2081,10 +2105,8 @@ getDescription(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
-  // APPLY
   case K::IDENTIFY:
     return K::IDENTIFY_OF;
-  // CASTS
   case K::AS:
     return K::AS_OF;
   case K::OF:
@@ -2095,21 +2117,14 @@ getDescription(rq::Situation situation) {
     return K::BITWISE_CAST_OF;
   case K::SIGNATURE_CAST:
     return K::SIGNATURE_CAST_OF;
-  // MEMORY
   case K::CONTENT:
     return K::CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
-  case K::SLICE:
-    return K::SLICE_OF;
   case K::FUNCTION_ADDRESS:
     return K::FUNCTION_ADDRESS_OF;
-  case K::BORROW:
-    return K::BORROW_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
-  case K::AT:
-    return K::AT_OF;
   case K::MOVE:
     return K::MOVE_OF;
   case K::TAKE:
@@ -2122,44 +2137,22 @@ getDescription(rq::Situation situation) {
     return K::COMPOSE_OF;
   case K::DECOMPOSE:
     return K::DECOMPOSE_OF;
-  case K::ADAPT:
-    return K::ADAPT_OF;
-  case K::DESTROY:
-    return K::DESTROY_OF;
-  case K::MAIN:
-    return K::MAIN_OF;
-  case K::FORWARD:
-    return K::FORWARD_OF;
-  case K::BACKWARD:
-    return K::BACKWARD_OF;
   case K::REMOVE:
     return K::REMOVE_OF;
   case K::INIT:
     return K::INIT_OF;
   case K::INPLACE_DESTROY:
     return K::INPLACE_DESTROY_OF;
-  case K::INPLACE_INITIALIZE:
-    return K::INPLACE_INITIALIZE_OF;
-  // CONTROL FLOW
+  case K::INPLACE_INIT:
+    return K::INPLACE_INIT_OF;
   case K::BREAK:
     return K::BREAK_OF;
   case K::CONTINUE:
     return K::CONTINUE_OF;
-  // VARIADIC ARGUMENTS
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
     return K::NEXT_VARIADIC_ARGUMENT_OF;
-  // PROCEDURES
-  case K::INCREMENT:
-    return K::INCREMENT_OF;
-  case K::DECREMENT:
-    return K::DECREMENT_OF;
-  case K::WHILST:
-    return K::WHILST_OF;
-  case K::ELEMENT:
-    return K::ELEMENT_OF;
-  // REFLECTIONS
   case K::BAKE:
     return K::BAKE_OF;
   case K::IGNORE:
@@ -2179,11 +2172,9 @@ getDescription(rq::Situation situation) {
   case K::COLUMN:
     return K::COLUMN_OF;
   case K::IS:
-    return K::IS_TYPE;
+    return K::IS_OF;
   case K::HOLDS:
     return K::HOLDS_OF;
-  case K::VARIABLE:
-    return K::VARIABLE_OF;
   case K::TYPE:
     return K::TYPE_OF;
   case K::HAS_MEMBER:
@@ -2196,16 +2187,34 @@ getDescription(rq::Situation situation) {
     return K::SIGNATURE_OF;
   case K::SYNONYM:
     return K::SYNONYM_OF;
-  case K::CAPTURE:
-    return K::CAPTURE_OF;
-  case K::AS_EXTENSION:
-    return K::AS_EXTENSION_OF;
+  case K::INCREMENT:
+    return K::INCREMENT_OF;
+  case K::DECREMENT:
+    return K::DECREMENT_OF;
+  case K::WHILST:
+    return K::WHILST_OF;
+  case K::ELEMENT:
+    return K::ELEMENT_OF;
+  case K::AT:
+    return K::AT_OF;
+  case K::MAIN:
+    return K::MAIN_OF;
+  case K::DESTROY:
+    return K::DESTROY_OF;
+  case K::FORWARD:
+    return K::FORWARD_OF;
+  case K::BACKWARD:
+    return K::BACKWARD_OF;
   case K::UNDERLYING_VALUE:
-    return K::UNDERLYING_TYPE_OF;
+    return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:
     return K::UNDERLYING_TYPE_OF;
-  case K::TEMPLATE:
-    return K::TEMPLATE_OF;
+  case K::REFLECT:
+    return K::REFLECT_OF;
+  case K::POLYMORPH:
+    return K::POLYMORPH_OF;
+  case K::OVERLOAD:
+    return K::OVERLOAD_OF;
   case K::OVERLOAD_RANGE:
     return K::OVERLOAD_RANGE_OF;
   case K::SPECIALIZATION_RANGE:
@@ -2214,12 +2223,20 @@ getDescription(rq::Situation situation) {
     return K::WEIGHT_LEVEL_OF;
   case K::WEIGHT_LEVEL_RANGE:
     return K::WEIGHT_LEVEL_RANGE_OF;
+  case K::WEIGHT:
+    return K::WEIGHT_OF;
+  case K::TEMPLATE:
+    return K::TEMPLATE_OF;
+  case K::TEMPLATE_RANGE:
+    return K::TEMPLATE_RANGE_OF;
   case K::CONSTRUCTOR_RANGE:
     return K::CONSTRUCTOR_RANGE_OF;
-  case K::LAYOUT_CONSTRUCTOR:
-    return K::LAYOUT_CONSTRUCTOR_OF;
-  case K::GENRE_RANGE:
-    return K::GENRE_RANGE_OF;
+  case K::RESOLVE_TEMPLATE:
+    return K::RESOLVE_TEMPLATE_OF;
+  case K::RESOLVE_FUNCTION:
+    return K::RESOLVE_FUNCTION_OF;
+  case K::RESOLVE_ADAPTER:
+    return K::RESOLVE_ADAPTER_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:
@@ -2245,7 +2262,7 @@ getDescription(rq::Situation situation) {
   case K::IS_LOW_ATTRIBUTE_TYPE:
     return K::IS_LOW_ATTRIBUTE_TYPE_OF;
   case K::IS_HIGH_ATTRIBUTE_TYPE:
-    return K::IS_HIGH_ATTRIBUTE_TYPE_OF;
+    return K::IS_LOW_ATTRIBUTE_TYPE_OF;
   default:
     break;
   }
@@ -2275,9 +2292,9 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::RVALUE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRailcar(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::REFLECTION);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::RAILCAR);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArgument(rq::Keyword keyword) {
@@ -2321,7 +2338,12 @@ getCanBeLowAttributeInstantiation(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeArithmeticSequenceTypeStage(rq::Keyword keyword) {
+getCanBeHighAttributeInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasSome(flags,
                         rq::KeywordInfoFlags::ARITHMETIC_SEQUENCE_CONDITION |
@@ -2467,8 +2489,8 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeLvalue(keyword);
   case S::RVALUE:
     return rq::getCanBeRvalue(keyword);
-  case S::REFLECTION:
-    return rq::getCanBeReflection(keyword);
+  case S::RAILCAR:
+    return rq::getCanBeRailcar(keyword);
   case S::ARGUMENT:
     return rq::getCanBeArgument(keyword);
   case S::PARAMETER:
@@ -2485,8 +2507,10 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeAscription(keyword);
   case S::LOW_ATTRIBUTE_INSTANTIATION:
     return rq::getCanBeLowAttributeInstantiation(keyword);
+  case S::HIGH_ATTRIBUTE_INSTANTIATION:
+    return rq::getCanBeHighAttributeInstantiation(keyword);
   case S::ARITHMETIC_SEQUENCE_STAGE:
-    return rq::getCanBeArithmeticSequenceTypeStage(keyword);
+    return rq::getCanBeArithmeticSequenceStage(keyword);
   case S::STARTING_CHAINLINK:
     return rq::getCanBeStartingChainlink(keyword);
   case S::CONTINUING_CHAINLINK:
@@ -2596,15 +2620,15 @@ enum class LowAttribute : std::uint_fast8_t {
   // virtual_attribute
   NO_VIRTUAL,
   VIRTUAL,
+  // ranger_attribute
+  NO_RANGER,
+  RANGER,
   // require_attribute
   NO_REQUIRE,
   REQUIRE,
   // ensure_attribute
   NO_ENSURE,
   ENSURE,
-  // ranger_attribute
-  NO_RANGER,
-  RANGER,
 
   LAST
 };
@@ -2707,6 +2731,10 @@ enum class LowAttribute : std::uint_fast8_t {
     return "no_virtual";
   case LA::VIRTUAL:
     return "virtual";
+  case LA::NO_RANGER:
+    return "no_ranger";
+  case LA::RANGER:
+    return "ranger";
   case LA::NO_REQUIRE:
     return "no_require";
   case LA::REQUIRE:
@@ -2715,10 +2743,6 @@ enum class LowAttribute : std::uint_fast8_t {
     return "no_ensure";
   case LA::ENSURE:
     return "ensure";
-  case LA::NO_RANGER:
-    return "no_ranger";
-  case LA::RANGER:
-    return "ranger";
   case LA::LAST:
     break;
   }
@@ -2739,6 +2763,8 @@ enum class LowAttribute : std::uint_fast8_t {
   case K::FLANK:
     return LA::FLANK;
   case K::NO_OPAQUE:
+    return LA::NO_OPAQUE;
+  case K::OPAQUE:
     return LA::OPAQUE;
   case K::NO_GLOBAL:
     return LA::NO_GLOBAL;
@@ -2820,6 +2846,10 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::NO_VIRTUAL;
   case K::VIRTUAL:
     return LA::VIRTUAL;
+  case K::NO_RANGER:
+    return LA::NO_RANGER;
+  case K::RANGER:
+    return LA::RANGER;
   case K::NO_ENSURE:
     return LA::NO_ENSURE;
   case K::ENSURE:
@@ -2828,10 +2858,6 @@ enum class LowAttribute : std::uint_fast8_t {
     return LA::NO_REQUIRE;
   case K::REQUIRE:
     return LA::REQUIRE;
-  case K::NO_RANGER:
-    return LA::NO_RANGER;
-  case K::RANGER:
-    return LA::RANGER;
   default:
     break;
   }
@@ -2909,19 +2935,19 @@ enum class LowFuseFlags : std::uint_fast32_t {
   VIRTUAL = rq::getBit(23),
   VIRTUAL_MASK = VIRTUAL,
 
-  REQUIRE = rq::getBit(24),
+  RANGER = rq::getBit(24),
+  RANGER_MASK = RANGER,
+
+  REQUIRE = rq::getBit(25),
   REQUIRE_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(25),
+  ENSURE = rq::getBit(26),
   ENSURE_MASK = ENSURE,
-
-  RANGER = rq::getBit(26),
-  RANGER_MASK = RANGER,
 
   ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC |
              DELAY | CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
              EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
-             CONSTRAINT | WEIGHT | AUTO | VIRTUAL | REQUIRE | ENSURE | RANGER
+             CONSTRAINT | WEIGHT | AUTO | VIRTUAL | RANGER | REQUIRE | ENSURE
 };
 
 RQ_DEFINE_FLAGS(rq::LowFuseFlags);
@@ -3025,6 +3051,10 @@ RQ_DEFINE_FLAGS(rq::LowFuseFlags);
     return LFF::NONE;
   case LA::VIRTUAL:
     return LFF::VIRTUAL;
+  case LA::NO_RANGER:
+    return LFF::NONE;
+  case LA::RANGER:
+    return LFF::RANGER;
   case LA::NO_REQUIRE:
     return LFF::NONE;
   case LA::REQUIRE:
@@ -3033,10 +3063,6 @@ RQ_DEFINE_FLAGS(rq::LowFuseFlags);
     return LFF::NONE;
   case LA::ENSURE:
     return LFF::ENSURE;
-  case LA::NO_RANGER:
-    return LFF::NONE;
-  case LA::RANGER:
-    return LFF::RANGER;
   case LA::LAST:
     break;
   }
@@ -3152,6 +3178,10 @@ getInfoFlags(rq::LowAttribute attribute) {
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::VIRTUAL:
     return LIF::MUST_NOT_HAVE_ATTACHMENT;
+  case LA::NO_RANGER:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
+  case LA::RANGER:
+    return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::NO_REQUIRE:
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::REQUIRE:
@@ -3160,10 +3190,6 @@ getInfoFlags(rq::LowAttribute attribute) {
     return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
   case LA::ENSURE:
     return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_RANGER:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::RANGER:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
   case LA::LAST:
     break;
   }
@@ -3197,88 +3223,88 @@ getMayOrMayNotHaveAttachment(rq::LowAttribute attribute) {
 
 enum class LowAttributeKind : std::uint_fast8_t {
   NONE,
-  ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
-  FLANK_ATTRIBUTE,          // no_flank vs flank
-  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
-  GLOBAL_ATTRIBUTE,         // no_global vs global
-  PUBLIC_ATTRIBUTE,         // no_public vs public
-  PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
-  STATIC_ATTRIBUTE,         // no_static vs static
-  DELAY_ATTRIBUTE,          // no_delay vs delay
-  CAPTURE_ATTRIBUTE,        // no_capture vs capture
-  INLINE_ATTRIBUTE,         // no_inline vs inline
-  MANGLE_ATTRIBUTE,         // no_mangle vs mangle
-  PACK_ATTRIBUTE,           // no_pack vs pack
-  BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  SUPPORT_STATUS_ATTRIBUTE, // no_support_status vs depreciate vs experimental
-  STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
-  VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
-  LOCATION_ATTRIBUTE,       // no_location vs location
-  TEMPLATE_ATTRIBUTE,       // no_template vs template
-  CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
-  WEIGHT_ATTRIBUTE,         // no_weight vs weight
-  AUTO_ATTRIBUTE,           // no_auto vs auto
-  VIRTUAL_ATTRIBUTE,        // no_virtual vs virtual
-  REQUIRE_ATTRIBUTE,        // no_require vs require
-  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
-  RANGER_ATTRIBUTE          // no_ranger vs ranger
+  ANCHOR,         // no_anchor vs anchor
+  FLANK,          // no_flank vs flank
+  OPAQUE,         // no_opaque vs opaque
+  GLOBAL,         // no_global vs global
+  PUBLIC,         // no_public vs public
+  PARTIAL_MUTATE, // no_partial_mutate vs partial_mutate
+  STATIC,         // no_static vs static
+  DELAY,          // no_delay vs delay
+  CAPTURE,        // no_capture vs capture
+  INLINE,         // no_inline vs inline
+  MANGLE,         // no_mangle vs mangle
+  PACK,           // no_pack vs pack
+  BRANCH_TREND,   // no_branch_trend vs likely vs unlikely
+  SUPPORT_STATUS, // no_support_status vs depreciate vs experimental
+  STABLE_ADDRESS, // no_stable_address vs stable_address
+  VARIADIC,       // no_variadic vs variadic
+  LOCATION,       // no_location vs location
+  TEMPLATE,       // no_template vs template
+  CONSTRAINT,     // no_constraint vs constraint
+  WEIGHT,         // no_weight vs weight
+  AUTO,           // no_auto vs auto
+  VIRTUAL,        // no_virtual vs virtual
+  RANGER,         // no_ranger vs ranger
+  REQUIRE,        // no_require vs require
+  ENSURE          // no_ensure vs ensure
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::LowAttributeKind kind) {
+[[nodiscard]] inline llvm::StringRef getDescription(rq::LowAttributeKind kind) {
   using LAK = rq::LowAttributeKind;
   switch (kind) {
   case LAK::NONE:
     break;
-  case LAK::ANCHOR_ATTRIBUTE:
-    return "anchor_attribute";
-  case LAK::FLANK_ATTRIBUTE:
-    return "flank_attribute";
-  case LAK::OPAQUE_ATTRIBUTE:
-    return "opaque_attribute";
-  case LAK::GLOBAL_ATTRIBUTE:
-    return "global_attribute";
-  case LAK::PUBLIC_ATTRIBUTE:
-    return "public_attribute";
-  case LAK::PARTIAL_MUTATE_ATTRIBUTE:
-    return "partial_mutate_attribute";
-  case LAK::STATIC_ATTRIBUTE:
-    return "static_attribute";
-  case LAK::DELAY_ATTRIBUTE:
-    return "delay_attribute";
-  case LAK::CAPTURE_ATTRIBUTE:
-    return "capture_attribute";
-  case LAK::INLINE_ATTRIBUTE:
-    return "inline_attribute";
-  case LAK::MANGLE_ATTRIBUTE:
-    return "mangle_attribute";
-  case LAK::PACK_ATTRIBUTE:
-    return "pack_attribute";
-  case LAK::BRANCH_TREND_ATTRIBUTE:
-    return "branch_trend_attribute";
-  case LAK::SUPPORT_STATUS_ATTRIBUTE:
-    return "support_status_attribute";
-  case LAK::STABLE_ADDRESS_ATTRIBUTE:
-    return "stable_address_attribute";
-  case LAK::VARIADIC_ATTRIBUTE:
-    return "variadic_attribute";
-  case LAK::LOCATION_ATTRIBUTE:
-    return "location_attribute";
-  case LAK::TEMPLATE_ATTRIBUTE:
-    return "template_attribute";
-  case LAK::CONSTRAINT_ATTRIBUTE:
-    return "constraint_attribute";
-  case LAK::WEIGHT_ATTRIBUTE:
-    return "weight_attribute";
-  case LAK::AUTO_ATTRIBUTE:
-    return "auto_attribute";
-  case LAK::VIRTUAL_ATTRIBUTE:
-    return "virtual_attribute";
-  case LAK::REQUIRE_ATTRIBUTE:
-    return "require_attribute";
-  case LAK::ENSURE_ATTRIBUTE:
-    return "ensure_attribute";
-  case LAK::RANGER_ATTRIBUTE:
-    return "ranger_attribute";
+  case LAK::ANCHOR:
+    return "anchor attribute";
+  case LAK::FLANK:
+    return "flank attribute";
+  case LAK::OPAQUE:
+    return "opaque attribute";
+  case LAK::GLOBAL:
+    return "global attribute";
+  case LAK::PUBLIC:
+    return "public attribute";
+  case LAK::PARTIAL_MUTATE:
+    return "partial mutate attribute";
+  case LAK::STATIC:
+    return "static attribute";
+  case LAK::DELAY:
+    return "delay attribute";
+  case LAK::CAPTURE:
+    return "capture attribute";
+  case LAK::INLINE:
+    return "inline attribute";
+  case LAK::MANGLE:
+    return "mangle attribute";
+  case LAK::PACK:
+    return "pack attribute";
+  case LAK::BRANCH_TREND:
+    return "branch trend attribute";
+  case LAK::SUPPORT_STATUS:
+    return "support status attribute";
+  case LAK::STABLE_ADDRESS:
+    return "stable address attribute";
+  case LAK::VARIADIC:
+    return "variadic attribute";
+  case LAK::LOCATION:
+    return "location attribute";
+  case LAK::TEMPLATE:
+    return "template attribute";
+  case LAK::CONSTRAINT:
+    return "constraint attribute";
+  case LAK::WEIGHT:
+    return "weight attribute";
+  case LAK::AUTO:
+    return "auto attribute";
+  case LAK::VIRTUAL:
+    return "virtual attribute";
+  case LAK::RANGER:
+    return "ranger attribute";
+  case LAK::REQUIRE:
+    return "require attribute";
+  case LAK::ENSURE:
+    return "ensure attribute";
   }
   RQ_UNREACHABLE();
 }
@@ -3292,107 +3318,107 @@ enum class LowAttributeKind : std::uint_fast8_t {
   case LA::NO_ANCHOR:
     [[fallthrough]];
   case LA::ANCHOR:
-    return LAK::ANCHOR_ATTRIBUTE;
+    return LAK::ANCHOR;
   case LA::NO_FLANK:
     [[fallthrough]];
   case LA::FLANK:
-    return LAK::FLANK_ATTRIBUTE;
+    return LAK::FLANK;
   case LA::NO_OPAQUE:
     [[fallthrough]];
   case LA::OPAQUE:
-    return LAK::OPAQUE_ATTRIBUTE;
+    return LAK::OPAQUE;
   case LA::NO_GLOBAL:
     [[fallthrough]];
   case LA::GLOBAL:
-    return LAK::GLOBAL_ATTRIBUTE;
+    return LAK::GLOBAL;
   case LA::NO_PUBLIC:
     [[fallthrough]];
   case LA::PUBLIC:
-    return LAK::PUBLIC_ATTRIBUTE;
+    return LAK::PUBLIC;
   case LA::NO_PARTIAL_MUTATE:
     [[fallthrough]];
   case LA::PARTIAL_MUTATE:
-    return LAK::PARTIAL_MUTATE_ATTRIBUTE;
+    return LAK::PARTIAL_MUTATE;
   case LA::NO_STATIC:
     [[fallthrough]];
   case LA::STATIC:
-    return LAK::STATIC_ATTRIBUTE;
+    return LAK::STATIC;
   case LA::NO_DELAY:
     [[fallthrough]];
   case LA::DELAY:
-    return LAK::DELAY_ATTRIBUTE;
+    return LAK::DELAY;
   case LA::NO_CAPTURE:
     [[fallthrough]];
   case LA::CAPTURE:
-    return LAK::CAPTURE_ATTRIBUTE;
+    return LAK::CAPTURE;
   case LA::NO_INLINE:
     [[fallthrough]];
   case LA::INLINE:
-    return LAK::INLINE_ATTRIBUTE;
+    return LAK::INLINE;
   case LA::NO_MANGLE:
     [[fallthrough]];
   case LA::MANGLE:
-    return LAK::MANGLE_ATTRIBUTE;
+    return LAK::MANGLE;
   case LA::NO_PACK:
     [[fallthrough]];
   case LA::PACK:
-    return LAK::PACK_ATTRIBUTE;
+    return LAK::PACK;
   case LA::NO_BRANCH_TREND:
     [[fallthrough]];
   case LA::LIKELY:
     [[fallthrough]];
   case LA::UNLIKELY:
-    return LAK::BRANCH_TREND_ATTRIBUTE;
+    return LAK::BRANCH_TREND;
   case LA::NO_SUPPORT_STATUS:
     [[fallthrough]];
   case LA::DEPRECIATED:
     [[fallthrough]];
   case LA::EXPERIMENTAL:
-    return LAK::SUPPORT_STATUS_ATTRIBUTE;
+    return LAK::SUPPORT_STATUS;
   case LA::NO_STABLE_ADDRESS:
     [[fallthrough]];
   case LA::STABLE_ADDRESS:
-    return LAK::STABLE_ADDRESS_ATTRIBUTE;
+    return LAK::STABLE_ADDRESS;
   case LA::NO_VARIADIC:
     [[fallthrough]];
   case LA::VARIADIC:
-    return LAK::VARIADIC_ATTRIBUTE;
+    return LAK::VARIADIC;
   case LA::NO_LOCATION:
     [[fallthrough]];
   case LA::LOCATION:
-    return LAK::LOCATION_ATTRIBUTE;
+    return LAK::LOCATION;
   case LA::NO_TEMPLATE:
     [[fallthrough]];
   case LA::TEMPLATE:
-    return LAK::TEMPLATE_ATTRIBUTE;
+    return LAK::TEMPLATE;
   case LA::NO_CONSTRAINT:
     [[fallthrough]];
   case LA::CONSTRAINT:
-    return LAK::CONSTRAINT_ATTRIBUTE;
+    return LAK::CONSTRAINT;
   case LA::NO_WEIGHT:
     [[fallthrough]];
   case LA::WEIGHT:
-    return LAK::WEIGHT_ATTRIBUTE;
+    return LAK::WEIGHT;
   case LA::NO_AUTO:
     [[fallthrough]];
   case LA::AUTO:
-    return LAK::AUTO_ATTRIBUTE;
+    return LAK::AUTO;
   case LA::NO_VIRTUAL:
     [[fallthrough]];
   case LA::VIRTUAL:
-    return LAK::VIRTUAL_ATTRIBUTE;
-  case LA::NO_REQUIRE:
-    [[fallthrough]];
-  case LA::REQUIRE:
-    return LAK::REQUIRE_ATTRIBUTE;
-  case LA::NO_ENSURE:
-    [[fallthrough]];
-  case LA::ENSURE:
-    return LAK::ENSURE_ATTRIBUTE;
+    return LAK::VIRTUAL;
   case LA::NO_RANGER:
     [[fallthrough]];
   case LA::RANGER:
-    return LAK::RANGER_ATTRIBUTE;
+    return LAK::RANGER;
+  case LA::NO_REQUIRE:
+    [[fallthrough]];
+  case LA::REQUIRE:
+    return LAK::REQUIRE;
+  case LA::NO_ENSURE:
+    [[fallthrough]];
+  case LA::ENSURE:
+    return LAK::ENSURE;
   case LA::LAST:
     break;
   }
@@ -3500,7 +3526,9 @@ enum class HighAttribute : std::uint_fast8_t {
   NO_ATOMIC,
   ATOMIC,
   NO_NULL_TERMINATE,
-  NULL_TERMINATE
+  NULL_TERMINATE,
+  NO_GREATEST,
+  GREATEST
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::HighAttribute attribute) {
@@ -3527,6 +3555,10 @@ enum class HighAttribute : std::uint_fast8_t {
     return "no_null_terminate";
   case HA::NULL_TERMINATE:
     return "null_terminate";
+  case HA::NO_GREATEST:
+    return "no_greatest";
+  case HA::GREATEST:
+    return "greatest";
   }
   RQ_UNREACHABLE();
 }
@@ -3554,6 +3586,10 @@ enum class HighAttribute : std::uint_fast8_t {
     return HA::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
     return HA::NULL_TERMINATE;
+  case K::NO_GREATEST:
+    return HA::NO_GREATEST;
+  case K::GREATEST:
+    return HA::GREATEST;
   default:
     break;
   }
@@ -3575,6 +3611,9 @@ enum class HighFuseFlags : std::uint_fast8_t {
 
   NULL_TERMINATE = rq::getBit(4),
   NULL_TERMINATE_MASK = NULL_TERMINATE,
+
+  GREATEST = rq::getBit(5),
+  GREATEST_MASK = GREATEST
 };
 
 RQ_DEFINE_FLAGS(rq::HighFuseFlags);
@@ -3605,31 +3644,39 @@ getFuseFlags(rq::HighAttribute attribute) {
     return HFF::NONE;
   case HA::NULL_TERMINATE:
     return HFF::NULL_TERMINATE;
+  case HA::NO_GREATEST:
+    return HFF::NONE;
+  case HA::GREATEST:
+    return HFF::GREATEST;
   }
   RQ_UNREACHABLE();
 }
 
 enum class HighAttributeKind : std::uint_fast8_t {
   NONE,
-  VAR_ATTRIBUTE,
-  VOLATILE_ATTRIBUTE,
-  ATOMIC_ATTRIBUTE,
-  NULL_TERMINATE_ATTRIBUTE
+  VAR,
+  VOLATILE,
+  ATOMIC,
+  NULL_TERMINATE,
+  GREATEST
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::HighAttributeKind kind) {
+[[nodiscard]] inline llvm::StringRef
+getDescription(rq::HighAttributeKind kind) {
   using HAK = rq::HighAttributeKind;
   switch (kind) {
   case HAK::NONE:
     return "none";
-  case HAK::VAR_ATTRIBUTE:
-    return "var_attribute";
-  case HAK::VOLATILE_ATTRIBUTE:
-    return "volatile_attribute";
-  case HAK::ATOMIC_ATTRIBUTE:
-    return "atomic_attribute";
-  case HAK::NULL_TERMINATE_ATTRIBUTE:
-    return "null_terminate_attribute";
+  case HAK::VAR:
+    return "var attribute";
+  case HAK::VOLATILE:
+    return "volatile attribute";
+  case HAK::ATOMIC:
+    return "atomic attribute";
+  case HAK::NULL_TERMINATE:
+    return "null terminate attribute";
+  case HAK::GREATEST:
+    return "greatest";
   }
   RQ_UNREACHABLE();
 }
@@ -3646,19 +3693,23 @@ getKind(rq::HighAttribute attribute) {
   case HA::VAR:
     [[fallthrough]];
   case HA::PARTIAL_VAR:
-    return HAK::VAR_ATTRIBUTE;
+    return HAK::VAR;
   case HA::NO_VOLATILE:
     [[fallthrough]];
   case HA::VOLATILE:
-    return HAK::VOLATILE_ATTRIBUTE;
+    return HAK::VOLATILE;
   case HA::NO_ATOMIC:
     [[fallthrough]];
   case HA::ATOMIC:
-    return HAK::ATOMIC_ATTRIBUTE;
+    return HAK::ATOMIC;
   case HA::NO_NULL_TERMINATE:
     [[fallthrough]];
   case HA::NULL_TERMINATE:
-    return HAK::NULL_TERMINATE_ATTRIBUTE;
+    return HAK::NULL_TERMINATE;
+  case HA::NO_GREATEST:
+    [[fallthrough]];
+  case HA::GREATEST:
+    return HAK::GREATEST;
   }
   RQ_UNREACHABLE();
 }
@@ -3956,7 +4007,7 @@ struct Expression final : public rq::Entity {
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
-  explicit Expression() : Entity(rq::getUNDERLYING_VALUE(rq::Keyword::NONE)) {}
+  explicit Expression() : Entity(rq::getUnderlyingValue(rq::Keyword::NONE)) {}
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
     return static_cast<rq::Keyword>(this->getId());
   }
@@ -4008,9 +4059,6 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
     return rq::getUniversalized(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUniversalizable() const {
-    return rq::getIsUniversalizable(this->getKeyword());
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNone() const {
     return rq::getIsNone(this->getKeyword());
   }
@@ -4026,8 +4074,8 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRvalue() const {
     return rq::getCanBeRvalue(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeReflection() const {
-    return rq::getCanBeReflection(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRailcar() const {
+    return rq::getCanBeRailcar(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArgument() const {
     return rq::getCanBeArgument(this->getKeyword());
@@ -4055,8 +4103,11 @@ struct Expression final : public rq::Entity {
     return rq::getCanBeLowAttributeInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeArithmeticSequenceTypeStage() const {
-    return rq::getCanBeArithmeticSequenceTypeStage(this->getKeyword());
+  getCanBeHighAttributeInstantiation() const {
+    return rq::getCanBeHighAttributeInstantiation(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
+    return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeArithmeticSequenceCondition() const {
@@ -4131,28 +4182,28 @@ struct Expression final : public rq::Entity {
     }
     return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
   }
-  RQ_ALWAYS_INLINE void clear() {
-    this->_id = rq::getUNDERLYING_VALUE(rq::Keyword::NONE);
+  RQ_ALWAYS_INLINE void clearData() {
+    this->_id = rq::getUnderlyingValue(rq::Keyword::NONE);
     this->_next_ptr_flags = {};
     this->_branch_ptr = nullptr;
     this->_source_ptr_flags = {};
     this->_source_text_length = 0;
   }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id == rq::getUNDERLYING_VALUE(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id == rq::getUnderlyingValue(rq::Keyword::NONE),
               "keyword must not already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUNDERLYING_VALUE(keyword);
+    this->_id = rq::getUnderlyingValue(keyword);
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id != rq::getUNDERLYING_VALUE(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id != rq::getUnderlyingValue(rq::Keyword::NONE),
               "keyword must already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUNDERLYING_VALUE(keyword);
+    this->_id = rq::getUnderlyingValue(keyword);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceInfoFlags::INSERTED);
@@ -4346,7 +4397,7 @@ struct Expression final : public rq::Entity {
       branch_last_next.setNext(this->popNext());
     }
     const bool was_statement = this->getIsStatement();
-    this->clear();
+    this->clearData();
     this->setKeyword(branch.getKeyword());
     if (branch.getHasBranch()) {
       this->setBranch(branch.popBranch());
@@ -4358,14 +4409,14 @@ struct Expression final : public rq::Entity {
     if (was_statement) {
       this->setIsStatement();
     }
-    branch.clear();
+    branch.clearData();
     return branch;
   }
   [[nodiscard]] inline rq::Expression &mergeAndPopNext() {
     rq::Expression &next = this->popNext();
     RQ_ASSERT(!this->getHasBranch(), "has branch");
     const bool was_statement = this->getIsStatement();
-    this->clear();
+    this->clearData();
     this->setKeyword(next.getKeyword());
     if (next.getHasBranch()) {
       this->setBranch(next.popBranch());
@@ -4377,7 +4428,7 @@ struct Expression final : public rq::Entity {
     if (was_statement) {
       this->setIsStatement();
     }
-    next.clear();
+    next.clearData();
     return next;
   }
   [[nodiscard]] inline rq::Expression &getUnascribed() {
@@ -4438,7 +4489,7 @@ struct Expression final : public rq::Entity {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
-    inout_id.AddInteger(rq::getUNDERLYING_VALUE(this->getKeyword()));
+    inout_id.AddInteger(rq::getUnderlyingValue(this->getKeyword()));
     if (this->getIsStatement()) {
       inout_id.AddInteger(1);
     } else {
