@@ -626,17 +626,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_EXTENSION);
         continue;
       }
-      case rq::TokenKind::DOUBLE_DOT_OPERATOR: {
-        rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::Keyword::INFERENCE);
-        inference.setIsInserted();
-        inference.setSourceBefore(token);
-        precedence_factory.setRecent(inference);
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token,
-                                     rq::Keyword::INSTANTIATE_CONFORMITY);
-        continue;
-      }
       case rq::TokenKind::HASH_OPERATOR: {
         rq::Expression &inference = this->getContext().acquireExpression();
         inference.setKeyword(rq::Keyword::INFERENCE);
@@ -713,11 +702,17 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.appendRecent();
       continue;
     }
-    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
+    case rq::TokenKind::DOUBLE_THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
                                           rq::Keyword::INSTANTIATE_CONFORMITY);
+      continue;
+    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.appendRecent();
+      precedence_factory.parseOuterBinary(post_token,
+                                          rq::Keyword::INSTANTIATE_ADAPTION);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
@@ -743,7 +738,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.appendRecent();
       rq::Expression &target = precedence_factory.getOuter();
       rq::Expression &instantiation = this->getContext().acquireExpression();
-      instantiation.setKeyword(rq::Keyword::INSTANTIATE_TEMPLATE);
+      instantiation.setKeyword(rq::Keyword::SPECIALIZE);
       instantiation.setBranch(target);
       rq::ParseBranchesResult result =
           this->parseBranches(rq::TokenKind::RIGHT_BRACE_GROUPING);
