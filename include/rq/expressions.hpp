@@ -840,6 +840,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "resolve_template";
   case K::RESOLVE_TEMPLATE_OF:
     return "_resolve_template_of";
+  case K::RESOLVE_FUNCTION:
+    return "resolve_function";
+  case K::RESOLVE_FUNCTION_OF:
+    return "_resolve_function_of";
+  case K::RESOLVE_ADAPTER:
+    return "resolve_adapter";
+  case K::RESOLVE_ADAPTER_OF:
+    return "_resolve_adapter_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
