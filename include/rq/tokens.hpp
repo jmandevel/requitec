@@ -31,6 +31,7 @@ enum class TokenKind : std::uint_fast8_t {
   PERCENT_OPERATOR,            // %
   BACKSLASH_OPERATOR,          // \    .
   CAROT_OPERATOR,              // ^
+  DOUBLE_CAROT_OPERATOR,       // ^^
   PIPE_OPERATOR,               // |
   TILDE_OPERATOR,              // ~
   AMPERSAND_OPERATOR,          // &
@@ -155,6 +156,8 @@ getName(rq::TokenKind kind) {
     return "percent_operator";
   case T::CAROT_OPERATOR:
     return "carot_operator";
+  case T::DOUBLE_CAROT_OPERATOR:
+    return "double_carot_operator";
   case T::PIPE_OPERATOR:
     return "pipe_operator";
   case T::TILDE_OPERATOR:
@@ -322,6 +325,8 @@ getInfoFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::CAROT_OPERATOR:
     return TF::OPERATOR;
+  case T::DOUBLE_CAROT_OPERATOR:
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::PIPE_OPERATOR:
     return TF::OPERATOR | TF::MARK;
   case T::TILDE_OPERATOR:
