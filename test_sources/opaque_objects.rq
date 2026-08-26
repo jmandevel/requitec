@@ -8,7 +8,7 @@
 
 // when this class fully implemented, it can be a maximum of 64 bits in size
 [opaque][mangle]::SizedClass
-[class SizedClass, [greatest]::64\[unknown],
+[class SizedClass, [greatest 64]\[unknown],
 
     [opaque]
     [function doSomething, ()[void]=>$[var]\];

@@ -76,7 +76,7 @@
     [result] <:= 0;
 ];
 
-[function speakAndGreet, (> animal:[greatest]::64\[composition ISpeak, IGreet] <)[void],
+[function speakAndGreet, (> animal:[greatest 64]\[composition ISpeak, IGreet] <)[void],
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];
