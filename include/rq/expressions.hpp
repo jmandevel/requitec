@@ -109,7 +109,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::INSTANTIATE_LOW_ATTRIBUTE:
     return "_instantiate_low_attribute";
   case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    return "_instantiate_high_attribute";
+    return "instantiate_high_attribute";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
