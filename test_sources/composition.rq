@@ -80,7 +80,7 @@
     // use compose to create composition of 1 or more interfaces
     dog_composition:$^^[composition ISpeak, IGreet]= dog.[compose A..IGreet, A..ISpeak].[borrow];
     // decompose a composition to get one of its interfaces
-    dog_greet_adapter :$IGreet= dog_composition.[decompose IGreet].[borrow];
+    dog_greet_adapter :$^^IGreet= dog_composition.[decompose IGreet].[borrow];
     dog_greet_adapter.greet();
 
     speakAndGreet(animal=dog.[compose A..ISpeak, A..IGreet]);
