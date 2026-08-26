@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rq/utility.hpp>
 #include <rq/iterators.hpp>
+#include <rq/utility.hpp>
 
 #include <llvm/ADT/Hashing.h>
 
@@ -487,7 +487,7 @@ enum class Keyword : rq::EntityId {
   WEIGHT_OF,
   TEMPLATE_OF,
   TEMPLATE_RANGE,
-  TEMPLATE_RANGE_OF,\
+  TEMPLATE_RANGE_OF,
   CONSTRUCTOR_RANGE,
   CONSTRUCTOR_RANGE_OF,
   RESOLVE_TEMPLATE,
@@ -830,7 +830,8 @@ enum class Opcode : rq::EntityId {
 
 constexpr rq::EntityId KEYWORD_OFFSET = 0;
 
-constexpr rq::EntityId SYMBOL_OFFSET = rq::getUnderlyingValue(rq::Keyword::LAST);
+constexpr rq::EntityId SYMBOL_OFFSET =
+    rq::getUnderlyingValue(rq::Keyword::LAST);
 
 constexpr rq::EntityId CONSTANT_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
@@ -838,7 +839,8 @@ constexpr rq::EntityId CONSTANT_OFFSET =
 constexpr rq::EntityId OPCODE_OFFSET =
     rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::LAST);
 
-constexpr rq::EntityId CFG_BLOCK_ID = OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
+constexpr rq::EntityId CFG_BLOCK_ID =
+    OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
 
 struct Entity;
 
@@ -966,8 +968,9 @@ struct Entity {
         rq::ConstDottedInstructionIterator(this, opcode),
         rq::ConstDottedInstructionIterator());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstDottedInstructionIterator>
-  getConstDottedSubrange(rq::Opcode opcode) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::Subrange<rq::ConstDottedInstructionIterator>
+      getConstDottedSubrange(rq::Opcode opcode) const {
     return rq::Subrange<rq::ConstDottedInstructionIterator>(
         rq::ConstDottedInstructionIterator(this, opcode),
         rq::ConstDottedInstructionIterator());
