@@ -1,9 +1,9 @@
 #pragma once
 
-#include <rq/node_list.hpp>
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
 #include <rq/iterators.hpp>
+#include <rq/node_list.hpp>
 #include <rq/static_value.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -46,7 +46,7 @@ enum class SymbolInfoFlags : std::uint64_t {
   STANDARD_PRIMITIVE_TYPE = rq::getBit(4),
   PLATFORM_PRIMITIVE_TYPE = rq::getBit(5),
   MODIFIER_TYPE = rq::getBit(6),
-  qualifier_TYPE = rq::getBit(7),
+  QUALIFIER_TYPE = rq::getBit(7),
   SCALED_PRIMITIVE_TYPE = rq::getBit(8),
   SUBTYPE = rq::getBit(9),
   ARITHMETIC_SEQUENCE_TYPE = rq::getBit(10),
@@ -57,24 +57,21 @@ enum class SymbolInfoFlags : std::uint64_t {
   LOCAL_VARIABLE = rq::getBit(15),
   LOCAL_DYNAMIC_VARIABLE = rq::getBit(16),
   LOCAL_STATIC_VARIABLE = rq::getBit(17),
-  LOCAL_CONSTANT_VARIABLE = rq::getBit(18),
-  POLYMORPH = rq::getBit(19),
-  WEIGHT_LEVEL = rq::getBit(20),
-  TEMPLATE = rq::getBit(21),
-  SYMBOL_TABLE = rq::getBit(22),
-  LOCAL_SCOPE = rq::getBit(23),
-  NAMED_TABLE = rq::getBit(24),
-  GLOBAL_DECLARATION = rq::getBit(25),
-  IMPLEMENTATION = rq::getBit(26),
-  CLASS_IMPLEMENTATION = rq::getBit(27),
-  ENUM_IMPLEMENTATION = rq::getBit(28),
-  INTERFACE_IMPLEMENTATION = rq::getBit(29),
-  ADAPTER_IMPLEMENTATION = rq::getBit(30),
-  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(31),
-  FUNCTION_IMPLEMENTATION = rq::getBit(32),
-  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(33),
-  GLOBAL_DYNAMIC_VARIABLE_IMPLEMENTATION = rq::getBit(34),
-  GLOBAL_STATIC_VARIABLE_IMPLEMENTATION = rq::getBit(35),
+  POLYMORPH = rq::getBit(18),
+  WEIGHT_LEVEL = rq::getBit(29),
+  TEMPLATE = rq::getBit(20),
+  SYMBOL_TABLE = rq::getBit(21),
+  LOCAL_SCOPE = rq::getBit(22),
+  NAMED_TABLE = rq::getBit(23),
+  GLOBAL_DECLARATION = rq::getBit(24),
+  IMPLEMENTATION = rq::getBit(25),
+  CLASS_IMPLEMENTATION = rq::getBit(26),
+  ENUM_IMPLEMENTATION = rq::getBit(27),
+  INTERFACE_IMPLEMENTATION = rq::getBit(28),
+  ADAPTER_IMPLEMENTATION = rq::getBit(29),
+  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(30),
+  FUNCTION_IMPLEMENTATION = rq::getBit(31),
+  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(32),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(53),
@@ -104,7 +101,7 @@ getIsStandardFittingType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsPlatformPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsModifierType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsScaledPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
@@ -116,8 +113,6 @@ getIsArithmeticSequenceType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsLocalStaticVariable(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsLocalConstantVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
@@ -141,10 +136,6 @@ getIsConstructorImplementation(rq::SymbolKind kind);
 getIsFunctionImplementation(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsGlobalVariableImplementation(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalDynamicVariableImplementation(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalStaticVariableImplementation(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
@@ -363,8 +354,9 @@ struct Symbol : public rq::Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getDerivedExpressionPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::Expression* getDerivedExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getDerivedExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getDerivedExpressionPtr() const;
 
   [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags();
 
@@ -384,7 +376,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStaticVariable();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalConstantVariable();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate();
@@ -400,9 +391,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructorImplementation();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionImplementation();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariableImplementation();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsGlobalDynamicVariableImplementation();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalStaticVariableImplementation();
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType();
@@ -1258,7 +1247,9 @@ struct ModuleDetail final {
   llvm::StringRef _buffer;
   std::vector<rq::Token> _tokens{};
 
-  explicit RQ_ALWAYS_INLINE ModuleDetail(rq::ModuleKind kind, llvm::StringRef path, llvm::StringRef buffer);
+  explicit RQ_ALWAYS_INLINE ModuleDetail(rq::ModuleKind kind,
+                                         llvm::StringRef path,
+                                         llvm::StringRef buffer);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
@@ -2102,9 +2093,11 @@ struct LocalStaticVariable : public rq::LocalVariable {
 
   explicit RQ_ALWAYS_INLINE LocalStaticVariable(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setStaticValue(rq::Gendex<rq::StaticValue> static_value);
+  RQ_ALWAYS_INLINE void
+  setStaticValue(rq::Gendex<rq::StaticValue> static_value);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *getStaticValuePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *getStaticValuePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *
+  getStaticValuePtr() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2242,7 +2235,7 @@ struct NamedTable : public rq::SymbolTable {
   RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
 };
 
 struct Namespace final : public rq::NamedTable {
@@ -2250,29 +2243,31 @@ struct Namespace final : public rq::NamedTable {
 
   explicit RQ_ALWAYS_INLINE Namespace();
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
 };
 
 struct GlobalDeclaration : public rq::NamedTable {
   using Self = rq::GlobalDeclaration;
 
-  rq::Expression* _expression_ptr{nullptr};
+  rq::Expression *_expression_ptr{nullptr};
   rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
-  rq::SymbolTable* _host_ptr{nullptr};
-  rq::Module* _module_ptr{nullptr};
+  rq::SymbolTable *_host_ptr{nullptr};
+  rq::Module *_module_ptr{nullptr};
   llvm::StringRef _mangled_name{};
 
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression& expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getExpressionPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression* getExpressionPtr() const;
-  RQ_ALWAYS_INLINE void setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags getModifierFuseFlags() const;
-  RQ_ALWAYS_INLINE void setHostTable(rq::SymbolTable& host);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable* getHostTablePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable* getHostTablePtr() const;
-  RQ_ALWAYS_INLINE void setModule(rq::Module& module);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module* getModulePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module* getModulePtr() const;
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
+  RQ_ALWAYS_INLINE void
+  setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  RQ_ALWAYS_INLINE void setHostTable(rq::SymbolTable &host);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostTablePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostTablePtr() const;
+  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
   void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
 
@@ -2282,45 +2277,49 @@ struct GlobalDeclaration : public rq::NamedTable {
 struct Implementation : public rq::GlobalDeclaration {
   using Self = rq::Implementation;
 
-  rq::Symbol* _parent_ptr{nullptr};
+  rq::Symbol *_parent_ptr{nullptr};
   rq::Implementation *_next_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Implementation(rq::SymbolKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol* getParentPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol* getParentPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getParentPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getParentPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct EnumImplementation : public rq::Implementation {
   using Self = rq::EnumImplementation;
 
-  rq::ConstantSymbol* _underlying_type_ptr{nullptr};
+  rq::ConstantSymbol *_underlying_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE EnumImplementation(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol* underlying_type);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol* getUnderlyingTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol* getUnderlyingTypePtr() const;
+  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol *underlying_type);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getUnderlyingTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+  getUnderlyingTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct EnumOverload final : public rq::EnumImplementation {
   using Self = rq::EnumOverload;
 
-  rq::NodeList<rq::Expression*> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE EnumOverload();
 
-  RQ_ALWAYS_INLINE void setParentEnumPolymorph(rq::EnumPolymorph& parent);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph* getParentEnumPolymorphPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph* getParentEnumPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression*> getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression*> getPrototypeExpressionPtrList() const;
+  RQ_ALWAYS_INLINE void setParentEnumPolymorph(rq::EnumPolymorph &parent);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *getParentEnumPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
+  getParentEnumPolymorphPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct EnumSpecialization final : public rq::EnumImplementation {
@@ -2328,11 +2327,12 @@ struct EnumSpecialization final : public rq::EnumImplementation {
 
   explicit RQ_ALWAYS_INLINE EnumSpecialization();
 
-  RQ_ALWAYS_INLINE void setParentEnumTemplate(rq::EnumTemplate& template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate* getParentEnumTemplatePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate* getParentEnumTemplatePtr() const;
+  RQ_ALWAYS_INLINE void setParentEnumTemplate(rq::EnumTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *getParentEnumTemplatePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
+  getParentEnumTemplatePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct GlobalVariableImplementation : public rq::Implementation {
