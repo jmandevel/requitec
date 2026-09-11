@@ -1,10 +1,10 @@
 // a polymorph is a symbol that contains multiple overloads
-// types of polymorphs include classes, interfaces, adapters, functions, global dynamic variables, and global static variables
+// types of polymorphs include classes, interfaces, adapters, functions, common dynamic variables, and common static variables
 // this example source shows function polymorphs and how they work. other kinds are similar but a bit different.
 // for example, classes have layouts instead of signatures. adapters have conformities. 
-// interfaces and global variables have no tag. they only have at most one overload in their no template implementation.
+// interfaces and common variables have no tag. they only have at most one overload in their no template implementation.
 
-// templates refeer to declarations with template attributes
+// templates refeer to declarations with template modifiers
 
 [template]::{> NUM:[signed_integer] <}
 [weight]::3
@@ -14,7 +14,7 @@
 
 // templates have different overloads attached to them, one for each specialization
 
-// declarations without a template attribute are attached directly to the polymorph
+// declarations without a template modifier are attached directly to the polymorph
 
 [function getNum, ()[signed_integer],
     [result] <:= 0;
@@ -25,16 +25,16 @@
 ];
 
 // store polymorph in variable
-[static][global] poly := getNum.[reflect];
+[baked] poly := getNum.[reflect];
 
 // get overload with no args.
-[static][global] noArgs := getNum.[reflect].[resolve_function ()[signed_integer]];
+[baked] noArgs := getNum.[reflect].[resolve_function ()[signed_integer]];
 
 // get overload from variable containing polymorph
-[static][global] noArgs1 := poly.[resolve_function ()[signed_integer]];
+[baked] noArgs1 := poly.[resolve_function ()[signed_integer]];
 
 // get specialization with signature and given template args
-[static][global] templateNoArgs := getNum{ NUM=0 }.[resolve_function ()[signed_integer]];
+[baked] templateNoArgs := getNum{ NUM=0 }.[resolve_function ()[signed_integer]];
 
 // loop over all template specializations of polymorph
 [static]

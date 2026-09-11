@@ -5,5 +5,5 @@
 [function [main], ()[signed_integer],
     printHelloWorld(); // this function is from exporting.rq
     std.printJuxt(line="Goodbye, world!"); // std was imported by exporting.rq
-    [result] <:= GLOBALVAR; // GLOBALVAR is from exporting.rq
+    [result] <:= COMMONVAR; // COMMONVAR is from exporting.rq
 ];

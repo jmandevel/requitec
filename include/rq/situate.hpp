@@ -27,7 +27,7 @@ struct Situator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Context &getContext() {
     return this->_context_ref.get();
   }
-  [[nodiscard]] bool situateModule(rq::ModuleFactory &factory);
+  [[nodiscard]] bool situateModule(rq::ModuleDetail &detail);
   [[nodiscard]] bool situateTree(rq::Situation situation,
                                  rq::Expression &expression);
   [[nodiscard]] bool situateTagBranch(rq::Situation branch_situation,

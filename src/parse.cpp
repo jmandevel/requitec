@@ -130,7 +130,7 @@ void PrecedenceFactory::appendBranch(rq::Expression &branch) {
   this->_last_ptr = &branch;
 }
 
-void PrecedenceFactory::appendNullaryAttribute(const rq::Token &token,
+void PrecedenceFactory::appendNullaryModifier(const rq::Token &token,
                                                rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
@@ -170,7 +170,7 @@ rq::Expression *RequiteParser::parseExpressions() {
   return result.getFirstBranchPtr();
 }
 
-// LOW ATTRIBUTES
+// MODIFIERS
 rq::Expression &RequiteParser::parsePrecedence11() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
@@ -187,7 +187,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
     }
     rq::Expression &instantiation = this->getContext().acquireExpression();
     instantiation.setSource(expression);
-    instantiation.setKeyword(rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE);
+    instantiation.setKeyword(rq::Keyword::INSTANTIATE_MODIFIER);
     instantiation.setBranch(expression);
     if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
       this->getRanger().incrementToken(1);
@@ -196,7 +196,7 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       instantiation.extendSourceOver(value);
     }
     precedence_factory.parseAscribe(instantiation.getSourceText(),
-                                    rq::Keyword::UNSITUATED_ASCRIBE_LOW);
+                                    rq::Keyword::UNSITUATED_ASCRIBE_MODIFIER);
     precedence_factory.appendBranch(instantiation);
   }
   return precedence_factory.getOuter();
@@ -636,6 +636,16 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_ARRAY);
         continue;
       }
+      case rq::TokenKind::DOUBLE_CAROT_OPERATOR: {
+        rq::Expression &inference = this->getContext().acquireExpression();
+        inference.setKeyword(rq::Keyword::INFERENCE);
+        inference.setIsInserted();
+        inference.setSourceBefore(token);
+        precedence_factory.setRecent(inference);
+        this->getRanger().incrementToken(1);
+        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_GREATEST);
+        continue;
+      }
       case rq::TokenKind::AT_OPERATOR:
         this->getRanger().incrementToken(1);
         precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_SLICE);
@@ -698,7 +708,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     case rq::TokenKind::BACKSLASH_OPERATOR: {
       this->getRanger().incrementToken(1);
       precedence_factory.parseAscribe(post_token.getSourceText(),
-                                      rq::Keyword::UNSITUATED_ASCRIBE_HIGH);
+                                      rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER);
       precedence_factory.appendRecent();
       continue;
     }

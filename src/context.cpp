@@ -30,11 +30,11 @@
 
 namespace rq {
 
-bool Context::validateSourceText(const rq::ModuleFactory &factory) {
+bool Context::validateSourceText(const rq::ModuleDetail &detail) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
   llvm::SMLoc extended_char_start;
-  for (const char &c : factory.getBuffer()) {
+  for (const char &c : detail.getBuffer()) {
     if (!rq::getIsValid(c)) {
       this->logErrorInvalidUtf8Codeunit(llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
@@ -61,8 +61,8 @@ bool Context::validateSourceText(const rq::ModuleFactory &factory) {
   return is_ok;
 }
 
-bool Context::tokenizeSourceText(rq::ModuleFactory &factory) {
-  rq::Tokenizer tokenizer(*this, factory.getBuffer(), factory.getTokens());
+bool Context::tokenizeSourceText(rq::ModuleDetail &detail) {
+  rq::Tokenizer tokenizer(*this, detail.getBuffer(), detail.getTokens());
   const bool is_ok = tokenizer.tokenizeSourceText();
   return is_ok;
 }
@@ -157,14 +157,14 @@ bool Context::loadSourceModule() {
     return false;
   }
   llvm::StringRef final_path = this->saveString(input_path);
-  rq::ModuleFactory factory(rq::ModuleKind::SOURCE, final_path,
+  rq::ModuleDetail detail(rq::ModuleKind::SOURCE, final_path,
                             buffer_eo.get().getBuffer());
-  if (!this->validateSourceText(factory)) {
+  if (!this->validateSourceText(detail)) {
     return false;
   }
-  const bool tokens_ok = this->tokenizeSourceText(factory);
+  const bool tokens_ok = this->tokenizeSourceText(detail);
   if (rq::getEmitMode() == rq::EMIT_TOKENS) {
-    if (!this->emitTokens(rq::getOutputFilePath(), factory.getTokens())) {
+    if (!this->emitTokens(rq::getOutputFilePath(), detail.getTokens())) {
       return false;
     }
     return tokens_ok;
@@ -173,11 +173,11 @@ bool Context::loadSourceModule() {
     return false;
   }
   this->initializeKeywordMap();
-  const bool parsed_ok = this->parseRequite(factory);
+  const bool parsed_ok = this->parseRequite(detail);
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitRequite(
             rq::getOutputFilePath(),
-            llvm::cast<rq::Expression>(factory.getExpressionPtr()))) {
+            llvm::cast<rq::Expression>(detail.getExpressionPtr()))) {
       return false;
     }
     return parsed_ok;
@@ -185,11 +185,11 @@ bool Context::loadSourceModule() {
   if (!parsed_ok) {
     return false;
   }
-  const bool situated_ok = this->situateModule(factory);
+  const bool situated_ok = this->situateModule(detail);
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
     if (!this->emitRequite(
             rq::getOutputFilePath(),
-            llvm::cast<rq::Expression>(factory.getExpressionPtr()))) {
+            llvm::cast<rq::Expression>(detail.getExpressionPtr()))) {
       return false;
     }
     return situated_ok;
@@ -197,7 +197,7 @@ bool Context::loadSourceModule() {
   if (!situated_ok) {
     return false;
   }
-  rq::Module &source_module = this->acquireModule(std::move(factory));
+  rq::Module &source_module = this->acquireModule(std::move(detail));
   this->_source_module_ptr = &source_module;
   return true;
 }
@@ -236,21 +236,21 @@ rq::Module *Context::loadImportModule(const rq::Expression &expression,
     return nullptr;
   }
   llvm::StringRef final_path = this->saveString(found_path);
-  rq::ModuleFactory factory(rq::ModuleKind::IMPORT, final_path,
+  rq::ModuleDetail detail(rq::ModuleKind::IMPORT, final_path,
                             buffer_eo.get().getBuffer());
-  if (!this->validateSourceText(factory)) {
+  if (!this->validateSourceText(detail)) {
     return nullptr;
   }
-  if (!this->tokenizeSourceText(factory)) {
+  if (!this->tokenizeSourceText(detail)) {
     return nullptr;
   }
-  if (!this->parseRequite(factory)) {
+  if (!this->parseRequite(detail)) {
     return nullptr;
   }
-  if (!this->situateModule(factory)) {
+  if (!this->situateModule(detail)) {
     return nullptr;
   }
-  rq::Module &import_module = this->acquireModule(std::move(factory));
+  rq::Module &import_module = this->acquireModule(std::move(detail));
   this->_module_map.insert(std::pair<llvm::StringRef, rq::Module *>(
       import_module.getPath(), &import_module));
   return &import_module;
@@ -296,10 +296,11 @@ bool Context::run() {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
-    if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
-      return false;
-    }
-    return true;
+    RQ_TODO_IMPLEMENTATION();
+    //if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
+    //  return false;
+    //}
+    //return true;
   }
   if (!this->buildLlvmIr()) {
     return false;
@@ -325,29 +326,25 @@ bool Context::run() {
   return true;
 }
 
-bool Context::parseRequite(rq::ModuleFactory &factory) {
-  rq::RequiteParser parser(*this, factory.getTokens());
+bool Context::parseRequite(rq::ModuleDetail &detail) {
+  rq::RequiteParser parser(*this, detail.getTokens());
   rq::Expression *root_ptr = parser.parseExpressions();
-  factory.setOrChangeExpression(root_ptr);
+  detail.setOrChangeExpression(root_ptr);
   return parser.getIsOk();
 }
 
-bool Context::situateModule(rq::ModuleFactory &factory) {
+bool Context::situateModule(rq::ModuleDetail &detail) {
   rq::Situator situator(*this);
-  const bool is_ok = situator.situateModule(factory);
+  const bool is_ok = situator.situateModule(detail);
   return is_ok;
 }
 
 bool Context::evaluateSourceModule() {
-  rq::Evaluator evaluator(*this);
-  evaluator.evaluateSourceModule();
-  return evaluator.getIsOk();
+  RQ_TODO_IMPLEMENTATION();
 }
 
 bool Context::buildLlvmIr() {
-  rq::Builder builder(*this);
-  builder.buildLlvmIr();
-  return builder.getIsOk();
+  RQ_TODO_IMPLEMENTATION();
 }
 
 bool Context::emitTokens(llvm::StringRef path,
@@ -509,17 +506,17 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
 //   }
 // }
 
-// static void emitAttributes(rq::JsonEmitter &json, const rq::Symbol &symbol) {
-//   json.beginArray("attributes");
-//   using LA = rq::LowAttribute;
+// static void emitModifiers(rq::JsonEmitter &json, const rq::Symbol &symbol) {
+//   json.beginArray("modifiers");
+//   using LA = rq::Modifier;
 //   using EF = rq::LowFuseFlags;
 //   EF flags = symbol.getDerivedLowFuseFlags();
-//   for (unsigned attribute_i = static_cast<unsigned>(LA::NONE) + 1;
-//        attribute_i < static_cast<unsigned>(LA::LAST); attribute_i++) {
-//     LA attribute = static_cast<LA>(attribute_i);
-//     EF attribute_flags = rq::getInfoFlags(attribute);
-//     if (rq::getHasAll(flags, attribute_flags)) {
-//       json.emitString(rq::getName(attribute));
+//   for (unsigned modifier_i = static_cast<unsigned>(M::NONE) + 1;
+//        modifier_i < static_cast<unsigned>(M::LAST); modifier_i++) {
+//     LA modifier = static_cast<LA>(modifier_i);
+//     EF modifier_flags = rq::getInfoFlags(modifier);
+//     if (rq::getHasAll(flags, modifier_flags)) {
+//       json.emitString(rq::getName(modifier));
 //     }
 //   }
 //   json.endArray();
@@ -530,7 +527,7 @@ static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
 // &json,
 //                                    const SymbolType &symbol) {
 //   json.emitString("module", symbol.getContainingModule().getPath());
-//   rq::emitAttributes(json, symbol);
+//   rq::emitModifiers(json, symbol);
 //   rq::emitLocation(context, json, symbol.getExpression());
 // }
 
@@ -629,32 +626,8 @@ bool Context::emitObject(llvm::StringRef path) {
 }
 
 [[nodiscard]] llvm::Type *Context::getLlvmTypePtr(rq::Symbol &symbol) {
-  using S = rq::SymbolKind;
-  switch (symbol.getKind()) {
-  case S::BOOLEAN_TYPE: {
-    unsigned depth = this->getByteDepth();
-    return this->getLlvmIrBuilder().getIntNTy(depth);
-  }
-  case S::SIGNED_INTEGER_TYPE: {
-    unsigned best_size = this->getDefaultIntegerDepth();
-    return this->getLlvmIrBuilder().getIntNTy(best_size);
-  }
-  case S::SIGNATURE: {
-    rq::Signature &sig = llvm::cast<rq::Signature>(symbol);
-    if (sig.getFirstParameterPtr() != nullptr) {
-      RQ_TODO_IMPLEMENTATION();
-    }
-    llvm::Type *llvm_result_ty_ptr =
-        this->getLlvmTypePtr(sig.getReturnType().getSymbol());
-    if (llvm_result_ty_ptr == nullptr) {
-      return nullptr;
-    }
-    return llvm::FunctionType::get(llvm_result_ty_ptr, false);
-  }
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
+  std::ignore = symbol;
+  RQ_TODO_IMPLEMENTATION();
 }
 
 [[nodiscard]] unsigned Context::getByteDepth() const { return 8; }
@@ -901,10 +874,10 @@ void Context::logErrorDuplicateParameterMark(const rq::Expression &mark) {
                    {mark.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorDuplicateAttribute(const rq::Expression &attribute) {
-  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("duplicate ") + attribute.getName(),
-                   {attribute.getLlvmSourceRange()}, {});
+void Context::logErrorDuplicateModifier(const rq::Expression &modifier) {
+  this->logMessage(modifier.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("duplicate ") + modifier.getName(),
+                   {modifier.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNonpositionalBeginAfterPositionalEnd(
@@ -950,11 +923,11 @@ void Context::logErrorNotAtLeastBranchCount(rq::Situation situation,
 
 void Context::logErrorTooManyBranchCount(rq::Situation situation,
                                          const rq::Expression &expression,
-                                         unsigned max_cou t) {
+                                         unsigned max_count) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine(rq::getDescription(situation)) + " " +
                        expression.getName() + " must not have more than " +
-                       llvm::Twine(count) + " branches",
+                       llvm::Twine(max_count) + " branches",
                    {expression.getLlvmSourceRange()}, {});
 }
 
@@ -992,22 +965,22 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidLowAttribute(
+void Context::logErrorInvalidModifier(
     const rq::Expression &unascribed, const rq::Expression &instantiation_ex,
-    rq::LowAttribute attribute) {
+    rq::Modifier modifier) {
   this->logMessage(instantiation_ex.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   rq::getName(attribute) +
-                       " is is not a valid attribute for expression " +
+                   rq::getName(modifier) +
+                       " is is not a valid modifier for expression " +
                        unascribed.getName(),
                    {instantiation_ex.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorFailedToAscribeExpression(
-    const rq::Expression &unascribed, const rq::Expression &attribute) {
-  this->logMessage(attribute.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   llvm::Twine("failed to ascribe ") + attribute.getName() +
+    const rq::Expression &unascribed, const rq::Expression &modifier) {
+  this->logMessage(modifier.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   llvm::Twine("failed to ascribe ") + modifier.getName() +
                        " to " + unascribed.getName(),
-                   {attribute.getLlvmSourceRange()}, {});
+                   {modifier.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNotSymbol(const rq::Expression &expression) {
@@ -1058,14 +1031,14 @@ void Context::logErrorFlankNotInFrame(const rq::Expression &flank_expression) {
   this->logMessage(
       flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
       llvm::Twine(
-          "flank attribute refeers to symbol table that is not in frame"),
+          "flank modifier refeers to symbol table that is not in frame"),
       {flank_expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorFlankNotAncestor(const rq::Expression &flank_expression) {
   this->logMessage(
       flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("flank attribute refeers to symbol table is not ancestor"),
+      llvm::Twine("flank modifier refeers to symbol table is not ancestor"),
       {flank_expression.getLlvmSourceRange()}, {});
 }
 

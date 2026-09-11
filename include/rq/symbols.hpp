@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/bump_ptr_list.hpp>
+#include <rq/node_list.hpp>
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
 #include <rq/iterators.hpp>
@@ -23,9 +23,14 @@
 #include <ranges>
 #include <vector>
 
+namespace llvm {
+class Value;
+}
+
 namespace rq {
 
 struct ConstantSymbol;
+struct CfgBlock;
 struct Instruction;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind opcode);
@@ -36,58 +41,53 @@ enum class SymbolInfoFlags : std::uint64_t {
   // SYMBOL CLASSIFICATION
   SIMPLE_SYMBOL = rq::getBit(0),
   LITERAL = rq::getBit(1),
-  CONTEXTUAL_VALUE = rq::getBit(2),
-  CONTEXTUAL_TYPE = rq::getBit(3),
-  LOW_ATTRIBUTE_TYPE = rq::getBit(4),
-  HIGH_ATTRIBUTE_TYPE = rq::getBit(5),
-  REFLECTIVE_TYPE = rq::getBit(6),
-  PRIMITIVE_TYPE = rq::getBit(7),
-  PLATFORM_PRIMITIVE_TYPE = rq::getBit(8),
-  FITTING_PRIMITIVE_TYPE = rq::getBit(9),
-  STANDARD_PRIMITIVE_TYPE = rq::getBit(10),
-  SCALED_PRIMITIVE_TYPE = rq::getBit(11),
-  SUBTYPE = rq::getBit(12),
-  COUNTED_SUBTYPE = rq::getBit(13),
-  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(14),
-  LOCAL_DECLARATION = rq::getBit(15),
-  LOCAL_VARIABLE = rq::getBit(16),
-  ARGUMENT = rq::getBit(17),
-  PARAMETER_LIST = rq::getBit(18),
-  SYMBOL_TABLE = rq::getBit(19),
-  LOCAL_STATEMENT = rq::getBit(20),
-  NAMED_TABLE = rq::getBit(21),
-  GLOBAL_DECLARATION = rq::getBit(22),
-  GENRE = rq::getBit(23),
-  CLASS_GENRE = rq::getBit(24),
-  ENUM_GENRE = rq::getBit(25),
-  INTERFACE_GENRE = rq::getBit(26),
-  ADAPTER_GENRE = rq::getBit(27),
-  CONSTRUCTOR_GENRE = rq::getBit(28),
-  FUNCTION_GENRE = rq::getBit(29),
-  GLOBAL_DYNAMIC_VARIABLE_GENRE = rq::getBit(30),
-  GLOBAL_STATIC_VARIABLE_GENRE = rq::getBit(31),
-  OVERLOAD = rq::getBit(32),
-  SPECIALIZATION = rq::getBit(33),
-  GLOBAL_VARIABLE_OVERLOAD = rq::getBit(34),
-  TEMPLATE = rq::getBit(35),
-  POLYMORPH = rq::getBit(36),
-  WEIGHT_LEVEL = rq::getBit(37),
-  USE = rq::getBit(38),
-  OVERLOAD_USE = rq::getBit(39),
-  TEMPLATE_USE = rq::getBit(40),
+  REFLECTIVE_TYPE = rq::getBit(2),
+  FITTING_PRIMITIVE_TYPE = rq::getBit(3),
+  STANDARD_PRIMITIVE_TYPE = rq::getBit(4),
+  PLATFORM_PRIMITIVE_TYPE = rq::getBit(5),
+  MODIFIER_TYPE = rq::getBit(6),
+  qualifier_TYPE = rq::getBit(7),
+  SCALED_PRIMITIVE_TYPE = rq::getBit(8),
+  SUBTYPE = rq::getBit(9),
+  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(10),
+  SPECIALIZATION_SET = rq::getBit(11),
+  PARAMETER_LIST = rq::getBit(12),
+  TABLE_MEMBER = rq::getBit(13),
+  LOCAL_DECLARATION = rq::getBit(14),
+  LOCAL_VARIABLE = rq::getBit(15),
+  LOCAL_DYNAMIC_VARIABLE = rq::getBit(16),
+  LOCAL_STATIC_VARIABLE = rq::getBit(17),
+  LOCAL_CONSTANT_VARIABLE = rq::getBit(18),
+  POLYMORPH = rq::getBit(19),
+  WEIGHT_LEVEL = rq::getBit(20),
+  TEMPLATE = rq::getBit(21),
+  SYMBOL_TABLE = rq::getBit(22),
+  LOCAL_SCOPE = rq::getBit(23),
+  NAMED_TABLE = rq::getBit(24),
+  GLOBAL_DECLARATION = rq::getBit(25),
+  IMPLEMENTATION = rq::getBit(26),
+  CLASS_IMPLEMENTATION = rq::getBit(27),
+  ENUM_IMPLEMENTATION = rq::getBit(28),
+  INTERFACE_IMPLEMENTATION = rq::getBit(29),
+  ADAPTER_IMPLEMENTATION = rq::getBit(30),
+  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(31),
+  FUNCTION_IMPLEMENTATION = rq::getBit(32),
+  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(33),
+  GLOBAL_DYNAMIC_VARIABLE_IMPLEMENTATION = rq::getBit(34),
+  GLOBAL_STATIC_VARIABLE_IMPLEMENTATION = rq::getBit(35),
 
-  // SYMBOL DETAILS
-  IS_TYPE = rq::getBit(41),
-  IS_SIGNED_TYPE = rq::getBit(42),
-  IS_UNSIGNED_TYPE = rq::getBit(43),
-  IS_INTEGER_TYPE = rq::getBit(44),
-  IS_FLOAT_TYPE = rq::getBit(45),
-  IS_BINARY_TYPE = rq::getBit(46),
-  IS_BFLOAT_TYPE = rq::getBit(47),
-  IS_CODEUNIT_TYPE = rq::getBit(48),
-  HAS_LOW_ATTRIBUTES = rq::getBit(49),
-  IS_FRAME_SCOPE = rq::getBit(50),
-  IS_OBJECT_SCOPE = rq::getBit(51)
+  // SYMBOL DETAIL
+  IS_TYPE = rq::getBit(53),
+  IS_SIGNED_TYPE = rq::getBit(54),
+  IS_UNSIGNED_TYPE = rq::getBit(55),
+  IS_INTEGER_TYPE = rq::getBit(56),
+  IS_FLOAT_TYPE = rq::getBit(57),
+  IS_BINARY_TYPE = rq::getBit(58),
+  IS_BFLOAT_TYPE = rq::getBit(59),
+  IS_CODEUNIT_TYPE = rq::getBit(60),
+  HAS_MODIFIERS = rq::getBit(61),
+  IS_FRAME_SCOPE = rq::getBit(62),
+  IS_OBJECT_SCOPE = rq::getBit(63)
 };
 
 RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
@@ -95,56 +95,56 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttributeType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsPlatformPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsFittingPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsStandardPrimitiveType(rq::SymbolKind kind);
+getIsStandardFittingType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformPrimitiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsScaledPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCountedSubtype(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsArithmeticSequenceType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalVariable(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsArgument(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStatement(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclaration(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterGenre(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsConstructorGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionGenre(rq::SymbolKind kind);
+getIsLocalStaticVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalDynamicVariableGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalStaticVariableGenre(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverload(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecialization(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalVariableOverload(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
+getIsLocalConstantVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUse(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsOverloadUse(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplateUse(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalScope(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalDeclarataion(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsClassImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsEnumImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsInterfaceImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsAdapterImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsConstructorImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsFunctionImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalVariableImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalDynamicVariableImplementation(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsGlobalStaticVariableImplementation(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
@@ -155,7 +155,7 @@ getIsGlobalVariableOverload(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasLowAttributes(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getHasModifiers(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope(rq::SymbolKind kind);
 
@@ -171,126 +171,189 @@ enum class EvaluationState : std::uint_fast8_t {
 
 [[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::EvaluationState rhs,
                                                 rq::EvaluationState lhs) {
-  return rq::getUNDERLYING_VALUE(rhs) <=> rq::getUNDERLYING_VALUE(lhs);
+  return rq::getUnderlyingValue(rhs) <=> rq::getUnderlyingValue(lhs);
 }
 
 // clang-format off
 struct Symbol;
   struct SimpleSymbol;
-    template<rq::SymbolKind KIND_PARAM> struct DerivedSimpleSymbol;
-  struct ScaledPrimitiveType;
-    template<rq::SymbolKind KIND_PARAM> struct DerivedScaledPrimitiveType;
+    struct Literal;
+      struct IntegerLiteral;
+      struct FloatLiteral;
+      struct StringLiteral;
+      struct CodeunitLiteral;
+    struct Contextual;
+      struct ContextualType;
+        struct InferenceType;
+        struct VoidType;
+        struct NoReturnType;
+        struct UnknownType;
+      struct ContextualValue;
+        struct UnknownValue;
+        struct ValueValue;
+        struct IndexValue;
+    struct ReflectiveType;
+      struct SymbolType;
+      struct ExpressionType;
+      struct SymbolRangeType;
+      struct ExpressionRangeType;
+    struct PrimitiveType;
+      struct FittingPrimitiveType;
+        struct FastSignedIntegerType;
+        struct FastUnsignedIntegerType;
+        struct LeastSignedIntegerType;
+        struct LeastUnsignedIntegerType;
+      struct StandardPrimitiveType;
+        struct Binary16Type;
+        struct Binary32Type;
+        struct Binary64Type;
+        struct Binary128Type;
+        struct BFloat16Type;
+        struct AsciiType;
+        struct Utf8Type;
+      struct PlatformPrimitiveType;
+        struct HalfType;
+        struct SingleType;
+        struct DoubleType;
+        struct QuadrupleType;
+        struct BooleanType;
+        struct UnsignedIntegerType;
+        struct SignedIntegerType;
+        struct UnsignedIndexType;
+        struct SignedIndexType;
+        struct UnsignedAddressType;
+        struct SignedAddressType;
+        struct CharType;
+    struct QualifierType;
+      struct VarQualifierType;
+      struct VolatileQualifierType;
+      struct AtomicQualifierType;
+      struct NullTerminateQualifierType;
+    struct ModifierType;
+      struct AnchorModifierType;
+      struct ContainerModifierType;
+      struct VisibilityModifierType;
+      struct AccessModifierType;
+      struct MutateModifierType;
+      struct CohortModifierType;
+      struct CaptureModifierType;
+      struct LinkageModifierType;
+      struct MangleModifierType;
+      struct PackModifierType;
+      struct BranchTrendModifierType;
+      struct SupportNoticeModifierType;
+      struct StableAddressModifierType;
+      struct VariadicModifierType;
+      struct OffsetModifierType;
+      struct TemplateModifierType;
+      struct ConstraintModifierType;
+      struct WeightModifierType;
+      struct DeductionModifierType;
+      struct VirtualityModifierType;
+      struct RangerModifierType;
+      struct RequireModifierType;
+      struct EnsureModifierType;
   struct Subtype;
     struct ArraySubtype;
-    struct UncountedSubtype;
-      template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedSubtype;
-  struct Module;
-  struct Import;
+    struct ReferenceSubtype;
+    struct PointerSubtype;
+    struct InferenceCountArraySubtype;
+    struct GreatestSubtype;
+    struct SliceSubtype;
+  struct ScaledPrimitiveType;
+    struct ScaledUnsignedIntegerType;
+    struct ScaledSignedIntegerType;
+  struct Adaption;
   struct Conformity;
-  struct Block;
-  struct WeightLevel;
-    template<rq::SymbolKind KIND_PARAM> struct DerivedUncountedWeightLevel;
-  struct JuxtapositionalListItem;
-  struct JuxtapositionalList;
+  struct JuxtListItem;
+  struct JuxtListType;
+  struct SynonymType;
+  struct Module;
   struct ArithmeticSequenceType;
-    template<rq::SymbolKind KIND_PARAM> struct DerivedArithmeticSequenceType;
-  struct LocalDeclaration;
-    struct Anchor;
-    struct Enumerator;
-    struct LocalVariable;
-      struct LocalDynamicVariable;
-      struct LocalStaticVariable;
-      struct Capture;
-      struct Argument;
-        struct TemplateArgument;
-        struct FunctionArgument;
+    struct ArithmeticIntervalType;
+    struct InfiniteArithmeticSequenceType;
+    struct FiniteArithmeticSequenceTYpe;
+  struct Import;
+  struct SpecializationSetArgument;
+  struct SpecializationSet;
+    struct FunctionSpecializationSet;
+    struct AdapterSpecializationSet;
   struct Parameter;
+  struct CompositionComponent;
+  struct CompositionType;
   struct ParameterList;
     struct SignatureType;
     struct LayoutType;
   struct PlacementType;
-  struct CompositionComponent;
-  struct CompositionType;
-  struct SynonymType;
-  struct SymbolTable;
-    struct Top;
-    struct C;
-    struct LocalScope;
-      template<rq::SymbolKind KIND_PARAM> struct DerivedLocalScope;
-    struct NamedTable;
-      struct Namespace;
-      struct GlobalDeclaration;
-        struct Genre;
-          struct ClassGenre;
-            struct ClassPrototype;
-            struct ClassOverload;
-            struct ClassSpecialization;
-          struct EnumGenre;
-            struct EnumPrototype;
-            struct EnumOverload;
-            struct EnumSpecialization;
-          struct InterfaceGenre;
-            struct InterfaceOverload;
-            struct InterfaceSpecialization;
-          struct AdapterGenre;
-            struct AdapterOverload;
-            struct AdapterSpecialization;
-          struct ConstructorGenre;
-            struct ConstructorPrototype;
-            struct LayoutConstructorPrototype;
-            struct ConstructorImplementation;
-              struct ConstructorOverload;
-              struct LayoutConstructorOverload;
-          struct FunctionGenre;
-            struct FunctionPrototype;
-            struct FunctionRequisite;
-            struct FunctionImplementation;
-              struct FunctionOverload;
-              struct FunctionSpecialization;
-          struct GlobalVariableGenre;
-            struct GlobalDynamicVariableGenre;
-              struct GlobalDynamicVariablePrototype;
-              struct GlobalDynamicVariableOverload;
-              struct GlobalDynnamicVariableSpecialization;
-            struct GlobalStaticVariableGenre;
-              struct GlobalStaticVariableOverload;
-              struct GlobalStaticVariableSpecialization;
-      struct Template;
-        struct ClassTemplate;
-        struct EnumTemplate;
-        struct InterfaceTemplate;
-        struct AdapterTemplate;
-        struct FunctionTemplate;
-        struct GlobalDynamicVariableTemplate;
-        struct GlobalStaticVariableTemplate;
+  struct WeightLevel;
+    struct InterfaceWeightLevel;
+    struct FunctionWeightLevel;
+    struct AdapterWeightLevel;
+    struct EnumWeightLevel;
+    struct ClassWeightLevel;
+    struct GlobalVariableWeightLevel;
   struct Polymorph;
-    struct ClassPolymorph;
     struct EnumPolymorph;
+    struct ClassPolymorph;
     struct InterfacePolymorph;
     struct AdapterPolymorph;
     struct FunctionPolymorph;
-    struct GlobalDynamicVariablePolymorph;
-    struct GlobalStaticVariablePolymorph;
-  struct WeightLevel;
-    struct ClassWeightLevel;
-    struct EnumWeightLevel;
-    struct InterfaceWeightLevel;
-    struct AdapterWeightLevel;
-    struct FunctionWeightLevel;
-    struct GlobalDynamicVariableWeightLevel;
-    struct GlobalStaticVariableWeightLevel;
-  struct Use;
-    struct OverloadUse;
-      struct AdapterOverloadUse;
-      struct FunctionOverloadUse;
-    struct TemplateUse;
-      struct ClassTemplateUse;
-      struct EnumTemplateUse;
-      struct InterfaceTemplateUse;
-      struct AdapterTemplateUse;
-      struct FunctionTemplateUse;
-      struct GlobalDynamicVariableTemplateUse;
-      struct GlobalStaticVariableTemplateUse;
+    struct GlobalVariablePolymorph;
+  struct TableMember;
+    struct LocalDeclaration;
+      struct LocalVariable;
+        struct LocalDynamicVariable;
+          struct FunctionArgument;
+        struct LocalStaticVariable;
+        struct LocalConstantVariable;
+          struct TemplateArgument;
+          struct CaptureArgument;
+    struct SymbolTable;
+      struct CTable;
+      struct TopTable;
+      struct LocalScope;
+        struct ScopeStatement;
+        struct WeaveStatement;
+        struct SpinStatement;
+        struct WhileStatement;
+        struct ForStatement;
+        struct DefaultStatement;
+        struct CaseStatement;
+        struct SwitchStatement;
+        struct IfStatement;
+        struct ElseIfStatement;
+        struct ElseStatement;
+      struct NamedTable;
+        struct Namespace;
+        struct GlobalDeclaration;
+          struct Implementation;
+            struct EnumImplementation;
+              struct EnumOverload;
+              struct EnumSpecialization;
+            struct GlobalVariableImplementation;
+              struct GlobalVariableOverload;
+              struct GlobalVariableSpecialization;
+            struct AdapterImplementation;
+              struct AdapterOverload;
+              struct AdapterSpecialization;
+            struct InterfaceImplementation;
+              struct InterfaceOverload;
+              struct InterfaceSpecialization;
+            struct ConstructorOverload;
+              struct LayoutConstructorOverload;
+            struct ClassImplementation;
+              struct ClassOverload;
+              struct ClassSpecialization;
+            struct FunctionImplementation;
+              struct FunctionOverload;
+              struct FunctionSpecialization;
+          struct Template;
+            struct EnumTemplate;
+            struct ClassTemplate;
+            struct InterfaceTemplate;
+            struct GlobalVariableTemplate;
+            struct AdapterTemplate;
+            struct FunctionTemplate;
 // clang-format on
 
 struct Symbol : public rq::Entity {
@@ -298,50 +361,65 @@ struct Symbol : public rq::Entity {
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::SymbolKind kind);
 
-  Symbol(const Self &) = delete;
-  Symbol(Self &&) = delete;
-  ~Symbol() = default;
-  Self &operator=(Self &) = delete;
-  Self &operator=(Self &&) = delete;
-
-  [[nodiscard]] bool operator==(const Self &) const;
-  [[nodiscard]] bool operator!=(const Self &) const;
-
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags getInfoFlags() const;
-  [[nodiscard]] inline rq::LowFuseFlags getDerivedLowFuseFlags() const;
-  [[nodiscard]] inline const rq::Expression *getDerivedExpressionPtr() const;
-  [[nodiscard]] inline rq::Expression *getDerivedExpressionPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObliqueLiteralType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttributeType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttributeType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStringType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasLowAttributes() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope() const;
 
-  [[nodiscard]] inline bool getIsCompleteType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getDerivedExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE  const rq::Expression* getDerivedExpressionPtr() const;
+
+  [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFittingPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardFittingType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModifierType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsScaledPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStaticVariable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalConstantVariable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalScope();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalDeclarataion();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructorImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariableImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsGlobalDynamicVariableImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalStaticVariableImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsignedType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasModifiers();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
+struct SimpleSymbol : public rq::Symbol {
   using Self = rq::SimpleSymbol;
 
   explicit RQ_ALWAYS_INLINE SimpleSymbol(rq::SymbolKind kind);
@@ -349,143 +427,721 @@ struct SimpleSymbol : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedSimpleSymbol final : public rq::SimpleSymbol {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedSimpleSymbol<KIND>;
+struct Literal : public rq::SimpleSymbol {
+  using Self = rq::Literal;
 
-  explicit RQ_ALWAYS_INLINE DerivedSimpleSymbol();
+  explicit RQ_ALWAYS_INLINE Literal();
 
-  [[nodiscard]] static inline bool classof(const Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-using IntegerLiteral =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::INTEGER_LITERAL_TYPE>;
-using FloatLiteral =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::FLOAT_LITERAL_TYPE>;
-using StringLiteral =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::STRING_LITERAL_TYPE>;
-using CodeunitLiteral =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::CODEUNIT_LITERAL_TYPE>;
-using ValueValue = rq::DerivedSimpleSymbol<rq::SymbolKind::VALUE_VALUE>;
-using IndexValue = rq::DerivedSimpleSymbol<rq::SymbolKind::INDEX_VALUE>;
-using InferenceType = rq::DerivedSimpleSymbol<rq::SymbolKind::INFERENCE_TYPE>;
-using VoidType = rq::DerivedSimpleSymbol<rq::SymbolKind::VOID_TYPE>;
-using NoReturnType = rq::DerivedSimpleSymbol<rq::SymbolKind::NO_RETURN_TYPE>;
-using AnchorAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::ANCHOR_ATTRIBUTE_TYPE>;
-using OpaqueAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::OPAQUE_ATTRIBUTE_TYPE>;
-using GlobalAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::GLOBAL_ATTRIBUTE_TYPE>;
-using PublicAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::PUBLIC_ATTRIBUTE_TYPE>;
-using PartialMutateAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::PARTIAL_MUTATE_ATTRIBUTE_TYPE>;
-using StaticAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::STATIC_ATTRIBUTE_TYPE>;
-using DelayAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::DELAY_ATTRIBUTE_TYPE>;
-using CaptureAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::CAPTURE_ATTRIBUTE_TYPE>;
-using InlineAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::INLINE_ATTRIBUTE_TYPE>;
-using MangleAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::MANGLE_ATTRIBUTE_TYPE>;
-using PackAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::PACK_ATTRIBUTE_TYPE>;
-using BranchTrendAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::BRANCH_TREND_ATTRIBUTE_TYPE>;
-using SupportStatusAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::SUPPORT_STATUS_ATTRIBUTE_TYPE>;
-using StableAddressAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::STABLE_ADDRESS_ATTRIBUTE_TYPE>;
-using VariadicAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ATTRIBUTE_TYPE>;
-using LocationAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::LOCATION_ATTRIBUTE_TYPE>;
-using TemplateAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::TEMPLATE_ATTRIBUTE_TYPE>;
-using ConstraintAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::CONSTRAINT_ATTRIBUTE_TYPE>;
-using WeightAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::WEIGHT_ATTRIBUTE_TYPE>;
-using AutoAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
-using VirtualAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::VIRTUAL_ATTRIBUTE_TYPE>;
-using AutoAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::AUTO_ATTRIBUTE_TYPE>;
-using RequireAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::REQUIRE_ATTRIBUTE_TYPE>;
-using EnsureAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::ENSURE_ATTRIBUTE_TYPE>;
-using RangerAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::RANGER_ATTRIBUTE_TYPE>;
-using VarAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::VAR_ATTRIBUTE_TYPE>;
-using VolatileAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::VOLATILE_ATTRIBUTE_TYPE>;
-using AtomicAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::ATOMIC_ATTRIBUTE_TYPE>;
-using NullTerminateAttributeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::NULL_TERMINATE_ATTRIBUTE_TYPE>;
-using SymbolType = rq::DerivedSimpleSymbol<rq::SymbolKind::SYMBOL_TYPE>;
-using SymbolRangeType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::SYMBOL_RANGE_TYPE>;
-using ExpressionType = rq::DerivedSimpleSymbol<rq::SymbolKind::EXPRESSION_TYPE>;
-using BooleanType = rq::DerivedSimpleSymbol<rq::SymbolKind::BOOLEAN_TYPE>;
-using HalfType = rq::DerivedSimpleSymbol<rq::SymbolKind::HALF_TYPE>;
-using SingleType = rq::DerivedSimpleSymbol<rq::SymbolKind::SINGLE_TYPE>;
-using DoubleType = rq::DerivedSimpleSymbol<rq::SymbolKind::DOUBLE_TYPE>;
-using QuadrupleType = rq::DerivedSimpleSymbol<rq::SymbolKind::QUADRUPLE_TYPE>;
-using SignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INTEGER_TYPE>;
-using UnsignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INTEGER_TYPE>;
-using SignedIndexType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_INDEX_TYPE>;
-using UnsignedIndexType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_INDEX_TYPE>;
-using SignedAddressType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::SIGNED_ADDRESS_TYPE>;
-using UnsignedAddressType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::UNSIGNED_ADDRESS_TYPE>;
-using CharType = rq::DerivedSimpleSymbol<rq::SymbolKind::CHAR_TYPE>;
-using FastSignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::FAST_SIGNED_INTEGER_TYPE>;
-using FastUnsignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::FAST_UNSIGNED_INTEGER_TYPE>;
-using LeastSignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::LEAST_SIGNED_INTEGER_TYPE>;
-using LeastUnsignedIntegerType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::LEAST_UNSIGNED_INTEGER_TYPE>;
-using Binary16Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY16_TYPE>;
-using Binary32Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY32_TYPE>;
-using Binary64Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY64_TYPE>;
-using Binary128Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BINARY128_TYPE>;
-using Bfloat16Type = rq::DerivedSimpleSymbol<rq::SymbolKind::BFLOAT16_TYPE>;
-using AsciiType = rq::DerivedSimpleSymbol<rq::SymbolKind::ASCII_TYPE>;
-using Utf8Type = rq::DerivedSimpleSymbol<rq::SymbolKind::UTF8_TYPE>;
-using VariadicArgumentsType =
-    rq::DerivedSimpleSymbol<rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE>;
+struct IntegerLiteral final : public rq::Literal {
+  using Self = rq::IntegerLiteral;
 
-enum class ScaleKind { EXACT, FAST, LEAST };
+  explicit RQ_ALWAYS_INLINE IntegerLiteral();
 
-struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct FloatLiteral final : public rq::Literal {
+  using Self = rq::FloatLiteral;
+
+  explicit RQ_ALWAYS_INLINE FloatLiteral();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct StringLiteral final : public rq::Literal {
+  using Self = rq::StringLiteral;
+
+  explicit RQ_ALWAYS_INLINE StringLiteral();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct CodeunitLiteral final : public rq::Literal {
+  using Self = rq::CodeunitLiteral;
+
+  explicit RQ_ALWAYS_INLINE CodeunitLiteral();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Contextual : public rq::SimpleSymbol {
+  using Self = rq::Contextual;
+
+  explicit RQ_ALWAYS_INLINE Contextual(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ContextualType : public rq::Contextual {
+  using Self = rq::ContextualType;
+
+  explicit RQ_ALWAYS_INLINE ContextualType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct InferenceType final : public rq::ContextualType {
+  using Self = rq::InferenceType;
+
+  explicit RQ_ALWAYS_INLINE InferenceType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VoidType final : public rq::ContextualType {
+  using Self = rq::VoidType;
+
+  explicit RQ_ALWAYS_INLINE VoidType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct NoReturnType final : public rq::ContextualType {
+  using Self = rq::NoReturnType;
+
+  explicit RQ_ALWAYS_INLINE NoReturnType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct UnknownType final : public rq::ContextualType {
+  using Self = rq::UnknownType;
+
+  explicit RQ_ALWAYS_INLINE UnknownType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ContextualValue : public rq::Contextual {
+  using Self = rq::ContextualValue;
+
+  explicit RQ_ALWAYS_INLINE ContextualValue(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct UnknownValue final : public rq::ContextualValue {
+  using Self = rq::UnknownValue;
+
+  explicit RQ_ALWAYS_INLINE UnknownValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ValueValue final : public rq::ContextualValue {
+  using Self = rq::ValueValue;
+
+  explicit RQ_ALWAYS_INLINE ValueValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct IndexValue final : public rq::ContextualValue {
+  using Self = rq::IndexValue;
+
+  explicit RQ_ALWAYS_INLINE IndexValue();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ReflectiveType : public rq::SimpleSymbol {
+  using Self = rq::ReflectiveType;
+
+  explicit RQ_ALWAYS_INLINE ReflectiveType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SymbolType final : public rq::ReflectiveType {
+  using Self = rq::SymbolType;
+
+  explicit RQ_ALWAYS_INLINE SymbolType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ExpressionType final : public rq::ReflectiveType {
+  using Self = rq::ExpressionType;
+
+  explicit RQ_ALWAYS_INLINE ExpressionType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SymbolRangeType final : public rq::ReflectiveType {
+  using Self = rq::SymbolRangeType;
+
+  explicit RQ_ALWAYS_INLINE SymbolRangeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ExpressionRangeType final : public rq::ReflectiveType {
+  using Self = rq::ExpressionRangeType;
+
+  explicit RQ_ALWAYS_INLINE ExpressionRangeType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct PrimitiveType : public rq::SimpleSymbol {
+  using Self = rq::PrimitiveType;
+
+  explicit RQ_ALWAYS_INLINE PrimitiveType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct FittingPrimitiveType : public rq::PrimitiveType {
+  using Self = rq::FittingPrimitiveType;
+
+  explicit RQ_ALWAYS_INLINE FittingPrimitiveType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct FastSignedIntegerType final : public rq::FittingPrimitiveType {
+  using Self = rq::FastSignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE FastSignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct FastUnsignedIntegerType final : public rq::FittingPrimitiveType {
+  using Self = rq::FastUnsignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE FastUnsignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LeastSignedIntegerType final : public rq::FittingPrimitiveType {
+  using Self = rq::LeastSignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE LeastSignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LeastUnsignedIntegerType final : public rq::FittingPrimitiveType {
+  using Self = rq::LeastUnsignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE LeastUnsignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct StandardPrimitiveType : public rq::PrimitiveType {
+  using Self = rq::StandardPrimitiveType;
+
+  explicit RQ_ALWAYS_INLINE StandardPrimitiveType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Binary16Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary16Type;
+
+  explicit RQ_ALWAYS_INLINE Binary16Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Binary32Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary32Type;
+
+  explicit RQ_ALWAYS_INLINE Binary32Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Binary64Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary64Type;
+
+  explicit RQ_ALWAYS_INLINE Binary64Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Binary128Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Binary128Type;
+
+  explicit RQ_ALWAYS_INLINE Binary128Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct BFloat16Type final : public rq::StandardPrimitiveType {
+  using Self = rq::BFloat16Type;
+
+  explicit RQ_ALWAYS_INLINE BFloat16Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AsciiType final : public rq::StandardPrimitiveType {
+  using Self = rq::AsciiType;
+
+  explicit RQ_ALWAYS_INLINE AsciiType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Utf8Type final : public rq::StandardPrimitiveType {
+  using Self = rq::Utf8Type;
+
+  explicit RQ_ALWAYS_INLINE Utf8Type();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct PlatformPrimitiveType : public rq::PrimitiveType {
+  using Self = rq::PlatformPrimitiveType;
+
+  explicit RQ_ALWAYS_INLINE PlatformPrimitiveType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct HalfType final : public rq::PlatformPrimitiveType {
+  using Self = rq::HalfType;
+
+  explicit RQ_ALWAYS_INLINE HalfType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SingleType final : public rq::PlatformPrimitiveType {
+  using Self = rq::SingleType;
+
+  explicit RQ_ALWAYS_INLINE SingleType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct DoubleType final : public rq::PlatformPrimitiveType {
+  using Self = rq::DoubleType;
+
+  explicit RQ_ALWAYS_INLINE DoubleType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct QuadrupleType final : public rq::PlatformPrimitiveType {
+  using Self = rq::QuadrupleType;
+
+  explicit RQ_ALWAYS_INLINE QuadrupleType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct BooleanType final : public rq::PlatformPrimitiveType {
+  using Self = rq::BooleanType;
+
+  explicit RQ_ALWAYS_INLINE BooleanType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct UnsignedIntegerType final : public rq::PlatformPrimitiveType {
+  using Self = rq::UnsignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE UnsignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SignedIntegerType final : public rq::PlatformPrimitiveType {
+  using Self = rq::SignedIntegerType;
+
+  explicit RQ_ALWAYS_INLINE SignedIntegerType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct UnsignedIndexType final : public rq::PlatformPrimitiveType {
+  using Self = rq::UnsignedIndexType;
+
+  explicit RQ_ALWAYS_INLINE UnsignedIndexType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SignedIndexType final : public rq::PlatformPrimitiveType {
+  using Self = rq::SignedIndexType;
+
+  explicit RQ_ALWAYS_INLINE SignedIndexType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct UnsignedAddressType final : public rq::PlatformPrimitiveType {
+  using Self = rq::UnsignedAddressType;
+
+  explicit RQ_ALWAYS_INLINE UnsignedAddressType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SignedAddressType final : public rq::PlatformPrimitiveType {
+  using Self = rq::SignedAddressType;
+
+  explicit RQ_ALWAYS_INLINE SignedAddressType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct CharType final : public rq::PlatformPrimitiveType {
+  using Self = rq::CharType;
+
+  explicit RQ_ALWAYS_INLINE CharType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct QualifierType : public rq::SimpleSymbol {
+  using Self = rq::QualifierType;
+
+  explicit RQ_ALWAYS_INLINE QualifierType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VarQualifierType final : public rq::QualifierType {
+  using Self = rq::VarQualifierType;
+
+  explicit RQ_ALWAYS_INLINE VarQualifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VolatileQualifierType final : public rq::QualifierType {
+  using Self = rq::VolatileQualifierType;
+
+  explicit RQ_ALWAYS_INLINE VolatileQualifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AtomicQualifierType final : public rq::QualifierType {
+  using Self = rq::AtomicQualifierType;
+
+  explicit RQ_ALWAYS_INLINE AtomicQualifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct NullTerminateQualifierType final : public rq::QualifierType {
+  using Self = rq::NullTerminateQualifierType;
+
+  explicit RQ_ALWAYS_INLINE NullTerminateQualifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ModifierType : public rq::SimpleSymbol {
+  using Self = rq::ModifierType;
+
+  explicit RQ_ALWAYS_INLINE ModifierType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AnchorModifierType final : public rq::ModifierType {
+  using Self = AnchorModifierType;
+
+  explicit RQ_ALWAYS_INLINE AnchorModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ContainerModifierType final : public rq::ModifierType {
+  using Self = ContainerModifierType;
+
+  explicit RQ_ALWAYS_INLINE ContainerModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VisibilityModifierType final : public rq::ModifierType {
+  using Self = VisibilityModifierType;
+
+  explicit RQ_ALWAYS_INLINE VisibilityModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AccessModifierType final : public rq::ModifierType {
+  using Self = AccessModifierType;
+
+  explicit RQ_ALWAYS_INLINE AccessModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct MutateModifierType final : public rq::ModifierType {
+  using Self = MutateModifierType;
+
+  explicit RQ_ALWAYS_INLINE MutateModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct CohortModifierType final : public rq::ModifierType {
+  using Self = CohortModifierType;
+
+  explicit RQ_ALWAYS_INLINE CohortModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct CaptureModifierType final : public rq::ModifierType {
+  using Self = CaptureModifierType;
+
+  explicit RQ_ALWAYS_INLINE CaptureModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct LinkageModifierType final : public rq::ModifierType {
+  using Self = LinkageModifierType;
+
+  explicit RQ_ALWAYS_INLINE LinkageModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct MangleModifierType final : public rq::ModifierType {
+  using Self = MangleModifierType;
+
+  explicit RQ_ALWAYS_INLINE MangleModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct PackModifierType final : public rq::ModifierType {
+  using Self = PackModifierType;
+
+  explicit RQ_ALWAYS_INLINE PackModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct BranchTrendModifierType final : public rq::ModifierType {
+  using Self = BranchTrendModifierType;
+
+  explicit RQ_ALWAYS_INLINE BranchTrendModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SupportNoticeModifierType final : public rq::ModifierType {
+  using Self = SupportNoticeModifierType;
+
+  explicit RQ_ALWAYS_INLINE SupportNoticeModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct StableAddressModifierType final : public rq::ModifierType {
+  using Self = StableAddressModifierType;
+
+  explicit RQ_ALWAYS_INLINE StableAddressModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VariadicModifierType final : public rq::ModifierType {
+  using Self = VariadicModifierType;
+
+  explicit RQ_ALWAYS_INLINE VariadicModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct OffsetModifierType final : public rq::ModifierType {
+  using Self = OffsetModifierType;
+
+  explicit RQ_ALWAYS_INLINE OffsetModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct TemplateModifierType final : public rq::ModifierType {
+  using Self = TemplateModifierType;
+
+  explicit RQ_ALWAYS_INLINE TemplateModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstraintModifierType final : public rq::ModifierType {
+  using Self = ConstraintModifierType;
+
+  explicit RQ_ALWAYS_INLINE ConstraintModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct WeightModifierType final : public rq::ModifierType {
+  using Self = WeightModifierType;
+
+  explicit RQ_ALWAYS_INLINE WeightModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct DeductionModifierType final : public rq::ModifierType {
+  using Self = DeductionModifierType;
+
+  explicit RQ_ALWAYS_INLINE DeductionModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VirtualityModifierType final : public rq::ModifierType {
+  using Self = VirtualityModifierType;
+
+  explicit RQ_ALWAYS_INLINE VirtualityModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct RangerModifierType final : public rq::ModifierType {
+  using Self = RangerModifierType;
+
+  explicit RQ_ALWAYS_INLINE RangerModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct RequireModifierType final : public rq::ModifierType {
+  using Self = RequireModifierType;
+
+  explicit RQ_ALWAYS_INLINE RequireModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct EnsureModifierType final : public rq::ModifierType {
+  using Self = EnsureModifierType;
+
+  explicit RQ_ALWAYS_INLINE EnsureModifierType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Subtype : public rq::SimpleSymbol, public llvm::FoldingSetNode {
+  using Self = rq::Subtype;
+
+  rq::ConstantSymbol *_child_ptr;
+
+  explicit RQ_ALWAYS_INLINE Subtype(rq::SymbolKind kind,
+                                    rq::ConstantSymbol &child);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getChild() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getChild();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void profileSubtype(rq::SymbolKind kind,
+                                     rq::ConstantSymbol &child);
+
+struct ArraySubtype final : public rq::Subtype {
+  using Self = rq::ArraySubtype;
+
+  std::size_t _count;
+
+  explicit RQ_ALWAYS_INLINE ArraySubtype(std::size_t count,
+                                         rq::ConstantSymbol &child);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void profileArraySubtype(rq::ConstantSymbol &child,
+                                          std::size_t count);
+
+struct ReferenceSubtype final : public rq::Subtype {
+  using Self = rq::ReferenceSubtype;
+
+  explicit RQ_ALWAYS_INLINE ReferenceSubtype(rq::ConstantSymbol &child);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct PointerSubtype final : public rq::Subtype {
+  using Self = rq::PointerSubtype;
+
+  explicit RQ_ALWAYS_INLINE PointerSubtype(rq::ConstantSymbol &child);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct InferenceCountArraySubtype final : public rq::Subtype {
+  using Self = rq::InferenceCountArraySubtype;
+
+  explicit RQ_ALWAYS_INLINE
+  InferenceCountArraySubtype(rq::ConstantSymbol &child);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct GreatestSubtype final : public rq::Subtype {
+  using Self = rq::GreatestSubtype;
+
+  unsigned _greatest_depth;
+
+  explicit RQ_ALWAYS_INLINE GreatestSubtype(unsigned greatest_depth,
+                                            rq::ConstantSymbol &child);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getGreatestDepth() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void profileGreatestSubtype(llvm::FoldingSetNodeID &inout_id,
+                                             rq::ConstantSymbol &type,
+                                             unsigned greatest_depth);
+
+struct SliceSubtype final : public rq::Subtype {
+  using Self = rq::SliceSubtype;
+
+  explicit RQ_ALWAYS_INLINE SliceSubtype(rq::ConstantSymbol &child);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+enum class ScaleKind : std::uint_fast8_t { EXACT, FAST, LEAST };
+
+struct ScaledPrimitiveType : public rq::SimpleSymbol,
+                             public llvm::FoldingSetNode {
   using Self = rq::ScaledPrimitiveType;
 
   rq::ScaleKind _scale_kind;
   unsigned _scale;
-  std::uint64_t _synonym_id;
+  unsigned _synonym_id;
 
   explicit RQ_ALWAYS_INLINE ScaledPrimitiveType(rq::SymbolKind kind,
                                                 rq::ScaleKind scale_kind,
                                                 unsigned scale,
                                                 std::uint64_t synonym_id);
+
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaleKind getScaleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getScale() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getSynonymTypeId() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSynonymId() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -495,111 +1151,114 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
 RQ_ALWAYS_INLINE void
 profileScaledPrimitiveType(llvm::FoldingSetNodeID &inout_id,
                            rq::SymbolKind kind, rq::ScaleKind scale_kind,
-                           unsigned scale, std::uint64_t synonum_id);
+                           unsigned scale, unsigned synonym_id);
 
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedScaledPrimitiveType final : public rq::ScaledPrimitiveType {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedScaledPrimitiveType<KIND>;
-
-  explicit RQ_ALWAYS_INLINE
-  DerivedScaledPrimitiveType(rq::ScaleKind scale_kind, unsigned scale,
-                             std::uint64_t synonym_id);
+struct ScaledUnsignedIntegerType final : public rq::ScaledPrimitiveType {
+  using Self = rq::ScaledUnsignedIntegerType;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-using ScaledSignedIntegerType =
-    rq::DerivedScaledPrimitiveType<rq::SymbolKind::SCALED_SIGNED_INTEGER_TYPE>;
-using ScaledUnsignedIntegerType = rq::DerivedScaledPrimitiveType<
-    rq::SymbolKind::SCALED_UNSIGNED_INTEGER_TYPE>;
-
-struct Subtype : public rq::Symbol {
-  using Self = rq::Subtype;
-
-  rq::ConstantSymbol *_child_ptr;
-
-  explicit RQ_ALWAYS_INLINE Subtype(rq::SymbolKind kind,
-                                    rq::ConstantSymbol &child);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getChild() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getChild();
+struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
+  using Self = rq::ScaledSignedIntegerType;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ArraySubtype final : public rq::Subtype, public llvm::FoldingSetNode {
-  using Self = rq::ArraySubtype;
+struct Conformity final : public rq::SimpleSymbol, public llvm::FoldingSetNode {
+  using Self = rq::Conformity;
 
-  std::uint64_t _count;
+  rq::InterfaceImplementation *_interface_ptr;
+  rq::AdapterImplementation *_adapter_ptr;
 
-  explicit RQ_ALWAYS_INLINE ArraySubtype(rq::ConstantSymbol &child,
-                                         std::uint64_t count);
+  explicit RQ_ALWAYS_INLINE Conformity(rq::InterfaceImplementation &interface,
+                                       rq::AdapterImplementation &adapter);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE std::uint64_t getCount() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+  getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &getInterface();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
+  getAdapter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &getAdapter();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &inout_id,
-                                          const rq::ConstantSymbol &child,
-                                          std::uint64_t count);
+void profileConformity(llvm::FoldingSetNodeID &inout_id,
+                       const rq::InterfaceImplementation &interface,
+                       const rq::AdapterImplementation &adapter);
 
-struct UncountedSubtype : public rq::Subtype, public llvm::FoldingSetNode {
-  using Self = rq::UncountedSubtype;
+struct JuxtListItem final : public rq::SimpleSymbol,
+                            public llvm::FoldingSetNode {
+  using Self = rq::JuxtListItem;
 
-  explicit RQ_ALWAYS_INLINE UncountedSubtype(rq::SymbolKind kind,
-                                             rq::ConstantSymbol &child);
+  rq::JuxtListItem *_next_ptr;
+  rq::ConstantSymbol *_type_ptr;
+
+  explicit RQ_ALWAYS_INLINE JuxtListItem(rq::JuxtListItem &next,
+                                         rq::ConstantSymbol &type);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileUncountedSubtype(llvm::FoldingSetNodeID &inout_id,
-                                              rq::SymbolKind kind,
-                                              const rq::ConstantSymbol &child);
+void profileJustListItem(llvm::FoldingSetNodeID &inout_id,
+                         const rq::JuxtListItem *next_ptr,
+                         const rq::ConstantSymbol &type);
 
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedUncountableSubtype final : public rq::UncountedSubtype {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedUncountableSubtype<KIND>;
+struct JuxtListType final : public rq::SimpleSymbol,
+                            public llvm::FoldingSetNode {
+  using Self = rq::JuxtListType;
 
-  explicit RQ_ALWAYS_INLINE
-  DerivedUncountableSubtype(rq::ConstantSymbol &child);
+  rq::JuxtListItem *_first_ptr;
+
+  explicit RQ_ALWAYS_INLINE JuxtListType(rq::JuxtListItem &first);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::JuxtListItem &getFirst() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::JuxtListItem &getFirst();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+void profileJuxtListType(const rq::JuxtListItem *first_ptr);
+
+struct SynonymType final : public rq::SimpleSymbol {
+  using Self = rq::SynonymType;
+
+  rq::Symbol *_original_ptr;
+
+  explicit RQ_ALWAYS_INLINE SynonymType(rq::Symbol &original);
+
+  [[nodiscard]] const rq::Symbol &getOriginal() const;
+  [[nodiscard]] rq::Symbol &getOriginal();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-using ReferenceSubtype =
-    rq::DerivedUncountableSubtype<rq::SymbolKind::REFERENCE_SUBTYPE>;
-using PointerSubtype =
-    rq::DerivedUncountableSubtype<rq::SymbolKind::POINTER_SUBTYPE>;
-using SliceSubtype =
-    rq::DerivedUncountableSubtype<rq::SymbolKind::SLICE_SUBTYPE>;
-using InferenceCountArraySubtype = rq::DerivedUncountableSubtype<
-    rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE>;
-
-enum class ModuleKind : std::uint8_t { NONE, SOURCE, IMPORT };
+enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
 
 constexpr llvm::StringRef REQUITE_EXTENSION = ".rq";
 
-struct ModuleFactory final {
-  using Self = rq::ModuleFactory;
+struct ModuleDetail final {
+  using Self = rq::ModuleDetail;
 
-  rq::ModuleKind _module_kind{rq::ModuleKind::NONE};
+  rq::ModuleKind _module_kind;
   rq::Expression *_expression_ptr{nullptr};
-  llvm::StringRef _path{};
-  llvm::StringRef _buffer{};
+  llvm::StringRef _path;
+  llvm::StringRef _buffer;
   std::vector<rq::Token> _tokens{};
 
-  explicit RQ_ALWAYS_INLINE ModuleFactory() = default;
-  explicit RQ_ALWAYS_INLINE ModuleFactory(rq::ModuleKind kind,
-                                          llvm::StringRef path,
-                                          llvm::StringRef buffer);
+  explicit RQ_ALWAYS_INLINE ModuleDetail(rq::ModuleKind kind, llvm::StringRef path, llvm::StringRef buffer);
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getKind() const;
@@ -613,159 +1272,46 @@ struct ModuleFactory final {
   getTokens() const;
 };
 
-struct Module final : public rq::Symbol {
+struct Module final : public rq::SimpleSymbol {
   using Self = rq::Module;
 
   rq::ModuleKind _module_kind;
   rq::Expression *_expression_ptr;
   llvm::StringRef _path;
-  llvm::StringRef _buffer;
+  llvm::MemoryBufferRef _buffer;
+  rq::Import *_first_ptr{nullptr};
+  llvm::SmallPtrSet<rq::Module *, 4> _imported_ptrs{};
 
-  explicit RQ_ALWAYS_INLINE Module(rq::ModuleFactory &&factory);
+  explicit RQ_ALWAYS_INLINE Module(rq::ModuleDetail &&detail);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind getModuleKind() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getBuffer() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getImportsModule(const rq::Module &module) const;
+  void addImport(rq::Import &import);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Import final : public rq::Symbol {
-  using Self = rq::Import;
-
-  rq::LowFuseFlags _low_flags;
-  rq::Expression *_expression_ptr;
-  rq::Module *_imported_ptr;
-  rq::Module *_module_ptr;
-
-  explicit RQ_ALWAYS_INLINE Import(rq::LowFuseFlags flags,
-                                   rq::Expression &expression,
-                                   rq::Module &module, rq::Module &imported);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getLowFuseFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getImported() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getImported();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Conformity final : public rq::Symbol {
-  using Self = rq::Conformity;
-
-  rq::InterfaceOverload *_interface_ptr;
-  rq::Symbol *_type_ptr;
-
-  explicit RQ_ALWAYS_INLINE Conformity(rq::InterfaceOverload &interface,
-                                       rq::Symbol &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceOverload &
-  getInterface() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceOverload &getInterface();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-} // namespace rq
-
-namespace llvm {
-class BasicBlock;
-}
-
-namespace rq {
-
-struct Block final : public rq::Symbol {
-  using Self = rq::Block;
-
-  rq::Instruction *_outer_instruction_ptr;
-  llvm::BasicBlock *_llvm_block_ptr{nullptr};
-  rq::Block *_next_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Block(rq::Instruction *outer_instruction_ptr);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Instruction *
-  getOuterInstructionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Instruction *getOuterInstructionPtr();
-  RQ_ALWAYS_INLINE void setLlvmBlock(llvm::BasicBlock &llvm_block);
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::BasicBlock &getLlvmBlock() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::BasicBlock &getLlvmBlock();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct JuxtapositionalListItem final : public rq::Symbol,
-                                       public llvm::FoldingSetNode {
-  using Self = rq::JuxtapositionalListItem;
-
-  rq::JuxtapositionalListItem *_next_ptr;
-  rq::ConstantSymbol *_type_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  JuxtapositionalListItem(rq::ConstantSymbol &type,
-                          rq::JuxtapositionalListItem *next_ptr);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-RQ_ALWAYS_INLINE void
-profileJuxtapositionalListItem(llvm::FoldingSetNodeID &inout_id,
-                               const rq::ConstantSymbol &type,
-                               const rq::JuxtapositionalListItem *next_ptr);
-
-struct JuxtapositionalListType final : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::JuxtapositionalList;
-
-  rq::JuxtapositionalListItem *_first_item_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  JuxtapositionalListType(rq::JuxtapositionalListItem &first_item);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::JuxtapositionalListItem>
-  getJuxtapositionalListItemSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::JuxtapositionalListItem>
-      getJuxtapositionalListItemSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::JuxtapositionalListItem>
-      getConstJuxtapositionalListItemSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-RQ_ALWAYS_INLINE void
-profileJuxtapositionalListType(llvm::FoldingSetNodeID &inout_id,
-                               const rq::JuxtapositionalListItem &first_item);
-
-struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
+struct ArithmeticSequenceType : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ArithmeticSequenceType;
 
   rq::ConstantSymbol *_child_ptr;
-  rq::ArithmeticSequenceCondition _condition;
-  rq::ArithmeticSequenceStep _step;
+  rq::ArithmeticCondition _condition_kind;
+  rq::ArithmeticStep _step_kind;
 
   explicit RQ_ALWAYS_INLINE
   ArithmeticSequenceType(rq::SymbolKind kind, rq::ConstantSymbol &child,
-                         rq::ArithmeticSequenceCondition condition,
-                         rq::ArithmeticSequenceStep step);
+                         rq::ArithmeticCondition condition,
+                         rq::ArithmeticStep step);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getChild() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getChild();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceCondition
-  getCondition() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceStep getStep() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticCondition getCondition() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticStep getStep() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -774,28 +1320,54 @@ struct ArithmeticSequenceType : public rq::Symbol, llvm::FoldingSetNode {
 
 RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
     llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
-    const rq::ConstantSymbol &child, rq::ArithmeticSequenceCondition condition,
-    rq::ArithmeticSequenceStep step);
+    const rq::ConstantSymbol &child, rq::ArithmeticCondition condition,
+    rq::ArithmeticStep step);
 
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedArithmeticSequenceType final : public rq::ArithmeticSequenceType {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedArithmeticSequenceType<KIND>;
-
-  explicit RQ_ALWAYS_INLINE
-  DerivedArithmeticSequenceType(rq::ConstantSymbol &child,
-                                rq::ArithmeticSequenceCondition condition,
-                                rq::ArithmeticSequenceStep step);
+struct ArithmeticIntervalType final : public rq::ArithmeticSequenceType {
+  using Self = rq::ArithmeticIntervalType;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-using ArithmeticIntervalType =
-    rq::DerivedArithmeticSequenceType<rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE>;
-using InfiniteArithmeticSequenceType = rq::DerivedArithmeticSequenceType<
-    rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE>;
-using FiniteArithmeticSequenceType = rq::DerivedArithmeticSequenceType<
-    rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE>;
+struct InfiniteArithmeticSequenceType final
+    : public rq::ArithmeticSequenceType {
+  using Self = rq::InfiniteArithmeticSequenceType;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct FiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
+  using Self = rq::FiniteArithmeticSequenceTYpe;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Import final : public rq::SimpleSymbol {
+  using Self = rq::Import;
+
+  rq::Import *_next_ptr{nullptr};
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
+  rq::Expression *_expression_ptr{nullptr};
+  rq::Module *_imported_ptr{nullptr};
+  rq::Module *_module_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Import();
+
+  void setModifierFuseFlags(rq::ModifierFuseFlags flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  void setExpression(rq::Expression &expression);
+  [[nodiscard]] const rq::Expression &getExpression() const;
+  [[nodiscard]] rq::Expression &getExpression();
+  void setImported(rq::Module &imported);
+  [[nodiscard]] const rq::Module &getImported() const;
+  [[nodiscard]] rq::Module &getImported();
+  void setModule(rq::Module &module);
+  [[nodiscard]] const rq::Module &getModule() const;
+  [[nodiscard]] rq::Module &getModule();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
 
 struct Name final {
   using Self = rq::Name;
@@ -836,248 +1408,25 @@ struct Name final {
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     inout_id.AddString(this->getText());
-    inout_id.AddInteger(rq::getUNDERLYING_VALUE(this->getKeyword()));
+    inout_id.AddInteger(rq::getUnderlyingValue(this->getKeyword()));
   }
 };
 
-} // namespace rq
+struct SpecializationSetArgument final : public rq::SimpleSymbol,
+                                         public llvm::FoldingSetNode {
+  using Self = rq::SpecializationSetArgument;
 
-namespace llvm {
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::hash_code
-hash_value(const rq::Name &value) {
-  return llvm::hash_combine(value.getText(), value.getKeyword());
-};
+  rq::Name _name{};
+  rq::Entity *_value_ptr{nullptr};
+  rq::SpecializationSetArgument *_next_ptr{nullptr};
 
-template <> struct DenseMapInfo<rq::Name> {
-  static rq::Name getEmptyKey() {
-    return rq::Name(rq::Name::DENSE_MAP_KEY_EMPTY);
-  }
-
-  static rq::Name getTombstoneKey() {
-    return rq::Name(rq::Name::DENSE_MAP_KEY_TOMBSTONE);
-  }
-
-  static unsigned getHashValue(const rq::Name &value) {
-    return static_cast<unsigned>(hash_value(value));
-  }
-
-  static bool isEqual(const rq::Name &lhs, const rq::Name &rhs) {
-    return lhs.getText() == rhs.getText() &&
-           lhs.getKeyword() == rhs.getKeyword();
-  }
-};
-} // namespace llvm
-
-namespace rq {
-
-struct LocalDeclaration : public rq::Symbol {
-  using Self = rq::LocalDeclaration;
-
-  rq::Name _name;
-  rq::SymbolTable *_container_ptr;
-  rq::SymbolTable *_host_ptr;
-  rq::Module *_module_ptr;
-
-  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::SymbolKind kind, rq::Name name,
-                                             rq::SymbolTable &container,
-                                             rq::SymbolTable &host,
-                                             rq::Module &module);
+  explicit RQ_ALWAYS_INLINE
+  SpecializationSetArgument(rq::Name name, rq::Entity &value,
+                            rq::SpecializationSetArgument *next_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getContainer() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getContainer();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHost() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHost();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Anchor final : public rq::LocalDeclaration {
-  using Self = rq::Anchor;
-
-  rq::SymbolTable *_vessel_ptr;
-
-  explicit RQ_ALWAYS_INLINE Anchor(rq::Name name, rq::SymbolTable &container,
-                                   rq::Module &module, rq::SymbolTable &vessel);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getVessel() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getVessel();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Enumerator final : public rq::LocalDeclaration {
-  using Self = rq::Enumerator;
-
-  rq::ConstantWord *_underlying_value_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Anchor(rq::Name name, rq::SymbolTable &container,
-                                   rq::Module &module);
-
-  RQ_ALWAYS_INLINE void setUnderlyingValue(rq::ConstantWord& value);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantWord &
-  getUnderlyingValue() const;
-  [[nodsicard]] RQ_ALWAYS_INLINE rq::ConstantWord &getUnderlyingValue();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct LocalVariable : public rq::LocalDeclaration {
-  using Self = rq::LocalVariable;
-
-  rq::LowFuseFlags _low_flags;
-  rq::ConstantSymbol *_type_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  LocalVariable(rq::SymbolKind kind, rq::Name name, rq::SymbolTable &container,
-                rq::SymbolTable &host, rq::Module &module,
-                rq::LowFuseFlags flags, rq::ConstantSymbol &type);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getLowFuseFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType();
-  RQ_ALWAYS_INLINE void completeType(rq::ConstantSymbol &type);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-} // namespace rq
-
-namespace llvm {
-struct Value;
-}
-
-namespace rq {
-
-struct LocalDynamicVariable final : public rq::LocalVariable {
-  using Self = rq::LocalDynamicVariable;
-
-  llvm::Value *_llvm_location_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE
-  LocalDynamicVariable(rq::Name name, rq::SymbolTable &container,
-                       rq::SymbolTable &host, rq::Module &module,
-                       rq::LowFuseFlags flags, rq::ConstantSymbol &type);
-
-  RQ_ALWAYS_INLINE void setLlvmLocation(llvm::Value &llvm_location);
-  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *getLlvmLocationPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *getLlvmLocationPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct LocalStaticVariable final : public rq::LocalVariable {
-  using Self = rq::LocalStaticVariable;
-
-  rq::Gendex<rq::StaticValue> _value;
-
-  explicit RQ_ALWAYS_INLINE
-  LocalStaticVariable(rq::Name name, rq::SymbolTable &container,
-                      rq::SymbolTable &host, rq::Module &module,
-                      rq::LowFuseFlags flags, rq::ConstantSymbol &type,
-                      rq::Gendex<rq::StaticValue> gendex);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Gendex<rq::StaticValue> &
-  getValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Gendex<rq::StaticValue> &getValue();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Capture final : public rq::LocalVariable {
-  using Self = rq::Capture;
-
-  rq::Constant *_value_ptr;
-
-  explicit RQ_ALWAYS_INLINE Capture(rq::SymbolTable &container,
-                                    rq::SymbolTable &host, rq::Module &module,
-                                    rq::ConstantSymbol &type,
-                                    rq::Constant &value);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Constant &getValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Constant &getValue();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Argument : public rq::LocalVariable {
-  using Self = rq::Argument;
-
-  rq::Parameter *_parameter_ptr;
-
-  explicit RQ_ALWAYS_INLINE Argument(rq::SymbolKind kind, rq::Name name,
-                                     rq::SymbolTable &host, rq::Module &module,
-                                     rq::Parameter &parameter);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter &getParameter() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter &getParameter();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct TemplateArgument final : public rq::Argument {
-  using Self = rq::TemplateArgument;
-
-  rq::Entity *_value_ptr;
-  rq::Parameter *_parameter_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  TemplateArgument(rq::Name name, rq::SymbolTable &container,
-                   rq::SymbolTable &host, rq::Module &module,
-                   rq::LowFuseFlags flags, rq::ConstantSymbol &type,
-                   rq::Entity &value, rq::Parameter &parameter);
-
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FunctionArgument final : public rq::Argument {
-  using Self = rq::FunctionArgument;
-
-  explicit RQ_ALWAYS_INLINE FunctionArgument(rq::Name name,
-                                             rq::SymbolTable &host,
-                                             rq::Module &module,
-                                             rq::Parameter &parameter);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-enum class ParameterInfoFlags : std::uint8_t {
-  NONE = 0,
-
-  POSITIONAL = rq::getBit(0),
-  NONPOSITIONAL = rq::getBit(1),
-  LOCKED = rq::getBit(2)
-};
-
-struct Parameter : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::Parameter;
-
-  rq::Parameter *_next_ptr;
-  rq::Name _name;
-  rq::ConstantSymbol *_type_ptr;
-  rq::LowFuseFlags _low_flags;
-  rq::ParameterInfoFlags _param_flags;
-  rq::Expression *_default_value_expression_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  Parameter(rq::Parameter *next_ptr, rq::Name name, rq::ConstantSymbol &type,
-            rq::LowFuseFlags low_flags, rq::ParameterInfoFlags param_flags,
-            rq::Expression *default_value_expression_ptr);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getLowFuseFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ParameterInfoFlags
-  getParameterFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getDefaultValueExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getDefaultValueExpressionPtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -1085,45 +1434,188 @@ struct Parameter : public rq::Symbol, llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void
-profileSignatureType(llvm::FoldingSetNodeID &inout_id,
-                     const rq::Parameter *next_ptr, rq::Name name,
-                     const rq::ConstantSymbol &type, rq::LowFuseFlags low_flags,
-                     rq::ParameterInfoFlags param_flags,
-                     const rq::Expression *default_value_expression_ptr);
+profileSpecializationSetArgument(llvm::FoldingSetNodeID &inout_id,
+                                 rq::Name name, rq::Entity &value,
+                                 rq::SpecializationSetArgument *next_ptr);
 
-struct ParameterList : public rq::Symbol {
-  using Self = rq::ParameterList;
+struct SpecializationSet : public rq::SimpleSymbol,
+                           public llvm::FoldingSetNode {
+  using Self = rq::SpecializationSet;
 
-  rq::Parameter *_first_parameter_ptr;
-  unsigned _parameter_count;
-  unsigned _positional_parameter_count;
-  unsigned _nonpositional_parameter_count;
-  unsigned _locked_parameter_count;
+  rq::SpecializationSetArgument *_first_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE ParameterList(rq::SymbolKind kind,
-                                          rq::Parameter *first_parameter_ptr);
+  explicit RQ_ALWAYS_INLINE
+  SpecializationSet(rq::SpecializationSetArgument *first_ptr);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Parameter *
-  getFirstParameterPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Parameter *getFirstParameterPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getPositionalParameterCount() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned
-  getNonpositionalParameterCount() const;
-  [[nodiscard]] inline const rq::Parameter *
-  getParameterPtrOfName(rq::Name name) const;
-  [[nodiscard]] inline rq::Parameter *getParameterPtrOfName(rq::Name name);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Parameter>
-  getParameterSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Parameter>
-  getParameterSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Parameter>
-  getConstParameterSubrange() const;
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void
+profileSpecializationSet(llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
+                         rq::SpecializationSetArgument *first_ptr);
+
+struct FunctionSpecializationSet final : public rq::SpecializationSet {
+  using Self = rq::FunctionSpecializationSet;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SignatureType final : public rq::ParameterList, llvm::FoldingSetNode {
+struct AdapterSpecializationSet final : public rq::SpecializationSet {
+  using Self = rq::AdapterSpecializationSet;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+enum class ParameterInfoFlags : std::uint_fast8_t {
+  NONE = 0,
+
+  POSITIONAL = rq::getBit(0),
+  NONPOSITIONAL = rq::getBit(1),
+  LOCKED = rq::getBit(2)
+};
+
+struct ParameterDetail final {
+  using Self = rq::ParameterDetail;
+
+  rq::Name _name;
+  rq::ConstantSymbol *_type_ptr;
+  rq::ModifierFuseFlags _modifier_fuse_flags;
+  rq::ParameterInfoFlags _param_info_flags;
+  rq::CfgBlock *_default_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  ParameterDetail(rq::Name name, rq::ConstantSymbol &type,
+                  rq::ModifierFuseFlags modifier_fuse_flags,
+                  rq::ParameterInfoFlags param_info_flags,
+                  rq::CfgBlock *default_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
+  [[nodiscard]] const rq::ConstantSymbol &getType() const;
+  [[nodiscard]] rq::ConstantSymbol &getType();
+  [[nodiscard]] rq::ModifierFuseFlags getModifierFuseFlags() const;
+  [[nodiscard]] rq::ParameterInfoFlags getParameterInfoFlags() const;
+  [[nodiscard]] const rq::CfgBlock *getDefaultPtr() const;
+  [[nodiscard]] rq::CfgBlock *getDefaultPtr();
+};
+
+struct Parameter final : public rq::SimpleSymbol, public llvm::FoldingSetNode {
+  using Self = rq::Parameter;
+
+  rq::Parameter *_next_ptr;
+  rq::Name _name;
+  rq::ConstantSymbol *_type_ptr;
+  rq::ModifierFuseFlags _modifier_fuse_flags;
+  rq::ParameterInfoFlags _param_info_flags;
+  rq::CfgBlock *_default_ptr;
+
+  explicit RQ_ALWAYS_INLINE Parameter(rq::Parameter *next_ptr, rq::Name name,
+                                      rq::ConstantSymbol &type,
+                                      rq::ModifierFuseFlags modifier_flags,
+                                      rq::ParameterInfoFlags param_flags,
+                                      rq::CfgBlock *default_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &getType() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &getType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ParameterInfoFlags
+  getParameterFlags() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::CfgBlock *getDefaultPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CfgBlock *getDefaultPtr();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void profileParameter(
+    llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
+    const rq::Parameter *next_ptr, rq::Name name,
+    const rq::ConstantSymbol &type, rq::ModifierFuseFlags modifier_fuse_flags,
+    rq::ParameterInfoFlags param_flags, const rq::CfgBlock *default_ptr);
+
+struct CompositionComponent final : public rq::SimpleSymbol,
+                                    public llvm::FoldingSetNode {
+  using Self = rq::CompositionComponent;
+
+  rq::CompositionComponent *_next_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  CompositionComponent(rq::CompositionComponent *next_ptr);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void
+profileCompositionComponent(llvm::FoldingSetNodeID &inout_id,
+                            rq::CompositionComponent *next_ptr);
+
+struct CompositionType final : public rq::SimpleSymbol {
+  using Self = rq::CompositionType;
+
+  rq::CompositionComponent *_first_ptr;
+
+  explicit RQ_ALWAYS_INLINE
+  CompositionType(rq::CompositionComponent *first_ptr);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+RQ_ALWAYS_INLINE void
+profileCompositionType(llvm::FoldingSetNodeID &inout_id,
+                       rq::CompositionComponent *next_ptr);
+
+struct ParameterListDetail final {
+  using Self = ParameterListDetail;
+
+  llvm::SmallVector<rq::ParameterDetail, 2> _parameter_detail_list{};
+  rq::ParameterInfoFlags _flags{rq::ParameterInfoFlags::POSITIONAL};
+  rq::ParameterInfoFlags _found_parameter_marks{rq::ParameterInfoFlags::NONE};
+
+  explicit RQ_ALWAYS_INLINE ParameterListDetail() = default;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundPositionalParametersEnd() const;
+  RQ_ALWAYS_INLINE void appendPositionalParametersEnd();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getFoundNonpositionalParametersBegin() const;
+  RQ_ALWAYS_INLINE void appendNonpositionalParametersBegin();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundLockedParametersBegin() const;
+  RQ_ALWAYS_INLINE void appendLockedParametersBegin();
+  RQ_ALWAYS_INLINE void
+  appendParameter(rq::Name name, rq::ConstantSymbol &type,
+                  rq::ModifierFuseFlags modifier_fuse_flags,
+                  rq::Expression *default_value_expression_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE std::span<const rq::ParameterDetail>
+  getParameterDetailSpan() const;
+};
+
+struct ParameterList : public rq::SimpleSymbol {
+  using Self = rq::ParameterList;
+
+  rq::Parameter *_first_ptr;
+
+  explicit RQ_ALWAYS_INLINE ParameterList(rq::SymbolKind kind,
+                                          rq::Parameter *first_parameter_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Parameter>
+  getParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Parameter>
+  getConstParameterSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Parameter>
+  getParameterSubrange();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct SignatureType final : public rq::ParameterList,
+                             public llvm::FoldingSetNode {
   using Self = rq::SignatureType;
 
   rq::ConstantSymbol *_return_type_ptr;
@@ -1140,478 +1632,63 @@ struct SignatureType final : public rq::ParameterList, llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void
-profileSignatureType(llvm::FoldingSetNodeID &inout_id,
-                     const rq::Parameter *first_parameter_ptr,
-                     const rq::ConstantSymbol &return_type);
+RQ_ALWAYS_INLINE void profileSignatureType(rq::Parameter *first_parameter_ptr,
+                                           rq::ConstantSymbol &return_type);
 
-struct LayoutType final : public rq::ParameterList, llvm::FoldingSetNode {
+struct LayoutType final : public rq::ParameterList {
   using Self = rq::LayoutType;
 
   explicit RQ_ALWAYS_INLINE LayoutType(rq::Parameter *first_parameter_ptr);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNode &inout_id);
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void
-profileLayoutType(llvm::FoldingSetNodeID &inout_id,
-                  const rq::Parameter *first_parameter_ptr);
+RQ_ALWAYS_INLINE void profileLayoutType(rq::Parameter *first_parameter_ptr);
 
-struct PlacementType final : public rq::Symbol, llvm::FoldingSetNode {
+struct PlacementType final : public rq::SimpleSymbol,
+                             public llvm::FoldingSetNode {
   using Self = rq::PlacementType;
 
-  rq::FunctionOverload *_function_ptr;
+  rq::FunctionImplementation *_function_ptr;
 
-  explicit RQ_ALWAYS_INLINE PlacementType(rq::FunctionOverload &function);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionOverload &
-  getFunction() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionOverload &getFunction();
+  explicit RQ_ALWAYS_INLINE PlacementType(rq::FunctionImplementation &function);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-RQ_ALWAYS_INLINE void profilePlacement(llvm::FoldingSetNodeID &inout_id,
-                                       const rq::FunctionOverload &function);
-
-// TODO composition factory
-
-struct CompositionComponent final : public rq::Symbol,
-                                    public llvm::FoldingSetNode {
-  using Self = rq::CompositionComponent;
-
-  rq::CompositionComponent *_next_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  CompositionComponent(rq::CompositionComponent *next_ptr);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent *
-  getNextComponentPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent *
-  getNextComponentPtr();
-
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-inline void
-profileCompositionComponent(llvm::FoldingSetNodeID &inout_id,
-                            const rq::CompositionComponent *next_component_ptr);
-
-struct CompositionType final : public rq::Symbol, llvm::FoldingSetNode {
-  using Self = rq::CompositionType;
-
-  rq::CompositionComponent *_first_component_ptr;
-
-  explicit RQ_ALWAYS_INLINE
-  CompositionType(rq::CompositionComponent &first_component);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::CompositionComponent &
-  getFirstComponent() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionComponent &getFirstComponent();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::CompositionComponent>
-  getComponentSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::CompositionComponent>
-  getComponentSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::CompositionComponent>
-  getConstComponentSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
 RQ_ALWAYS_INLINE void
-profileCompositionType(llvm::FoldingSetNodeID &inout_id,
-                       const rq::CompositionComponent &first_component);
+profilePlacementType(rq::FunctionImplementation &function);
 
-struct SynonymType final : public rq::Symbol {
-  using Self = rq::SynonymType;
+struct WeightLevel : public rq::SimpleSymbol {
+  using Self = rq::WeightLevel;
 
-  rq::Symbol *_original_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE SynonymType(rq::Symbol &original);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getOriginal() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getOriginal();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SymbolTableIterator final {
-  using Self = rq::SymbolTableIterator;
-  using value_type = rq::SymbolTable;
-  using reference = rq::SymbolTable &;
-  using pointer = rq::SymbolTable *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::SymbolTable *_symbol_table_ptr = nullptr;
-
-  SymbolTableIterator() = default;
-  explicit SymbolTableIterator(rq::SymbolTable *symbol_table_ptr)
-      : _symbol_table_ptr(symbol_table_ptr) {}
-  SymbolTableIterator(const Self &) = default;
-  SymbolTableIterator(Self &&) = default;
-  ~SymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_symbol_table_ptr == it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_symbol_table_ptr != it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*() {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->() {
-    return this->_symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_symbol_table_ptr == nullptr;
-  }
-};
-
-struct ConstSymbolTableIterator final {
-  using Self = rq::ConstSymbolTableIterator;
-  using value_type = const rq::SymbolTable;
-  using reference = const rq::SymbolTable &;
-  using pointer = rq::SymbolTable *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::SymbolTable *_symbol_table_ptr = nullptr;
-
-  ConstSymbolTableIterator() = default;
-  explicit ConstSymbolTableIterator(const rq::SymbolTable *symbol_table_ptr)
-      : _symbol_table_ptr(symbol_table_ptr) {}
-  ConstSymbolTableIterator(const Self &) = default;
-  ConstSymbolTableIterator(Self &&) = default;
-  ~ConstSymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_symbol_table_ptr == it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_symbol_table_ptr != it._symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const {
-    return rq::dereferencePtr(this->_symbol_table_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const {
-    return this->_symbol_table_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_symbol_table_ptr == nullptr;
-  }
-};
-
-struct SymbolTable : public rq::Symbol {
-  using Self = rq::SymbolTable;
-
-  llvm::DenseMap<rq::Name, rq::BumpPtrList<rq::Symbol>> _member_map{};
-  rq::SymbolTable *_container_ptr{nullptr};
-  rq::FunctionGenre *_function_container_ptr{nullptr};
-  rq::Genre *_object_container_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionGenre *
-  getFunctionContainerPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionGenre *getFunctionContainerPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Genre *
-  getObjectContainerPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Genre *getObjectContainerPtr();
-  inline void addMember(rq::BumpPtrAllocator &allocator, rq::Name name,
-                        rq::Symbol &symbol);
-  [[nodiscard]] RQ_ALWAYS_INLINE const
-      llvm::DenseMap<rq::Name, rq::BumpPtrList<rq::Symbol>> &
-      getMap() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstBumpPtrListRef<rq::Symbol>
-  lookupList(rq::Name name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::BumpPtrListRef<rq::Symbol>
-  lookupList(rq::Name name);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>
-  getInclusiveAscendingSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
-  getInclusiveAscendingSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
-  getConstInclusiveAscendingSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getSymbolListSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE auto getSymbolListSubrange();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct C final : rq::SymbolTable {
-  using Self = rq::C;
-
-  explicit RQ_ALWAYS_INLINE C();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-rq::SymbolTableIterator &SymbolTableIterator::operator++() {
-  rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  this->_symbol_table_ptr = table._container_ptr;
-  return *this;
-}
-
-rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
-  rq::SymbolTableIterator temp = *this;
-  rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  this->_symbol_table_ptr = table._container_ptr;
-  return temp;
-}
-
-rq::ConstSymbolTableIterator &ConstSymbolTableIterator::operator++() {
-  const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  this->_symbol_table_ptr = table._container_ptr;
-  return *this;
-}
-
-rq::ConstSymbolTableIterator ConstSymbolTableIterator::operator++(int) {
-  rq::ConstSymbolTableIterator temp = *this;
-  const rq::SymbolTable &table = rq::dereferencePtr(this->_symbol_table_ptr);
-  this->_symbol_table_ptr = table._container_ptr;
-  return temp;
-}
-
-struct Top final : public rq::SymbolTable {
-  using Self = rq::Top;
-
-  explicit RQ_ALWAYS_INLINE Top();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct LocalScope : public rq::SymbolTable {
-  using Self = rq::LocalScope;
-
-  rq::Expression *_expression_ptr;
-  rq::LowFuseFlags _low_flags;
-  rq::Module *_module_ptr;
-
-  explicit RQ_ALWAYS_INLINE LocalScope(rq::SymbolKind kind,
-                                       rq::SymbolTable &container,
-                                       rq::Expression &expression,
-                                       rq::LowFuseFlags flags,
-                                       rq::Module &module);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getLowFuseFlags() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-template <rq::SymbolKind KIND_PARAM>
-struct DerivedLocalScope final : public rq::LocalScope {
-  static constexpr rq::SymbolKind KIND = KIND_PARAM;
-  using Self = rq::DerivedLocalScope<KIND>;
-
-  explicit RQ_ALWAYS_INLINE DerivedLocalScope(rq::SymbolTable &container,
-                                              rq::Expression &expression,
-                                              rq::LowFuseFlags flags,
-                                              rq::Module &module);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-using IfStatement = rq::DerivedLocalScope<rq::SymbolKind::IF_STATEMENT>;
-using ElseIfStatement =
-    rq::DerivedLocalScope<rq::SymbolKind::ELSE_IF_STATEMENT>;
-using ElseStatement = rq::DerivedLocalScope<rq::SymbolKind::ELSE_STATEMENT>;
-using SwitchStatement = rq::DerivedLocalScope<rq::SymbolKind::SWITCH_STATEMENT>;
-using CaseStatement = rq::DerivedLocalScope<rq::SymbolKind::CASE_STATEMENT>;
-using DefaultStatement =
-    rq::DerivedLocalScope<rq::SymbolKind::DEFAULT_STATEMENT>;
-using ForStatement = rq::DerivedLocalScope<rq::SymbolKind::FOR_STATEMENT>;
-using WhileStatement = rq::DerivedLocalScope<rq::SymbolKind::WHILE_STATEMENT>;
-using SpinStatement = rq::DerivedLocalScope<rq::SymbolKind::SPIN_STATEMENT>;
-using WeaveStatement = rq::DerivedLocalScope<rq::SymbolKind::WEAVE_STATEMENT>;
-using ScopeStatement = rq::DerivedLocalScope<rq::SymbolKind::SCOPE_STATEMENT>;
-
-struct NamedTable : public rq::SymbolTable {
-  using Self = rq::NamedTable;
-
-  rq::Name _name{};
-
-  explicit RQ_ALWAYS_INLINE NamedTable(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setName(rq::Name name);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalDeclaration : public rq::NamedTable {
-  using Self = rq::GlobalDeclaration;
-
-  rq::Expression *_expression_ptr{nullptr};
-  rq::Expression *_name_expression_ptr{nullptr};
-  rq::LowFuseFlags _low_flags{rq::LowFuseFlags::NONE};
-  rq::SymbolTable *_host_ptr{nullptr};
-  rq::Module *_module_ptr{nullptr};
-  llvm::StringRef _mangled_name{};
-  rq::Expression *_mangled_name_expression_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE GlobalDeclaration(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
-  RQ_ALWAYS_INLINE void setNameExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getNameExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getNameExpressionPtr();
-  RQ_ALWAYS_INLINE void setLowFuseFlags(rq::LowFuseFlags low_flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getLwFusesFlags() const;
-  RQ_ALWAYS_INLINE void setHost(rq::SymbolTable &host);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostPtr();
-  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
-  RQ_ALWAYS_INLINE void setMangledName(llvm::StringRef name);
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
-  RQ_ALWAYS_INLINE void setMangledNameExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getMangledNameExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getMangledNameExpressionPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Genre : public rq::NamedTable {
-  using Self = rq::Genre;
-
-  rq::Genre *_next_ptr{nullptr};
   rq::Polymorph *_polymorph_ptr{nullptr};
-  rq::Template *_template_ptr{nullptr};
+  unsigned _weight;
+  rq::Template *_first_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE Genre(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE WeightLevel(rq::SymbolKind kind, unsigned weight);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *getPolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getPolymorphPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *getTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *getTemplatePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getWeight() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Template>
+  getTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
+  getTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
+  getConstTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ClassGenre : public rq::Genre {
-  using Self = rq::ClassGenre;
+struct InterfaceWeightLevel final : public rq::WeightLevel {
+  using Self = rq::InterfaceWeightLevel;
 
-  rq::LayoutType *_layout_ptr{nullptr};
-  rq::ConstructorGenre *_first_constructor_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE ClassGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
-  [[nodiscard]] const rq::LayoutType *getLayoutTypePtr() const;
-  [[nodiscard]] rq::LayoutType *getLayoutTypePtr();
-  RQ_ALWAYS_INLINE void addConstructorGenre(rq::ConstructorGenre &genre);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorGenre>
-  getConstructorGenreSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorGenre>
-  getConstructorGenreSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorGenre>
-  getConstConstructorGenreSubrange() const;
-  RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
-  getClassPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *getClassPolymorphPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ClassOverload final : public rq::ClassGenre {
-  using Self = rq::ClassOverload;
-
-  explicit RQ_ALWAYS_INLINE ClassOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ClassSpecialization final : public rq::ClassGenre {
-  using Self = rq::ClassSpecialization;
-
-  explicit RQ_ALWAYS_INLINE ClassSpecialization();
-
-  RQ_ALWAYS_INLINE void setClassTemplate(rq::ClassTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassTemplate *
-  getClassTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassTemplate *getClassTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumGenre : public rq::Genre {
-  using Self = rq::EnumGenre;
-
-  rq::ConstantSymbol *_underlying_type_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE EnumGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
-  getUnderlyingTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
-  getUnderlyingTypePtr();
-  RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
-  getEnumPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *getEnumPolymorphPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumOverload final : public rq::EnumGenre {
-  using Self = rq::EnumOverload;
-
-  explicit RQ_ALWAYS_INLINE EnumOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumSpecialization final : public rq::EnumGenre {
-  using Self = rq::EnumSpecialization;
-
-  explicit RQ_ALWAYS_INLINE EnumSpecialization();
-
-  RQ_ALWAYS_INLINE void setEnumTemplate(rq::EnumTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
-  getEnumTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *getEnumTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct InterfaceGenre : public rq::Genre {
-  using Self = rq::InterfaceGenre;
-
-  explicit RQ_ALWAYS_INLINE InterfaceGenre(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE InterfaceWeightLevel(unsigned weight);
 
   RQ_ALWAYS_INLINE void
   setInterfacePolymorph(rq::InterfacePolymorph &polymorph);
@@ -1619,443 +1696,153 @@ struct InterfaceGenre : public rq::Genre {
   getInterfacePolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfacePolymorph *
   getInterfacePolymorphPtr();
+  RQ_ALWAYS_INLINE void addInterfaceTemplate(rq::InterfaceTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::InterfaceTemplate>
+      getInterfaceTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+      getInterfaceTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+      getConstInterfaceTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct InterfaceOverload final : public rq::InterfaceGenre {
-  using Self = rq::InterfaceOverload;
+struct FunctionWeightLevel final : public rq::WeightLevel {
+  using Self = rq::FunctionWeightLevel;
 
-  explicit RQ_ALWAYS_INLINE InterfaceOverload();
+  explicit RQ_ALWAYS_INLINE FunctionWeightLevel(unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct InterfaceSpecialization final : public rq::InterfaceGenre {
-  using Self = rq::InterfaceSpecialization;
-
-  explicit RQ_ALWAYS_INLINE InterfaceSpecialization();
-
-  RQ_ALWAYS_INLINE void setInterfaceTemplate(rq::InterfaceTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceTemplate *
-  getInterfaceTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceTemplate *getInterfaceTemplate();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AdapterGenre : public rq::Genre {
-  using Self = rq::AdapterGenre;
-
-  rq::Conformity *_conformity_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE AdapterGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setConformity(rq::Conformity &conformity);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Conformity *getConformityPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Conformity *getConformityPtr();
-  RQ_ALWAYS_INLINE void setAdapterPolymorph(rq::AdapterPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
-  getAdapterPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *getAdapterPolymorphPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AdapterOverload final : public rq::AdapterGenre {
-  using Self = rq::AdapterOverload;
-
-  explicit RQ_ALWAYS_INLINE AdapterOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AdapterSpecialization final : public rq::AdapterGenre {
-  using Self = rq::AdapterGenre;
-
-  explicit RQ_ALWAYS_INLINE AdapterSpecialization();
-
-  RQ_ALWAYS_INLINE void setAdapterTemplate(rq::AdapterTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterTemplate *
-  getAdapterTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterTemplate *getAdapterTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ConstructorGenre : public rq::Genre {
-  using Self = rq::ConstructorGenre;
-
-  rq::ConstructorGenre *_next_ptr{nullptr};
-  rq::LayoutType *_layout_ptr{nullptr};
-  rq::ClassGenre *_class_genre_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE ConstructorGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutTypePtr();
-  RQ_ALWAYS_INLINE vodi setClassGenre(rq::ClassGenre &genre);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassGenre *
-  getClassGenrePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassGenre *getClassGenrePtr();
-  RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
-  getClassPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *getClassPolymorphPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ConstructorOverload final : public rq::ConstructorGenre {
-  using Self = rq::ConstructorOverload;
-
-  explicit RQ_ALWAYS_INLINE ConstructorOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct LayoutConstructorOverload final : public rq::LayoutConstructorOverload {
-  using Self = rq::LayoutConstructorOverload;
-
-  explicit RQ_ALWAYS_INLINE LayoutConstructorOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FunctionGenre : public rq::Genre {
-  using Self = rq::FunctionGenre;
-
-  rq::SignatureType *_signature_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE FunctionGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setSignatureType(rq::SignatureType &signature);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
-  getSignatureTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *getSignatureTypePtr();
   RQ_ALWAYS_INLINE void setFunctionPolymorph(rq::FunctionPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionPolymorph *
-  getFunctionPolymorphPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionPolymorph *
   getFunctionPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionPolymorph *
+  getFunctionPolymorphPtr() const;
+  RQ_ALWAYS_INLINE void addFunctionTemplate(rq::FunctionTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::FunctionTemplate>
+      getFunctionTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::FunctionTemplate>
+      getFunctionTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::FunctionTemplate>
+      getConstFunctionTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct FunctionOverload final : public rq::FunctionGenre {
-  using Self = rq::FunctionOverload;
+struct AdapterWeightLevel final : public rq::WeightLevel {
+  using Self = rq::AdapterWeightLevel;
 
-  explicit RQ_ALWAYS_INLINE FunctionOverload();
+  explicit RQ_ALWAYS_INLINE AdapterWeightLevel(unsigned weight);
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FunctionSpecialization final : public rq::FunctionGenre {
-  using Self = rq::FunctionSpecialization;
-
-  explicit RQ_ALWAYS_INLINE FunctionSpecialization();
-
-  RQ_ALWAYS_INLINE void setFunctionTemplate(rq::FunctionTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionTemplate *
-  getFunctionTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionTemplate *getFunctionTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalVariableGenre : public rq::Genre {
-  using Self = rq::GlobalVariableGenre;
-
-  rq::ConstantSymbol *_type_ptr{nullptr};
-  rq::Expression *_type_expression_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE GlobalVariableGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setType(rq::ConstantSymbol &type);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
+  RQ_ALWAYS_INLINE void setAdapterPolylmorph(rq::AdapterPolymorph &polymorph);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *getAdapterPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
+  getAdapterPolymorphPtr() const;
+  RQ_ALWAYS_INLINE void addAdapterTemplate(rq::AdapterTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::AdapterTemplate>
+      getAdapterTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+      getAdapterTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+      getConstAdapterTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct GlobalDynamicVariableGenre : public rq::GlobalVariableGenre {
-  using Self = rq::GlobalDynamicVariableGenre;
+struct EnumWeightLevel final : public rq::WeightLevel {
+  using Self = rq::EnumWeightLevel;
 
-  rq::Expression *_initial_rvalue_expression_ptr{nullptr};
+  explicit RQ_ALWAYS_INLINE EnumWeightLevel(unsigned weight);
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setGlobalDynamicVariablePolymorph(
-      rq::GlobalDynamicVariablePolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariablePolymorph *
-  getGlobalDynamicVariablePolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariablePolymorph *
-  getGlobalDynamicVariablePolymorphPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalDynamicVariableOverload final
-    : public rq::GlobalDynamicVariableGenre {
-  using Self = rq::GlobalDynamicVariableOverload;
-
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableOverload();
+  RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *getEnumPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
+  getEnumPolymorphPtr() const;
+  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::EnumTemplate>
+      getEnumTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+      getEnumTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+      getEnumTemplateConstSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct GlobalDynamicVariableSpecialization final
-    : public rq::GlobalDynamicVariableGenre {
-  using Self = rq::GlobalDynamicVariableSpecialization;
+struct ClassWeightLevel final : public rq::WeightLevel {
+  using Self = rq::ClassWeightLevel;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableSpecialization();
+  explicit RQ_ALWAYS_INLINE ClassWeightLevel(unsigned weight);
 
-  RQ_ALWAYS_INLINE void setGlobalDynamicVariableTemplate(
-      rq::GlobalDynamicVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariableTemplate *
-  getGlobalDynamicVariableTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariableTemplate *
-  getGlobalDynamicVariableTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalStaticVariableGenre : public rq::GlobalVariableGenre {
-  using Self = rq::GlobalStaticVariableGenre;
-
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableGenre(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setGlobalStaticVariablePolymorph(
-      rq::GlobalStaticVariablePolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariablePolymorph *
-  getGlobalStaticVariablePolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariablePolymorph *
-  getGlobalStaticVariablePolymorphPtr();
+  RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *getClassPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
+  getClassPolymorphPtr() const;
+  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::ClassTemplate>
+      getClassTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+      getClassTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+      getConstClassTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct GlobalStaticVariableOverload final
-    : public rq::GlobalStaticVariableGenre {
-  using Self = rq::GlobalStaticVariableOverload;
+struct GlobalVariableWeightLevel final : public rq::WeightLevel {
+  using Self = rq::GlobalVariableWeightLevel;
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableOverload();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalStaticVariableSpecialization final
-    : public rq::GlobalStaticVariableGenre {
-  using Self = rq::GlobalStaticVariableGenre;
-
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableSpecialization();
-
-  RQ_ALWAYS_INLINE void setGlobalStaticVariableTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Template : public rq::GlobalDeclaration {
-  using Self = rq::Template;
-
-  rq::Template *_next_ptr{nullptr};
-  rq::Genre *_first_genre_ptr{nullptr};
-  rq::LayoutType *_layout_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Template(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutTypePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSpecialization() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Genre>
-  getSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Genre>
-  getSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Genre>
-  getConstSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ClassTemplate final : public rq::Template {
-  using Self = rq::ClassTemplate;
-
-  rq::ConstructorGenre *_first_constructor_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE ClassTemplate();
+  explicit RQ_ALWAYS_INLINE GlobalVariableWeightLevel(unsigned weight);
 
   RQ_ALWAYS_INLINE void
-  addClassSpecialization(rq::ClassSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::ClassSpecialization>
-      getClassSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::ClassSpecialization>
-      getClassSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::ClassSpecialization>
-      getConstClassSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
-      getConstClassWeightLevelSubrange() const;
-  RQ_ALWAYS_INLINE void addConstructorGenre(rq::ConstructorGenre &genre);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::ConstructorGenre>
-  getConstructorGenreSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorGenre>
-  getConstructorGenreSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::ConstructorGenre>
-  getConstConstructorGenreSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumTemplate final : public rq::Template {
-  using Self = rq::EnumTemplate;
-
-  explicit RQ_ALWAYS_INLINE EnumTemplate();
-
+  setGlobalVariablePolymorph(rq::GlobalVariablePolymorph &polymorph);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalVariablePolymorph *
+  getGlobalVariablePolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalVariablePolymorph *
+  getGlobalVariablePolymorphPtr() const;
   RQ_ALWAYS_INLINE void
-  addEnumSpecialization(rq::EnumSpecialization &specialization);
+  addGlobalVariableTemplate(rq::GlobalVariableTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::GlobalVariableTemplate>
+      getGlobalVariableTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::GlobalVariableTemplate>
+      getGlobalVariableTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::GlobalVariableTemplate>
+      getGlobalVariableTemplateConstSubrange() const;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::EnumSpecialization>
-      getEnumSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::EnumSpecialization>
-      getEnumSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::EnumSpecialization>
-      getConstEnumSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct InterfaceTemplate final : public rq::Template {
-  using Self = rq::InterfaceTemplate;
-
-  explicit RQ_ALWAYS_INLINE InterfaceTemplate();
-
-  RQ_ALWAYS_INLINE void
-  addInterfaceSpecialization(rq::InterfaceSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::InterfaceSpecialization>
-      getInterfaceSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::InterfaceSpecialization>
-      getInterfaceSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::InterfaceSpecialization>
-      getConstInterfaceSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AdapterTemplate final : public rq::Template {
-  using Self = rq::AdapterTemplate;
-
-  explicit RQ_ALWAYS_INLINE AdapterTemplate();
-
-  RQ_ALWAYS_INLINE void
-  addAdapterSpecialization(rq::AdapterSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::AdapterSpecialization>
-      getAdapterSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::AdapterSpecialization>
-      getAdapterSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::AdapterSpecialization>
-      getConstAdapterSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FunctionTemplate final : public rq::Template {
-  using Self = rq::FunctionTemplate;
-
-  explicit RQ_ALWAYS_INLINE FunctionTemplate();
-
-  RQ_ALWAYS_INLINE void
-  addFunctionSpecialization(rq::FunctionSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::FunctionSpecialization>
-      getFunctionSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::FunctionSpecialization>
-      getFunctionSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::FunctionSpecialization>
-      getConstFunctionSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalDynamicVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalDynamicVariableTemplate;
-
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplate();
-
-  RQ_ALWAYS_INLINE void addGlobalDynamicVariableSpecialization(
-      rq::GlobalDynamicVariableSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::GlobalDynamicVariableSpecialization>
-      getGlobalDynamicVariableSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre,
-                            rq::GlobalDynamicVariableSpecialization>
-      getGlobalDynamicVariableSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre,
-                            rq::GlobalDynamicVariableSpecialization>
-      getConstGlobalDynamicVariableSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct GlobalStaticVariableTemplate final : public rq::Template {
-  using Self = rq::GlobalStaticVariableTemplate;
-
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplate();
-
-  RQ_ALWAYS_INLINE void addGlobalStaticVariableSpecialization(
-      rq::GlobalStaticVariableSpecialization &specialization);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::GlobalStaticVariableSpecialization>
-      getGlobalStaticVariableSpecializationSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalStaticVariableSpecialization>
-      getGlobalStaticVariableSpecializationSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalStaticVariableSpecialization>
-      getConstGlobalStaticVariableSpecializationSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Polymorph : public rq::Symbol {
+struct Polymorph : public rq::SimpleSymbol {
   using Self = rq::Polymorph;
 
-  rq::Genre *_first_overload_ptr{nullptr};
+  rq::Implementation *_first_overload_ptr{nullptr};
   rq::WeightLevel *_first_weight_level_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasOverload() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Genre>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Implementation>
   getOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Genre>
-  getNextOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Genre>
-  getConstNextOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasWeightLevel() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+  getOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+  getConstOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::WeightLevel>
   getWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::WeightLevel>
@@ -2063,30 +1850,33 @@ struct Polymorph : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::WeightLevel>
   getConstWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ClassPolymorph final : public rq::Polymorph {
   using Self = rq::ClassPolymorph;
 
-  explicit RQ_ALWAYS_INLINE ClassPolymorph();
+  explicit RQ_ALWAYS_INLINE ClassPolymorph(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &overload);
+  RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &class_);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::ClassOverload>
+      rq::NextSubrange<rq::Implementation, rq::ClassOverload>
       getClassOverloadSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::ClassOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
       getClassOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::ClassOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
       getConstClassOverloadSubrange() const;
   RQ_ALWAYS_INLINE void addClassWeightLevel(rq::ClassWeightLevel &weight_level);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+      rq::NextSubrange<rq::Implementation, rq::ClassWeightLevel>
       getClassWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassWeightLevel>
+      getClassWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassWeightLevel>
       getConstClassWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
@@ -2095,24 +1885,28 @@ struct ClassPolymorph final : public rq::Polymorph {
 struct EnumPolymorph final : public rq::Polymorph {
   using Self = rq::EnumPolymorph;
 
-  explicit RQ_ALWAYS_INLINE EnumPolymorph();
+  explicit RQ_ALWAYS_INLINE EnumPolymorph(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void addEnumOverload(rq::EnumOverload &overload);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Genre, rq::EnumOverload>
-  getEnumOverloadSubrange();
+  RQ_ALWAYS_INLINE void addEnumOverload(rq::EnumOverload &class_);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::EnumOverload>
+      rq::NextSubrange<rq::Implementation, rq::EnumOverload>
+      getEnumOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
       getEnumOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::EnumOverload>
-      getConstEnumOverloadSubrange() const;
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
+      getEnumOverloadConstSubrange() const;
   RQ_ALWAYS_INLINE void addEnumWeightLevel(rq::EnumWeightLevel &weight_level);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
+      rq::NextSubrange<rq::Implementation, rq::EnumWeightLevel>
       getEnumWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
-      getConstEnumWeightLevelSubrange() const;
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumWeightLevel>
+      getEnumWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumWeightLevel>
+      getEnumWeightLevelConstSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2120,26 +1914,60 @@ struct EnumPolymorph final : public rq::Polymorph {
 struct InterfacePolymorph final : public rq::Polymorph {
   using Self = rq::InterfacePolymorph;
 
-  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
+  explicit RQ_ALWAYS_INLINE InterfacePolymorph(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void addInterfaceOverload(rq::InterfaceOverload &overload);
+  RQ_ALWAYS_INLINE void addInterfaceOverload(rq::InterfaceOverload &interface);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::InterfaceOverload>
+      rq::NextSubrange<rq::Implementation, rq::InterfaceOverload>
       getInterfaceOverloadSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::InterfaceOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
       getInterfaceOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::InterfaceOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
       getConstInterfaceOverloadSubrange() const;
   RQ_ALWAYS_INLINE void
   addInterfaceWeightLevel(rq::InterfaceWeightLevel &weight_level);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+      rq::NextSubrange<rq::Implementation, rq::InterfaceWeightLevel>
       getInterfaceWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceWeightLevel>
+      getInterfaceWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceWeightLevel>
       getConstInterfaceWeightLevelSubrange() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+};
+
+struct GlobalVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::GlobalVariablePolymorph;
+
+  explicit RQ_ALWAYS_INLINE GlobalVariablePolymorph();
+
+  RQ_ALWAYS_INLINE void
+  addGlobalVariableOverload(rq::GlobalVariableOverload &variable);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::GlobalVariableOverload>
+      getGlobalVariableOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::GlobalVariableOverload>
+      getGlobalVariableOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::GlobalVariableOverload>
+      getGlobalVariableOverloadConstSubrange() const;
+  RQ_ALWAYS_INLINE void
+  addGlobalVariableWeightLevel(rq::GlobalVariableWeightLevel &weight_level);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
+      getGlobalVariableWeightLevelSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
+      getGlobalVariableWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
+      getGlobalVariableWeightLevelConstSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2147,19 +1975,17 @@ struct InterfacePolymorph final : public rq::Polymorph {
 struct AdapterPolymorph final : public rq::Polymorph {
   using Self = rq::AdapterPolymorph;
 
-  rq::AdapterOverloadUse *_first_use_ptr{nullptr};
-
   explicit RQ_ALWAYS_INLINE AdapterPolymorph();
 
-  RQ_ALWAYS_INLINE void addAdapterOverload(rq::AdapterOverload &overload);
+  RQ_ALWAYS_INLINE void addAdapterOverload(rq::AdapterOverload &adapter);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::AdapterOverload>
+      rq::NextSubrange<rq::Implementation, rq::AdapterOverload>
       getAdapterOverloadSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::AdapterOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
       getAdapterOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::AdapterOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
       getConstAdapterOverloadSubrange() const;
   RQ_ALWAYS_INLINE void
   addAdapterWeightLevel(rq::AdapterWeightLevel &weight_level);
@@ -2168,17 +1994,10 @@ struct AdapterPolymorph final : public rq::Polymorph {
       getAdapterWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+      getAdapterWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
       getConstAdapterWeightLevelSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addAdapterOverloadUse(rq::AdapterOverloadUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::AdapterOverloadUse>
-  getAdapterOverloadUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::AdapterOverloadUse>
-      getAdapterOverloadUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::AdapterOverloadUse>
-      getConstAdapterUseSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -2186,19 +2005,16 @@ struct AdapterPolymorph final : public rq::Polymorph {
 struct FunctionPolymorph final : public rq::Polymorph {
   using Self = rq::FunctionPolymorph;
 
-  rq::FunctionOverloadUse *_first_use_ptr{nullptr};
-
   explicit RQ_ALWAYS_INLINE FunctionPolymorph();
-
-  RQ_ALWAYS_INLINE void addFunctionOverload(rq::FunctionOverload &overload);
+  RQ_ALWAYS_INLINE void addFunctionOverload(rq::FunctionOverload &function);
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::FunctionOverload>
+      rq::NextSubrange<rq::Implementation, rq::FunctionOverload>
       getFunctionOverloadSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::FunctionOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::FunctionOverload>
       getFunctionOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::FunctionOverload>
+      rq::ConstNextSubrange<rq::Implementation, rq::FunctionOverload>
       getConstFunctionOverloadSubrange() const;
   RQ_ALWAYS_INLINE void
   addFunctionWeightLevel(rq::FunctionWeightLevel &weight_level);
@@ -2207,596 +2023,412 @@ struct FunctionPolymorph final : public rq::Polymorph {
       getFunctionWeightLevelSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::FunctionWeightLevel>
+      getFunctionWeightLevelSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::WeightLevel, rq::FunctionWeightLevel>
       getConstFunctionWeightLevelSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addFunctionOverloadUse(rq::FunctionOverloadUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::FunctionOverloadUse>
-  getFunctionOverloadUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::FunctionOverloadUse>
-      getFunctionOverloadUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::FunctionOverloadUse>
-      getConstFunctionOverloadUseSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalDynamicVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalDynamicVariablePolymorph;
+struct TableMember : public rq::SimpleSymbol {
+  using Self = rq::TableMember;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariablePolymorph();
+  rq::SymbolTable *_container_ptr{nullptr};
 
-  RQ_ALWAYS_INLINE void
-  addGlobalDynamicVariableOverload(rq::GlobalDynamicVariableOverload &overload);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::GlobalDynamicVariableOverload>
-      getGlobalDynamicVariableOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalDynamicVariableOverload>
-      getGlobalDynamicVariableOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalDynamicVariableOverload>
-      getConstGlobalDynamicVariableOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalDynamicVariableWeightLevel(
-      rq::GlobalDynamicVariableWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::WeightLevel, rq::GlobalDynamicVariableWeightLevel>
-      getGlobalDynamicVariableWeightLevelSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel,
-                            rq::GlobalDynamicVariableWeightLevel>
-      getConstGlobalDynamicVariableWeightLevelSubrange() const;
+  explicit RQ_ALWAYS_INLINE TableMember(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalStaticVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::GlobalStaticVariablePolymorph;
+struct LocalDeclaration : public rq::TableMember {
+  using Self = rq::LocalDeclaration;
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariablePolymorph();
+  rq::Name _name{};
+  rq::SymbolTable *_host_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE LocalDeclaration(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setName(rq::Name name);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
+  RQ_ALWAYS_INLINE void setHost(rq::SymbolTable &host);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostPtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+};
+
+struct LocalVariable : public rq::LocalDeclaration {
+  using Self = rq::LocalVariable;
+
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
+  rq::ConstantSymbol *_type_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE LocalVariable(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void
-  addGlobalStaticVariableOverload(rq::GlobalStaticVariableOverload &overload);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Genre, rq::GlobalStaticVariableOverload>
-      getGlobalStaticVariableOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalStaticVariableOverload>
-      getGlobalStaticVariableOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Genre, rq::GlobalStaticVariableOverload>
-      getConstGlobalStaticVariableOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalStaticVariableWeightLevel(
-      rq::GlobalStaticVariableWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::WeightLevel, rq::GlobalStaticVariableWeightLevel>
-      getGlobalStaticVariableWeightLevelSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::WeightLevel,
-                            rq::GlobalStaticVariableWeightLevel>
-      getConstGlobalStaticVariableWeightLevelSubrange() const;
+  setLowFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  RQ_ALWAYS_INLINE void setType(rq::ConstantSymbol &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct WeightLevel : public rq::Symbol {
-  using Self = rq::WeightLevel;
+struct LocalDynamicVariable : public rq::LocalVariable {
+  using Self = rq::LocalDynamicVariable;
 
-  rq::WeightLevel *_next_ptr{nullptr};
-  rq::Template *_first_template_ptr{nullptr};
-  rq::TemplateUse *_first_use_ptr{nullptr};
-  rq::Polymorph *_polymorph_ptr{nullptr};
+  llvm::Value *_llvm_value_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE WeightLevel(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE LocalDynamicVariable(rq::SymbolKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasTemplate() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextIterator<rq::Template>
-  getTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextIterator<rq::Template>
-  getTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextIterator<rq::Template>
-  getConstTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUse() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::TemplateUse>
-  getTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateUse>
-  getTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TemplateUse>
-  getConstTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *getPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getPolymorphPtr();
+  RQ_ALWAYS_INLINE void setLlvmValue(llvm::Value &llvm_value);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *getLlvmValuePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *getLlvmValuePtr() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct ClassWeightLevel final : public rq::WeightLevel {
-  using Self = rq::ClassWeightLevel;
+struct LocalStaticVariable : public rq::LocalVariable {
+  using Self = rq::LocalDynamicVariable;
 
-  explicit RQ_ALWAYS_INLINE ClassWeightLevel();
+  rq::Gendex<rq::StaticValue> _static_value{};
 
-  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::ClassTemplate>
-      getClassTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>
-      getClassTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>
-      getConstClassTemplateSubrange() const;
+  explicit RQ_ALWAYS_INLINE LocalStaticVariable(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setStaticValue(rq::Gendex<rq::StaticValue> static_value);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *getStaticValuePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *getStaticValuePtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+};
+
+struct SymbolTable : public rq::TableMember {
+  using Self = rq::SymbolTable;
+};
+
+struct CTable final : public rq::SymbolTable {
+  using Self = rq::CTable;
+};
+
+struct TopTable final : public rq::SymbolTable {
+  using Self = rq::TopTable;
+};
+
+struct LocalScope : public rq::SymbolTable {
+  using Self = rq::LocalScope;
+
+  rq::Expression *_expression_ptr{nullptr};
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
+  rq::Module *_module_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE LocalScope(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
   RQ_ALWAYS_INLINE void
-  addClassTemplateUse(rq::ClassTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse, rq::ClassTemplateUse>
-      getClassTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::ClassTemplateUse>
-      getClassTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::ClassTemplateUse>
-      getConstClassTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setClassPolymorph(rq::ClassPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
-  getClassPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *getClassPolymorphPtr();
+  setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct EnumWeightLevel final : public rq::WeightLevel {
-  using Self = rq::EnumWeightLevel;
+struct ScopeStatement final : public rq::LocalScope {
+  using Self = rq::ScopeStatement;
 
-  explicit RQ_ALWAYS_INLINE EnumWeightLevel();
-
-  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::EnumTemplate>
-      getEnumTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>
-      getEnumTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>
-      getConstEnumTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addEnumTemplateUse(rq::EnumTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse, rq::EnumTemplateUse>
-      getEnumTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::EnumTemplateUse>
-      getEnumTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::EnumTemplateUse>
-      getConstEnumTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setEnumPolymorph(rq::EnumPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
-  getEnumPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *getEnumPolymorphPtr();
+  explicit RQ_ALWAYS_INLINE ScopeStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct InterfaceWeightLevel final : public rq::WeightLevel {
-  using Self = rq::InterfaceWeightLevel;
+struct WeaveStatement final : public rq::LocalScope {
+  using Self = rq::WeaveStatement;
 
-  explicit RQ_ALWAYS_INLINE InterfaceWeightLevel();
-
-  RQ_ALWAYS_INLINE void addInterfaceTemplate(rq::InterfaceTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::InterfaceTemplate>
-      getInterfaceTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>
-      getInterfaceTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>
-      getConstInterfaceTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addInterfaceTemplateUse(rq::InterfaceTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
-      getInterfaceTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
-      getInterfaceTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::InterfaceTemplateUse>
-      getConstInterfaceTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void
-  setInterfacePolymorph(rq::InterfacePolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfacePolymorph *
-  getInterfacePolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfacePolymorph *
-  getInterfacePolymorphPtr();
+  explicit RQ_ALWAYS_INLINE WeaveStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct AdapterWeightLevel final : public rq::WeightLevel {
-  using Self = rq::AdapterWeightLevel;
+struct SpinStatement final : public rq::LocalScope {
+  using Self = rq::SpinStatement;
 
-  explicit RQ_ALWAYS_INLINE AdapterWeightLevel();
-
-  RQ_ALWAYS_INLINE void addAdapterTemplate(rq::AdapterTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::AdapterTemplate>
-      getAdapterTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>
-      getAdapterTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>
-      getConstAdapterTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addAdapterTemplateUse(rq::AdapterTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
-      getAdapterTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
-      getAdapterTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::AdapterTemplateUse>
-      getConstAdapterTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setAdapterPolymorph(rq::AdapterPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
-  getAdapterPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *getAdapterPolymorphPtr();
+  explicit RQ_ALWAYS_INLINE SpinStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct FunctionWeightLevel final : public rq::WeightLevel {
-  using Self = rq::FunctionWeightLevel;
+struct WhileStatement final : public rq::LocalScope {
+  using Self = rq::WhileStatement;
 
-  explicit RQ_ALWAYS_INLINE FunctionWeightLevel();
-
-  RQ_ALWAYS_INLINE void addFunctionTemplate(rq::FunctionTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::FunctionTemplate>
-      getFunctionTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>
-      getFunctionTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>
-      getConstFunctionTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addFunctionTemplateUse(rq::FunctionTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
-      getFunctionTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
-      getFunctionTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse, rq::FunctionTemplateUse>
-      getConstFunctionTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setFunctionPolymorph(rq::FunctionPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionPolymorph *
-  getFunctionPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionPolymorph *
-  getFunctionPolymorphPtr();
+  explicit RQ_ALWAYS_INLINE WhileStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalDynamicVariableWeightLevel final : public rq::WeightLevel {
-  using Self = rq::GlobalDynamicVariableWeightLevel;
+struct ForStatement final : public rq::LocalScope {
+  using Self = rq::ForStatement;
 
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableWeightLevel();
-
-  RQ_ALWAYS_INLINE void addGlobalDynamicVariableTemplate(
-      rq::GlobalDynamicVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>
-      getGlobalDynamicVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>
-      getGlobalDynamicVariableTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::GlobalDynamicVariableTemplate>
-      getConstGlobalDynamicVariableTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalDynamicVariableTemplateUse(
-      rq::GlobalDynamicVariableTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse,
-                       rq::GlobalDynamicVariableTemplateUse>
-      getGlobalDynamicVariableTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse,
-                            rq::GlobalDynamicVariableTemplateUse>
-      getGlobalDynamicVariableTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse,
-                            rq::GlobalDynamicVariableTemplateUse>
-      getConstGlobalDynamicVariableTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setGlobalDynamicVariablePolymorph(
-      rq::GlobalDynamicVariablePolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariablePolymorph *
-  getGlobalDynamicVariablePolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariablePolymorph *
-  getGlobalDynamicVariablePolymorphPtr();
+  explicit RQ_ALWAYS_INLINE ForStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct GlobalStaticVariableWeightLevel final : public rq::WeightLevel {
-  using Self = rq::GlobalStaticVariableWeightLevel;
+struct DefaultStatement final : public rq::LocalScope {
+  using Self = rq::DefaultStatement;
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableWeightLevel();
-
-  RQ_ALWAYS_INLINE void
-  addGlobalStaticVariableTemplate(rq::GlobalStaticVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::Template, rq::GlobalStaticVariableTemplate>
-      getGlobalStaticVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::GlobalStaticVariableTemplate>
-      getGlobalStaticVariableTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::Template, rq::GlobalStaticVariableTemplate>
-      getConstGlobalStaticVariableTemplateSubrange() const;
-  RQ_ALWAYS_INLINE void addGlobalStaticVariableTemplateUse(
-      rq::GlobalStaticVariableTemplateUse &use);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextIterator<rq::TemplateUse,
-                       rq::GlobalStaticVariableTemplateUse>
-      getGlobalStaticVariableTemplateUseSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse,
-                            rq::GlobalStaticVariableTemplateUse>
-      getGlobalStaticVariableTemplateUseSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextIterator<rq::TemplateUse,
-                            rq::GlobalStaticVariableTemplateUse>
-      getConstGlobalStaticVariableTemplateUseSubrange() const;
-  RQ_ALWAYS_INLINE void setGlobalStaticVariablePolymorph(
-      rq::GlobalStaticVariablePolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariablePolymorph *
-  getGlobalStaticVariablePolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariablePolymorph *
-  getGlobalStaticVariablePolymorphPtr();
+  explicit RQ_ALWAYS_INLINE DefaultStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct Use : public rq::Symbol {
-  using Self = rq::Use;
+struct CaseStatement final : public rq::LocalScope {
+  using Self = rq::CaseStatement;
 
-  rq::Symbol *_parent_ptr{nullptr};
-  rq::GlobalDeclaration *_usen_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Use(rq::SymbolKind kind);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getParentSymbolPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getParentSymbolPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDeclaration *
-  getUsenGlobalDeclarationPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDeclaration *
-  getUsenGlobalDeclarationPtr();
+  explicit RQ_ALWAYS_INLINE CaseStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct OverloadUse : public rq::Use {
-  using Self = rq::OverloadUse;
+struct SwitchStatement final : public rq::LocalScope {
+  using Self = rq::SwitchStatement;
 
-  explicit RQ_ALWAYS_INLINE OverloadUse(rq::SymbolKind kind);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Polymorph *
-  getParentPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *getParentPolymorphPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Genre *
-  getUsenOverloadPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Genre *getUsenOverloadPtr();
+  explicit RQ_ALWAYS_INLINE SwitchStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct AdapterOverloadUse final : public rq::OverloadUse {
-  using Self = rq::AdapterOverloadUse;
+struct IfStatement final : public rq::LocalScope {
+  using Self = rq::IfStatement;
 
-  explicit RQ_ALWAYS_INLINE AdapterOverloadUse();
-
-  RQ_ALWAYS_INLINE void
-  setParentAdapterPolymorph(rq::AdapterPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
-  getParentAdapterPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *
-  getParentAdapterPolymorphPtr();
-  RQ_ALWAYS_INLINE void
-  setUsenAdapterOverload(rq::AdapterOverload &overload);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterOverload &
-  getUsenAdapterOverload() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterOverload &
-  getUsenAdapterOverload();
+  explicit RQ_ALWAYS_INLINE IfStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct FunctionOverloadUse final : public rq::OverloadUse {
-  using Self = rq::FunctionOverloadUse;
+struct ElseIfStatement final : public rq::LocalScope {
+  using Self = rq::ElseIfStatement;
 
-  explicit RQ_ALWAYS_INLINE FunctionOverloadUse();
-
-  RQ_ALWAYS_INLINE void
-  setParentFunctionPolymorph(rq::FunctionPolymorph &polymorph);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionPolymorph *
-  getParentFunctionPolymorph() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionPolymorph *
-  getParentFunctionPolymorphPtr();
-  RQ_ALWAYS_INLINE void
-  setUsenFunctionOverload(rq::FunctionOverload &overload);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionOverload *
-  getUsenFunctionOverloadPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionOverload *
-  getUsenFunctionOverloadPtr();
+  explicit RQ_ALWAYS_INLINE ElseIfStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct TemplateUse : public rq::Use {
-  using Self = rq::TemplateUse;
+struct ElseStatement final : public rq::LocalScope {
+  using Self = rq::ElseStatement;
 
-  explicit RQ_ALWAYS_INLINE TemplateUse(rq::SymbolKind kind);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::WeightLevel *
-  getParentWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::WeightLevel *getParentWeightLevelPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Template *
-  getUsenTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Template *getUsenTemplatePtr();
+  explicit RQ_ALWAYS_INLINE ElseStatement();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct ClassTemplateUse final : public rq::TemplateUse {
-  using Self = rq::ClassTemplateUse;
+struct NamedTable : public rq::SymbolTable {
+  using Self = rq::NamedTable;
 
-  explicit RQ_ALWAYS_INLINE ClassTemplateUse();
+  rq::Name _name;
 
-  RQ_ALWAYS_INLINE void
-  setParentClassWeightLevel(rq::ClassWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassWeightLevel *
-  getParentClassWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassWeightLevel *
-  getParentClassWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setUsenClassTemplate(rq::ClassTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassTemplate *
-  getUsenClassTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassTemplate *
-  getUsenClassTemplatePtr();
+  explicit RQ_ALWAYS_INLINE NamedTable(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setName(rq::Name name);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity* entity_ptr);
+};
+
+struct Namespace final : public rq::NamedTable {
+  using Self = rq::Namespace;
+
+  explicit RQ_ALWAYS_INLINE Namespace();
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity* entity_ptr);
+};
+
+struct GlobalDeclaration : public rq::NamedTable {
+  using Self = rq::GlobalDeclaration;
+
+  rq::Expression* _expression_ptr{nullptr};
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
+  rq::SymbolTable* _host_ptr{nullptr};
+  rq::Module* _module_ptr{nullptr};
+  llvm::StringRef _mangled_name{};
+
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression& expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression* getExpressionPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression* getExpressionPtr() const;
+  RQ_ALWAYS_INLINE void setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags getModifierFuseFlags() const;
+  RQ_ALWAYS_INLINE void setHostTable(rq::SymbolTable& host);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable* getHostTablePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable* getHostTablePtr() const;
+  RQ_ALWAYS_INLINE void setModule(rq::Module& module);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module* getModulePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module* getModulePtr() const;
+  void setMangledName(llvm::StringRef mangled_name);
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct EnumTemplateUse final : public rq::TemplateUse {
-  using Self = rq::EnumTemplateUse;
+struct Implementation : public rq::GlobalDeclaration {
+  using Self = rq::Implementation;
 
-  explicit RQ_ALWAYS_INLINE EnumTemplateUse();
+  rq::Symbol* _parent_ptr{nullptr};
+  rq::Implementation *_next_ptr{nullptr};
 
-  RQ_ALWAYS_INLINE void setParentEnumWeightLevel(rq::WeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumWeightLevel *
-  getParentEnumWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumWeightLevel *
-  getParentEnumWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setUsenEnumTemplate(rq::EnumTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
-  getUsenEnumTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *
-  getUsenEnumTemplatePtr();
+  explicit RQ_ALWAYS_INLINE Implementation(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol* getParentPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol* getParentPtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
 };
 
-struct InterfaceTemplateUse final : public rq::TemplateUse {
-  using Self = rq::InterfaceTemplateUse;
+struct EnumImplementation : public rq::Implementation {
+  using Self = rq::EnumImplementation;
 
-  explicit RQ_ALWAYS_INLINE InterfaceTemplateUse();
+  rq::ConstantSymbol* _underlying_type_ptr{nullptr};
 
-  RQ_ALWAYS_INLINE void
-  setParentInterfaceWeightLevel(rq::InterfaceWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceWeightLevel *
-  getParentInterfaceWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceWeightLevel *
-  getParentInterfaceWeightLevelPtr();
-  RQ_ALWAYS_INLINE void
-  setUsenInterfaceTemplate(rq::InterfaceTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceTemplate *
-  getUsenInterfaceTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceTemplate *
-  getUsenInterfaceTemplatePtr();
+  explicit RQ_ALWAYS_INLINE EnumImplementation(rq::SymbolKind kind);
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  RQ_ALWAYS_INLINE void setUnderlyingType(rq::ConstantSymbol* underlying_type);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol* getUnderlyingTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol* getUnderlyingTypePtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
 };
 
-struct AdapterTemplateUse final : public rq::TemplateUse {
-  using Self = rq::AdapterTemplateUse;
+struct EnumOverload final : public rq::EnumImplementation {
+  using Self = rq::EnumOverload;
 
-  explicit RQ_ALWAYS_INLINE AdapterTemplateUse();
+  rq::NodeList<rq::Expression*> _prototype_expression_ptr_list{};
 
-  RQ_ALWAYS_INLINE void
-  setParentAdapterWeightLevel(rq::AdapterWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterWeightLevel *
-  getParentAdapterWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterWeightLevel *
-  getParentAdapterWeightLevelPtr();
-  RQ_ALWAYS_INLINE void
-  setUsenAdapterTemplate(rq::AdapterTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterTemplate *
-  getUsenAdapterTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterTemplate *
-  getUsenAdapterTemplatePtr();
+  explicit RQ_ALWAYS_INLINE EnumOverload();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  RQ_ALWAYS_INLINE void setParentEnumPolymorph(rq::EnumPolymorph& parent);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph* getParentEnumPolymorphPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph* getParentEnumPolymorphPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression*> getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression*> getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
 };
 
-struct FunctionTemplateUse final : public rq::TemplateUse {
-  using Self = rq::FunctionTemplateUse;
+struct EnumSpecialization final : public rq::EnumImplementation {
+  using Self = rq::EnumSpecialization;
 
-  explicit RQ_ALWAYS_INLINE FunctionTemplateUse();
+  explicit RQ_ALWAYS_INLINE EnumSpecialization();
 
-  RQ_ALWAYS_INLINE void
-  setParentFunctionWeightLevel(rq::FunctionWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionWeightLevel *
-  getParentFunctionWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionWeightLevel *
-  getParentFunctionWeightLevelPtr();
-  RQ_ALWAYS_INLINE void
-  setUsenFunctionTemplate(rq::FunctionTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionTemplate *
-  getUsenFunctionTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::FunctionTemplate *
-  getUsenFunctionTemplatePtr();
+  RQ_ALWAYS_INLINE void setParentEnumTemplate(rq::EnumTemplate& template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate* getParentEnumTemplatePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate* getParentEnumTemplatePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(rq::Entity* entity_ptr);
 };
 
-struct GlobalDynamicVariableTemplateUse final
-    : public rq::TemplateUse {
-  using Self = rq::GlobalDynamicVariableTemplateUse;
-
-  explicit RQ_ALWAYS_INLINE GlobalDynamicVariableTemplateUse();
-
-  RQ_ALWAYS_INLINE void setParentGlobalDynamicVariableWeightLevel(
-      rq::GlobalDynamicVariableWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariableWeightLevel *
-  getParentGlobalDynamicVariableWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariableWeightLevel *
-  getParentGlobalDynamicVariableWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setUsenGlobalDynamicVariableTemplate(
-      rq::GlobalDynamicVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalDynamicVariableTemplate *
-  getUsenGlobalDynamicVariableTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalDynamicVariableTemplate *
-  getUsenGlobalDynamicVariableTemplatePtr();
-
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+struct GlobalVariableImplementation : public rq::Implementation {
+  using Self = rq::GlobalVariableImplementation;
 };
 
-struct GlobalStaticVariableTemplateUse final
-    : public rq::TemplateUse {
-  using Self = rq::GlobalStaticVariableTemplateUse;
+struct GlobalVariableOverload : public rq::GlobalVariableImplementation {
+  using Self = rq::GlobalVariableOverload;
+};
 
-  explicit RQ_ALWAYS_INLINE GlobalStaticVariableTemplateUse();
+struct GlobalVariableSpecialization : public rq::GlobalVariableImplementation {
+  using Self = rq::GlobalVariableSpecialization;
+};
 
-  RQ_ALWAYS_INLINE void setParentGlobalStaticVariableWeightLevel(
-      rq::GlobalStaticVariableWeightLevel &weight_level);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariableWeightLevel *
-  getParentGlobalStaticVariableWeightLevelPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariableWeightLevel *
-  getParentGlobalStaticVariableWeightLevelPtr();
-  RQ_ALWAYS_INLINE void setUsenGlobalStaticVariableTemplate(
-      rq::GlobalStaticVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalStaticVariableTemplate *
-  getUsenGlobalStaticVariableTemplatePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalStaticVariableTemplate *
-  getUsenGlobalStaticVariableTemplatePtr();
+struct AdapterImplementation : public rq::Implementation {
+  using Self = rq::AdapterImplementation;
+};
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+struct AdapterOverload final : public rq::AdapterImplementation {
+  using Self = rq::AdapterOverload;
+};
+
+struct AdapterSpecialization final : public rq::AdapterImplementation {
+  using Self = rq::AdapterSpecialization;
+};
+
+struct InterfaceImplementation : public rq::Implementation {
+  using Self = rq::InterfaceImplementation;
+};
+
+struct InterfaceOverload final : public rq::InterfaceImplementation {
+  using Self = rq::InterfaceOverload;
+};
+
+struct InterfaceSpecialization final : public rq::InterfaceImplementation {
+  using Self = rq::InterfaceSpecialization;
+};
+
+struct ConstructorOverload : public rq::Implementation {
+  using Self = rq::ConstructorOverload;
+};
+
+struct LayoutConstructorOverload final : public rq::ConstructorOverload {
+  using Self = rq::LayoutConstructorOverload;
+};
+
+struct ClassImplementation : public rq::Implementation {
+  using Self = rq::ClassImplementation;
+};
+
+struct ClassOverload final : public rq::ClassImplementation {
+  using Self = rq::ClassOverload;
+};
+
+struct ClassSpecialization final : public rq::ClassImplementation {
+  using Self = rq::ClassSpecialization;
+};
+
+struct FunctionImplementation : public rq::Implementation {
+  using Self = rq::FunctionImplementation;
+};
+
+struct FunctionOverload final : public rq::FunctionImplementation {
+  using Self = rq::FunctionOverload;
+};
+
+struct FunctionSpecialization final : public rq::FunctionImplementation {
+  using Self = rq::FunctionSpecialization;
+};
+
+struct Template : public rq::GlobalDeclaration {
+  using Self = rq::Template;
+};
+
+struct EnumTemplate final : public rq::Template {
+  using Self = rq::EnumTemplate;
+};
+
+struct ClassTemplate final : public rq::Template {
+  using Self = rq::ClassTemplate;
+};
+
+struct InterfaceTemplate final : public rq::Template {
+  using Self = rq::InterfaceTemplate;
+};
+
+struct GlobalVariableTemplate final : public rq::Template {
+  using Self = rq::GlobalVariableTemplate;
+};
+
+struct AdapterTemplate final : public rq::Template {
+  using Self = rq::AdapterTemplate;
+};
+
+struct FunctionTemplate final : public rq::Template {
+  using Self = rq::FunctionTemplate;
 };
 
 } // namespace rq

@@ -21,8 +21,8 @@ enum class StaticValueKind {
   ARRAY,
   DATA_ARRAY,
   SYMBOL,
-  LOW_ATTRIBUTE,
-  HIGH_ATTRIBUTE
+  MODIFIER,
+  qualifier
 };
 
 struct StaticValue;
@@ -60,7 +60,7 @@ struct StaticValue final {
   rq::StaticValueKind _kind = rq::StaticValueKind::NONE;
   llvm::AlignedCharArrayUnion<rq::StaticSlice, rq::StaticInt, rq::StaticFloat,
                               rq::StaticDataArray, rq::StaticArray,
-                              rq::LowAttribute, rq::HighAttribute>
+                              rq::Modifier, rq::Qualifier>
       _data = {};
 
   explicit RQ_ALWAYS_INLINE StaticValue() = default;
@@ -68,13 +68,13 @@ struct StaticValue final {
       : _kind(rq::StaticValueKind::SYMBOL) {
     this->getSymbol() = symbol;
   }
-  RQ_ALWAYS_INLINE StaticValue(const rq::LowAttribute &attribute)
-      : _kind(rq::StaticValueKind::LOW_ATTRIBUTE) {
-    this->getLowAttribute() = attribute;
+  RQ_ALWAYS_INLINE StaticValue(const rq::Modifier &modifier)
+      : _kind(rq::StaticValueKind::MODIFIER) {
+    this->getModifier() = modifier;
   }
-  RQ_ALWAYS_INLINE StaticValue(const rq::HighAttribute &attribute)
-      : _kind(rq::StaticValueKind::HIGH_ATTRIBUTE) {
-    this->getHighAttribute() = attribute;
+  RQ_ALWAYS_INLINE StaticValue(const rq::Qualifier &modifier)
+      : _kind(rq::StaticValueKind::qualifier) {
+    this->getQualifier() = modifier;
   }
   ~StaticValue() {
     switch (this->_kind) {
@@ -161,30 +161,30 @@ struct StaticValue final {
     return rq::dereferencePtr(
         std::launder(std::bit_cast<const rq::StaticSymbol *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LowAttribute &
-  getLowAttribute() const {
-    RQ_ASSERT(this->_kind == Kind::LOW_ATTRIBUTE,
-              "not low attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Modifier &
+  getModifier() const {
+    RQ_ASSERT(this->_kind == Kind::MODIFIER,
+              "not modifier");
     return rq::dereferencePtr(std::launder(
-        std::bit_cast<const rq::LowAttribute *>(&this->_data)));
+        std::bit_cast<const rq::Modifier *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowAttribute &
-  getLowAttribute() {
-    RQ_ASSERT(this->_kind == Kind::LOW_ATTRIBUTE,
-              "not low attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Modifier &
+  getModifier() {
+    RQ_ASSERT(this->_kind == Kind::MODIFIER,
+              "not modifier");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<rq::LowAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<rq::Modifier *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::HighAttribute &
-  getHighAttribute() const {
-    RQ_ASSERT(this->_kind == Kind::HIGH_ATTRIBUTE, "not high attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Qualifier &
+  getQualifier() const {
+    RQ_ASSERT(this->_kind == Kind::qualifier, "not qualifier");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<const rq::HighAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<const rq::Qualifier *>(&this->_data)));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighAttribute &getHighAttribute() {
-    RQ_ASSERT(this->_kind == Kind::HIGH_ATTRIBUTE, "not high attribute");
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Qualifier &getQualifier() {
+    RQ_ASSERT(this->_kind == Kind::qualifier, "not qualifier");
     return rq::dereferencePtr(
-        std::launder(std::bit_cast<rq::HighAttribute *>(&this->_data)));
+        std::launder(std::bit_cast<rq::Qualifier *>(&this->_data)));
   }
 };
 

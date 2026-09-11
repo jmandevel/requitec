@@ -1,21 +1,21 @@
 [import "std"];
 
-// requite global declarations are lazily evaluated.
+// requite common declarations are lazily evaluated.
 // first time they are seen, they are surveyed:
 // their name is determined and they are added to symbol table.
 // first time they are used, the actual symbol data is evaluated (lazily)
 // captures are a way of "saving" local static variable values for the later evaluation stage
 
-// static statements in global scope are evaluated at compile time (same time global symbols are surveyed)
+// static statements in common scope are evaluated at compile time (same time common symbols are surveyed)
 [static] var :[var]\= 0;
 [static] var = 1;
 
-// this is a global dynamic variable, which has a value captured from var.
+// this is a common dynamic variable, which has a value captured from var.
 // the value is then used to initialize the variables value when it is lazily evaluated later.
-[global][capture]::{ num:=var }
-GLOBAL_NUMBER := num;
+[common][capture]::{ num:=var }
+COMMON_NUMBER := [capture].num;
 
 [function [main], ()[signed_integer],
-    std.printJuxt(line=GLOBAL_NUMBER);
+    std.printJuxt(line=COMMON_NUMBER);
     [result] <:= 0;
 ];

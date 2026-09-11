@@ -134,7 +134,7 @@ struct PrecedenceFactory final {
   void parseSequenceBranch(const rq::Token &token, rq::Keyword keyword,
                            rq::Expression &rvalue);
   void appendBranch(rq::Expression &branch);
-  void appendNullaryAttribute(const rq::Token &token, rq::Keyword keyword);
+  void appendNullaryModifier(const rq::Token &token, rq::Keyword keyword);
   void setRecent(rq::Expression &branch);
   void setOnlyRecent(rq::Expression &branch);
   void appendRecent();

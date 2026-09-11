@@ -1,12 +1,12 @@
 [function [main], ()[signed_integer],
-    // high and low attributes are compile time values
+    // high and modifiers are compile time values
 
-    [static] low_attribute := [static];
+    [static] modifier := [static];
 
-    // the attribute stored in low_attribute is ascribed to the variable high_attribute
-    low_attribute high_attribute := [var];
+    // the modifier stored in modifier is ascribed to the variable qualifier
+    modifier qualifier := [var];
 
-    my_var_variable :high_attribute\= 0;
+    my_var_variable :qualifier\= 0;
     my_var_variable = 1;
 
     [result] <:= my_var_variable;
@@ -19,7 +19,7 @@
 
 
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
-    [template]::{| [auto] var:[var_attribute] }
+    [template]::{| [auto] var:[var_modifier] }
     [function getNumRef, ()$var\[signed_integer]=>$var\,
         [result] <:var\= [this].num.[borrow];
     ];

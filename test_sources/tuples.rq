@@ -5,7 +5,7 @@
     // nonpositional parameters are either name-keyed if name is specified, or type-keyed if name is noname
     // can only be one type-keyed parameter of any given type. this is enforced at compile time.
     // notice that each parameter has a binding with colon. 
-    // the binding is required when tuple type is inferenced to specify type attributes per element.
+    // the binding is required when tuple type is inferenced to specify type modifiers per element.
     inferenced := { named:[var]\="I'm name-keyed", [noname]:[var]\="I'm type-keyed" };
 
     // can determine if tuple has type-keyed value at compile time with .[has] reflection

@@ -2,7 +2,7 @@
 
 [class MyClass, [public][layout_constructor]; {}];
 
-// This class has stable_address attribute, so it cannnot be moved to a new memory address
+// This class has stable_address modifier, so it cannnot be moved to a new memory address
 [stable_address]
 [class MyPinned, [public][layout_constructor]; {}];
 
@@ -31,7 +31,7 @@
   // class was removeped because it was moved out of
   class := destructive_move.[move]; /// move it back!
   pinned :[var]\= MyPinned();
-  // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address attribute
+  // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address modifier
   pinned.[take]->takeReciever(); // taking is fine, because memory address is not changed.
   // both .[move] and .[take] invalidate the variable moved or taken from
   // .[take] is like a .[move] but passed as an arg or extended by a function. memory address is not garunteed to change (but it might).
@@ -43,8 +43,8 @@
   // when something is taken into a call, it is assumed thing is destroyed/removeped within it, so its gone after.
   // sometimes compiler may turn .[take] to a shallow copy, so arg address is not necessarily the same!
   // other times when object is taken, compiler will pass object into function by address, so address remains same for the arg.
-  // if a taken type has an [unno_stable_address] attribute, it will never shallow copy and will also always be passed by address.
+  // if a taken type has an [unno_stable_address] modifier, it will never shallow copy and will also always be passed by address.
   // however, compiler is allowed to optimize other taken things which can fit into a register into a shallow copy.
-  // never rely on the address not changing unless the type has [unno_stable_address] attribute!
+  // never rely on the address not changing unless the type has [unno_stable_address] modifier!
   [result] <:= 0;
 ];

@@ -30,7 +30,7 @@ struct AssertException final : public std::logic_error {
 #if defined(_MSC_VER) && defined(_NDEBUG)
 #define RQ_ALWAYS_INLINE inline __forceinline
 #elif (defined(__GNUC__) || defined(__clang__)) && defined(_NDEBUG)
-#define RQ_ALWAYS_INLINE inline __attribute__((always_inline))
+#define RQ_ALWAYS_INLINE inline __modifier__((always_inline))
 #else
 #define RQ_ALWAYS_INLINE inline
 #endif

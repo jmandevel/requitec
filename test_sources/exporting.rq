@@ -1,10 +1,10 @@
 // see this stuff imported in importing.rq
 
-[public] // export using public attribute
-[global][static]
-GLOBALVAR := 5;
+[public] // export using public modifier
+[constant]
+COMMONVAR := 5;
 
-/// this import has public attribute so its also imported by importers of this file
+/// this import has public modifier so its also imported by importers of this file
 [public][import "std"];
 
 [public]

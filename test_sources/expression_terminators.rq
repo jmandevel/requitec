@@ -4,7 +4,7 @@
     {>[public] arr : var#el<}, 
 ];
 
-[global][static] VAR := 0;
+[constant] VAR := 0;
 
 [function [main], 
     [static] Return := [signed_integer];

@@ -126,7 +126,7 @@ struct ConstantArray final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     rq::profileConstantArray(inout_id, this->getArray());
   }
 };
@@ -161,7 +161,7 @@ struct ConstantDataArray final : public rq::Constant,
                      rq::getUnderlyingValue(rq::ConstantKind::DATA_ARRAY);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     rq::profileConstantDataArray(inout_id, this->getDataArray());
   }
 };
@@ -203,7 +203,7 @@ struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
            rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::SYMBOL);
   }
 
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     rq::profileConstantSymbol(inout_id, this->getInfoFlags(), this->getSymbol());
   }
 };

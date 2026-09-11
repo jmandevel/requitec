@@ -52,10 +52,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_unsituated_parenthesis_group";
   case K::UNSITUATED_EQUAL_OPERATOR:
     return "_unsituated_equal_operator";
-  case K::UNSITUATED_ASCRIBE_LOW:
-    return "_unsituated_ascribe_low";
-  case K::UNSITUATED_ASCRIBE_HIGH:
-    return "_unsituated_ascribe_high";
+  case K::UNSITUATED_ASCRIBE_MODIFIER:
+    return "_unsituated_ascribe_modifier";
+  case K::UNSITUATED_ASCRIBE_QUALIFIER:
+    return "_unsituated_ascribe_qualifier";
   case K::UNSITUATED_CHAIN:
     return "_unsituated_chain";
   case K::UNSITUATED_TRAIN:
@@ -100,16 +100,16 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_binding";
   case K::UPBINDING:
     return "_upbinding";
-  case K::ASCRIBE_HIGH:
-    return "_ascribe_high";
-  case K::ASCRIBE_LOW:
-    return "_ascribe_low";
-  case K::ASCRIBE_HIGH_RECIEVER:
-    return "_ascribe_high_reciever";
-  case K::INSTANTIATE_LOW_ATTRIBUTE:
-    return "_instantiate_low_attribute";
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    return "instantiate_high_attribute";
+  case K::ASCRIBE_QUALIFIER:
+    return "_ascribe_qualifier";
+  case K::ASCRIBE_MODIFIER:
+    return "_ascribe_modifier";
+  case K::ASCRIBE_RECIEVER_QUALIFIER:
+    return "_ascribe_reciever_qualifier";
+  case K::INSTANTIATE_MODIFIER:
+    return "_instantiate_modifier";
+  case K::INSTANTIATE_QUALIFIER:
+    return "instantiate_qualifier";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -254,6 +254,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_pointer";
   case K::INSTANTIATE_SLICE:
     return "_instantiate_slice";
+  case K::INSTANTIATE_GREATEST:
+    return "_instantiate_greatest";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -487,113 +489,99 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::ASSUME:
     return "assume";
 
-  // LOW ATTRIBUTES
-  case K::NO_ANCHOR:
-    return "no_anchor";
+  // MODIFIERS
   case K::ANCHOR:
     return "anchor";
-  case K::NO_FLANK:
-    return "no_flank";
+  case K::RESIDENT:
+    return "resident";
   case K::FLANK:
     return "flank";
-  case K::NO_OPAQUE:
-    return "no_opaque";
+  case K::TRANSPARENT:
+    return "transparent";
   case K::OPAQUE:
     return "opaque";
-  case K::NO_GLOBAL:
-    return "no_global";
-  case K::GLOBAL:
-    return "global";
-  case K::NO_PUBLIC:
-    return "no_public";
+  case K::PRIVATE:
+    return "private";
   case K::PUBLIC:
     return "public";
-  case K::NO_PARTIAL_MUTATE:
-    return "no_partial_mutate";
+  case K::FULL_MUTATE:
+    return "full_mutate";
   case K::PARTIAL_MUTATE:
     return "partial_mutate";
-  case K::NO_STATIC:
-    return "no_static";
+  case K::DYNAMIC:
+    return "dynamic";
   case K::STATIC:
     return "static";
-  case K::NO_DELAY:
-    return "no_delay";
-  case K::DELAY:
-    return "delay";
-  case K::NO_CAPTURE:
-    return "no_capture";
+  case K::RUNTIME:
+    return "runtime";
+  case K::COMPTIME:
+    return "comptime";
+  case K::HYBRID:
+    return "hybrid";
+  case K::SINGLETON:
+    return "singleton";
   case K::CAPTURE:
     return "capture";
-  case K::NO_INLINE:
-    return "no_inline";
+  case K::LINKED:
+    return "linked";
   case K::INLINE:
     return "inline";
-  case K::NO_MANGLE:
-    return "no_mangle";
-  case K::MANGLE:
-    return "mangle";
-  case K::NO_PACK:
-    return "no_pack";
+  case K::AUTO_MANGLE:
+    return "auto_mangle";
+  case K::MANUAL_MANGLE:
+    return "manual_smangle";
+  case K::PAD:
+    return "pad";
   case K::PACK:
     return "pack";
-  case K::NO_BRANCH_TREND:
-    return "no_branch_trend";
+  case K::EQUIVOCAL:
+    return "equivocal";
   case K::LIKELY:
     return "likely";
   case K::UNLIKELY:
     return "unlikely";
-  case K::NO_SUPPORT_STATUS:
-    return "no_support_status";
+  case K::SUPPORTED:
+    return "supported";
   case K::DEPRECIATED:
     return "depreciated";
   case K::EXPERIMENTAL:
     return "experimental";
-  case K::NO_STABLE_ADDRESS:
-    return "no_stable_address";
+  case K::UNSTABLE_ADDRESS:
+    return "unstable_address";
   case K::STABLE_ADDRESS:
     return "stable_address";
-  case K::NO_VARIADIC:
-    return "no_variadic";
+  case K::INVARIADIC:
+    return "invariadic";
   case K::VARIADIC:
     return "variadic";
-  case K::NO_LOCATION:
-    return "no_location";
+  case K::FRUGAL:
+    return "frugal";
   case K::LOCATION:
     return "location";
-  case K::NO_TEMPLATE:
-    return "no_template";
   case K::TEMPLATE:
     return "template";
-  case K::NO_CONSTRAINT:
-    return "no_constraint";
   case K::CONSTRAINT:
     return "constraint";
-  case K::NO_WEIGHT:
-    return "no_weight";
+  case K::DEFAULT_WEIGHT:
+    return "default_weight";
   case K::WEIGHT:
     return "weight";
-  case K::NO_AUTO:
-    return "no_auto";
+  case K::MANUAL:
+    return "manual";
   case K::AUTO:
     return "auto";
-  case K::NO_VIRTUAL:
-    return "no_virtual";
+  case K::DIRECT:
+    return "direct";
   case K::VIRTUAL:
     return "virtual";
-  case K::NO_RANGER:
-    return "no_ranger";
   case K::RANGER:
     return "ranger";
-  case K::NO_REQUIRE:
-    return "no_require";
   case K::REQUIRE:
     return "require";
-  case K::NO_ENSURE:
-    return "no_ensure";
   case K::ENSURE:
     return "ensure";
 
-  // TYPE ATTRIBUTES
+  // TYPE MODIFIERS
   case K::NO_VAR:
     return "no_var";
   case K::VAR:
@@ -612,74 +600,64 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
-  case K::NO_GREATEST:
-    return "no_greatest";
-  case K::GREATEST:
-    return "greatest";
 
-  // LOW ATTRIBUTE TYPES
-  case K::ANCHOR_ATTRIBUTE:
-    return "anchor_attribute";
-  case K::OPAQUE_ATTRIBUTE:
-    return "opaque_attribute";
-  case K::FLANK_ATTRIBUTE:
-    return "flank_attribute";
-  case K::GLOBAL_ATTRIBUTE:
-    return "global_attribute";
-  case K::PUBLIC_ATTRIBUTE:
-    return "public_attribute";
-  case K::PARTIAL_MUTATE_ATTRIBUTE:
-    return "partial_mutate_attribute";
-  case K::STATIC_ATTRIBUTE:
-    return "static_attribute";
-  case K::DELAY_ATTRIBUTE:
-    return "delay_attribute";
-  case K::CAPTURE_ATTRIBUTE:
-    return "capture_attribute";
-  case K::INLINE_ATTRIBUTE:
-    return "inline_attribute";
-  case K::MANGLE_ATTRIBUTE:
-    return "mangle_attribute";
-  case K::PACK_ATTRIBUTE:
-    return "pack_attribute";
-  case K::BRANCH_TREND_ATTRIBUTE:
-    return "branch_trend_attribute";
-  case K::SUPPORT_STATUS_ATTRIBUTE:
-    return "support_status_attribute";
-  case K::STABLE_ADDRESS_ATTRIBUTE:
-    return "stable_address_attribute";
-  case K::VARIADIC_ATTRIBUTE:
-    return "variadic_attribute";
-  case K::LOCATION_ATTRIBUTE:
-    return "location_attribute";
-  case K::TEMPLATE_ATTRIBUTE:
-    return "template_attribute";
-  case K::CONSTRAINT_ATTRIBUTE:
-    return "constraint_attribute";
-  case K::WEIGHT_ATTRIBUTE:
-    return "weight_attribute";
-  case K::AUTO_ATTRIBUTE:
-    return "auto_attribute";
-  case K::VIRTUAL_ATTRIBUTE:
-    return "virtual_attribute";
-  case K::RANGER_ATTRIBUTE:
-    return "ranger_attribute";
-  case K::REQUIRE_ATTRIBUTE:
-    return "require_attribute";
-  case K::ENSURE_ATTRIBUTE:
-    return "ensure_attribute";
+  // MODIFIER TYPES
+  case K::ANCHOR_MODIFIER:
+    return "anchor_modifier";
+  case K::CONTAINER_MODIFIER:
+    return "container_modifier";
+  case K::VISIBILITY_MODIFIER:
+    return "visibility_modifier";
+  case K::ACCESS_MODIFIER:
+    return "access_modifier";
+  case K::MUTATE_MODIFIER:
+    return "mutate_modifier";
+  case K::COHORT_MODIFIER:
+    return "cohort_modifier";
+  case K::CAPTURE_MODIFIER:
+    return "capture_modifier";
+  case K::LINKAGE_MODIFIER:
+    return "linkage_modifier";
+  case K::MANGLE_MODIFIER:
+    return "mangle_modifier";
+  case K::PACK_MODIFIER:
+    return "pack_modifier";
+  case K::BRANCH_TREND_MODIFIER:
+    return "branch_trend_modifier";
+  case K::SUPPORT_NOTICE_MODIFIER:
+    return "support_notice_modifier";
+  case K::STABLE_ADDRESS_MODIFIER:
+    return "stable_address_modifier";
+  case K::VARIADIC_MODIFIER:
+    return "variadic_modifier";
+  case K::OFFSET_MODIFIER:
+    return "offset_modifier";
+  case K::TEMPLATE_MODIFIER:
+    return "template_modifier";
+  case K::CONSTRAINT_MODIFIER:
+    return "constraint_modifier";
+  case K::WEIGHT_MODIFIER:
+    return "weight_modifier";
+  case K::DEDUCTION_MODIFIER:
+    return "deduction_modifier";
+  case K::VIRTUALITY_MODIFIER:
+    return "virtuality_modifier";
+  case K::RANGER_MODIFIER:
+    return "ranger_modifier";
+  case K::REQUIRE_MODIFIER:
+    return "require_modifier";
+  case K::ENSURE_MODIFIER:
+    return "ensure_modifier";
 
-  // HIGH ATTRIBUTE TYPES
-  case K::VAR_ATTRIBUTE:
-    return "var_attribute";
-  case K::VOLATILE_ATTRIBUTE:
-    return "volatile_attribute";
-  case K::ATOMIC_ATTRIBUTE:
-    return "atomic_attribute";
-  case K::NULL_TERMINATE_ATTRIBUTE:
-    return "null_terminate_attribute";
-  case K::GREATEST_ATTRIBUTE:
-    return "greatest_attribute";
+  // QUALIFIER TYPES
+  case K::VAR_QUALIFIER:
+    return "var_qualifier";
+  case K::VOLATILE_QUALIFIER:
+    return "volatile_qualifier";
+  case K::ATOMIC_QUALIFIER:
+    return "atomic_qualifier";
+  case K::NULL_TERMINATE_QUALIFIER:
+    return "null_terminate_qualifier";
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -892,14 +870,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_codeunit_type";
   case K::IS_CODEUNIT_TYPE_OF:
     return "_is_codeunit_type_of";
-  case K::IS_LOW_ATTRIBUTE_TYPE:
-    return "is_low_attribute_type";
-  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
-    return "_is_low_attribute_type_of";
-  case K::IS_HIGH_ATTRIBUTE_TYPE:
-    return "is_high_attribute_type";
-  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
-    return "_is_high_attribute_type_of";
+  case K::IS_MODIFIER_TYPE:
+    return "is_modifier_type";
+  case K::IS_MODIFIER_TYPE_OF:
+    return "_is_modifier_type_of";
+  case K::IS_QUALIFIER_TYPE:
+    return "is_qualifier_type";
+  case K::IS_QUALIFIER_TYPE_OF:
+    return "_is_qualifier_type_of";
 
   case K::LAST:
     break;
@@ -934,14 +912,13 @@ enum class KeywordInfoFlags : std::uint32_t {
   NAME = rq::getBit(19),
   NAMESPACE = rq::getBit(20),
   ASCRIPTION = rq::getBit(21),
-  LOW_ATTRIBUTE = rq::getBit(22),
-  HIGH_ATTRIBUTE = rq::getBit(23),
+  MODIFIER = rq::getBit(22),
+  QUALIFIER = rq::getBit(23),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-                   PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION |
-                   HIGH_ATTRIBUTE | LOW_ATTRIBUTE | ARITHMETIC_SEQUENCE_STEP |
-                   ARITHMETIC_SEQUENCE_CONDITION,
+      PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION | MODIFIER |
+      QUALIFIER | ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
 
@@ -980,16 +957,16 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
     // NOTE: not allowed in STATEMENT and PARAMETER situations so that low
-    // attributes do not get confused with _call (and also this would be weird).
+    // modifiers do not get confused with _call (and also this would be weird).
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::LVALUE | KIF::NAME | KIF::NAMESPACE |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
-  case K::UNSITUATED_ASCRIBE_LOW:
+  case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
-  case K::UNSITUATED_ASCRIBE_HIGH:
+  case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
   case K::UNSITUATED_CHAIN:
@@ -1040,17 +1017,17 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::TUPLE_ELEMENT;
   case K::UPBINDING:
     return KIF::LVALUE;
-  case K::ASCRIBE_HIGH:
+  case K::ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
-  case K::ASCRIBE_LOW:
+  case K::ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::PARAMETER;
-  case K::ASCRIBE_HIGH_RECIEVER:
+  case K::ASCRIBE_RECIEVER_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
-  case K::INSTANTIATE_LOW_ATTRIBUTE:
-    return KIF::NONE; // LOW_ATTRIBUTE_INSTANTIATION
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
-    return KIF::NONE; // HIGH_ATTRIBUTE_INSTANTIATION
+  case K::INSTANTIATE_MODIFIER:
+    return KIF::NONE; // MODIFIER_INSTANTIATION
+  case K::INSTANTIATE_QUALIFIER:
+    return KIF::NONE; // QUALIFIER_INSTANTIATION
   case K::IDENTIFY:
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
@@ -1196,6 +1173,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::INSTANTIATE_POINTER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_SLICE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::INSTANTIATE_GREATEST:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // PARAMETER RULES
@@ -1434,261 +1413,174 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ASSUME:
     return KIF::STATEMENT;
 
-  // LOW ATTRIBUTES
-  case K::NO_ANCHOR:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+  // MODIFIERS
   case K::ANCHOR:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_FLANK:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RESIDENT:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::FLANK:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_OPAQUE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::TRANSPARENT:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OPAQUE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_GLOBAL:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::GLOBAL:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_PUBLIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PRIVATE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PUBLIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_PARTIAL_MUTATE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::FULL_MUTATE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PARTIAL_MUTATE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_STATIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DYNAMIC:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STATIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_DELAY:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::DELAY:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_CAPTURE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::RUNTIME:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::COMPTIME:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::HYBRID:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SINGLETON:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CAPTURE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_INLINE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::LINKED:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INLINE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_MANGLE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::MANGLE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_PACK:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::AUTO_MANGLE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::MANUAL_MANGLE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PAD:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PACK:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_BRANCH_TREND:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::EQUIVOCAL:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LIKELY:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::UNLIKELY:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_SUPPORT_STATUS:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SUPPORTED:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DEPRECIATED:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXPERIMENTAL:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_STABLE_ADDRESS:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::UNSTABLE_ADDRESS:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STABLE_ADDRESS:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_VARIADIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::INVARIADIC:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VARIADIC:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_LOCATION:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::FRUGAL:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LOCATION:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_TEMPLATE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TEMPLATE:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_CONSTRAINT:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CONSTRAINT:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_WEIGHT:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DEFAULT_WEIGHT:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::WEIGHT:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_AUTO:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::MANUAL:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AUTO:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_VIRTUAL:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DIRECT:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VIRTUAL:
-    return KIF::LOW_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_RANGER:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RANGER:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_REQUIRE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REQUIRE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_ENSURE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ENSURE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
-  // TYPE ATTRIBUTES
+  // QUALIFIERS
   case K::NO_VAR:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VAR:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PARTIAL_VAR:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NO_VOLATILE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VOLATILE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NO_ATOMIC:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ATOMIC:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NO_NULL_TERMINATE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::NO_GREATEST:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
-  case K::GREATEST:
-    return KIF::HIGH_ATTRIBUTE | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
-  // LOW ATTRIBUTE TYPES
-  case K::ANCHOR_ATTRIBUTE:
+  // MODIFIER TYPES
+  case K::ANCHOR_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FLANK_ATTRIBUTE:
+  case K::CONTAINER_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::OPAQUE_ATTRIBUTE:
+  case K::VISIBILITY_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::GLOBAL_ATTRIBUTE:
+  case K::ACCESS_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PUBLIC_ATTRIBUTE:
+  case K::MUTATE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PARTIAL_MUTATE_ATTRIBUTE:
+  case K::COHORT_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::STATIC_ATTRIBUTE:
+  case K::CAPTURE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DELAY_ATTRIBUTE:
+  case K::LINKAGE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::CAPTURE_ATTRIBUTE:
+  case K::MANGLE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::INLINE_ATTRIBUTE:
+  case K::PACK_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::MANGLE_ATTRIBUTE:
+  case K::BRANCH_TREND_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PACK_ATTRIBUTE:
+  case K::SUPPORT_NOTICE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::BRANCH_TREND_ATTRIBUTE:
+  case K::STABLE_ADDRESS_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SUPPORT_STATUS_ATTRIBUTE:
+  case K::VARIADIC_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::STABLE_ADDRESS_ATTRIBUTE:
+  case K::OFFSET_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIADIC_ATTRIBUTE:
+  case K::TEMPLATE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LOCATION_ATTRIBUTE:
+  case K::CONSTRAINT_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::TEMPLATE_ATTRIBUTE:
+  case K::WEIGHT_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::CONSTRAINT_ATTRIBUTE:
+  case K::DEDUCTION_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_ATTRIBUTE:
+  case K::VIRTUALITY_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::AUTO_ATTRIBUTE:
+  case K::RANGER_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VIRTUAL_ATTRIBUTE:
+  case K::REQUIRE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::RANGER_ATTRIBUTE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::REQUIRE_ATTRIBUTE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ENSURE_ATTRIBUTE:
+  case K::ENSURE_MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
-  // HIGH ATTRIBUTE TYPES
-  case K::VAR_ATTRIBUTE:
+  // QUALIFIER TYPES
+  case K::VAR_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VOLATILE_ATTRIBUTE:
+  case K::VOLATILE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ATOMIC_ATTRIBUTE:
+  case K::ATOMIC_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::NULL_TERMINATE_ATTRIBUTE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::GREATEST_ATTRIBUTE:
+  case K::NULL_TERMINATE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
@@ -1902,13 +1794,13 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::IS_CODEUNIT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_LOW_ATTRIBUTE_TYPE:
+  case K::IS_MODIFIER_TYPE:
     return KIF::RAILCAR;
-  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
+  case K::IS_MODIFIER_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_HIGH_ATTRIBUTE_TYPE:
+  case K::IS_QUALIFIER_TYPE:
     return KIF::RAILCAR;
-  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
+  case K::IS_QUALIFIER_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   case K::LAST:
@@ -1934,10 +1826,10 @@ getIsParameterMarkKeyword(rq::Keyword keyword) {
 [[nodiscard]] inline rq::Keyword
 getSituatedAscribeKeyword(rq::Keyword keyword) {
   switch (keyword) {
-  case rq::Keyword::UNSITUATED_ASCRIBE_LOW:
-    return rq::Keyword::ASCRIBE_LOW;
-  case rq::Keyword::UNSITUATED_ASCRIBE_HIGH:
-    return rq::Keyword::ASCRIBE_HIGH;
+  case rq::Keyword::UNSITUATED_ASCRIBE_MODIFIER:
+    return rq::Keyword::ASCRIBE_MODIFIER;
+  case rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER:
+    return rq::Keyword::ASCRIBE_QUALIFIER;
   default:
     break;
   }
@@ -1994,14 +1886,14 @@ getCanBeFinishingChainLink(rq::Keyword keyword) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::FINISHING_CHAINLINK);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttribute(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifier(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::HIGH_ATTRIBUTE);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::QUALIFIER);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttribute(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsModifier(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::LOW_ATTRIBUTE);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::MODIFIER);
 }
 
 enum class Situation : std::uint_fast8_t {
@@ -2018,8 +1910,8 @@ enum class Situation : std::uint_fast8_t {
   NAME,
   NAMESPACE,
   ASCRIPTION,
-  LOW_ATTRIBUTE_INSTANTIATION,
-  HIGH_ATTRIBUTE_INSTANTIATION,
+  MODIFIER_INSTANTIATION,
+  QUALIFIER_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE,
   STARTING_CHAINLINK,
   CONTINUING_CHAINLINK,
@@ -2069,10 +1961,10 @@ getDescription(rq::Situation situation) {
     return "namespace expression";
   case S::ASCRIPTION:
     return "ascription expression";
-  case S::LOW_ATTRIBUTE_INSTANTIATION:
-    return "low attribute instantiation";
-  case S::HIGH_ATTRIBUTE_INSTANTIATION:
-    return "high attribute instantiation";
+  case S::MODIFIER_INSTANTIATION:
+    return "modifier instantiation";
+  case S::QUALIFIER_INSTANTIATION:
+    return "qualifier instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   case S::STARTING_CHAINLINK:
@@ -2267,10 +2159,10 @@ getDescription(rq::Situation situation) {
     return K::IS_STRING_TYPE_OF;
   case K::IS_CODEUNIT_TYPE:
     return K::IS_CODEUNIT_TYPE_OF;
-  case K::IS_LOW_ATTRIBUTE_TYPE:
-    return K::IS_LOW_ATTRIBUTE_TYPE_OF;
-  case K::IS_HIGH_ATTRIBUTE_TYPE:
-    return K::IS_LOW_ATTRIBUTE_TYPE_OF;
+  case K::IS_MODIFIER_TYPE:
+    return K::IS_MODIFIER_TYPE_OF;
+  case K::IS_QUALIFIER_TYPE:
+    return K::IS_QUALIFIER_TYPE_OF;
   default:
     break;
   }
@@ -2341,13 +2233,13 @@ getDescription(rq::Situation situation) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeLowAttributeInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_LOW_ATTRIBUTE;
+getCanBeModifierInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_MODIFIER;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeHighAttributeInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_HIGH_ATTRIBUTE;
+getCanBeQualifierInstantiation(rq::Keyword keyword) {
+  return keyword == rq::Keyword::INSTANTIATE_QUALIFIER;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2359,14 +2251,14 @@ getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeArithmeticSequenceCondition(rq::Keyword keyword) {
+getCanBeArithmeticCondition(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags,
                        rq::KeywordInfoFlags::ARITHMETIC_SEQUENCE_CONDITION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeArithmeticSequenceStep(rq::Keyword keyword) {
+getCanBeArithmeticStep(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::ARITHMETIC_SEQUENCE_STEP);
 }
@@ -2513,10 +2405,10 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeNamespace(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
-  case S::LOW_ATTRIBUTE_INSTANTIATION:
-    return rq::getCanBeLowAttributeInstantiation(keyword);
-  case S::HIGH_ATTRIBUTE_INSTANTIATION:
-    return rq::getCanBeHighAttributeInstantiation(keyword);
+  case S::MODIFIER_INSTANTIATION:
+    return rq::getCanBeModifierInstantiation(keyword);
+  case S::QUALIFIER_INSTANTIATION:
+    return rq::getCanBeQualifierInstantiation(keyword);
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
   case S::STARTING_CHAINLINK:
@@ -2558,890 +2450,869 @@ getIsChainlinkPosition(rq::Situation situation) {
          keyword == rq::Keyword::IDENTIFIER_LITERAL;
 }
 
-enum class LowAttribute : std::uint_fast8_t {
+enum class Modifier : std::uint_fast8_t {
   NONE,
-  // anchor_attribute
-  NO_ANCHOR,
+  // anchor_modifier
   ANCHOR,
-  // flank_attribute
-  NO_FLANK,
+  // container_modifier
+  RESIDENT,
   FLANK,
-  // opaque_attribute
-  NO_OPAQUE,
+  // visibility_modifier
+  TRANSPARENT,
   OPAQUE,
-  // global_attribute
-  NO_GLOBAL,
-  GLOBAL,
-  // public_attribute
-  NO_PUBLIC,
+  // access_modifier
+  PRIVATE,
   PUBLIC,
-  // partial_mutate_attribute
-  NO_PARTIAL_MUTATE,
+  // mutate_modifier
+  FULL_MUTATE,
   PARTIAL_MUTATE,
-  // static_attribute
-  NO_STATIC,
+  // cohort_modifier
+  DYNAMIC,
   STATIC,
-  // delay_attribute
-  NO_DELAY,
-  DELAY,
-  // capture_attribute
-  NO_CAPTURE,
+  RUNTIME,
+  COMPTIME,
+  HYBRID,
+  SINGLETON,
+  // capture_modifier
   CAPTURE,
-  // inline_attribute
-  NO_INLINE,
+  // linkage_modifier
+  LINKED,
   INLINE,
-  // mangle_attribute
-  NO_MANGLE,
-  MANGLE,
-  // pack_attribute
-  NO_PACK,
+  // mangle_modifier
+  AUTO_MANGLE,
+  MANUAL_MANGLE,
+  // pack_modifier
+  PAD,
   PACK,
-  // branch_trend_attribute
-  NO_BRANCH_TREND,
+  // branch_trend_modifier
+  EQUIVOCAL,
   LIKELY,
   UNLIKELY,
-  // support_status_attribute
-  NO_SUPPORT_STATUS,
+  // support_notice_modifier
+  SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // stable_address_attribute
-  NO_STABLE_ADDRESS,
+  // address_stability_modifier
+  UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic_attribute
-  NO_VARIADIC,
+  // variadic_modifier
+  INVARIADIC,
   VARIADIC,
-  // location_attribute
-  NO_LOCATION,
+  // offset_modifier
+  FRUGAL,
   LOCATION,
-  // template_attribute
-  NO_TEMPLATE,
+  // template_modifier
   TEMPLATE,
-  // constraint_attribute
-  NO_CONSTRAINT,
+  // constraint_modifier
   CONSTRAINT,
-  // weight_attribute
-  NO_WEIGHT,
+  // weight_modifier
+  DEFAULT_WEIGHT,
   WEIGHT,
-  // auto_attribute
-  NO_AUTO,
+  // deduction_modifier
+  MANUAL,
   AUTO,
-  // virtual_attribute
-  NO_VIRTUAL,
+  // virtuality_modifier
+  DIRECT,
   VIRTUAL,
-  // ranger_attribute
-  NO_RANGER,
+  // ranger_modifier
   RANGER,
-  // require_attribute
-  NO_REQUIRE,
+  // require_modifier
   REQUIRE,
-  // ensure_attribute
-  NO_ENSURE,
+  // ensure_modifier
   ENSURE,
-
   LAST
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::LowAttribute attribute) {
+[[nodiscard]] inline llvm::StringRef getName(rq::Modifier modifier) {
   using namespace rq;
-  using LA = LowAttribute;
-  switch (attribute) {
-  case LA::NONE:
-    return "none";
-  case LA::NO_ANCHOR:
-    return "no_anchor";
-  case LA::ANCHOR:
-    return "anchor";
-  case LA::NO_FLANK:
-    return "no_flank";
-  case LA::FLANK:
-    return "flank";
-  case LA::NO_OPAQUE:
-    return "no_opaque";
-  case LA::OPAQUE:
-    return "opaque";
-  case LA::NO_GLOBAL:
-    return "no_global";
-  case LA::GLOBAL:
-    return "global";
-  case LA::NO_PUBLIC:
-    return "no_public";
-  case LA::PUBLIC:
-    return "public";
-  case LA::NO_PARTIAL_MUTATE:
-    return "no_partial_mutate";
-  case LA::PARTIAL_MUTATE:
-    return "partial_mutate";
-  case LA::NO_STATIC:
-    return "no_static";
-  case LA::STATIC:
-    return "static";
-  case LA::NO_DELAY:
-    return "no_delay";
-  case LA::DELAY:
-    return "delay";
-  case LA::NO_CAPTURE:
-    return "no_capture";
-  case LA::CAPTURE:
-    return "capture";
-  case LA::NO_INLINE:
-    return "no_inline";
-  case LA::INLINE:
-    return "inline";
-  case LA::NO_MANGLE:
-    return "no_mangle";
-  case LA::MANGLE:
-    return "mangle";
-  case LA::NO_PACK:
-    return "no_pack";
-  case LA::PACK:
-    return "pack";
-  case LA::NO_BRANCH_TREND:
-    return "no_branch_trend";
-  case LA::LIKELY:
-    return "likely";
-  case LA::UNLIKELY:
-    return "unlikely";
-  case LA::NO_SUPPORT_STATUS:
-    return "no_support_status";
-  case LA::DEPRECIATED:
-    return "depreciated";
-  case LA::EXPERIMENTAL:
-    return "experimental";
-  case LA::NO_STABLE_ADDRESS:
-    return "no_stable_address";
-  case LA::STABLE_ADDRESS:
-    return "stable_address";
-  case LA::NO_VARIADIC:
-    return "no_variadic";
-  case LA::VARIADIC:
-    return "variadic";
-  case LA::NO_LOCATION:
-    return "no_location";
-  case LA::LOCATION:
-    return "location";
-  case LA::NO_TEMPLATE:
-    return "no_template";
-  case LA::TEMPLATE:
-    return "template";
-  case LA::NO_CONSTRAINT:
-    return "no_constraint";
-  case LA::CONSTRAINT:
-    return "constraint";
-  case LA::NO_WEIGHT:
-    return "no_weight";
-  case LA::WEIGHT:
-    return "weight";
-  case LA::NO_AUTO:
-    return "no_auto";
-  case LA::AUTO:
-    return "auto";
-  case LA::NO_VIRTUAL:
-    return "no_virtual";
-  case LA::VIRTUAL:
-    return "virtual";
-  case LA::NO_RANGER:
-    return "no_ranger";
-  case LA::RANGER:
-    return "ranger";
-  case LA::NO_REQUIRE:
-    return "no_require";
-  case LA::REQUIRE:
-    return "require";
-  case LA::NO_ENSURE:
-    return "no_ensure";
-  case LA::ENSURE:
-    return "ensure";
-  case LA::LAST:
+  using M = Modifier;
+  switch (modifier) {
+  case M::NONE:
+    return "NONE";
+  case M::ANCHOR:
+    return "ANCHOR";
+  case M::RESIDENT:
+    return "RESIDENT";
+  case M::FLANK:
+    return "FLANK";
+  case M::TRANSPARENT:
+    return "TRANSPARENT";
+  case M::OPAQUE:
+    return "OPAQUE";
+  case M::PRIVATE:
+    return "PRIVATE";
+  case M::PUBLIC:
+    return "PUBLIC";
+  case M::FULL_MUTATE:
+    return "FULL_MUTATE";
+  case M::PARTIAL_MUTATE:
+    return "PARTIAL_MUTATE";
+  case M::DYNAMIC:
+    return "DYNAMIC";
+  case M::STATIC:
+    return "STATIC";
+  case M::RUNTIME:
+    return "RUNTIME";
+  case M::COMPTIME:
+    return "COMPTIME";
+  case M::HYBRID:
+    return "HYBRID";
+  case M::SINGLETON:
+    return "SINGLETON";
+  case M::CAPTURE:
+    return "CAPTURE";
+  case M::LINKED:
+    return "LINKED";
+  case M::INLINE:
+    return "INLINE";
+  case M::AUTO_MANGLE:
+    return "AUTO_MANGLE";
+  case M::MANUAL_MANGLE:
+    return "MANUAL_MANGLE";
+  case M::PAD:
+    return "PAD";
+  case M::PACK:
+    return "PACM";
+  case M::EQUIVOCAL:
+    return "EQUIVOCAL";
+  case M::LIKELY:
+    return "LIKELY";
+  case M::UNLIKELY:
+    return "UNLIKELY";
+  case M::SUPPORTED:
+    return "SUPPORTED";
+  case M::DEPRECIATED:
+    return "DEPRECIATED";
+  case M::EXPERIMENTAL:
+    return "EXPERIMENTAL";
+  case M::UNSTABLE_ADDRESS:
+    return "UNSTABLE_ADDRESS";
+  case M::STABLE_ADDRESS:
+    return "STABLE_ADDRESS";
+  case M::INVARIADIC:
+    return "INVARIADIC";
+  case M::VARIADIC:
+    return "VARIADIC";
+  case M::FRUGAL:
+    return "FRUGAL";
+  case M::LOCATION:
+    return "LOCATION";
+  case M::TEMPLATE:
+    return "TEMPLATE";
+  case M::CONSTRAINT:
+    return "CONSTRAINT";
+  case M::DEFAULT_WEIGHT:
+    return "DEFAULT_WEIGHT";
+  case M::WEIGHT:
+    return "WEIGHT";
+  case M::MANUAL:
+    return "MANUAL";
+  case M::AUTO:
+    return "AUTO";
+  case M::DIRECT:
+    return "DIRECT";
+  case M::VIRTUAL:
+    return "VIRTUAL";
+  case M::RANGER:
+    return "RANGER";
+  case M::REQUIRE:
+    return "REQUIRE";
+  case M::ENSURE:
+    return "ENSURE";
+  case M::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::LowAttribute getLowAttribute(rq::Keyword keyword) {
+[[nodiscard]] inline rq::Modifier getModifier(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using LA = LowAttribute;
+  using M = Modifier;
   switch (keyword) {
-  case K::NO_ANCHOR:
-    return LA::NO_ANCHOR;
   case K::ANCHOR:
-    return LA::ANCHOR;
-  case K::NO_FLANK:
-    return LA::NO_FLANK;
+    return M::ANCHOR;
+  case K::RESIDENT:
+    return M::RESIDENT;
   case K::FLANK:
-    return LA::FLANK;
-  case K::NO_OPAQUE:
-    return LA::NO_OPAQUE;
+    return M::FLANK;
+  case K::TRANSPARENT:
+    return M::TRANSPARENT;
   case K::OPAQUE:
-    return LA::OPAQUE;
-  case K::NO_GLOBAL:
-    return LA::NO_GLOBAL;
-  case K::GLOBAL:
-    return LA::GLOBAL;
-  case K::NO_PUBLIC:
-    return LA::NO_PUBLIC;
+    return M::OPAQUE;
+  case K::PRIVATE:
+    return M::PRIVATE;
   case K::PUBLIC:
-    return LA::PUBLIC;
-  case K::NO_PARTIAL_MUTATE:
-    return LA::NO_PARTIAL_MUTATE;
+    return M::PUBLIC;
+  case K::FULL_MUTATE:
+    return M::FULL_MUTATE;
   case K::PARTIAL_MUTATE:
-    return LA::PARTIAL_MUTATE;
-  case K::NO_STATIC:
-    return LA::NO_STATIC;
+    return M::PARTIAL_MUTATE;
+  case K::DYNAMIC:
+    return M::DYNAMIC;
   case K::STATIC:
-    return LA::STATIC;
-  case K::NO_DELAY:
-    return LA::NO_DELAY;
-  case K::DELAY:
-    return LA::DELAY;
-  case K::NO_CAPTURE:
-    return LA::NO_CAPTURE;
+    return M::STATIC;
+  case K::RUNTIME:
+    return M::RUNTIME;
+  case K::COMPTIME:
+    return M::COMPTIME;
+  case K::HYBRID:
+    return M::HYBRID;
+  case K::SINGLETON:
+    return M::SINGLETON;
   case K::CAPTURE:
-    return LA::CAPTURE;
-  case K::NO_INLINE:
-    return LA::NO_INLINE;
+    return M::CAPTURE;
+  case K::LINKED:
+    return M::LINKED;
   case K::INLINE:
-    return LA::INLINE;
-  case K::NO_MANGLE:
-    return LA::NO_MANGLE;
-  case K::MANGLE:
-    return LA::MANGLE;
-  case K::NO_PACK:
-    return LA::NO_PACK;
+    return M::INLINE;
+  case K::AUTO_MANGLE:
+    return M::AUTO_MANGLE;
+  case K::MANUAL_MANGLE:
+    return M::MANUAL_MANGLE;
+  case K::PAD:
+    return M::PAD;
   case K::PACK:
-    return LA::PACK;
-  case K::NO_BRANCH_TREND:
-    return LA::NO_BRANCH_TREND;
+    return M::PACK;
+  case K::EQUIVOCAL:
+    return M::EQUIVOCAL;
   case K::LIKELY:
-    return LA::LIKELY;
+    return M::LIKELY;
   case K::UNLIKELY:
-    return LA::UNLIKELY;
-  case K::NO_SUPPORT_STATUS:
-    return LA::NO_SUPPORT_STATUS;
+    return M::UNLIKELY;
+  case K::SUPPORTED:
+    return M::SUPPORTED;
   case K::DEPRECIATED:
-    return LA::DEPRECIATED;
+    return M::DEPRECIATED;
   case K::EXPERIMENTAL:
-    return LA::EXPERIMENTAL;
-  case K::NO_STABLE_ADDRESS:
-    return LA::NO_STABLE_ADDRESS;
+    return M::EXPERIMENTAL;
+  case K::UNSTABLE_ADDRESS:
+    return M::UNSTABLE_ADDRESS;
   case K::STABLE_ADDRESS:
-    return LA::STABLE_ADDRESS;
-  case K::NO_VARIADIC:
-    return LA::NO_VARIADIC;
+    return M::STABLE_ADDRESS;
+  case K::INVARIADIC:
+    return M::INVARIADIC;
   case K::VARIADIC:
-    return LA::VARIADIC;
-  case K::NO_LOCATION:
-    return LA::NO_LOCATION;
+    return M::VARIADIC;
+  case K::FRUGAL:
+    return M::FRUGAL;
   case K::LOCATION:
-    return LA::LOCATION;
-  case K::NO_TEMPLATE:
-    return LA::NO_TEMPLATE;
+    return M::LOCATION;
   case K::TEMPLATE:
-    return LA::TEMPLATE;
-  case K::NO_CONSTRAINT:
-    return LA::NO_CONSTRAINT;
+    return M::TEMPLATE;
   case K::CONSTRAINT:
-    return LA::CONSTRAINT;
-  case K::NO_WEIGHT:
-    return LA::NO_WEIGHT;
+    return M::CONSTRAINT;
+  case K::DEFAULT_WEIGHT:
+    return M::DEFAULT_WEIGHT;
   case K::WEIGHT:
-    return LA::WEIGHT;
-  case K::NO_AUTO:
-    return LA::NO_AUTO;
+    return M::WEIGHT;
+  case K::MANUAL:
+    return M::MANUAL;
   case K::AUTO:
-    return LA::AUTO;
-  case K::NO_VIRTUAL:
-    return LA::NO_VIRTUAL;
+    return M::AUTO;
+  case K::DIRECT:
+    return M::DIRECT;
   case K::VIRTUAL:
-    return LA::VIRTUAL;
-  case K::NO_RANGER:
-    return LA::NO_RANGER;
+    return M::VIRTUAL;
   case K::RANGER:
-    return LA::RANGER;
-  case K::NO_ENSURE:
-    return LA::NO_ENSURE;
-  case K::ENSURE:
-    return LA::ENSURE;
-  case K::NO_REQUIRE:
-    return LA::NO_REQUIRE;
+    return M::RANGER;
   case K::REQUIRE:
-    return LA::REQUIRE;
+    return M::REQUIRE;
+  case K::ENSURE:
+    return M::ENSURE;
   default:
     break;
   }
-  return LA::NONE;
+  return M::NONE;
 }
 
-enum class LowFuseFlags : std::uint_fast32_t {
+enum class ModifierFuseFlags : std::uint_fast32_t {
   NONE = 0,
 
   ANCHOR = rq::getBit(0),
-  ANCHOR_MASK = ANCHOR,
+  ANCHOR_MODIFIER_MASK = ANCHOR,
 
-  FLANK = rq::getBit(1),
-  FLANK_MASK = FLANK,
+  RESIDENT = rq::getBit(1),
+  FLANK = rq::getBit(2),
+  CONTAINER_MODIFIER_MASK = RESIDENT | FLANK,
 
-  OPAQUE = rq::getBit(2),
-  OPAQUE_MASK = OPAQUE,
+  TRANSPARENT = rq::getBit(3),
+  OPAQUE = rq::getBit(4),
+  VISIBILITY_MODIFIER_MASK = TRANSPARENT | OPAQUE,
 
-  GLOBAL = rq::getBit(3),
-  GLOBAL_MASK = GLOBAL,
+  PRIVATE = rq::getBit(5),
+  PUBLIC = rq::getBit(6),
+  ACCESS_MODIFIER_MASK = PRIVATE | PUBLIC,
 
-  PUBLIC = rq::getBit(4),
-  PUBLIC_MASK = PUBLIC,
+  FULL_MUTATE = rq::getBit(7),
+  PARTIAL_MUTATE = rq::getBit(8),
+  MUTATE_MODIFIER_MASK = FULL_MUTATE | PARTIAL_MUTATE,
 
-  PARTIAL_MUTATE = rq::getBit(5),
-  PARTIAL_MUTATE_MASK = PARTIAL_MUTATE,
+  DYNAMIC = rq::getBit(9),
+  STATIC = rq::getBit(10),
+  RUNTIME = rq::getBit(11),
+  COMPTIME = rq::getBit(12),
+  HYBRID = rq::getBit(13),
+  SINGLETON = rq::getBit(14),
+  COHORT_MODIFIER_MASK = DYNAMIC | STATIC | RUNTIME | COMPTIME | HYBRID |
+      SINGLETON,
 
-  STATIC = rq::getBit(6),
-  STATIC_MASK = STATIC,
+  CAPTURE = rq::getBit(15),
+  CAPTURE_MODIFIER_MASK = CAPTURE,
 
-  DELAY = rq::getBit(7),
-  DELAY_MASK = DELAY,
+  LINKED = rq::getBit(16),
+  INLINE = rq::getBit(17),
+  LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  CAPTURE = rq::getBit(8),
-  CAPTURE_MASK = CAPTURE,
+  AUTO_MANGLE = rq::getBit(18),
+  MANUAL_MANGLE = rq::getBit(19),
+  MANGLE_MODIFIER_MASK = AUTO_MANGLE | MANUAL_MANGLE,
 
-  INLINE = rq::getBit(9),
-  INLINE_MASK = INLINE,
+  PAD = rq::getBit(20),
+  PACK = rq::getBit(21),
+  PACK_MODIFIER_MASK = PAD | PACK,
 
-  MANGLE = rq::getBit(10),
-  MANGLE_MASK = MANGLE,
+  EQUIVOCAL = rq::getBit(22),
+  LIKELY = rq::getBit(23),
+  UNLIKELY = rq::getBit(24),
+  BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  PACK = rq::getBit(11),
-  PACK_MASK = PACK,
+  SUPPORTED = rq::getBit(25),
+  DEPRECIATED = rq::getBit(26),
+  EXPERIMENTAL = rq::getBit(27),
+  SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  LIKELY = rq::getBit(12),
-  UNLIKELY = rq::getBit(13),
-  BRANCH_TREND_MASK = LIKELY | UNLIKELY,
+  UNSTABLE_ADDRESS = rq::getBit(28),
+  STABLE_ADDRESS = rq::getBit(29),
+  ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
-  DEPRECIATED = rq::getBit(14),
-  EXPERIMENTAL = rq::getBit(15),
-  SUPPORT_STATUS_MASK = DEPRECIATED | EXPERIMENTAL,
+  INVARIADIC = rq::getBit(30),
+  VARIADIC = rq::getBit(31),
+  VARIADIC_MODIFIER_MASK,
 
-  STABLE_ADDRESS = rq::getBit(16),
-  STABLE_ADDRESS_MASK = STABLE_ADDRESS,
+  FRUGAL = rq::getBit(31),
+  LOCATION = rq::getBit(32),
+  OFFSET_MODIFIER_MASK = FRUGAL | LOCATION,
 
-  VARIADIC = rq::getBit(17),
-  VARIADIC_MASK = VARIADIC,
+  TEMPLATE = rq::getBit(33),
+  TEMPLATE_MODIFIER_MASK = TEMPLATE,
 
-  LOCATION = rq::getBit(18),
-  LOCATION_MASK = LOCATION,
+  CONSTRAINT = rq::getBit(34),
+  CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  TEMPLATE = rq::getBit(19),
-  TEMPLATE_MASK = TEMPLATE,
+  DEFAULT_WEIGHT = rq::getBit(35),
+  WEIGHT = rq::getBit(36),
+  WEIGHT_MODIFIER_MASK = DEFAULT_WEIGHT | WEIGHT,
 
-  CONSTRAINT = rq::getBit(20),
-  CONSTRAINT_MASK = CONSTRAINT,
+  MANUAL = rq::getBit(36),
+  AUTO = rq::getBit(37),
+  DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  WEIGHT = rq::getBit(21),
-  WEIGHT_MASK = WEIGHT,
+  DIRECT = rq::getBit(38),
+  VIRTUAL = rq::getBit(39),
+  VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  AUTO = rq::getBit(22),
-  AUTO_MASK = AUTO,
+  RANGER = rq::getBit(40),
+  RANGER_MODIFIER_MASK = RANGER,
 
-  VIRTUAL = rq::getBit(23),
-  VIRTUAL_MASK = VIRTUAL,
+  REQUIRE = rq::getBit(41),
+  REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  RANGER = rq::getBit(24),
-  RANGER_MASK = RANGER,
-
-  REQUIRE = rq::getBit(25),
-  REQUIRE_MASK = REQUIRE,
-
-  ENSURE = rq::getBit(26),
-  ENSURE_MASK = ENSURE,
-
-  ALL_MASK = ANCHOR | FLANK | OPAQUE | PUBLIC | PARTIAL_MUTATE | STATIC |
-             DELAY | CAPTURE | INLINE | PACK | LIKELY | UNLIKELY | DEPRECIATED |
-             EXPERIMENTAL | STABLE_ADDRESS | VARIADIC | LOCATION | TEMPLATE |
-             CONSTRAINT | WEIGHT | AUTO | VIRTUAL | RANGER | REQUIRE | ENSURE
+  ENSURE = rq::getBit(42),
+  ENSURE_MODIFIER_MASK = ENSURE
 };
 
-RQ_DEFINE_FLAGS(rq::LowFuseFlags);
+RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
 
-[[nodiscard]] inline rq::LowFuseFlags getFuseFlags(rq::LowAttribute attribute) {
+[[nodiscard]] inline rq::ModifierFuseFlags getFuseFlags(rq::Modifier modifier) {
   using namespace rq;
-  using LA = LowAttribute;
-  using LFF = LowFuseFlags;
-  switch (attribute) {
-  case LA::NONE:
-    return LFF::NONE;
-  case LA::NO_ANCHOR:
-    return LFF::NONE;
-  case LA::ANCHOR:
-    return LFF::ANCHOR;
-  case LA::NO_FLANK:
-    return LFF::NONE;
-  case LA::FLANK:
-    return LFF::FLANK;
-  case LA::NO_OPAQUE:
-    return LFF::NONE;
-  case LA::OPAQUE:
-    return LFF::OPAQUE;
-  case LA::NO_GLOBAL:
-    return LFF::NONE;
-  case LA::GLOBAL:
-    return LFF::GLOBAL;
-  case LA::NO_PUBLIC:
-    return LFF::NONE;
-  case LA::PUBLIC:
-    return LFF::PUBLIC;
-  case LA::NO_PARTIAL_MUTATE:
-    return LFF::NONE;
-  case LA::PARTIAL_MUTATE:
-    return LFF::PARTIAL_MUTATE;
-  case LA::NO_STATIC:
-    return LFF::NONE;
-  case LA::STATIC:
-    return LFF::STATIC;
-  case LA::NO_DELAY:
-    return LFF::NONE;
-  case LA::DELAY:
-    return LFF::DELAY;
-  case LA::NO_CAPTURE:
-    return LFF::NONE;
-  case LA::CAPTURE:
-    return LFF::CAPTURE;
-  case LA::NO_INLINE:
-    return LFF::NONE;
-  case LA::INLINE:
-    return LFF::INLINE;
-  case LA::NO_MANGLE:
-    return LFF::NONE;
-  case LA::MANGLE:
-    return LFF::MANGLE;
-  case LA::NO_PACK:
-    return LFF::NONE;
-  case LA::PACK:
-    return LFF::PACK;
-  case LA::NO_BRANCH_TREND:
-    return LFF::NONE;
-  case LA::LIKELY:
-    return LFF::LIKELY;
-  case LA::UNLIKELY:
-    return LFF::UNLIKELY;
-  case LA::NO_SUPPORT_STATUS:
-    return LFF::NONE;
-  case LA::DEPRECIATED:
-    return LFF::DEPRECIATED;
-  case LA::EXPERIMENTAL:
-    return LFF::EXPERIMENTAL;
-  case LA::NO_STABLE_ADDRESS:
-    return LFF::NONE;
-  case LA::STABLE_ADDRESS:
-    return LFF::STABLE_ADDRESS;
-  case LA::NO_VARIADIC:
-    return LFF::NONE;
-  case LA::VARIADIC:
-    return LFF::VARIADIC;
-  case LA::NO_LOCATION:
-    return LFF::NONE;
-  case LA::LOCATION:
-    return LFF::LOCATION;
-  case LA::NO_TEMPLATE:
-    return LFF::NONE;
-  case LA::TEMPLATE:
-    return LFF::TEMPLATE;
-  case LA::NO_CONSTRAINT:
-    return LFF::NONE;
-  case LA::CONSTRAINT:
-    return LFF::CONSTRAINT;
-  case LA::NO_WEIGHT:
-    return LFF::NONE;
-  case LA::WEIGHT:
-    return LFF::WEIGHT;
-  case LA::NO_AUTO:
-    return LFF::NONE;
-  case LA::AUTO:
-    return LFF::AUTO;
-  case LA::NO_VIRTUAL:
-    return LFF::NONE;
-  case LA::VIRTUAL:
-    return LFF::VIRTUAL;
-  case LA::NO_RANGER:
-    return LFF::NONE;
-  case LA::RANGER:
-    return LFF::RANGER;
-  case LA::NO_REQUIRE:
-    return LFF::NONE;
-  case LA::REQUIRE:
-    return LFF::REQUIRE;
-  case LA::NO_ENSURE:
-    return LFF::NONE;
-  case LA::ENSURE:
-    return LFF::ENSURE;
-  case LA::LAST:
+  using M = Modifier;
+  using MFF = ModifierFuseFlags;
+  switch (modifier) {
+  case M::NONE:
+    return MFF::NONE;
+  case M::ANCHOR:
+    return MFF::ANCHOR;
+  case M::RESIDENT:
+    return MFF::RESIDENT;
+  case M::FLANK:
+    return MFF::FLANK;
+  case M::TRANSPARENT:
+    return MFF::TRANSPARENT;
+  case M::OPAQUE:
+    return MFF::OPAQUE;
+  case M::PRIVATE:
+    return MFF::PRIVATE;
+  case M::PUBLIC:
+    return MFF::PUBLIC;
+  case M::FULL_MUTATE:
+    return MFF::FULL_MUTATE;
+  case M::PARTIAL_MUTATE:
+    return MFF::PARTIAL_MUTATE;
+  case M::DYNAMIC:
+    return MFF::DYNAMIC;
+  case M::STATIC:
+    return MFF::STATIC;
+  case M::RUNTIME:
+    return MFF::RUNTIME;
+  case M::COMPTIME:
+    return MFF::COMPTIME;
+  case M::HYBRID:
+    return MFF::HYBRID;
+  case M::SINGLETON:
+    return MFF::SINGLETON;
+  case M::CAPTURE:
+    return MFF::CAPTURE;
+  case M::LINKED:
+    return MFF::LINKED;
+  case M::INLINE:
+    return MFF::INLINE;
+  case M::AUTO_MANGLE:
+    return MFF::AUTO_MANGLE;
+  case M::MANUAL_MANGLE:
+    return MFF::MANUAL_MANGLE;
+  case M::PAD:
+    return MFF::PAD;
+  case M::PACK:
+    return MFF::PACK;
+  case M::EQUIVOCAL:
+    return MFF::EQUIVOCAL;
+  case M::LIKELY:
+    return MFF::LIKELY;
+  case M::UNLIKELY:
+    return MFF::UNLIKELY;
+  case M::SUPPORTED:
+    return MFF::SUPPORTED;
+  case M::DEPRECIATED:
+    return MFF::DEPRECIATED;
+  case M::EXPERIMENTAL:
+    return MFF::EXPERIMENTAL;
+  case M::UNSTABLE_ADDRESS:
+    return MFF::UNSTABLE_ADDRESS;
+  case M::STABLE_ADDRESS:
+    return MFF::STABLE_ADDRESS;
+  case M::INVARIADIC:
+    return MFF::INVARIADIC;
+  case M::VARIADIC:
+    return MFF::VARIADIC;
+  case M::FRUGAL:
+    return MFF::FRUGAL;
+  case M::LOCATION:
+    return MFF::LOCATION;
+  case M::TEMPLATE:
+    return MFF::TEMPLATE;
+  case M::CONSTRAINT:
+    return MFF::CONSTRAINT;
+  case M::DEFAULT_WEIGHT:
+    return MFF::DEFAULT_WEIGHT;
+  case M::WEIGHT:
+    return MFF::WEIGHT;
+  case M::MANUAL:
+    return MFF::MANUAL;
+  case M::AUTO:
+    return MFF::AUTO;
+  case M::DIRECT:
+    return MFF::DIRECT;
+  case M::VIRTUAL:
+    return MFF::VIRTUAL;
+  case M::RANGER:
+    return MFF::RANGER;
+  case M::REQUIRE:
+    return MFF::REQUIRE;
+  case M::ENSURE:
+    return MFF::ENSURE;
+  case M::LAST:
     break;
   }
-  return LFF::NONE;
+  return MFF::NONE;
 }
 
-enum class LowInfoFlags : std::uint_fast8_t {
+enum class ModifierInfoFlags : std::uint_fast8_t {
   NONE = 0,
 
-  DEFAULT_OF_KIND,
-  MUST_HAVE_ATTACHMENT,
-  MUST_NOT_HAVE_ATTACHMENT
+  ATTACHMENT = rq::getBit(0),
+  NO_ATTACHMENT = rq::getBit(1)
 };
 
-RQ_DEFINE_FLAGS(rq::LowInfoFlags);
+RQ_DEFINE_FLAGS(rq::ModifierInfoFlags);
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::LowInfoFlags
-getInfoFlags(rq::LowAttribute attribute) {
-  using LA = rq::LowAttribute;
-  using LIF = rq::LowInfoFlags;
-  switch (attribute) {
-  case LA::NONE:
-    return LIF::NONE;
-  case LA::NO_ANCHOR:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::ANCHOR:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_FLANK:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::FLANK:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_OPAQUE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::OPAQUE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_GLOBAL:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::GLOBAL:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_PUBLIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::PUBLIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_PARTIAL_MUTATE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::PARTIAL_MUTATE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_STATIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::STATIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_DELAY:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::DELAY:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_CAPTURE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::CAPTURE:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_INLINE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::INLINE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_MANGLE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::MANGLE:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_PACK:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::PACK:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_BRANCH_TREND:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::LIKELY:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::UNLIKELY:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_SUPPORT_STATUS:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::DEPRECIATED:
-    return LIF::NONE;
-  case LA::EXPERIMENTAL:
-    return LIF::NONE;
-  case LA::NO_STABLE_ADDRESS:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::STABLE_ADDRESS:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_VARIADIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::VARIADIC:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_LOCATION:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::LOCATION:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_TEMPLATE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::TEMPLATE:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_CONSTRAINT:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::CONSTRAINT:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_WEIGHT:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::WEIGHT:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_AUTO:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::AUTO:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_VIRTUAL:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::VIRTUAL:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_RANGER:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::RANGER:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT;
-  case LA::NO_REQUIRE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::REQUIRE:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::NO_ENSURE:
-    return LIF::MUST_NOT_HAVE_ATTACHMENT | LIF::DEFAULT_OF_KIND;
-  case LA::ENSURE:
-    return LIF::MUST_HAVE_ATTACHMENT;
-  case LA::LAST:
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierInfoFlags
+getInfoFlags(rq::Modifier modifier) {
+  using M = rq::Modifier;
+  using MIF = rq::ModifierInfoFlags;
+  switch (modifier) {
+  case M::NONE:
+    return MIF::NONE;
+  case M::ANCHOR:
+    return MIF::ATTACHMENT;
+  case M::RESIDENT:
+    return MIF::NO_ATTACHMENT;
+  case M::FLANK:
+    return MIF::ATTACHMENT;
+  case M::TRANSPARENT:
+    return MIF::NO_ATTACHMENT;
+  case M::OPAQUE:
+    return MIF::NO_ATTACHMENT;
+  case M::PRIVATE:
+    return MIF::NO_ATTACHMENT;
+  case M::PUBLIC:
+    return MIF::NO_ATTACHMENT;
+  case M::FULL_MUTATE:
+    return MIF::NO_ATTACHMENT;
+  case M::PARTIAL_MUTATE:
+    return MIF::NO_ATTACHMENT;
+  case M::DYNAMIC:
+    return MIF::NO_ATTACHMENT;
+  case M::STATIC:
+    return MIF::NO_ATTACHMENT;
+  case M::RUNTIME:
+    return MIF::NO_ATTACHMENT;
+  case M::COMPTIME:
+    return MIF::NO_ATTACHMENT;
+  case M::HYBRID:
+    return MIF::NO_ATTACHMENT;
+  case M::SINGLETON:
+    return MIF::NO_ATTACHMENT;
+  case M::CAPTURE:
+    return MIF::ATTACHMENT;
+  case M::LINKED:
+    return MIF::NO_ATTACHMENT;
+  case M::INLINE:
+    return MIF::NO_ATTACHMENT;
+  case M::AUTO_MANGLE:
+    return MIF::NO_ATTACHMENT;
+  case M::MANUAL_MANGLE:
+    return MIF::ATTACHMENT;
+  case M::PAD:
+    return MIF::NO_ATTACHMENT;
+  case M::PACK:
+    return MIF::NO_ATTACHMENT;
+  case M::EQUIVOCAL:
+    return MIF::NO_ATTACHMENT;
+  case M::LIKELY:
+    return MIF::NO_ATTACHMENT;
+  case M::UNLIKELY:
+    return MIF::NO_ATTACHMENT;
+  case M::SUPPORTED:
+    return MIF::NO_ATTACHMENT;
+  case M::DEPRECIATED:
+    return MIF::ATTACHMENT | MIF::NO_ATTACHMENT;
+  case M::EXPERIMENTAL:
+    return MIF::ATTACHMENT | MIF::NO_ATTACHMENT;
+  case M::UNSTABLE_ADDRESS:
+    return MIF::NO_ATTACHMENT;
+  case M::STABLE_ADDRESS:
+    return MIF::NO_ATTACHMENT;
+  case M::INVARIADIC:
+    return MIF::NO_ATTACHMENT;
+  case M::VARIADIC:
+    return MIF::NO_ATTACHMENT;
+  case M::FRUGAL:
+    return MIF::NO_ATTACHMENT;
+  case M::LOCATION:
+    return MIF::ATTACHMENT;
+  case M::TEMPLATE:
+    return MIF::ATTACHMENT;
+  case M::CONSTRAINT:
+    return MIF::ATTACHMENT;
+  case M::DEFAULT_WEIGHT:
+    return MIF::NO_ATTACHMENT;
+  case M::WEIGHT:
+    return MIF::ATTACHMENT;
+  case M::MANUAL:
+    return MIF::NO_ATTACHMENT;
+  case M::AUTO:
+    return MIF::NO_ATTACHMENT;
+  case M::DIRECT:
+    return MIF::NO_ATTACHMENT;
+  case M::VIRTUAL:
+    return MIF::NO_ATTACHMENT;
+  case M::RANGER:
+    return MIF::NO_ATTACHMENT;
+  case M::REQUIRE:
+    return MIF::ATTACHMENT;
+  case M::ENSURE:
+    return MIF::ATTACHMENT;
+
+  case M::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsDefaultOfKind(rq::LowAttribute attribute) {
-  rq::LowInfoFlags flags = rq::getInfoFlags(attribute);
-  return rq::getHasAll(flags, rq::LowInfoFlags::DEFAULT_OF_KIND);
+getMustHaveAttachment(rq::Modifier modifier) {
+  rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
+  return rq::getHasAll(flags, rq::ModifierInfoFlags::ATTACHMENT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getMustHaveAttachment(rq::LowAttribute attribute) {
-  rq::LowInfoFlags flags = rq::getInfoFlags(attribute);
-  return rq::getHasAll(flags, rq::LowInfoFlags::MUST_HAVE_ATTACHMENT);
+getMustNotHaveAttachment(rq::Modifier modifier) {
+  rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
+  return rq::getHasAll(flags, rq::ModifierInfoFlags::NO_ATTACHMENT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getMustNotHaveAttachment(rq::LowAttribute attribute) {
-  rq::LowInfoFlags flags = rq::getInfoFlags(attribute);
-  return rq::getHasAll(flags, rq::LowInfoFlags::MUST_NOT_HAVE_ATTACHMENT);
+getMayOrMayNotHaveAttachment(rq::Modifier modifier) {
+  rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
+  return rq::getHasNone(flags, rq::ModifierInfoFlags::ATTACHMENT |
+                                   rq::ModifierInfoFlags::NO_ATTACHMENT);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getMayOrMayNotHaveAttachment(rq::LowAttribute attribute) {
-  rq::LowInfoFlags flags = rq::getInfoFlags(attribute);
-  return rq::getHasNone(flags, rq::LowInfoFlags::MUST_HAVE_ATTACHMENT |
-                                   rq::LowInfoFlags::MUST_NOT_HAVE_ATTACHMENT);
-}
-
-enum class LowAttributeKind : std::uint_fast8_t {
+enum class ModifierKind : std::uint_fast8_t {
   NONE,
-  ANCHOR,         // no_anchor vs anchor
-  FLANK,          // no_flank vs flank
-  OPAQUE,         // no_opaque vs opaque
-  GLOBAL,         // no_global vs global
-  PUBLIC,         // no_public vs public
-  PARTIAL_MUTATE, // no_partial_mutate vs partial_mutate
-  STATIC,         // no_static vs static
-  DELAY,          // no_delay vs delay
-  CAPTURE,        // no_capture vs capture
-  INLINE,         // no_inline vs inline
-  MANGLE,         // no_mangle vs mangle
-  PACK,           // no_pack vs pack
-  BRANCH_TREND,   // no_branch_trend vs likely vs unlikely
-  SUPPORT_STATUS, // no_support_status vs depreciate vs experimental
-  STABLE_ADDRESS, // no_stable_address vs stable_address
-  VARIADIC,       // no_variadic vs variadic
-  LOCATION,       // no_location vs location
-  TEMPLATE,       // no_template vs template
-  CONSTRAINT,     // no_constraint vs constraint
-  WEIGHT,         // no_weight vs weight
-  AUTO,           // no_auto vs auto
-  VIRTUAL,        // no_virtual vs virtual
-  RANGER,         // no_ranger vs ranger
-  REQUIRE,        // no_require vs require
-  ENSURE          // no_ensure vs ensure
+  ANCHOR,
+  CONTAINER,
+  VISIBILITY,
+  ACCESS,
+  MUTATE,
+  COHORT,
+  CAPTURE,
+  LINKAGE,
+  MANGLE,
+  PACK,
+  BRANCH_TREND,
+  SUPPORT_NOTICE,
+  ADDRESS_STABILITY,
+  VARIADIC,
+  OFFSET,
+  TEMPLATE,
+  CONSTRAINT,
+  WEIGHT,
+  DEDUCTION,
+  VIRTUALITY,
+  RANGER,
+  REQUIRE,
+  ENSURE,
+  LAST
 };
 
-[[nodiscard]] inline llvm::StringRef getDescription(rq::LowAttributeKind kind) {
-  using LAK = rq::LowAttributeKind;
+[[nodiscard]] inline llvm::StringRef getDescription(rq::ModifierKind kind) {
+  using MK = rq::ModifierKind;
   switch (kind) {
-  case LAK::NONE:
+  case MK::NONE:
     break;
-  case LAK::ANCHOR:
-    return "anchor attribute";
-  case LAK::FLANK:
-    return "flank attribute";
-  case LAK::OPAQUE:
-    return "opaque attribute";
-  case LAK::GLOBAL:
-    return "global attribute";
-  case LAK::PUBLIC:
-    return "public attribute";
-  case LAK::PARTIAL_MUTATE:
-    return "partial mutate attribute";
-  case LAK::STATIC:
-    return "static attribute";
-  case LAK::DELAY:
-    return "delay attribute";
-  case LAK::CAPTURE:
-    return "capture attribute";
-  case LAK::INLINE:
-    return "inline attribute";
-  case LAK::MANGLE:
-    return "mangle attribute";
-  case LAK::PACK:
-    return "pack attribute";
-  case LAK::BRANCH_TREND:
-    return "branch trend attribute";
-  case LAK::SUPPORT_STATUS:
-    return "support status attribute";
-  case LAK::STABLE_ADDRESS:
-    return "stable address attribute";
-  case LAK::VARIADIC:
-    return "variadic attribute";
-  case LAK::LOCATION:
-    return "location attribute";
-  case LAK::TEMPLATE:
-    return "template attribute";
-  case LAK::CONSTRAINT:
-    return "constraint attribute";
-  case LAK::WEIGHT:
-    return "weight attribute";
-  case LAK::AUTO:
-    return "auto attribute";
-  case LAK::VIRTUAL:
-    return "virtual attribute";
-  case LAK::RANGER:
-    return "ranger attribute";
-  case LAK::REQUIRE:
-    return "require attribute";
-  case LAK::ENSURE:
-    return "ensure attribute";
-  }
-  RQ_UNREACHABLE();
-}
-
-[[nodiscard]] inline rq::LowAttributeKind getKind(rq::LowAttribute attribute) {
-  using LA = rq::LowAttribute;
-  using LAK = rq::LowAttributeKind;
-  switch (attribute) {
-  case LA::NONE:
-    return LAK::NONE;
-  case LA::NO_ANCHOR:
-    [[fallthrough]];
-  case LA::ANCHOR:
-    return LAK::ANCHOR;
-  case LA::NO_FLANK:
-    [[fallthrough]];
-  case LA::FLANK:
-    return LAK::FLANK;
-  case LA::NO_OPAQUE:
-    [[fallthrough]];
-  case LA::OPAQUE:
-    return LAK::OPAQUE;
-  case LA::NO_GLOBAL:
-    [[fallthrough]];
-  case LA::GLOBAL:
-    return LAK::GLOBAL;
-  case LA::NO_PUBLIC:
-    [[fallthrough]];
-  case LA::PUBLIC:
-    return LAK::PUBLIC;
-  case LA::NO_PARTIAL_MUTATE:
-    [[fallthrough]];
-  case LA::PARTIAL_MUTATE:
-    return LAK::PARTIAL_MUTATE;
-  case LA::NO_STATIC:
-    [[fallthrough]];
-  case LA::STATIC:
-    return LAK::STATIC;
-  case LA::NO_DELAY:
-    [[fallthrough]];
-  case LA::DELAY:
-    return LAK::DELAY;
-  case LA::NO_CAPTURE:
-    [[fallthrough]];
-  case LA::CAPTURE:
-    return LAK::CAPTURE;
-  case LA::NO_INLINE:
-    [[fallthrough]];
-  case LA::INLINE:
-    return LAK::INLINE;
-  case LA::NO_MANGLE:
-    [[fallthrough]];
-  case LA::MANGLE:
-    return LAK::MANGLE;
-  case LA::NO_PACK:
-    [[fallthrough]];
-  case LA::PACK:
-    return LAK::PACK;
-  case LA::NO_BRANCH_TREND:
-    [[fallthrough]];
-  case LA::LIKELY:
-    [[fallthrough]];
-  case LA::UNLIKELY:
-    return LAK::BRANCH_TREND;
-  case LA::NO_SUPPORT_STATUS:
-    [[fallthrough]];
-  case LA::DEPRECIATED:
-    [[fallthrough]];
-  case LA::EXPERIMENTAL:
-    return LAK::SUPPORT_STATUS;
-  case LA::NO_STABLE_ADDRESS:
-    [[fallthrough]];
-  case LA::STABLE_ADDRESS:
-    return LAK::STABLE_ADDRESS;
-  case LA::NO_VARIADIC:
-    [[fallthrough]];
-  case LA::VARIADIC:
-    return LAK::VARIADIC;
-  case LA::NO_LOCATION:
-    [[fallthrough]];
-  case LA::LOCATION:
-    return LAK::LOCATION;
-  case LA::NO_TEMPLATE:
-    [[fallthrough]];
-  case LA::TEMPLATE:
-    return LAK::TEMPLATE;
-  case LA::NO_CONSTRAINT:
-    [[fallthrough]];
-  case LA::CONSTRAINT:
-    return LAK::CONSTRAINT;
-  case LA::NO_WEIGHT:
-    [[fallthrough]];
-  case LA::WEIGHT:
-    return LAK::WEIGHT;
-  case LA::NO_AUTO:
-    [[fallthrough]];
-  case LA::AUTO:
-    return LAK::AUTO;
-  case LA::NO_VIRTUAL:
-    [[fallthrough]];
-  case LA::VIRTUAL:
-    return LAK::VIRTUAL;
-  case LA::NO_RANGER:
-    [[fallthrough]];
-  case LA::RANGER:
-    return LAK::RANGER;
-  case LA::NO_REQUIRE:
-    [[fallthrough]];
-  case LA::REQUIRE:
-    return LAK::REQUIRE;
-  case LA::NO_ENSURE:
-    [[fallthrough]];
-  case LA::ENSURE:
-    return LAK::ENSURE;
-  case LA::LAST:
+  case MK::ANCHOR:
+    return "anchor modifier";
+  case MK::CONTAINER:
+    return "container modifier";
+  case MK::VISIBILITY:
+    return "visibility modifier";
+  case MK::ACCESS:
+    return "access modifier";
+  case MK::MUTATE:
+    return "mutate modifier";
+  case MK::COHORT:
+    return "cohort modifier";
+  case MK::CAPTURE:
+    return "capture modifier";
+  case MK::LINKAGE:
+    return "linkage modifier";
+  case MK::MANGLE:
+    return "mangle modifier";
+  case MK::PACK:
+    return "pack modifier";
+  case MK::BRANCH_TREND:
+    return "branch trend modifier";
+  case MK::SUPPORT_NOTICE:
+    return "support notice modifier";
+  case MK::ADDRESS_STABILITY:
+    return "address stability modifier";
+  case MK::VARIADIC:
+    return "variadic modifier";
+  case MK::OFFSET:
+    return "offset modifier";
+  case MK::TEMPLATE:
+    return "template modifier";
+  case MK::CONSTRAINT:
+    return "constraint modifier";
+  case MK::WEIGHT:
+    return "weight modifier";
+  case MK::DEDUCTION:
+    return "deduction modifier";
+  case MK::VIRTUALITY:
+    return "virtuality modifier";
+  case MK::RANGER:
+    return "ranger modifier";
+  case MK::REQUIRE:
+    return "require modifier";
+  case MK::ENSURE:
+    return "ensure modifier";
+  case MK::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-struct LowExpressionPair final {
-  using Self = rq::LowExpressionPair;
+[[nodiscard]] inline rq::ModifierFuseFlags getMask(rq::ModifierKind kind) {
+  using MK = rq::ModifierKind;
+  using MFF = rq::ModifierFuseFlags;
+  switch (kind) {
+  case MK::NONE:
+    return MFF::NONE;
+  case MK::ANCHOR:
+    return MFF::ANCHOR_MODIFIER_MASK;
+  case MK::CONTAINER:
+    return MFF::CONTAINER_MODIFIER_MASK;
+  case MK::VISIBILITY:
+    return MFF::VISIBILITY_MODIFIER_MASK;
+  case MK::ACCESS:
+    return MFF::ACCESS_MODIFIER_MASK;
+  case MK::MUTATE:
+    return MFF::MUTATE_MODIFIER_MASK;
+  case MK::COHORT:
+    return MFF::COHORT_MODIFIER_MASK;
+  case MK::CAPTURE:
+    return MFF::CAPTURE_MODIFIER_MASK;
+  case MK::LINKAGE:
+    return MFF::LINKAGE_MODIFIER_MASK;
+  case MK::MANGLE:
+    return MFF::MANGLE_MODIFIER_MASK;
+  case MK::PACK:
+    return MFF::PACK_MODIFIER_MASK;
+  case MK::BRANCH_TREND:
+    return MFF::BRANCH_TREND_MODIFIER_MASK;
+  case MK::SUPPORT_NOTICE:
+    return MFF::SUPPORT_NOTICE_MODIFIER_MASK;
+  case MK::ADDRESS_STABILITY:
+    return MFF::ADDRESS_STABILITY_MODIFIER_MASK;
+  case MK::VARIADIC:
+    return MFF::VARIADIC_MODIFIER_MASK;
+  case MK::OFFSET:
+    return MFF::OFFSET_MODIFIER_MASK;
+  case MK::TEMPLATE:
+    return MFF::TEMPLATE_MODIFIER_MASK;
+  case MK::CONSTRAINT:
+    return MFF::CONSTRAINT_MODIFIER_MASK;
+  case MK::WEIGHT:
+    return MFF::WEIGHT_MODIFIER_MASK;
+  case MK::DEDUCTION:
+    return MFF::DEDUCTION_MODIFIER_MASK;
+  case MK::VIRTUALITY:
+    return MFF::VIRTUALITY_MODIFIER_MASK;
+  case MK::RANGER:
+    return MFF::RANGER_MODIFIER_MASK;
+  case MK::REQUIRE:
+    return MFF::REQUIRE_MODIFIER_MASK;
+  case MK::ENSURE:
+    return MFF::ENSURE_MODIFIER_MASK;
+  case MK::LAST:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::ModifierKind getKind(rq::Modifier modifier) {
+  using M = rq::Modifier;
+  using MK = rq::ModifierKind;
+  switch (modifier) {
+  case M::NONE:
+    return MK::NONE;
+  case M::ANCHOR:
+    return MK::ANCHOR;
+  case M::RESIDENT:
+    [[fallthrough]];
+  case M::FLANK:
+    return MK::CONTAINER;
+  case M::TRANSPARENT:
+    [[fallthrough]];
+  case M::OPAQUE:
+    return MK::VISIBILITY;
+  case M::PRIVATE:
+    [[fallthrough]];
+  case M::PUBLIC:
+    return MK::ACCESS;
+  case M::FULL_MUTATE:
+    [[fallthrough]];
+  case M::PARTIAL_MUTATE:
+    return MK::MUTATE;
+  case M::DYNAMIC:
+    [[fallthrough]];
+  case M::STATIC:
+    [[fallthrough]];
+  case M::RUNTIME:
+    [[fallthrough]];
+  case M::COMPTIME:
+    [[fallthrough]];
+  case M::HYBRID:
+    [[fallthrough]];
+  case M::SINGLETON:
+    return MK::COHORT;
+  case M::CAPTURE:
+    return MK::CAPTURE;
+  case M::LINKED:
+    [[fallthrough]];
+  case M::INLINE:
+    return MK::LINKAGE;
+  case M::AUTO_MANGLE:
+    [[fallthrough]];
+  case M::MANUAL_MANGLE:
+    return MK::MANGLE;
+  case M::PAD:
+    [[fallthrough]];
+  case M::PACK:
+    return MK::PACK;
+  case M::EQUIVOCAL:
+    [[fallthrough]];
+  case M::LIKELY:
+    [[fallthrough]];
+  case M::UNLIKELY:
+    return MK::BRANCH_TREND;
+  case M::SUPPORTED:
+    [[fallthrough]];
+  case M::DEPRECIATED:
+    [[fallthrough]];
+  case M::EXPERIMENTAL:
+    return MK::SUPPORT_NOTICE;
+  case M::UNSTABLE_ADDRESS:
+    [[fallthrough]];
+  case M::STABLE_ADDRESS:
+    return MK::ADDRESS_STABILITY;
+  case M::INVARIADIC:
+    [[fallthrough]];
+  case M::VARIADIC:
+    return MK::VARIADIC;
+  case M::FRUGAL:
+    [[fallthrough]];
+  case M::LOCATION:
+    return MK::OFFSET;
+  case M::TEMPLATE:
+    return MK::TEMPLATE;
+  case M::CONSTRAINT:
+    return MK::CONSTRAINT;
+  case M::DEFAULT_WEIGHT:
+    [[fallthrough]];
+  case M::WEIGHT:
+    return MK::WEIGHT;
+  case M::MANUAL:
+    [[fallthrough]];
+  case M::AUTO:
+    return MK::DEDUCTION;
+  case M::DIRECT:
+    [[fallthrough]];
+  case M::VIRTUAL:
+    return MK::VIRTUALITY;
+  case M::RANGER:
+    return MK::RANGER;
+  case M::REQUIRE:
+    return MK::REQUIRE;
+  case M::ENSURE:
+    return MK::ENSURE;
+  case M::LAST:
+    break;
+  }
+  RQ_UNREACHABLE();
+}
+
+struct ModifierExpressionPair final {
+  using Self = rq::ModifierExpressionPair;
 
   rq::Expression *_instantiation_ex_ptr{nullptr};
   rq::Expression *_attachment_ex_ptr{nullptr};
 
-  explicit LowExpressionPair() = default;
-  explicit LowExpressionPair(rq::Expression &instantiation_ex,
-                             rq::Expression *attachment_ex_ptr)
+  explicit ModifierExpressionPair() = default;
+  explicit ModifierExpressionPair(rq::Expression &instantiation_ex,
+                                  rq::Expression *attachment_ex_ptr)
       : _instantiation_ex_ptr(&instantiation_ex),
         _attachment_ex_ptr(attachment_ex_ptr) {}
 
@@ -3466,57 +3337,61 @@ struct LowExpressionPair final {
   }
 };
 
-struct LowFactory final {
-  using Self = rq::LowFactory;
+struct ModifierFactory final {
+  using Self = rq::ModifierFactory;
   using PtrMap =
-      llvm::SmallDenseMap<rq::LowAttributeKind, rq::LowExpressionPair>;
+      llvm::SmallDenseMap<rq::ModifierKind, rq::ModifierExpressionPair>;
 
-  rq::LowFuseFlags _flags{};
+  rq::ModifierFuseFlags _flags{};
   PtrMap _ptr_map{};
 
-  LowFactory() = default;
-  LowFactory(const Self &) = delete;
-  LowFactory(Self &&) = delete;
-  ~LowFactory() = default;
+  ModifierFactory() = default;
+  ModifierFactory(const Self &) = delete;
+  ModifierFactory(Self &&) = delete;
+  ~ModifierFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEmpty() const {
-    return this->_flags == rq::LowFuseFlags::NONE;
+    return this->_flags == rq::ModifierFuseFlags::NONE;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowFuseFlags getFuseFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags getFuseFlags() const {
     return this->_flags;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasAll(rq::LowFuseFlags flags) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasAll(rq::ModifierFuseFlags flags) const {
     return rq::getHasAll(this->_flags, flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSome(rq::LowFuseFlags flags) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasSome(rq::ModifierFuseFlags flags) const {
     return rq::getHasSome(this->_flags, flags);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNone(rq::LowFuseFlags flags) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getHasNone(rq::ModifierFuseFlags flags) const {
     return rq::getHasNone(this->_flags, flags);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowExpressionPair
-  getExpressionPair(rq::LowAttributeKind kind) const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierExpressionPair
+  getExpressionPair(rq::ModifierKind kind) const {
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
-      return rq::LowExpressionPair();
+      return rq::ModifierExpressionPair();
     }
     return it->getSecond();
   }
-  [[nodiscard]] inline bool addFlag(rq::LowAttribute attribute,
+  [[nodiscard]] inline bool addFlag(rq::Modifier modifier,
                                     rq::Expression &instantiation_ex,
                                     rq::Expression *attachment_ex_ptr) {
-    const rq::LowFuseFlags flag = rq::getFuseFlags(attribute);
+    const rq::ModifierFuseFlags flag = rq::getFuseFlags(modifier);
     this->_flags |= flag;
-    const rq::LowAttributeKind kind = rq::getKind(attribute);
+    const rq::ModifierKind kind = rq::getKind(modifier);
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
       this->_ptr_map.emplace_or_assign(
-          kind, rq::LowExpressionPair(instantiation_ex, attachment_ex_ptr));
+          kind,
+          rq::ModifierExpressionPair(instantiation_ex, attachment_ex_ptr));
     } else {
       return false;
     }
@@ -3524,7 +3399,7 @@ struct LowFactory final {
   }
 };
 
-enum class HighAttribute : std::uint_fast8_t {
+enum class Qualifier : std::uint_fast8_t {
   NONE,
   NO_VAR,
   VAR,
@@ -3539,10 +3414,10 @@ enum class HighAttribute : std::uint_fast8_t {
   GREATEST
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::HighAttribute attribute) {
+[[nodiscard]] inline llvm::StringRef getName(rq::Qualifier modifier) {
   using namespace rq;
-  using HA = HighAttribute;
-  switch (attribute) {
+  using HA = Qualifier;
+  switch (modifier) {
   case HA::NONE:
     return "none";
   case HA::NO_VAR:
@@ -3571,10 +3446,10 @@ enum class HighAttribute : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::HighAttribute getHighAttribute(rq::Keyword keyword) {
+[[nodiscard]] inline rq::Qualifier getQualifier(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using HA = HighAttribute;
+  using HA = Qualifier;
   switch (keyword) {
   case K::NO_VAR:
     return HA::NO_VAR;
@@ -3594,17 +3469,13 @@ enum class HighAttribute : std::uint_fast8_t {
     return HA::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
     return HA::NULL_TERMINATE;
-  case K::NO_GREATEST:
-    return HA::NO_GREATEST;
-  case K::GREATEST:
-    return HA::GREATEST;
   default:
     break;
   }
   return HA::NONE;
 }
 
-enum class HighFuseFlags : std::uint_fast8_t {
+enum class QualifierFuseFlags : std::uint_fast8_t {
   NONE = 0,
 
   VAR = rq::getBit(0),
@@ -3624,43 +3495,43 @@ enum class HighFuseFlags : std::uint_fast8_t {
   GREATEST_MASK = GREATEST
 };
 
-RQ_DEFINE_FLAGS(rq::HighFuseFlags);
+RQ_DEFINE_FLAGS(rq::QualifierFuseFlags);
 
-[[nodiscard]] inline rq::HighFuseFlags
-getFuseFlags(rq::HighAttribute attribute) {
+[[nodiscard]] inline rq::QualifierFuseFlags
+getFuseFlags(rq::Qualifier modifier) {
   using namespace rq;
-  using HA = HighAttribute;
-  using HFF = HighFuseFlags;
-  switch (attribute) {
-  case HA::NONE:
-    return HFF::NONE;
-  case HA::NO_VAR:
-    return HFF::NONE;
-  case HA::VAR:
-    return HFF::VAR;
-  case HA::PARTIAL_VAR:
-    return HFF::PARTIAL_VAR;
-  case HA::NO_VOLATILE:
-    return HFF::NONE;
-  case HA::VOLATILE:
-    return HFF::VOLATILE;
-  case HA::NO_ATOMIC:
-    return HFF::NONE;
-  case HA::ATOMIC:
-    return HFF::ATOMIC;
-  case HA::NO_NULL_TERMINATE:
-    return HFF::NONE;
-  case HA::NULL_TERMINATE:
-    return HFF::NULL_TERMINATE;
-  case HA::NO_GREATEST:
-    return HFF::NONE;
-  case HA::GREATEST:
-    return HFF::GREATEST;
+  using Q = Qualifier;
+  using QFF = QualifierFuseFlags;
+  switch (modifier) {
+  case Q::NONE:
+    return QFF::NONE;
+  case Q::NO_VAR:
+    return QFF::NONE;
+  case Q::VAR:
+    return QFF::VAR;
+  case Q::PARTIAL_VAR:
+    return QFF::PARTIAL_VAR;
+  case Q::NO_VOLATILE:
+    return QFF::NONE;
+  case Q::VOLATILE:
+    return QFF::VOLATILE;
+  case Q::NO_ATOMIC:
+    return QFF::NONE;
+  case Q::ATOMIC:
+    return QFF::ATOMIC;
+  case Q::NO_NULL_TERMINATE:
+    return QFF::NONE;
+  case Q::NULL_TERMINATE:
+    return QFF::NULL_TERMINATE;
+  case Q::NO_GREATEST:
+    return QFF::NONE;
+  case Q::GREATEST:
+    return QFF::GREATEST;
   }
   RQ_UNREACHABLE();
 }
 
-enum class HighAttributeKind : std::uint_fast8_t {
+enum class QualifierKind : std::uint_fast8_t {
   NONE,
   VAR,
   VOLATILE,
@@ -3669,31 +3540,29 @@ enum class HighAttributeKind : std::uint_fast8_t {
   GREATEST
 };
 
-[[nodiscard]] inline llvm::StringRef
-getDescription(rq::HighAttributeKind kind) {
-  using HAK = rq::HighAttributeKind;
+[[nodiscard]] inline llvm::StringRef getDescription(rq::QualifierKind kind) {
+  using HAK = rq::QualifierKind;
   switch (kind) {
   case HAK::NONE:
     return "none";
   case HAK::VAR:
-    return "var attribute";
+    return "var modifier";
   case HAK::VOLATILE:
-    return "volatile attribute";
+    return "volatile modifier";
   case HAK::ATOMIC:
-    return "atomic attribute";
+    return "atomic modifier";
   case HAK::NULL_TERMINATE:
-    return "null terminate attribute";
+    return "null terminate modifier";
   case HAK::GREATEST:
     return "greatest";
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::HighAttributeKind
-getKind(rq::HighAttribute attribute) {
-  using HA = rq::HighAttribute;
-  using HAK = rq::HighAttributeKind;
-  switch (attribute) {
+[[nodiscard]] inline rq::QualifierKind getKind(rq::Qualifier modifier) {
+  using HA = rq::Qualifier;
+  using HAK = rq::QualifierKind;
+  switch (modifier) {
   case HA::NONE:
     return HAK::NONE;
   case HA::NO_VAR:
@@ -3722,39 +3591,39 @@ getKind(rq::HighAttribute attribute) {
   RQ_UNREACHABLE();
 }
 
-struct HighFactory final {
-  using Self = rq::HighFactory;
-  using PtrMap = llvm::SmallDenseMap<rq::HighAttributeKind, rq::Expression *>;
+struct QualifierFactory final {
+  using Self = rq::QualifierFactory;
+  using PtrMap = llvm::SmallDenseMap<rq::QualifierKind, rq::Expression *>;
 
-  rq::HighFuseFlags _flags{};
+  rq::QualifierFuseFlags _flags{};
   PtrMap _ptr_map{};
 
-  HighFactory() = default;
-  HighFactory(const Self &) = delete;
-  HighFactory(Self &&) = delete;
-  ~HighFactory() = default;
+  QualifierFactory() = default;
+  QualifierFactory(const Self &) = delete;
+  QualifierFactory(Self &&) = delete;
+  ~QualifierFactory() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighFuseFlags getFuseFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifierFuseFlags getFuseFlags() const {
     return this->_flags;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const PtrMap &getPtrMap() const {
     return this->_ptr_map;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  getExpressionPtr(rq::HighAttributeKind kind) {
+  getExpressionPtr(rq::QualifierKind kind) {
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
       return nullptr;
     }
     return it->getSecond();
   }
-  [[nodiscard]] inline bool addFlag(rq::HighAttribute attribute,
+  [[nodiscard]] inline bool addFlag(rq::Qualifier modifier,
                                     rq::Expression *expression_ptr) {
-    const rq::HighFuseFlags flag = rq::getFuseFlags(attribute);
+    const rq::QualifierFuseFlags flag = rq::getFuseFlags(modifier);
     this->_flags |= flag;
-    const rq::HighAttributeKind kind = rq::getKind(attribute);
+    const rq::QualifierKind kind = rq::getKind(modifier);
     auto it = this->_ptr_map.find(kind);
     if (it == this->_ptr_map.end()) {
       this->_ptr_map.emplace_or_assign(kind, expression_ptr);
@@ -3765,7 +3634,7 @@ struct HighFactory final {
   }
 };
 
-enum class ArithmeticSequenceStep : std::uint_fast8_t {
+enum class ArithmeticStep : std::uint_fast8_t {
   NONE,
   ADD,
   SUBTRACT,
@@ -3774,10 +3643,9 @@ enum class ArithmeticSequenceStep : std::uint_fast8_t {
   MODULUS
 };
 
-[[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceStep step) {
+[[nodiscard]] inline llvm::StringRef getDescription(rq::ArithmeticStep step) {
   using namespace rq;
-  using ASS = ArithmeticSequenceStep;
+  using ASS = ArithmeticStep;
   switch (step) {
   case ASS::NONE:
     return "no step";
@@ -3795,10 +3663,9 @@ getDescription(rq::ArithmeticSequenceStep step) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ArithmeticSequenceStep
-getArithmeticSequenceStep(rq::Keyword keyword) {
+[[nodiscard]] inline rq::ArithmeticStep getArithmeticStep(rq::Keyword keyword) {
   using namespace rq;
-  using ASS = ArithmeticSequenceStep;
+  using ASS = ArithmeticStep;
   using K = Keyword;
   switch (keyword) {
   case K::ARITHMETIC_SEQUENCE_STEP_ADD:
@@ -3817,7 +3684,7 @@ getArithmeticSequenceStep(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
-enum class ArithmeticSequenceCondition : std::uint_fast8_t {
+enum class ArithmeticCondition : std::uint_fast8_t {
   NONE,
   LESS,
   LESS_EQUAL,
@@ -3828,9 +3695,9 @@ enum class ArithmeticSequenceCondition : std::uint_fast8_t {
 };
 
 [[nodiscard]] inline llvm::StringRef
-getDescription(rq::ArithmeticSequenceCondition condition) {
+getDescription(rq::ArithmeticCondition condition) {
   using namespace rq;
-  using ASC = ArithmeticSequenceCondition;
+  using ASC = ArithmeticCondition;
   switch (condition) {
   case ASC::NONE:
     return "no condition";
@@ -3850,10 +3717,10 @@ getDescription(rq::ArithmeticSequenceCondition condition) {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ArithmeticSequenceCondition
-getArithmeticSequenceCondition(rq::Keyword keyword) {
+[[nodiscard]] inline rq::ArithmeticCondition
+getArithmeticCondition(rq::Keyword keyword) {
   using namespace rq;
-  using ASC = ArithmeticSequenceCondition;
+  using ASC = ArithmeticCondition;
   using K = Keyword;
   switch (keyword) {
   case K::ARITHMETIC_SEQUENCE_CONDITION_LESS:
@@ -4058,11 +3925,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainLink() const {
     return rq::getCanBeFinishingChainLink(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHighAttribute() const {
-    return rq::getIsHighAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifier() const {
+    return rq::getIsQualifier(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLowAttribute() const {
-    return rq::getIsLowAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsModifier() const {
+    return rq::getIsModifier(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUniversalized() const {
     return rq::getUniversalized(this->getKeyword());
@@ -4106,23 +3973,20 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeLowAttributeInstantiation() const {
-    return rq::getCanBeLowAttributeInstantiation(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeModifierInstantiation() const {
+    return rq::getCanBeModifierInstantiation(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeHighAttributeInstantiation() const {
-    return rq::getCanBeHighAttributeInstantiation(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeQualifierInstantiation() const {
+    return rq::getCanBeQualifierInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
     return rq::getCanBeArithmeticSequenceStage(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getCanBeArithmeticSequenceCondition() const {
-    return rq::getCanBeArithmeticSequenceCondition(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticCondition() const {
+    return rq::getCanBeArithmeticCondition(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStep() const {
-    return rq::getCanBeArithmeticSequenceStep(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticStep() const {
+    return rq::getCanBeArithmeticStep(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeSituation(rq::Situation situation) const {
@@ -4131,11 +3995,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
     return rq::getIsEvaluatableName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LowAttribute getLowAttribute() const {
-    return rq::getLowAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Modifier getModifier() const {
+    return rq::getModifier(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighAttribute getHighAttribute() const {
-    return rq::getHighAttribute(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Qualifier getQualifier() const {
+    return rq::getQualifier(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
@@ -4512,6 +4376,11 @@ struct Expression final : public rq::Entity {
       inout_id.Add(this->getNext());
     } else {
       inout_id.AddInteger(0);
+    }
+    if (this->getIsLiteral()) {
+      inout_id.AddString(this->getSourceText());
+    } else {
+      inout_id.AddString("");
     }
   }
 };

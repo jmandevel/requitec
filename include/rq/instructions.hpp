@@ -113,47 +113,57 @@ struct Instruction final : public rq::Entity {
 
   rq::Entity *_address0_ptr{nullptr};
   rq::Entity *_address1_ptr{nullptr};
+  rq::Expression *_expression_ptr;
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode)
-      : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET) {
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Expression &expression,
+                                        rq::Opcode opcode)
+      : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
+        _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
   }
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0)
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Expression &expression,
+                                        rq::Opcode opcode, rq::Entity &address0)
       : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
-        _address0_ptr(&address0) {
+        _address0_ptr(&address0), _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
   }
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0,
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Expression &expression,
+                                        rq::Opcode opcode, rq::Entity &address0,
                                         rq::Entity &address1)
       : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
-        _address0_ptr(&address0), _address1_ptr(&address1) {
+        _address0_ptr(&address0), _address1_ptr(&address1),
+        _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
   }
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode, rq::Entity &address0,
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Expression &expression,
+                                        rq::Opcode opcode, rq::Entity &address0,
                                         rq::Entity *address1_ptr)
       : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
-        _address0_ptr(&address0), _address1_ptr(address1_ptr) {
+        _address0_ptr(&address0), _address1_ptr(address1_ptr),
+        _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
     RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
   }
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
-                                        rq::Entity *address0_ptr,
-                                        rq::Entity *address1_ptr)
+  explicit RQ_ALWAYS_INLINE
+  Instruction(rq::Expression &expression, rq::Opcode opcode,
+              rq::Entity *address0_ptr, rq::Entity *address1_ptr)
       : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
-        _address0_ptr(address0_ptr), _address1_ptr(address1_ptr) {
+        _address0_ptr(address0_ptr), _address1_ptr(address1_ptr),
+        _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
     RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
     RQ_ASSERT(rq::getSupportsTwoAddress(opcode), "not two address");
   }
 
-  explicit RQ_ALWAYS_INLINE Instruction(rq::Opcode opcode,
+  explicit RQ_ALWAYS_INLINE Instruction(rq::Expression &expression,
+                                        rq::Opcode opcode,
                                         rq::Entity *address0_ptr)
       : Entity(rq::getUnderlyingValue(opcode) + rq::OPCODE_OFFSET),
-        _address0_ptr(address0_ptr) {
+        _address0_ptr(address0_ptr), _expression_ptr(&expression) {
     RQ_ASSERT(rq::getSupportsZeroAddress(opcode), "not zero address");
     RQ_ASSERT(rq::getSupportsOneAddress(opcode), "not one address");
   }
@@ -216,11 +226,39 @@ struct Instruction final : public rq::Entity {
   replaceAddress1Ptr(rq::Entity *address1_ptr) {
     return rq::replaceValuePtr(this->_address1_ptr, address1_ptr);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id >= rq::OPCODE_OFFSET;
+  }
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    inout_id.Add(this->getOpcode());
+    const rq::Entity *address0_ptr = this->getAddress0Ptr();
+    if (llvm::isa_and_nonnull<rq::Instruction>(address0_ptr)) {
+      inout_id.AddInteger(1);
+      const rq::Instruction &inst0 =
+          llvm::cast<rq::Instruction>(rq::dereferencePtr(address0_ptr));
+      inout_id.Add(inst0);
+    } else {
+      inout_id.AddPointer(address0_ptr);
+    }
+    const rq::Entity *address1_ptr = this->getAddress1Ptr();
+    if (llvm::isa_and_nonnull<rq::Instruction>(address1_ptr)) {
+      inout_id.AddInteger(1);
+      const rq::Instruction &inst1 =
+          llvm::cast<rq::Instruction>(rq::dereferencePtr(address1_ptr));
+      inout_id.Add(inst1);
+    } else {
+      inout_id.AddPointer(address1_ptr);
+    }
   }
 };
 

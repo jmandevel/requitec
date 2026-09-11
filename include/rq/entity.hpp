@@ -34,8 +34,8 @@ enum class Keyword : rq::EntityId {
   // SITUATIONAL
   UNSITUATED_PARENTHESIS_GROUP,
   UNSITUATED_EQUAL_OPERATOR,
-  UNSITUATED_ASCRIBE_LOW,
-  UNSITUATED_ASCRIBE_HIGH,
+  UNSITUATED_ASCRIBE_MODIFIER,
+  UNSITUATED_ASCRIBE_QUALIFIER,
   UNSITUATED_CHAIN,
   UNSITUATED_TRAIN,
 
@@ -61,11 +61,11 @@ enum class Keyword : rq::EntityId {
   INSTANTIATE_ADAPTION,
   BINDING,
   UPBINDING,
-  ASCRIBE_HIGH,
-  ASCRIBE_LOW,
-  ASCRIBE_HIGH_RECIEVER,
-  INSTANTIATE_LOW_ATTRIBUTE,
-  INSTANTIATE_HIGH_ATTRIBUTE,
+  ASCRIBE_QUALIFIER,
+  ASCRIBE_MODIFIER,
+  ASCRIBE_RECIEVER_QUALIFIER,
+  INSTANTIATE_MODIFIER,
+  INSTANTIATE_QUALIFIER,
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,
@@ -145,6 +145,7 @@ enum class Keyword : rq::EntityId {
   INSTANTIATE_REFERENCE,
   INSTANTIATE_POINTER,
   INSTANTIATE_SLICE,
+  INSTANTIATE_GREATEST,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -279,136 +280,122 @@ enum class Keyword : rq::EntityId {
   UNREACHABLE,
   ASSUME,
 
-  // LOW ATTRIBUTES
-  // anchor_attribute
-  NO_ANCHOR,
+  // MODIFIERS
+  // anchor_modifier
   ANCHOR,
-  // flank_attribute
-  NO_FLANK,
+  // container_modifier
+  RESIDENT,
   FLANK,
-  // opaque_attribute
-  NO_OPAQUE,
+  // visibility_modifier
+  TRANSPARENT,
   OPAQUE,
-  // global_attribute
-  NO_GLOBAL,
-  GLOBAL,
-  // public_attribute
-  NO_PUBLIC,
+  // access_modifier
+  PRIVATE,
   PUBLIC,
-  // partial_mutate_attribute
-  NO_PARTIAL_MUTATE,
+  // mutate_modifier
+  FULL_MUTATE,
   PARTIAL_MUTATE,
-  // static_attribute
-  NO_STATIC,
+  // cohort_modifier
+  DYNAMIC,
   STATIC,
-  // delay_attribute
-  NO_DELAY,
-  DELAY,
-  // capture_attribute
-  NO_CAPTURE,
+  RUNTIME,
+  COMPTIME,
+  HYBRID,
+  SINGLETON,
+  // capture_modifier
   CAPTURE,
-  // inline_attribute
-  NO_INLINE,
+  // linkage_modifier
+  LINKED,
   INLINE,
-  // mangle_attribute
-  NO_MANGLE,
-  MANGLE,
-  // pack_attribute
-  NO_PACK,
+  // mangle_modifier
+  AUTO_MANGLE,
+  MANUAL_MANGLE,
+  // pack_modifier
+  PAD,
   PACK,
-  // branch_trend_attribute
-  NO_BRANCH_TREND,
+  // branch_trend_modifier
+  EQUIVOCAL,
   LIKELY,
   UNLIKELY,
-  // support_status_attribute
-  NO_SUPPORT_STATUS,
+  // support_notice_modifier
+  SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // address_stability_attribute
-  NO_STABLE_ADDRESS,
+  // address_stability_modifier
+  UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic_attribute
-  NO_VARIADIC,
+  // variadic_modifier
+  INVARIADIC,
   VARIADIC,
-  // location_attribute
-  NO_LOCATION,
+  // offset_modifier
+  FRUGAL,
   LOCATION,
-  // template_attribute
-  NO_TEMPLATE,
+  // template_modifier
   TEMPLATE,
-  // constraint_attribute
-  NO_CONSTRAINT,
+  // constraint_modifier
   CONSTRAINT,
-  // weight_attribute
-  NO_WEIGHT,
+  // weight_modifier
+  DEFAULT_WEIGHT,
   WEIGHT,
-  // auto_attribute
-  NO_AUTO,
+  // deduction_modifier
+  MANUAL,
   AUTO,
-  // virtual_attribute
-  NO_VIRTUAL,
+  // virtuality_modifier
+  DIRECT,
   VIRTUAL,
-  // ranger_attribute
-  NO_RANGER,
+  // ranger_modifier
   RANGER,
-  // require_attribute
-  NO_REQUIRE,
+  // require_modifier
   REQUIRE,
-  // ensure_attribute
-  NO_ENSURE,
+  // ensure_modifier
   ENSURE,
 
-  // HIGH ATTRIBUTES
-  // var_attribute
+  // QUALIFIERS
+  // var_qualifier
   NO_VAR,
   VAR,
   PARTIAL_VAR,
-  // volatile_attribute
+  // volatile_qualifier
   NO_VOLATILE,
   VOLATILE,
-  // atomic_attribute
+  // atomic_qualifier
   NO_ATOMIC,
   ATOMIC,
-  // null_terminate_attribute
+  // null_terminate_qualifier
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  // greatest_attribute
-  NO_GREATEST,
-  GREATEST,
 
-  // LOW ATTRIBUTE TYPES
-  ANCHOR_ATTRIBUTE,         // no_anchor vs anchor
-  FLANK_ATTRIBUTE,          // no_flank vs flank
-  OPAQUE_ATTRIBUTE,         // no_opaque vs opaque
-  GLOBAL_ATTRIBUTE,         // no_global vs global
-  PUBLIC_ATTRIBUTE,         // no_public vs public
-  PARTIAL_MUTATE_ATTRIBUTE, // no_partial_mutate vs partial_mutate
-  STATIC_ATTRIBUTE,         // no_static vs static
-  DELAY_ATTRIBUTE,          // no_delay vs delay
-  CAPTURE_ATTRIBUTE,        // no_capture vs capture
-  INLINE_ATTRIBUTE,         // no_inline vs inline
-  MANGLE_ATTRIBUTE,         // no_mangle vs mangle
-  PACK_ATTRIBUTE,           // no_pack vs pack
-  BRANCH_TREND_ATTRIBUTE,   // no_branch_trend vs likely vs unlikely
-  SUPPORT_STATUS_ATTRIBUTE, // no_support_status vs depreciate vs experimental
-  STABLE_ADDRESS_ATTRIBUTE, // no_stable_address vs stable_address
-  VARIADIC_ATTRIBUTE,       // no_variadic vs variadic
-  LOCATION_ATTRIBUTE,       // no_location vs location
-  TEMPLATE_ATTRIBUTE,       // no_template vs template
-  CONSTRAINT_ATTRIBUTE,     // no_constraint vs constraint
-  WEIGHT_ATTRIBUTE,         // no_weight vs weight
-  AUTO_ATTRIBUTE,           // no_auto vs auto
-  VIRTUAL_ATTRIBUTE,        // no_virtual vs virtual
-  RANGER_ATTRIBUTE,         // no_ranger vs ranger
-  REQUIRE_ATTRIBUTE,        // no_require vs require
-  ENSURE_ATTRIBUTE,         // no_ensure vs ensure
+  // MODIFIER TYPES
+  ANCHOR_MODIFIER,         // anchor
+  CONTAINER_MODIFIER,      // resident vs flank
+  VISIBILITY_MODIFIER,     // transparent vs opaque
+  ACCESS_MODIFIER,         // privates vs public
+  MUTATE_MODIFIER,         // full_mutate vs partial_mutate
+  COHORT_MODIFIER,         // dynamic vs static vs runtime vs comptime vs
+                           // hybrid vs singleton
+  CAPTURE_MODIFIER,        // capture
+  LINKAGE_MODIFIER,        // linked vs inline
+  MANGLE_MODIFIER,         // generate_mangle vs mangle
+  PACK_MODIFIER,           // pad vs pack
+  BRANCH_TREND_MODIFIER,   // equivocsl vs likely vs unlikely
+  SUPPORT_NOTICE_MODIFIER, // supported vs depreciate vs experimental
+  STABLE_ADDRESS_MODIFIER, // unstable_address vs stable_address
+  VARIADIC_MODIFIER,       // invariadic vs variadic
+  OFFSET_MODIFIER,         // frugal vs location
+  TEMPLATE_MODIFIER,       // template
+  CONSTRAINT_MODIFIER,     // constraint
+  WEIGHT_MODIFIER,         // default_weight vs weight
+  DEDUCTION_MODIFIER,      // manual vs auto
+  VIRTUALITY_MODIFIER,     // direct vs virtual
+  RANGER_MODIFIER,         // ranger
+  REQUIRE_MODIFIER,        // require
+  ENSURE_MODIFIER,         // ensure
 
-  // HIGH ATTRIBUTE TYPES
-  VAR_ATTRIBUTE,            // no_var vs var vs partial_var
-  VOLATILE_ATTRIBUTE,       // no_volatile vs volatile
-  ATOMIC_ATTRIBUTE,         // no_atomic vs atomic
-  NULL_TERMINATE_ATTRIBUTE, // no_null_terminate vs null_terminate
-  GREATEST_ATTRIBUTE,       // no_greatest vs greatest
+  // QUALIFIER TYPES
+  VAR_QUALIFIER,            // no_var vs var vs partial_var
+  VOLATILE_QUALIFIER,       // no_volatile vs volatile
+  ATOMIC_QUALIFIER,         // no_atomic vs atomic
+  NULL_TERMINATE_QUALIFIER, // no_null_terminate vs null_terminate
 
   // REFLECTIONS
   MEMBER_OF,
@@ -518,10 +505,10 @@ enum class Keyword : rq::EntityId {
   IS_STRING_TYPE_OF,
   IS_CODEUNIT_TYPE,
   IS_CODEUNIT_TYPE_OF,
-  IS_LOW_ATTRIBUTE_TYPE,
-  IS_LOW_ATTRIBUTE_TYPE_OF,
-  IS_HIGH_ATTRIBUTE_TYPE,
-  IS_HIGH_ATTRIBUTE_TYPE_OF,
+  IS_MODIFIER_TYPE,
+  IS_MODIFIER_TYPE_OF,
+  IS_QUALIFIER_TYPE,
+  IS_QUALIFIER_TYPE_OF,
 
   LAST
 };
@@ -546,38 +533,35 @@ enum class SymbolKind : rq::EntityId {
   VOID_TYPE,
   NO_RETURN_TYPE,
 
-  // LOW ATTRIBUTE TYPES
-  ANCHOR_ATTRIBUTE_TYPE,
-  OPAQUE_ATTRIBUTE_TYPE,
-  GLOBAL_ATTRIBUTE_TYPE,
-  PUBLIC_ATTRIBUTE_TYPE,
-  PARTIAL_MUTATE_ATTRIBUTE_TYPE,
-  STATIC_ATTRIBUTE_TYPE,
-  DELAY_ATTRIBUTE_TYPE,
-  CAPTURE_ATTRIBUTE_TYPE,
-  INLINE_ATTRIBUTE_TYPE,
-  MANGLE_ATTRIBUTE_TYPE,
-  PACK_ATTRIBUTE_TYPE,
-  BRANCH_TREND_ATTRIBUTE_TYPE,
-  SUPPORT_STATUS_ATTRIBUTE_TYPE,
-  STABLE_ADDRESS_ATTRIBUTE_TYPE,
-  VARIADIC_ATTRIBUTE_TYPE,
-  LOCATION_ATTRIBUTE_TYPE,
-  TEMPLATE_ATTRIBUTE_TYPE,
-  CONSTRAINT_ATTRIBUTE_TYPE,
-  WEIGHT_ATTRIBUTE_TYPE,
-  AUTO_ATTRIBUTE_TYPE,
-  VIRTUAL_ATTRIBUTE_TYPE,
-  ENSURE_ATTRIBUTE_TYPE,
-  REQUIRE_ATTRIBUTE_TYPE,
-  RANGER_ATTRIBUTE_TYPE,
+  // MODIFIER TYPES
+  ANCHOR_MODIFIER_TYPE,
+  OPAQUE_MODIFIER_TYPE,
+  PUBLIC_MODIFIER_TYPE,
+  PARTIAL_MUTATE_MODIFIER_TYPE,
+  COHORT_MODIFIER_TYPE,
+  CAPTURE_MODIFIER_TYPE,
+  INLINE_MODIFIER_TYPE,
+  MANGLE_MODIFIER_TYPE,
+  PACK_MODIFIER_TYPE,
+  BRANCH_TREND_MODIFIER_TYPE,
+  SUPPORT_NOTICE_MODIFIER_TYPE,
+  STABLE_ADDRESS_MODIFIER_TYPE,
+  VARIADIC_MODIFIER_TYPE,
+  LOCATION_MODIFIER_TYPE,
+  TEMPLATE_MODIFIER_TYPE,
+  CONSTRAINT_MODIFIER_TYPE,
+  WEIGHT_MODIFIER_TYPE,
+  AUTO_MODIFIER_TYPE,
+  VIRTUAL_MODIFIER_TYPE,
+  ENSURE_MODIFIER_TYPE,
+  REQUIRE_MODIFIER_TYPE,
+  RANGER_MODIFIER_TYPE,
 
-  // HIGH ATTRIBUTE TYPES
-  VAR_ATTRIBUTE_TYPE,
-  VOLATILE_ATTRIBUTE_TYPE,
-  ATOMIC_ATTRIBUTE_TYPE,
-  NULL_TERMINATE_ATTRIBUTE_TYPE,
-  GREATEST_ATTRIBUTE_TYPE,
+  // QUALIFIER TYPES
+  VAR_QUALIFIER_TYPE,
+  VOLATILE_QUALIFIER_TYPE,
+  ATOMIC_QUALIFIER_TYPE,
+  NULL_TERMINATE_QUALIFIER_TYPE,
 
   // REFLECTIVE TYPES
   SYMBOL_TYPE,
@@ -652,12 +636,8 @@ enum class SymbolKind : rq::EntityId {
   // LOCAL DECLARATIONS
   ANCHOR,
   ENUMERATOR,
-  LOCAL_DYNAMIC_VARIABLE,
-  FUNCTION_ARGUMENT,
-  LOCAL_STATIC_VARIABLE,
-  LOCAL_CONSTANT_VARIABLE,
-  CAPTURE_ARGUMENT,
-  TEMPLATE_ARGUMENT,
+  LOCAL_VARIABLE,
+  ARGUMENT,
 
   // PARAMETERS => local variable
   PARAMETER,
@@ -704,8 +684,7 @@ enum class SymbolKind : rq::EntityId {
   CONSTRUCTOR_OVERLOAD,
   LAYOUT_CONSTRUCTOR_OVERLOAD,
   FUNCTION_OVERLOAD,
-  GLOBAL_DYNAMIC_VARIABLE_OVERLOAD,
-  GLOBAL_STATIC_VARIABLE_OVERLOAD,
+  GLOBAL_VARIABLE_OVERLOAD,
 
   // SPECIALIZATIONS => implementation => global declaration => named table
   CLASS_SPECIALIZATION,
@@ -713,8 +692,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_SPECIALIZATION,
   ADAPTER_SPECIALIZATION,
   FUNCTION_SPECIALIZATION,
-  GLOBAL_DYNAMIC_VARIABLE_SPECIALIZATION,
-  GLOBAL_STATIC_VARIABLE_SPECIALIZATION,
+  GLOBAL_VARIABLE_SPECIALIZATION,
 
   // TEMPLATES => global declaration
   CLASS_TEMPLATE,
@@ -722,8 +700,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_TEMPLATE,
   ADAPTER_TEMPLATE,
   FUNCTION_TEMPLATE,
-  GLOBAL_DYNAMIC_VARIABLE_TEMPLATE,
-  GLOBAL_STATIC_VARIABLE_TEMPLATE,
+  GLOBAL_VARIABLE_TEMPLATE,
 
   // POLYMORPHS => symbol
   CLASS_POLYMORPH,
@@ -731,8 +708,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_POLYMORPH,
   ADAPTER_POLYMORPH,
   FUNCTION_POLYMORPH,
-  GLOBAL_DYNAMIC_VARIABLE_POLYMORPH,
-  GLOBAL_STATIC_VARIABLE_POLYMORPH,
+  GLOBAL_VARIABLE_POLYMORPH,
 
   // WEIGHT LEVELS => symbol
   CLASS_WEIGHT_LEVEL,
@@ -740,8 +716,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_WEIGHT_LEVEL,
   ADAPTER_WEIGHT_LEVEL,
   FUNCTION_WEIGHT_LEVEL,
-  GLOBAL_DYNAMIC_VARIABLE_WEIGHT_LEVEL,
-  GLOBAL_STATIC_VARIABLE_WEIGHT_LEVEL,
+  GLOBAL_VARIABLE_WEIGHT_LEVEL,
 
   LAST
 };

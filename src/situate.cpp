@@ -10,22 +10,22 @@
 
 namespace rq {
 
-bool Situator::situateModule(rq::ModuleFactory &factory) {
-  if (factory.getExpressionPtr() == nullptr) {
+bool Situator::situateModule(rq::ModuleDetail &detail) {
+  if (detail.getExpressionPtr() == nullptr) {
     rq::Expression &top = this->getContext().acquireExpression();
     top.setIsInserted();
     top.setKeyword(rq::Keyword::TOP);
-    factory.setOrChangeExpression(&top);
+    detail.setOrChangeExpression(&top);
   }
-  rq::Expression &first = rq::dereferencePtr(factory.getExpressionPtr());
+  rq::Expression &first = rq::dereferencePtr(detail.getExpressionPtr());
   if (first.getKeyword() != rq::Keyword::TOP) {
     rq::Expression &top = this->getContext().acquireExpression();
     top.setIsInserted();
     top.setKeyword(rq::Keyword::TOP);
     top.setBranch(first);
-    factory.setOrChangeExpression(&top);
+    detail.setOrChangeExpression(&top);
   }
-  rq::Expression &top = rq::dereferencePtr(factory.getExpressionPtr());
+  rq::Expression &top = rq::dereferencePtr(detail.getExpressionPtr());
   if (!this->situateTree(rq::Situation::TOP, top)) {
     return false;
   }
@@ -139,15 +139,15 @@ bool Situator::situateTree(rq::Situation situation,
       break;
     }
     break;
-  case K::UNSITUATED_ASCRIBE_LOW:
+  case K::UNSITUATED_ASCRIBE_MODIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_LOW,
-        S::LOW_ATTRIBUTE_INSTANTIATION, situation);
+        situation, expression, 2, K::ASCRIBE_MODIFIER,
+        S::MODIFIER_INSTANTIATION, situation);
     break;
-  case K::UNSITUATED_ASCRIBE_HIGH:
+  case K::UNSITUATED_ASCRIBE_QUALIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_HIGH,
-        S::HIGH_ATTRIBUTE_INSTANTIATION, situation);
+        situation, expression, 2, K::ASCRIBE_QUALIFIER,
+        S::QUALIFIER_INSTANTIATION, situation);
     break;
   case K::UNSITUATED_CHAIN: {
     if (!expression.getHasBranch()) {
@@ -242,8 +242,8 @@ bool Situator::situateTree(rq::Situation situation,
         inner.setNext(next);
         inner_ptr = &member;
         continue;
-      } else if (next.getKeyword() == rq::Keyword::ASCRIBE_HIGH) {
-        next.changeKeyword(rq::Keyword::ASCRIBE_HIGH_RECIEVER);
+      } else if (next.getKeyword() == rq::Keyword::ASCRIBE_QUALIFIER) {
+        next.changeKeyword(rq::Keyword::ASCRIBE_RECIEVER_QUALIFIER);
         rq::Expression &next_branch = next.getBranch();
         if (!next_branch.getCanBeRailcar()) {
           continue;
@@ -314,21 +314,21 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UPBINDING:
     is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
     break;
-  case K::ASCRIBE_HIGH:
+  case K::ASCRIBE_QUALIFIER:
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2,
                                                situation, S::RVALUE);
     break;
-  case K::ASCRIBE_LOW:
+  case K::ASCRIBE_MODIFIER:
     is_ok = this->situateNaryDifferentFirstTag(
-        situation, expression, 2, situation, S::LOW_ATTRIBUTE_INSTANTIATION);
+        situation, expression, 2, situation, S::MODIFIER_INSTANTIATION);
     break;
-  case K::ASCRIBE_HIGH_RECIEVER:
+  case K::ASCRIBE_RECIEVER_QUALIFIER:
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2,
                                                situation, S::RVALUE);
     break;
-  case K::INSTANTIATE_LOW_ATTRIBUTE:
+  case K::INSTANTIATE_MODIFIER:
     [[fallthrough]];
-  case K::INSTANTIATE_HIGH_ATTRIBUTE:
+  case K::INSTANTIATE_QUALIFIER:
     is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
                                           S::RVALUE);
     break;
@@ -533,6 +533,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INSTANTIATE_SLICE:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::INSTANTIATE_GREATEST:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
 
   // PARAMETER RULES
@@ -882,115 +885,101 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
-  // LOW ATTRIBUTES
-  case K::NO_ANCHOR:
-    [[fallthrough]];
+  // MODIFIERS
   case K::ANCHOR:
     [[fallthrough]];
-  case K::NO_FLANK:
+  case K::RESIDENT:
     [[fallthrough]];
   case K::FLANK:
     [[fallthrough]];
-  case K::NO_OPAQUE:
+  case K::TRANSPARENT:
     [[fallthrough]];
   case K::OPAQUE:
     [[fallthrough]];
-  case K::NO_GLOBAL:
-    [[fallthrough]];
-  case K::GLOBAL:
-    [[fallthrough]];
-  case K::NO_PUBLIC:
+  case K::PRIVATE:
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
-  case K::NO_PARTIAL_MUTATE:
+  case K::FULL_MUTATE:
     [[fallthrough]];
   case K::PARTIAL_MUTATE:
     [[fallthrough]];
-  case K::NO_STATIC:
+  case K::DYNAMIC:
     [[fallthrough]];
   case K::STATIC:
     [[fallthrough]];
-  case K::NO_DELAY:
+  case K::RUNTIME:
     [[fallthrough]];
-  case K::DELAY:
+  case K::COMPTIME:
     [[fallthrough]];
-  case K::NO_CAPTURE:
+  case K::HYBRID:
+    [[fallthrough]];
+  case K::SINGLETON:
     [[fallthrough]];
   case K::CAPTURE:
     [[fallthrough]];
-  case K::NO_INLINE:
+  case K::LINKED:
     [[fallthrough]];
   case K::INLINE:
     [[fallthrough]];
-  case K::NO_MANGLE:
+  case K::AUTO_MANGLE:
     [[fallthrough]];
-  case K::MANGLE:
+  case K::MANUAL_MANGLE:
     [[fallthrough]];
-  case K::NO_PACK:
+  case K::PAD:
     [[fallthrough]];
   case K::PACK:
     [[fallthrough]];
-  case K::NO_BRANCH_TREND:
+  case K::EQUIVOCAL:
     [[fallthrough]];
   case K::LIKELY:
     [[fallthrough]];
   case K::UNLIKELY:
     [[fallthrough]];
-  case K::NO_SUPPORT_STATUS:
+  case K::SUPPORTED:
     [[fallthrough]];
   case K::DEPRECIATED:
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];
-  case K::NO_STABLE_ADDRESS:
+  case K::UNSTABLE_ADDRESS:
     [[fallthrough]];
   case K::STABLE_ADDRESS:
     [[fallthrough]];
-  case K::NO_VARIADIC:
+  case K::INVARIADIC:
     [[fallthrough]];
   case K::VARIADIC:
     [[fallthrough]];
-  case K::NO_LOCATION:
+  case K::FRUGAL:
     [[fallthrough]];
   case K::LOCATION:
     [[fallthrough]];
-  case K::NO_TEMPLATE:
-    [[fallthrough]];
   case K::TEMPLATE:
-    [[fallthrough]];
-  case K::NO_CONSTRAINT:
     [[fallthrough]];
   case K::CONSTRAINT:
     [[fallthrough]];
-  case K::NO_WEIGHT:
+  case K::DEFAULT_WEIGHT:
     [[fallthrough]];
   case K::WEIGHT:
     [[fallthrough]];
-  case K::NO_AUTO:
+  case K::MANUAL:
     [[fallthrough]];
   case K::AUTO:
     [[fallthrough]];
-  case K::NO_VIRTUAL:
+  case K::DIRECT:
     [[fallthrough]];
   case K::VIRTUAL:
     [[fallthrough]];
-  case K::NO_RANGER:
-    [[fallthrough]];
   case K::RANGER:
     [[fallthrough]];
-  case K::NO_REQUIRE:
-    [[fallthrough]];
   case K::REQUIRE:
-    [[fallthrough]];
-  case K::NO_ENSURE:
     [[fallthrough]];
   case K::ENSURE: {
     is_ok = this->situateNullary(situation, expression);
     break;
   }
 
-  // HIGH ATTRIBUTES
+  // QUALIFIERS
   case K::NO_VAR:
     [[fallthrough]];
   case K::VAR:
@@ -1007,85 +996,77 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case K::NULL_TERMINATE:
-    [[fallthrough]];
-  case K::NO_GREATEST:
-    [[fallthrough]];
-  case K::GREATEST: {
+  case K::NULL_TERMINATE: {
     if (!this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE)) {
       is_ok = false;
       break;
     }
-    if (situation == S::HIGH_ATTRIBUTE_INSTANTIATION) {
-      rq::Expression &attribute_value = this->getContext().acquireExpression();
-      attribute_value.setKeyword(expression.getKeyword());
-      attribute_value.setSource(expression);
-      expression.changeKeyword(K::INSTANTIATE_HIGH_ATTRIBUTE);
-      attribute_value.setNext(expression.popBranchPtr());
+    if (situation == S::QUALIFIER_INSTANTIATION) {
+      rq::Expression &modifier_value = this->getContext().acquireExpression();
+      modifier_value.setKeyword(expression.getKeyword());
+      modifier_value.setSource(expression);
+      expression.changeKeyword(K::INSTANTIATE_QUALIFIER);
+      modifier_value.setNext(expression.popBranchPtr());
     }
     break;
   }
 
-  // LOW ATTRIBUTE TYPES
-  case K::ANCHOR_ATTRIBUTE:
+  // MODIFIER TYPES
+  case K::ANCHOR_MODIFIER:
     [[fallthrough]];
-  case K::FLANK_ATTRIBUTE:
+  case K::CONTAINER_MODIFIER:
     [[fallthrough]];
-  case K::OPAQUE_ATTRIBUTE:
+  case K::VISIBILITY_MODIFIER:
     [[fallthrough]];
-  case K::GLOBAL_ATTRIBUTE:
+  case K::ACCESS_MODIFIER:
     [[fallthrough]];
-  case K::PUBLIC_ATTRIBUTE:
+  case K::MUTATE_MODIFIER:
     [[fallthrough]];
-  case K::PARTIAL_MUTATE_ATTRIBUTE:
+  case K::COHORT_MODIFIER:
     [[fallthrough]];
-  case K::STATIC_ATTRIBUTE:
+  case K::CAPTURE_MODIFIER:
     [[fallthrough]];
-  case K::DELAY_ATTRIBUTE:
+  case K::LINKAGE_MODIFIER:
     [[fallthrough]];
-  case K::CAPTURE_ATTRIBUTE:
+  case K::MANGLE_MODIFIER:
     [[fallthrough]];
-  case K::INLINE_ATTRIBUTE:
+  case K::PACK_MODIFIER:
     [[fallthrough]];
-  case K::MANGLE_ATTRIBUTE:
+  case K::BRANCH_TREND_MODIFIER:
     [[fallthrough]];
-  case K::PACK_ATTRIBUTE:
+  case K::SUPPORT_NOTICE_MODIFIER:
     [[fallthrough]];
-  case K::BRANCH_TREND_ATTRIBUTE:
+  case K::STABLE_ADDRESS_MODIFIER:
     [[fallthrough]];
-  case K::SUPPORT_STATUS_ATTRIBUTE:
+  case K::VARIADIC_MODIFIER:
     [[fallthrough]];
-  case K::STABLE_ADDRESS_ATTRIBUTE:
+  case K::OFFSET_MODIFIER:
     [[fallthrough]];
-  case K::VARIADIC_ATTRIBUTE:
+  case K::TEMPLATE_MODIFIER:
     [[fallthrough]];
-  case K::LOCATION_ATTRIBUTE:
+  case K::CONSTRAINT_MODIFIER:
     [[fallthrough]];
-  case K::TEMPLATE_ATTRIBUTE:
+  case K::WEIGHT_MODIFIER:
     [[fallthrough]];
-  case K::CONSTRAINT_ATTRIBUTE:
+  case K::DEDUCTION_MODIFIER:
     [[fallthrough]];
-  case K::WEIGHT_ATTRIBUTE:
+  case K::VIRTUALITY_MODIFIER:
     [[fallthrough]];
-  case K::AUTO_ATTRIBUTE:
+  case K::RANGER_MODIFIER:
     [[fallthrough]];
-  case K::RANGER_ATTRIBUTE:
+  case K::REQUIRE_MODIFIER:
     [[fallthrough]];
-  case K::REQUIRE_ATTRIBUTE:
-    [[fallthrough]];
-  case K::ENSURE_ATTRIBUTE:
+  case K::ENSURE_MODIFIER:
     [[fallthrough]];
 
-    // HIGH ATTRIBUTE TYPES
-  case K::VAR_ATTRIBUTE:
+    // QUALIFIER TYPES
+  case K::VAR_QUALIFIER:
     [[fallthrough]];
-  case K::VOLATILE_ATTRIBUTE:
+  case K::VOLATILE_QUALIFIER:
     [[fallthrough]];
-  case K::ATOMIC_ATTRIBUTE:
+  case K::ATOMIC_QUALIFIER:
     [[fallthrough]];
-  case K::NULL_TERMINATE_ATTRIBUTE:
-    [[fallthrough]];
-  case K::GREATEST_ATTRIBUTE:
+  case K::NULL_TERMINATE_QUALIFIER:
     is_ok = this->situateNullary(situation, expression);
     break;
 
@@ -1285,17 +1266,59 @@ bool Situator::situateTree(rq::Situation situation,
   case K::OVERLOAD_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::WEIGHT_LEVEL:
+  case K::SPECIALIZATION_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::SPECIALIZATION_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
+  case K::WEIGHT_LEVEL:
+    is_ok = this->situateNullary(situation, expression);
+    break;
   case K::WEIGHT_LEVEL_OF:
-    is_ok - this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::WEIGHT_LEVEL_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::WEIGHT_LEVEL_RANGE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::WEIGHT_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::TEMPLATE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::TEMPLATE_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::TEMPLATE_RANGE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::CONSTRUCTOR_RANGE:
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::CONSTRUCTOR_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::RESOLVE_TEMPLATE:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::RESOLVE_TEMPLATE_OF:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::RESOLVE_FUNCTION:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::RESOLVE_FUNCTION_OF:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::RESOLVE_ADAPTER:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::RESOLVE_ADAPTER_OF:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::IS_TYPE:
     is_ok = this->situateNullary(situation, expression);
@@ -1363,16 +1386,16 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IS_CODEUNIT_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::IS_LOW_ATTRIBUTE_TYPE:
+  case K::IS_MODIFIER_TYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::IS_LOW_ATTRIBUTE_TYPE_OF:
+  case K::IS_MODIFIER_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::IS_HIGH_ATTRIBUTE_TYPE:
+  case K::IS_QUALIFIER_TYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::IS_HIGH_ATTRIBUTE_TYPE_OF:
+  case K::IS_QUALIFIER_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
