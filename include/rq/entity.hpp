@@ -639,7 +639,7 @@ enum class SymbolKind : rq::EntityId {
   LOCAL_VARIABLE,
   ARGUMENT,
 
-  // PARAMETERS => local variable
+  // PARAMETERS
   PARAMETER,
 
   // PARAMETER LISTS
@@ -660,7 +660,7 @@ enum class SymbolKind : rq::EntityId {
   C_TABLE,
   TOP_TABLE,
 
-  // LOCAL STATEMENTS => symbol table
+  // LOCAL STATEMENTS
   IF_STATEMENT,
   ELSE_IF_STATEMENT,
   ELSE_STATEMENT,
@@ -676,7 +676,7 @@ enum class SymbolKind : rq::EntityId {
   // NAMED TABLE
   NAMESPACE,
 
-  // OVERLOADS => implementation => global declaration => named table
+  // OVERLOADS
   CLASS_OVERLOAD,
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
@@ -686,7 +686,7 @@ enum class SymbolKind : rq::EntityId {
   FUNCTION_OVERLOAD,
   GLOBAL_VARIABLE_OVERLOAD,
 
-  // SPECIALIZATIONS => implementation => global declaration => named table
+  // SPECIALIZATIONS
   CLASS_SPECIALIZATION,
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
@@ -694,7 +694,7 @@ enum class SymbolKind : rq::EntityId {
   FUNCTION_SPECIALIZATION,
   GLOBAL_VARIABLE_SPECIALIZATION,
 
-  // TEMPLATES => global declaration
+  // TEMPLATES
   CLASS_TEMPLATE,
   ENUM_TEMPLATE,
   INTERFACE_TEMPLATE,
@@ -702,7 +702,7 @@ enum class SymbolKind : rq::EntityId {
   FUNCTION_TEMPLATE,
   GLOBAL_VARIABLE_TEMPLATE,
 
-  // POLYMORPHS => symbol
+  // POLYMORPHS
   CLASS_POLYMORPH,
   ENUM_POLYMORPH,
   INTERFACE_POLYMORPH,
@@ -710,7 +710,7 @@ enum class SymbolKind : rq::EntityId {
   FUNCTION_POLYMORPH,
   GLOBAL_VARIABLE_POLYMORPH,
 
-  // WEIGHT LEVELS => symbol
+  // WEIGHT LEVELS
   CLASS_WEIGHT_LEVEL,
   ENUM_WEIGHT_LEVEL,
   INTERFACE_WEIGHT_LEVEL,
