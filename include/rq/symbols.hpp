@@ -33,7 +33,7 @@ struct ConstantSymbol;
 struct CfgBlock;
 struct Instruction;
 
-[[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind opcode);
+[[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind);
 
 enum class SymbolInfoFlags : std::uint64_t {
   NONE = 0,
@@ -54,24 +54,21 @@ enum class SymbolInfoFlags : std::uint64_t {
   PARAMETER_LIST = rq::getBit(12),
   TABLE_MEMBER = rq::getBit(13),
   LOCAL_DECLARATION = rq::getBit(14),
-  LOCAL_VARIABLE = rq::getBit(15),
-  LOCAL_DYNAMIC_VARIABLE = rq::getBit(16),
-  LOCAL_STATIC_VARIABLE = rq::getBit(17),
-  POLYMORPH = rq::getBit(18),
-  WEIGHT_LEVEL = rq::getBit(29),
-  TEMPLATE = rq::getBit(20),
-  SYMBOL_TABLE = rq::getBit(21),
-  LOCAL_SCOPE = rq::getBit(22),
-  NAMED_TABLE = rq::getBit(23),
-  GLOBAL_DECLARATION = rq::getBit(24),
-  IMPLEMENTATION = rq::getBit(25),
-  CLASS_IMPLEMENTATION = rq::getBit(26),
-  ENUM_IMPLEMENTATION = rq::getBit(27),
-  INTERFACE_IMPLEMENTATION = rq::getBit(28),
-  ADAPTER_IMPLEMENTATION = rq::getBit(29),
-  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(30),
-  FUNCTION_IMPLEMENTATION = rq::getBit(31),
-  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(32),
+  POLYMORPH = rq::getBit(15),
+  WEIGHT_LEVEL = rq::getBit(16),
+  TEMPLATE = rq::getBit(17),
+  SYMBOL_TABLE = rq::getBit(18),
+  LOCAL_SCOPE = rq::getBit(19),
+  NAMED_TABLE = rq::getBit(20),
+  GLOBAL_DECLARATION = rq::getBit(21),
+  IMPLEMENTATION = rq::getBit(22),
+  CLASS_IMPLEMENTATION = rq::getBit(23),
+  ENUM_IMPLEMENTATION = rq::getBit(24),
+  INTERFACE_IMPLEMENTATION = rq::getBit(25),
+  ADAPTER_IMPLEMENTATION = rq::getBit(26),
+  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(27),
+  FUNCTION_IMPLEMENTATION = rq::getBit(28),
+  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(29),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(53),
@@ -82,9 +79,8 @@ enum class SymbolInfoFlags : std::uint64_t {
   IS_BINARY_TYPE = rq::getBit(58),
   IS_BFLOAT_TYPE = rq::getBit(59),
   IS_CODEUNIT_TYPE = rq::getBit(60),
-  HAS_MODIFIERS = rq::getBit(61),
-  IS_FRAME_SCOPE = rq::getBit(62),
-  IS_OBJECT_SCOPE = rq::getBit(63)
+  IS_FRAME_SCOPE = rq::getBit(61),
+  IS_OBJECT_SCOPE = rq::getBit(62)
 };
 
 RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
@@ -110,9 +106,6 @@ getIsArithmeticSequenceType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsLocalStaticVariable(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
@@ -146,7 +139,6 @@ getIsGlobalVariableImplementation(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasModifiers(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope(rq::SymbolKind kind);
 
@@ -375,7 +367,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalDeclaration();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalStaticVariable();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate();
@@ -401,7 +392,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBfloatType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasModifiers();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope();
 
