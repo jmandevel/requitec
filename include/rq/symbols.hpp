@@ -92,6 +92,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsFittingPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -354,6 +355,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFittingPrimitiveType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardFittingType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType();

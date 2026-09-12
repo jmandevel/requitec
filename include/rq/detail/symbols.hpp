@@ -724,6 +724,15 @@ getInfoFlags(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::REFLECTIVE_TYPE);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(
+      flags, rq::SymbolInfoFlags::FITTING_PRIMITIVE_TYPE |
+                 rq::SymbolInfoFlags::STANDARD_PRIMITIVE_TYPE |
+                 rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE |
+                 rq::SymbolInfoFlags::SCALED_PRIMITIVE_TYPE);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsFittingPrimitiveType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
@@ -960,6 +969,10 @@ Symbol::getDerivedExpressionPtr() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() {
   return rq::getIsReflectiveType(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPrimitiveType() {
+  return rq::getIsPrimitiveType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFittingPrimitiveType() {
