@@ -8,7 +8,7 @@
     [result] <:= square;
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     a := divideSquare{[signed_integer]}(6, 2);
     
     [result] <:= 0;

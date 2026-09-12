@@ -4,7 +4,7 @@
     GRAPE; // this will automatically be set to 4, the previous value incremented by 1.
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     fruit := Fruit.APPLE;
 
     [result] <:= fruit.[underlying_value].[cast [signed_integer]];

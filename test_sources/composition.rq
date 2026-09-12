@@ -16,11 +16,11 @@
 
 ];
 
-[class Dog, [public][layout_constructor]; {},];
+[class Dog, [public][layout_constructor]; [public][destructor]; {},];
 
-[class Cat, [public][layout_constructor]; {},];
+[class Cat, [public][layout_constructor]; [public][destructor]; {},];
 
-[class Rat, [public][layout_constructor]; {},
+[class Rat, [public][layout_constructor]; [public][destructor]; {},
     [public]
     [function squeak, ()[void]=>,
         std.printJuxt(line="Squeak!");  
@@ -65,7 +65,7 @@
     ];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     dog := Dog();
     cat := Cat();
     rat := Rat();

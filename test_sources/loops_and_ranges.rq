@@ -56,7 +56,7 @@
     ];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
 
     // all of these loops are equivalent
 

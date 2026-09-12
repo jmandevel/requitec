@@ -35,7 +35,7 @@
 ];
 
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // calling directly from myFunction
     // default values are used
     // locked parameters cannot be set

@@ -20,7 +20,7 @@
     std.printJuxt(line="Its something");
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     printType{[signed_integer 32]}();
     printType{[single]}();
     printType{[boolean]}();

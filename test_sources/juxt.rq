@@ -15,7 +15,7 @@
     std.printJuxt(line="end!");
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     printList(
         "hello" +>
         3.14.[as [single]] +>

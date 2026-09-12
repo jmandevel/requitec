@@ -6,7 +6,7 @@
     [result] <:= a + b;
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     std.printJuxt(
         "the result is " +>
         myForwardedAdd(

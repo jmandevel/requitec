@@ -26,13 +26,19 @@
 
 // parameter marks work the same way for template layouts and class layouts
 [template]::{a:=0, > b:=1 <, c:=2, | d:=3}
-[class MyTemplateClass, [public][layout_constructor]; {}];
-
-[class MyClass, [public][layout_constructor];
-    {a:=0, > b:=1 <, c:=2, | d:=3},
+[class MyTemplateClass,     
+    {},
+    [public][layout_constructor]; 
+    [public][destructor];
 ];
 
-[function [main], ()[signed_integer],
+[class MyClass, 
+    {a:=0, > b:=1 <, c:=2, | d:=3},
+    [public][layout_constructor];
+    [public][destructor];
+];
+
+[main ()[signed_integer],
     template : MyTemplateClass{0, b=1, c=2} = MyTemplateClass{0, b=1, c=2}();
     class : MyClass = MyClass(0, b=1, c=2);
     [result] <:= 0;

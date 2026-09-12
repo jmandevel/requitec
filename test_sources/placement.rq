@@ -8,8 +8,11 @@
 
 [template]::{ Type:[symbol]<}
 [constraint]::(Type.[is_type])
-[class UniquePtr, [public][layout_constructor];
+[class UniquePtr,
     { ptr:?[var]\Type <},
+
+    [public][layout_constructor];
+    [public][destructor];
 
     [public][inline]
     [template]::{Placement:[symbol]<}
@@ -24,23 +27,26 @@
         [this].ptr.[inplace_init placement.[invoke]];
     ];
 
-    [function [destroy], ()[void]=>,         
+    [destroy         
         [this].ptr.[content].[inplace_destroy];
         free([this].ptr);
-        [this].[remove];
+        [this].[forget];
     ];
 
 ];
 
-[class MyClass, [public][layout_constructor];
+[class MyClass,
     { val:[single] <},
 
-    [function [destroy], ()[void]=>,
-        [this].[remove];
+    [public][layout_constructor];
+    [public][destructor];
+
+    [destroy
+        [this].[forget];
     ];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

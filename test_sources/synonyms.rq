@@ -1,4 +1,4 @@
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     [static] i32 := [signed_integer];
     [static] other_i32 := i32.[synonym];
 

@@ -1,4 +1,4 @@
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // the type of this variable is inferenced, but type modifier applied to inferenced
     // note that \ and = are binary operators, but there is nothing between them!
     // compiler sees two binary operators next to each other, its inserts [_inference] between them

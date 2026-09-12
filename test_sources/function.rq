@@ -11,7 +11,7 @@
     [result] <:= a + b;
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     std.printJuxt(line="the return value is " +> myFunc(1, 2));
 
     [result] <:= 0;

@@ -12,7 +12,7 @@
         " column: " +> column);
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();

@@ -1,11 +1,14 @@
-[class Partialable, [public][layout_constructor];
+[class Partialable,
     {>
         [public][partial_mutate] property_a : [fast_signed_integer 32]= 0,
         [public] property_b : [fast_signed_integer 32] = 0
     <},
+
+     [public][layout_constructor];
+     [public][destructor];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // no properties are var for constant values:
     constant := Partialable();
 

@@ -22,7 +22,7 @@
     ];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
 
     // using explicit parameter and layout constructor
     var0 := Vector4{[single]}(0, 1, 2, 3);

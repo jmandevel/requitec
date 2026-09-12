@@ -6,7 +6,7 @@
 
 [constant] VAR := 0;
 
-[function [main], 
+[main 
     [static] Return := [signed_integer];
     ()Return,
 

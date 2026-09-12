@@ -1,6 +1,6 @@
 [import "std"];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     [fold int:[signed_integer], float:[single],
         int <:= 4;
         float <:= 3.14;

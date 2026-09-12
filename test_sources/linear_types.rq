@@ -1,0 +1,25 @@
+[import "std"];
+
+[class File,
+    {> path:@[utf8] <},  
+    // notice how this class has no destructor.
+
+    [public][constructor, {> path:@[utf8] <},
+        [result] <:= File.[init path];
+        // open file here...
+    ];
+
+    [public][function close, ()[void]=>,
+        [this].[forget];
+    ];
+];
+
+[main ()[signed_integer],
+    file :[var]\File= File("my/file/path.txt");
+
+    // file has no destructor, so you have to get rid of it manually
+    file.[take].close();
+
+    [result] <:= 0;
+];
+

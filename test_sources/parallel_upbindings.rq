@@ -1,6 +1,6 @@
 [import "std"];
 
-[function [main], (>args:@@[char]<)[signed_integer],
+[main (>args:@@[char]<)[signed_integer],
     [if args.[element_count] == 0,
         [result] <:= 5;
     ][else 

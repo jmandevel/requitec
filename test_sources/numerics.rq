@@ -1,4 +1,4 @@
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // specify type in binding
     var0 :[signed_integer 32] =0;
 

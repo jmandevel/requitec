@@ -6,6 +6,6 @@
     [result] <:= var.[bitwise_cast Signed];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     [result] <:= asSigned{[single]}(3.14);
 ];

@@ -17,7 +17,7 @@
 [opaque][mangle]::getSized
 [function getSized, ()MyClass];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     ref := getInstanceRef().[borrow];
     sized := getSized(); 
     // Sized uses 64 bits of memory in the stack.

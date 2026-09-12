@@ -1,4 +1,4 @@
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // high and modifiers are compile time values
 
     [static] modifier := [static];
@@ -17,9 +17,11 @@
 [class NumContainer,
     {| num := 0 },
 
+    [public][layout_constructor];
+    [public][destructor]; 
 
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
-    [template]::{| [auto] var:[var_modifier] }
+    [public][template]::{| [auto] var:[var_modifier] }
     [function getNumRef, ()$var\[signed_integer]=>$var\,
         [result] <:var\= [this].num.[borrow];
     ];

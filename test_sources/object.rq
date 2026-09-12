@@ -1,11 +1,14 @@
 [import "std"];
 
-[class MyClass, [public][layout_constructor];
+[class MyClass,
     {>
         [public] x : [fast_signed_integer 32] = 0,
         [public] y : [fast_signed_integer 32] = 0,
         [public] z : [fast_signed_integer 32] = 0
     <},
+
+    [public][layout_constructor];
+    [public][destructor];
 
     [public]
     [function fromScalar, (> scalar:[fast_signed_integer 32] <)MyClass,
@@ -28,7 +31,7 @@
     ];
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
 
     a := MyClass();
     b := MyClass(1, 2, 3);

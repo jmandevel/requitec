@@ -23,6 +23,7 @@
     count := count_div_2 * 2; 
 
     [public][layout_constructor];
+    [public][destructor]; 
 
     // note that Element is [auto], so its still possible to map arguments for deduction at declaration time
     // the value of count cannot be determined until specialization, but this does not stop the mapping during declaration!
@@ -30,7 +31,7 @@
 
 ];
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
 
     my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
 

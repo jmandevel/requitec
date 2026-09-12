@@ -15,7 +15,7 @@
 [common][capture]::{ num:=var }
 COMMON_NUMBER := [capture].num;
 
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     std.printJuxt(line=COMMON_NUMBER);
     [result] <:= 0;
 ];

@@ -1,4 +1,4 @@
-[function [main], ()[signed_integer],
+[main ()[signed_integer],
     // var single floating point number
     var :[var]\[single]= 0;
 
