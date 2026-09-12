@@ -39,18 +39,20 @@ namespace rq {
   // MODIFIER TYPES
   case S::ANCHOR_MODIFIER_TYPE:
     return "AnchorModifierType";
-  case S::OPAQUE_MODIFIER_TYPE:
-    return "OpaqueModifierType";
-  case S::PUBLIC_MODIFIER_TYPE:
-    return "PublicModifierType";
-  case S::PARTIAL_MUTATE_MODIFIER_TYPE:
-    return "PartialMutateModifierType";
+  case S::CONTAINER_MODIFIER_TYPE:
+    return "ContainerModifierType";
+  case S::VISIBILITY_MODIFIER_TYPE:
+    return "VisibilityModifierType";
+  case S::ACCESS_MODIFIER_TYPE:
+    return "AccessModifierType";
+  case S::MUTATE_MODIFIER_TYPE:
+    return "MutateModifierType";
   case S::COHORT_MODIFIER_TYPE:
     return "CohortModifierType";
   case S::CAPTURE_MODIFIER_TYPE:
     return "CaptureModifierType";
-  case S::INLINE_MODIFIER_TYPE:
-    return "InlineModifierType";
+  case S::LINKAGE_MODIFIER_TYPE:
+    return "LinkageModifierType";
   case S::MANGLE_MODIFIER_TYPE:
     return "MangleModifierType";
   case S::PACK_MODIFIER_TYPE:
@@ -63,18 +65,18 @@ namespace rq {
     return "StableAddressModifierType";
   case S::VARIADIC_MODIFIER_TYPE:
     return "VariadicModifierType";
-  case S::LOCATION_MODIFIER_TYPE:
-    return "LocationModifierType";
+  case S::OFFSET_MODIFIER_TYPE:
+    return "OffsetModifierType";
   case S::TEMPLATE_MODIFIER_TYPE:
     return "TemplateModifierType";
   case S::CONSTRAINT_MODIFIER_TYPE:
     return "ConstraintModifierType";
   case S::WEIGHT_MODIFIER_TYPE:
     return "WeightModifierType";
-  case S::AUTO_MODIFIER_TYPE:
-    return "AutoModifierType";
-  case S::VIRTUAL_MODIFIER_TYPE:
-    return "VirtualModifierType";
+  case S::DEDUCTION_MODIFIER_TYPE:
+    return "DeductionModifierType";
+  case S::VIRTUALITY_MODIFIER_TYPE:
+    return "VirtualityModifierType";
   case S::ENSURE_MODIFIER_TYPE:
     return "EnsureModifierType";
   case S::REQUIRE_MODIFIER_TYPE:
@@ -211,8 +213,6 @@ namespace rq {
     return "Enumerator";
   case S::LOCAL_VARIABLE:
     return "LocalVariable";
-  case S::ARGUMENT:
-    return "Argument";
 
   // PARAMETERS
   case S::PARAMETER:
