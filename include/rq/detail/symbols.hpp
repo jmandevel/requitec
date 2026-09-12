@@ -962,189 +962,193 @@ Symbol::getDerivedExpressionPtr() const {
   RQ_TODO_IMPLEMENTATION();
 }
 
-[[nodiscard]] inline rq::SymbolInfoFlags Symbol::getInfoFlags() {
+[[nodiscard]] inline rq::SymbolInfoFlags Symbol::getInfoFlags() const {
   return rq::getInfoFlags(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSimpleSymbol() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSimpleSymbol() const {
   return rq::getIsSimpleSymbol(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() const {
   return rq::getIsContextual(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualType() const {
   return rq::getIsContextualType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualValue() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextualValue() const {
   return rq::getIsContextualValue(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralSymbol() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralSymbol() const {
   return rq::getIsLiteralSymbol(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() const {
   return rq::getIsReflectiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPrimitiveType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPrimitiveType() const {
   return rq::getIsPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFittingPrimitiveType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFittingPrimitiveType() const {
   return rq::getIsFittingPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsStandardFittingType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsStandardFittingType() const {
   return rq::getIsStandardFittingType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPlatformPrimitiveType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPlatformPrimitiveType() const {
   return rq::getIsPlatformPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsQualifierType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsQualifierType() const {
   return rq::getIsQualifierType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsModifierType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsModifierType() const {
   return rq::getIsModifierType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsScaledPrimitiveType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsScaledPrimitiveType() const {
   return rq::getIsScaledPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSubtype() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSubtype() const {
   return rq::getIsSubtype(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsArithmeticSequenceType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Symbol::getIsArithmeticSequenceType() const {
   return rq::getIsArithmeticSequenceType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSpecializationSet() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSpecializationSet() const {
   return rq::getIsSpecializationSet(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsParameterList() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsParameterList() const {
   return rq::getIsParameterList(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTableMember() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTableMember() const {
   return rq::getIsTableMember(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalDeclaration() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalDeclaration() const {
   const rq::SymbolInfoFlags flags = this->getInfoFlags();
   return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_DECLARATION);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPolymorph() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPolymorph() const {
   return rq::getIsPolymorph(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsWeightLevel() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsWeightLevel() const {
   return rq::getIsWeightLevel(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTemplate() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsTemplate() const {
   return rq::getIsTemplate(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSymbolTable() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSymbolTable() const {
   return rq::getIsSymbolTable(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalScope() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalScope() const {
   return rq::getIsLocalScope(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNamedTable() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNamedTable() const {
   return rq::getIsNamedTable(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsGlobalDeclarataion() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsGlobalDeclarataion() const {
   return rq::getIsGlobalDeclarataion(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsImplementation() const {
   return rq::getIsImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsClassImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsClassImplementation() const {
   return rq::getIsClassImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsEnumImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsEnumImplementation() const {
   return rq::getIsEnumImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsInterfaceImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Symbol::getIsInterfaceImplementation() const {
   return rq::getIsInterfaceImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsAdapterImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsAdapterImplementation() const {
   return rq::getIsAdapterImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsConstructorImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Symbol::getIsConstructorImplementation() const {
   return rq::getIsConstructorImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFunctionImplementation() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Symbol::getIsFunctionImplementation() const {
   return rq::getIsFunctionImplementation(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-Symbol::getIsGlobalVariableImplementation() {
+Symbol::getIsGlobalVariableImplementation() const {
   return rq::getIsGlobalVariableImplementation(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
   return rq::getIsType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNumericType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNumericType() const {
   return rq::getIsNumericType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSignedType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSignedType() const {
   return rq::getIsSignedType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsUnsignedType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsUnsignedType() const {
   return rq::getIsUnsignedType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsIntegerType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsIntegerType() const {
   return rq::getIsIntegerType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFloatType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFloatType() const {
   return rq::getIsFloatType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsBinaryType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsBinaryType() const {
   return rq::getIsBinaryType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsBfloatType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsBfloatType() const {
   return rq::getIsBfloatType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsCodeunitType() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsCodeunitType() const {
   return rq::getIsCodeunitType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrameScope() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsFrameScope() const {
   return rq::getIsFrameScope(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsObjectScope() {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsObjectScope() const {
   return rq::getIsObjectScope(this->getKind());
 }
 
@@ -1152,6 +1156,18 @@ Symbol::getIsGlobalVariableImplementation() {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   const rq::EntityId id = entity.getId();
   return id >= rq::SYMBOL_OFFSET && id < rq::CONSTANT_OFFSET;
+}
+
+RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
+    : Symbol(kind) {}
+
+[[nodiscard]] inline bool SimpleSymbol::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  if (!llvm::isa<rq::Symbol>(entity)) {
+    return false;
+  }
+  const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);
+  return symbol.getIsSimpleSymbol();
 }
 
 } // namespace rq
