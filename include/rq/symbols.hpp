@@ -69,6 +69,7 @@ enum class SymbolInfoFlags : std::uint64_t {
   CONSTRUCTOR_IMPLEMENTATION = rq::getBit(27),
   FUNCTION_IMPLEMENTATION = rq::getBit(28),
   GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(29),
+  CONTEXTUAL_SYMBOL = rq::getBit(30),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(53),
@@ -88,6 +89,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -349,6 +351,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags();
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFittingPrimitiveType();

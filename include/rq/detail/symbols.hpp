@@ -368,19 +368,19 @@ getInfoFlags(rq::SymbolKind kind) {
   case S::CODEUNIT_LITERAL_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_TYPE;
   case S::UNKNOWN_VALUE:
-    return SIF::SIMPLE_SYMBOL;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL;
   case S::VALUE_VALUE:
-    return SIF::SIMPLE_SYMBOL;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL;
   case S::INDEX_VALUE:
-    return SIF::SIMPLE_SYMBOL;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL;
   case S::UNKNOWN_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL | SIF::IS_TYPE;
   case S::INFERENCE_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL | SIF::IS_TYPE;
   case S::VOID_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL | SIF::IS_TYPE;
   case S::NO_RETURN_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_SYMBOL | SIF::IS_TYPE;
   case S::ANCHOR_MODIFIER_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
   case S::CONTAINER_MODIFIER_TYPE:
@@ -709,6 +709,11 @@ getInfoFlags(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::SIMPLE_SYMBOL);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::CONTEXTUAL_SYMBOL);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::LITERAL);
@@ -943,6 +948,10 @@ Symbol::getDerivedExpressionPtr() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsSimpleSymbol() {
   return rq::getIsSimpleSymbol(this->getKind());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsContextual() {
+  return rq::getIsContextual(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralSymbol() {
