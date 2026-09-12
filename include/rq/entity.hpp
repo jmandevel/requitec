@@ -638,7 +638,6 @@ enum class SymbolKind : rq::EntityId {
   ANCHOR,
   ENUMERATOR,
   LOCAL_VARIABLE,
-  ARGUMENT,
 
   // PARAMETERS
   PARAMETER,
