@@ -97,8 +97,8 @@ namespace rq {
     return "SymbolType";
   case S::SYMBOL_RANGE_TYPE:
     return "SymbolRangeType";
-  case S::EXPRESSION:
-    return "Expression";
+  case S::EXPRESSION_TYPE:
+    return "ExpressionType";
   case S::EXPRESSION_RANGE_TYPE:
     return "ExpressionRangeType";
 
