@@ -1135,4 +1135,85 @@ Symbol::getIsGlobalVariableImplementation() {
   return id >= rq::SYMBOL_OFFSET && id < rq::CONSTANT_OFFSET;
 }
 
+RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
+    : rq::Symbol(kind) {}
+
+[[nodiscard]] inline bool
+SimpleSymbol::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::Symbol::classof(&entity) &&
+         rq::getIsSimpleSymbol(static_cast<const rq::Symbol &>(entity)
+                                   .getKind());
+}
+
+RQ_ALWAYS_INLINE Literal::Literal()
+    : rq::SimpleSymbol(rq::SymbolKind::NONE) {}
+
+[[nodiscard]] inline bool Literal::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         rq::getIsLiteralSymbol(static_cast<const rq::Symbol &>(entity)
+                                    .getKind());
+}
+
+RQ_ALWAYS_INLINE Contextual::Contextual(rq::SymbolKind kind)
+    : rq::SimpleSymbol(kind) {}
+
+[[nodiscard]] inline bool
+Contextual::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         rq::getIsContextual(static_cast<const rq::Symbol &>(entity).getKind());
+}
+
+RQ_ALWAYS_INLINE ReflectiveType::ReflectiveType(rq::SymbolKind kind)
+    : rq::SimpleSymbol(kind) {}
+
+[[nodiscard]] inline bool
+ReflectiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         rq::getIsReflectiveType(static_cast<const rq::Symbol &>(entity)
+                                     .getKind());
+}
+
+RQ_ALWAYS_INLINE PrimitiveType::PrimitiveType(rq::SymbolKind kind)
+    : rq::SimpleSymbol(kind) {}
+
+[[nodiscard]] inline bool
+PrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         (rq::getIsFittingPrimitiveType(static_cast<const rq::Symbol &>(entity)
+                                            .getKind()) ||
+          rq::getIsStandardFittingType(static_cast<const rq::Symbol &>(entity)
+                                           .getKind()) ||
+          rq::getIsPlatformPrimitiveType(static_cast<const rq::Symbol &>(entity)
+                                             .getKind()) ||
+          rq::getIsScaledPrimitiveType(static_cast<const rq::Symbol &>(entity)
+                                           .getKind()));
+}
+
+RQ_ALWAYS_INLINE QualifierType::QualifierType(rq::SymbolKind kind)
+    : rq::SimpleSymbol(kind) {}
+
+[[nodiscard]] inline bool
+QualifierType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         rq::getIsQualifierType(static_cast<const rq::Symbol &>(entity)
+                                    .getKind());
+}
+
+RQ_ALWAYS_INLINE ModifierType::ModifierType(rq::SymbolKind kind)
+    : rq::SimpleSymbol(kind) {}
+
+[[nodiscard]] inline bool
+ModifierType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::SimpleSymbol::classof(&entity) &&
+         rq::getIsModifierType(static_cast<const rq::Symbol &>(entity)
+                                   .getKind());
+}
+
 } // namespace rq
