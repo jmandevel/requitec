@@ -860,8 +860,8 @@ getIsFunctionImplementation(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsGlobalVariableImplementation(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(
-      flags, rq::SymbolInfoFlags::GLOBAL_VARIABLE_IMPLEMENTATION);
+  return rq::getHasAll(flags,
+                       rq::SymbolInfoFlags::GLOBAL_VARIABLE_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
@@ -872,7 +872,7 @@ getIsGlobalVariableImplementation(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasSome(flags, rq::SymbolInfoFlags::IS_INTEGER_TYPE |
-                                  rq::SymbolInfoFlags::IS_FLOAT_TYPE);
+                                   rq::SymbolInfoFlags::IS_FLOAT_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSignedType(rq::SymbolKind kind) {
