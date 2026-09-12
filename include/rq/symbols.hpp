@@ -2323,98 +2323,260 @@ struct EnumSpecialization final : public rq::EnumImplementation {
 
 struct GlobalVariableImplementation : public rq::Implementation {
   using Self = rq::GlobalVariableImplementation;
+
+  rq::ConstantSymbol *_type_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE GlobalVariableImplementation(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setType(rq::ConstantSymbol &type);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct GlobalVariableOverload : public rq::GlobalVariableImplementation {
   using Self = rq::GlobalVariableOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE GlobalVariableOverload();
+
+  RQ_ALWAYS_INLINE void
+  setParentGlobalVariablePolymorph(rq::GlobalVariablePolymorph &parent);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalVariablePolymorph *getParentPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalVariablePolymorph *
+  getParentPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct GlobalVariableSpecialization : public rq::GlobalVariableImplementation {
   using Self = rq::GlobalVariableSpecialization;
+
+  explicit RQ_ALWAYS_INLINE GlobalVariableSpecialization();
+
+  RQ_ALWAYS_INLINE void
+  setParentGlobalVariableTemplate(rq::GlobalVariableTemplate &parent);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::GlobalVariableTemplate *
+  getParentGlobalVariableTemplatePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::GlobalVariableTemplate *
+  getParentGlobalVariableTemplatePtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct AdapterImplementation : public rq::Implementation {
   using Self = rq::AdapterImplementation;
+
+  rq::Conformity *_conformity_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE AdapterImplementation(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setConformity(rq::Conformity &conformity);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Conformity *getConformityPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Conformity *getConformityPtr() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct AdapterOverload final : public rq::AdapterImplementation {
   using Self = rq::AdapterOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE AdapterOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct AdapterSpecialization final : public rq::AdapterImplementation {
   using Self = rq::AdapterSpecialization;
+
+  explicit RQ_ALWAYS_INLINE AdapterSpecialization();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct InterfaceImplementation : public rq::Implementation {
   using Self = rq::InterfaceImplementation;
+
+  explicit RQ_ALWAYS_INLINE InterfaceImplementation();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct InterfaceOverload final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE InterfaceOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct InterfaceSpecialization final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceSpecialization;
+
+  explicit RQ_ALWAYS_INLINE InterfaceSpecialization();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ConstructorOverload : public rq::Implementation {
   using Self = rq::ConstructorOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE ConstructorOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct LayoutConstructorOverload final : public rq::ConstructorOverload {
   using Self = rq::LayoutConstructorOverload;
+
+  explicit RQ_ALWAYS_INLINE LayoutConstructorOverload();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ClassImplementation : public rq::Implementation {
   using Self = rq::ClassImplementation;
+
+  explicit RQ_ALWAYS_INLINE ClassImplementation();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ClassOverload final : public rq::ClassImplementation {
   using Self = rq::ClassOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE ClassOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ClassSpecialization final : public rq::ClassImplementation {
   using Self = rq::ClassSpecialization;
+
+  explicit RQ_ALWAYS_INLINE ClassSpecialization();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct FunctionImplementation : public rq::Implementation {
   using Self = rq::FunctionImplementation;
+
+  explicit RQ_ALWAYS_INLINE FunctionImplementation();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct FunctionOverload final : public rq::FunctionImplementation {
   using Self = rq::FunctionOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE FunctionOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct FunctionSpecialization final : public rq::FunctionImplementation {
   using Self = rq::FunctionSpecialization;
+
+  explicit RQ_ALWAYS_INLINE FunctionSpecialization();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct Template : public rq::GlobalDeclaration {
   using Self = rq::Template;
+
+  explicit RQ_ALWAYS_INLINE Template();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct EnumTemplate final : public rq::Template {
   using Self = rq::EnumTemplate;
+
+  explicit RQ_ALWAYS_INLINE EnumTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct ClassTemplate final : public rq::Template {
   using Self = rq::ClassTemplate;
+
+  explicit RQ_ALWAYS_INLINE ClassTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct InterfaceTemplate final : public rq::Template {
   using Self = rq::InterfaceTemplate;
+
+  explicit RQ_ALWAYS_INLINE InterfaceTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct GlobalVariableTemplate final : public rq::Template {
   using Self = rq::GlobalVariableTemplate;
+
+  explicit RQ_ALWAYS_INLINE GlobalVariableTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct AdapterTemplate final : public rq::Template {
   using Self = rq::AdapterTemplate;
+
+  explicit RQ_ALWAYS_INLINE AdapterTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 struct FunctionTemplate final : public rq::Template {
   using Self = rq::FunctionTemplate;
+
+  explicit RQ_ALWAYS_INLINE FunctionTemplate();
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
 } // namespace rq
