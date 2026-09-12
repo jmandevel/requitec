@@ -69,7 +69,8 @@ enum class SymbolInfoFlags : std::uint64_t {
   CONSTRUCTOR_IMPLEMENTATION = rq::getBit(27),
   FUNCTION_IMPLEMENTATION = rq::getBit(28),
   GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(29),
-  CONTEXTUAL_SYMBOL = rq::getBit(30),
+  CONTEXTUAL_TYPE = rq::getBit(30),
+  CONTEXTUAL_VALUE = rq::getBit(31),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(53),
@@ -90,6 +91,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
@@ -353,6 +356,8 @@ struct Symbol : public rq::Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType();
@@ -410,7 +415,7 @@ struct SimpleSymbol : public rq::Symbol {
 struct Literal : public rq::SimpleSymbol {
   using Self = rq::Literal;
 
-  explicit RQ_ALWAYS_INLINE Literal();
+  explicit RQ_ALWAYS_INLINE Literal(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -618,7 +623,7 @@ struct LeastUnsignedIntegerType final : public rq::FittingPrimitiveType {
 struct StandardPrimitiveType : public rq::PrimitiveType {
   using Self = rq::StandardPrimitiveType;
 
-  explicit RQ_ALWAYS_INLINE StandardPrimitiveType();
+  explicit RQ_ALWAYS_INLINE StandardPrimitiveType(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1015,7 +1020,7 @@ struct EnsureModifierType final : public rq::ModifierType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Subtype : public rq::SimpleSymbol, public llvm::FoldingSetNode {
+struct Subtype : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::Subtype;
 
   rq::ConstantSymbol *_child_ptr;
@@ -1106,8 +1111,7 @@ struct SliceSubtype final : public rq::Subtype {
 
 enum class ScaleKind : std::uint_fast8_t { EXACT, FAST, LEAST };
 
-struct ScaledPrimitiveType : public rq::SimpleSymbol,
-                             public llvm::FoldingSetNode {
+struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledPrimitiveType;
 
   rq::ScaleKind _scale_kind;
@@ -1145,7 +1149,7 @@ struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Conformity final : public rq::SimpleSymbol, public llvm::FoldingSetNode {
+struct Conformity final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::Conformity;
 
   rq::InterfaceImplementation *_interface_ptr;
@@ -1170,8 +1174,7 @@ void profileConformity(llvm::FoldingSetNodeID &inout_id,
                        const rq::InterfaceImplementation &interface,
                        const rq::AdapterImplementation &adapter);
 
-struct JuxtListItem final : public rq::SimpleSymbol,
-                            public llvm::FoldingSetNode {
+struct JuxtListItem final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::JuxtListItem;
 
   rq::JuxtListItem *_next_ptr;
@@ -1192,8 +1195,7 @@ void profileJustListItem(llvm::FoldingSetNodeID &inout_id,
                          const rq::JuxtListItem *next_ptr,
                          const rq::ConstantSymbol &type);
 
-struct JuxtListType final : public rq::SimpleSymbol,
-                            public llvm::FoldingSetNode {
+struct JuxtListType final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::JuxtListType;
 
   rq::JuxtListItem *_first_ptr;
@@ -1210,7 +1212,7 @@ struct JuxtListType final : public rq::SimpleSymbol,
 
 void profileJuxtListType(const rq::JuxtListItem *first_ptr);
 
-struct SynonymType final : public rq::SimpleSymbol {
+struct SynonymType final : public rq::Symbol {
   using Self = rq::SynonymType;
 
   rq::Symbol *_original_ptr;
@@ -1254,7 +1256,7 @@ struct ModuleDetail final {
   getTokens() const;
 };
 
-struct Module final : public rq::SimpleSymbol {
+struct Module final : public rq::Symbol {
   using Self = rq::Module;
 
   rq::ModuleKind _module_kind;

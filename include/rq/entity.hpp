@@ -808,6 +808,11 @@ constexpr rq::EntityId KEYWORD_OFFSET = 0;
 constexpr rq::EntityId SYMBOL_OFFSET =
     rq::getUnderlyingValue(rq::Keyword::LAST);
 
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
+getSymbolId(rq::SymbolKind kind) {
+  return rq::SYMBOL_OFFSET + rq::getUnderlyingValue(kind);
+}
+
 constexpr rq::EntityId CONSTANT_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
