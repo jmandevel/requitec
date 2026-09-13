@@ -18,7 +18,6 @@
     {| num := 0 },
 
     [public][layout_constructor];
-    [public][destructor]; 
 
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
     [public][template]::{| [auto] var:[var_modifier] }

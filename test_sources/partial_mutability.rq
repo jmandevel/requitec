@@ -5,7 +5,6 @@
     <},
 
      [public][layout_constructor];
-     [public][destructor];
 ];
 
 [main ()[signed_integer],

@@ -10,8 +10,6 @@
     [public][constructor {> a:[signed_integer], b:[signed_integer] <},
         [result] <:= MyClass.[init a + b];
     ];
-
-    [public][destructor];
 ];
 
 [main ()[signed_integer],

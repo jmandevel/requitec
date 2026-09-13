@@ -12,7 +12,6 @@
     { ptr:?[var]\Type <},
 
     [public][layout_constructor];
-    [public][destructor];
 
     [public][inline]
     [template]::{Placement:[symbol]<}
@@ -39,7 +38,6 @@
     { val:[single] <},
 
     [public][layout_constructor];
-    [public][destructor];
 
     [destroy
         [this].[forget];

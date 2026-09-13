@@ -28,14 +28,12 @@
 [template]::{a:=0, > b:=1 <, c:=2, | d:=3}
 [class MyTemplateClass,     
     {},
-    [public][layout_constructor]; 
-    [public][destructor];
+    [public][layout_constructor];
 ];
 
 [class MyClass, 
     {a:=0, > b:=1 <, c:=2, | d:=3},
     [public][layout_constructor];
-    [public][destructor];
 ];
 
 [main ()[signed_integer],

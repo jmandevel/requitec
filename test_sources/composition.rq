@@ -16,11 +16,11 @@
 
 ];
 
-[class Dog, [public][layout_constructor]; [public][destructor]; {},];
+[class Dog, [public][layout_constructor]; {},];
 
-[class Cat, [public][layout_constructor]; [public][destructor]; {},];
+[class Cat, [public][layout_constructor]; {},];
 
-[class Rat, [public][layout_constructor]; [public][destructor]; {},
+[class Rat, [public][layout_constructor]; {},
     [public]
     [function squeak, ()[void]=>,
         std.printJuxt(line="Squeak!");  
