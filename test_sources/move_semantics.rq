@@ -22,11 +22,11 @@
   class :[var]\= MyClass();
   copy := class;
   reference := class.[borrow];
-  reference_to_var := class.\[var]\[borrow];
+  reference_to_var := class..[var]\[borrow];
   pointer := class.[address];
-  pointer_to_var := class.\[var]\[address];
+  pointer_to_var := class..[var]\[address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.\[var]\[borrow]->std.extract();
+  non_destructive_move := class..[var]\[borrow]->std.extract();
   destructive_move := class.[move];
   // class was forgetped because it was moved out of
   class := destructive_move.[move]; /// move it back!

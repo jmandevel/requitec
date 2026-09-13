@@ -718,7 +718,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.parseOuterBinary(post_token,
                                           rq::Keyword::INSTANTIATE_CONFORMITY);
       continue;
-    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
+    case rq::TokenKind::DOUBLE_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
@@ -726,8 +726,15 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(post_token, rq::Keyword::REFLECT);
+      precedence_factory.parseNary(post_token, rq::Keyword::UNSITUATED_TRAIN);
       continue;
+    case rq::TokenKind::DOUBLE_DOT_OPERATOR: {
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(post_token, rq::Keyword::UNSITUATED_TRAIN);
+      rq::Expression& next = this->parseNonascribableExpression();
+      precedence_factory.appendBranch(next);
+      continue;
+    }
     case rq::TokenKind::LEFT_PARENTHESIS_GROUPING: {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();

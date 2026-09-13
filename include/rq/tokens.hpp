@@ -44,12 +44,12 @@ enum class TokenKind : std::uint_fast8_t {
   EQUAL_OPERATOR,              // =
   DOUBLE_EQUAL_OPERATOR,       // ==
   ARROW_OPERATOR,              // ->
+  DOUBLE_ARROW_OPERATOR,       // -->
   THICK_ARROW_OPERATOR,        // =>
   DOUBLE_THICK_ARROW_OPERATOR, // ==>
   CONCATENATE_OPERATOR,        // +>
   APPEND_OPERATOR,             // *>
   DOT_OPERATOR,                // .
-  DOT_BACKSLASH_OPERATOR,      // .\    .
   DOUBLE_DOT_OPERATOR,         // ..
   DOT_PLUS_OPERATOR,           // .+
   DOT_DASH_OPERATOR,           // .-
@@ -183,6 +183,8 @@ getName(rq::TokenKind kind) {
     return "double_equal_operator";
   case T::ARROW_OPERATOR:
     return "arrow_operator";
+  case T::DOUBLE_ARROW_OPERATOR:
+    return "double_arrow_operator";
   case T::THICK_ARROW_OPERATOR:
     return "thick_arrow_operator";
   case T::DOUBLE_THICK_ARROW_OPERATOR:
@@ -193,8 +195,6 @@ getName(rq::TokenKind kind) {
     return "concatenate_operator";
   case T::DOT_OPERATOR:
     return "dot_operator";
-  case T::DOT_BACKSLASH_OPERATOR:
-    return "dot_backslash_operator";
   case T::DOUBLE_DOT_OPERATOR:
     return "double_dot_operator";
   case T::DOT_PLUS_OPERATOR:
@@ -354,6 +354,8 @@ getInfoFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
     return TF::OPERATOR;
+  case T::DOUBLE_ARROW_OPERATOR:
+    return TF::OPERATOR;
   case T::THICK_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::DOUBLE_THICK_ARROW_OPERATOR:
@@ -363,8 +365,6 @@ getInfoFlags(rq::TokenKind kind) {
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
-    return TF::OPERATOR;
-  case T::DOT_BACKSLASH_OPERATOR:
     return TF::OPERATOR;
   case T::DOUBLE_DOT_OPERATOR:
     return TF::OPERATOR;

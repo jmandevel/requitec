@@ -149,6 +149,16 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '-':
       switch (this->getRanger().getChar(1)) {
+      case '-':
+        switch (this->getRanger().getChar(2)) {
+          case '>':
+            this->tokenizeLengthToken(T::DOUBLE_ARROW_OPERATOR, 3);
+            break;
+          default:
+            this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
+            break;
+        }
+        continue;
       case '>':
         this->tokenizeLengthToken(T::ARROW_OPERATOR, 2);
         break;
@@ -161,9 +171,6 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '.':
         this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
-        break;
-      case '\\':
-        this->tokenizeLengthToken(T::DOT_BACKSLASH_OPERATOR, 2);
         break;
       case '+':
         this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
