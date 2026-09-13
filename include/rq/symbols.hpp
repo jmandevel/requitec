@@ -1144,6 +1144,32 @@ struct ScaledSignedIntegerType final : public rq::ScaledPrimitiveType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct Adaption final : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::Adaption;
+
+  rq::InterfaceImplementation *_interface_ptr;
+  rq::AdapterImplementation *_adapter_ptr;
+
+  explicit RQ_ALWAYS_INLINE Adaption(rq::InterfaceImplementation &interface,
+                                       rq::AdapterImplementation &adapter);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+  getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &getInterface();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
+  getAdapter() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &getAdapter();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+void profileAdaption(llvm::FoldingSetNodeID &inout_id,
+                       const rq::InterfaceImplementation &interface,
+                       const rq::AdapterImplementation &adapter);
+
+
 struct Conformity final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::Conformity;
 
