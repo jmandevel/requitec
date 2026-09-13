@@ -66,11 +66,10 @@ enum class SymbolInfoFlags : std::uint64_t {
   ENUM_IMPLEMENTATION = rq::getBit(24),
   INTERFACE_IMPLEMENTATION = rq::getBit(25),
   ADAPTER_IMPLEMENTATION = rq::getBit(26),
-  CONSTRUCTOR_IMPLEMENTATION = rq::getBit(27),
-  FUNCTION_IMPLEMENTATION = rq::getBit(28),
-  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(29),
-  CONTEXTUAL_TYPE = rq::getBit(30),
-  CONTEXTUAL_VALUE = rq::getBit(31),
+  FUNCTION_IMPLEMENTATION = rq::getBit(27),
+  GLOBAL_VARIABLE_IMPLEMENTATION = rq::getBit(28),
+  CONTEXTUAL_TYPE = rq::getBit(29),
+  CONTEXTUAL_VALUE = rq::getBit(30),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(53),
@@ -93,7 +92,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -129,8 +128,6 @@ getIsEnumImplementation(rq::SymbolKind kind);
 getIsInterfaceImplementation(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsAdapterImplementation(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsConstructorImplementation(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsFunctionImplementation(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -324,8 +321,6 @@ struct Symbol;
             struct InterfaceImplementation;
               struct InterfaceOverload;
               struct InterfaceSpecialization;
-            struct ConstructorOverload;
-              struct LayoutConstructorOverload;
             struct ClassImplementation;
               struct ClassOverload;
               struct ClassSpecialization;
@@ -358,7 +353,7 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFittingPrimitiveType() const;
@@ -385,7 +380,6 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumImplementation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceImplementation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterImplementation() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConstructorImplementation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFunctionImplementation() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsGlobalVariableImplementation() const;
 
@@ -1036,8 +1030,9 @@ struct Subtype : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileSubtype(rq::SymbolKind kind,
-                                     rq::ConstantSymbol &child);
+RQ_ALWAYS_INLINE void profileSubtype(llvm::FoldingSetNodeID &inout_id,
+                                     rq::SymbolKind kind,
+                                     const rq::ConstantSymbol &child);
 
 struct ArraySubtype final : public rq::Subtype {
   using Self = rq::ArraySubtype;
@@ -1054,7 +1049,7 @@ struct ArraySubtype final : public rq::Subtype {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileArraySubtype(rq::ConstantSymbol &child,
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &inout_id, const rq::ConstantSymbol &child,
                                           std::size_t count);
 
 struct ReferenceSubtype final : public rq::Subtype {
@@ -2441,29 +2436,6 @@ struct InterfaceSpecialization final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceSpecialization;
 
   explicit RQ_ALWAYS_INLINE InterfaceSpecialization();
-
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
-};
-
-struct ConstructorOverload : public rq::Implementation {
-  using Self = rq::ConstructorOverload;
-
-  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
-
-  explicit RQ_ALWAYS_INLINE ConstructorOverload();
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
-  getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
-  getPrototypeExpressionPtrList() const;
-
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
-};
-
-struct LayoutConstructorOverload final : public rq::ConstructorOverload {
-  using Self = rq::LayoutConstructorOverload;
-
-  explicit RQ_ALWAYS_INLINE LayoutConstructorOverload();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };

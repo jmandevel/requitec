@@ -497,10 +497,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DECOMPOSE_OF:
     is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
     break;
-  case K::REMOVE:
+  case K::FORGET:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::REMOVE_OF:
+  case K::FORGET_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::INIT:
@@ -1176,30 +1176,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SYNONYM_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::INCREMENT:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::INCREMENT_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::DECREMENT:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::DECREMENT_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::WHILST:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::WHILST_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::ELEMENT:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::ELEMENT_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
   case K::AT:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
@@ -1207,27 +1183,29 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::MAIN:
-    is_ok = this->situateNullary(situation, expression);
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatementTagStatement(situation, expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
     break;
   case K::MAIN_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::DESTRUCTOR:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatement(expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
+  case K::DESTRUCTOR_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::DESTROY:
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::DESTROY_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::FORWARD:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::FORWARD_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::BACKWARD:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::BACKWARD_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::UNDERLYING_VALUE:

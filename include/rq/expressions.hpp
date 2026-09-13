@@ -228,10 +228,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "decompose";
   case K::DECOMPOSE_OF:
     return "_decompose_of";
-  case K::REMOVE:
-    return "remove";
-  case K::REMOVE_OF:
-    return "_remove_of";
+  case K::FORGET:
+    return "forget";
+  case K::FORGET_OF:
+    return "_forget_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
   case K::INPLACE_DESTROY_OF:
@@ -730,22 +730,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "synonym";
   case K::SYNONYM_OF:
     return "_synonym_of";
-  case K::INCREMENT:
-    return "increment";
-  case K::INCREMENT_OF:
-    return "_increment_of";
-  case K::DECREMENT:
-    return "decrement";
-  case K::DECREMENT_OF:
-    return "_decrement_of";
-  case K::WHILST:
-    return "whilst";
-  case K::WHILST_OF:
-    return "_whilst_of";
-  case K::ELEMENT:
-    return "element";
-  case K::ELEMENT_OF:
-    return "_element_of";
   case K::AT:
     return "at";
   case K::AT_OF:
@@ -754,18 +738,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "main";
   case K::MAIN_OF:
     return "main_of";
+  case K::DESTRUCTOR:
+    return "destructor";
+  case K::DESTRUCTOR_OF:
+    return "_destructor_of";
   case K::DESTROY:
     return "destroy";
   case K::DESTROY_OF:
     return "_destroy_of";
-  case K::FORWARD:
-    return "forward";
-  case K::FORWARD_OF:
-    return "_forward_of";
-  case K::BACKWARD:
-    return "backward";
-  case K::BACKWARD_OF:
-    return "_backward_of";
   case K::UNDERLYING_VALUE:
     return "underlying_value";
   case K::UNDERLYING_VALUE_OF:
@@ -1148,9 +1128,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::DECOMPOSE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::REMOVE:
+  case K::FORGET:
     return KIF::RAILCAR;
-  case K::REMOVE_OF:
+  case K::FORGET_OF:
     return KIF::STATEMENT;
   case K::INIT:
     return KIF::RAILCAR;
@@ -1654,42 +1634,22 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::SYNONYM_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::INCREMENT:
-    return KIF::RAILCAR;
-  case K::INCREMENT_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DECREMENT:
-    return KIF::RAILCAR;
-  case K::DECREMENT_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WHILST:
-    return KIF::RAILCAR;
-  case K::WHILST_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ELEMENT:
-    return KIF::RAILCAR;
-  case K::ELEMENT_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AT:
     return KIF::RAILCAR;
   case K::AT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MAIN:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR;
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
   case K::MAIN_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DESTRUCTOR:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
+  case K::DESTRUCTOR_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DESTROY:
     return KIF::RAILCAR;
   case K::DESTROY_OF:
     return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
-  case K::FORWARD:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR;
-  case K::FORWARD_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::BACKWARD:
-    return KIF::RAILCAR;
-  case K::BACKWARD_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::UNDERLYING_VALUE:
     return KIF::RAILCAR;
   case K::UNDERLYING_VALUE_OF:
@@ -2037,8 +1997,8 @@ getDescription(rq::Situation situation) {
     return K::COMPOSE_OF;
   case K::DECOMPOSE:
     return K::DECOMPOSE_OF;
-  case K::REMOVE:
-    return K::REMOVE_OF;
+  case K::FORGET:
+    return K::FORGET_OF;
   case K::INIT:
     return K::INIT_OF;
   case K::INPLACE_DESTROY:
@@ -2087,24 +2047,14 @@ getDescription(rq::Situation situation) {
     return K::SIGNATURE_OF;
   case K::SYNONYM:
     return K::SYNONYM_OF;
-  case K::INCREMENT:
-    return K::INCREMENT_OF;
-  case K::DECREMENT:
-    return K::DECREMENT_OF;
-  case K::WHILST:
-    return K::WHILST_OF;
-  case K::ELEMENT:
-    return K::ELEMENT_OF;
   case K::AT:
     return K::AT_OF;
   case K::MAIN:
     return K::MAIN_OF;
+  case K::DESTRUCTOR:
+    return K::DESTRUCTOR_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
-  case K::FORWARD:
-    return K::FORWARD_OF;
-  case K::BACKWARD:
-    return K::BACKWARD_OF;
   case K::UNDERLYING_VALUE:
     return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:

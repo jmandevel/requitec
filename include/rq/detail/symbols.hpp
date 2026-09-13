@@ -281,10 +281,6 @@ namespace rq {
     return "InterfaceOverload";
   case S::ADAPTER_OVERLOAD:
     return "AdapterOverload";
-  case S::CONSTRUCTOR_OVERLOAD:
-    return "ConstructorOverload";
-  case S::LAYOUT_CONSTRUCTOR_OVERLOAD:
-    return "LayoutConstructorOverload";
   case S::FUNCTION_OVERLOAD:
     return "FunctionOverload";
   case S::GLOBAL_VARIABLE_OVERLOAD:
@@ -611,14 +607,6 @@ getInfoFlags(rq::SymbolKind kind) {
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
            SIF::ADAPTER_IMPLEMENTATION | SIF::IS_OBJECT_SCOPE;
-  case S::CONSTRUCTOR_OVERLOAD:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
-           SIF::CONSTRUCTOR_IMPLEMENTATION | SIF::IS_FRAME_SCOPE;
-  case S::LAYOUT_CONSTRUCTOR_OVERLOAD:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
-           SIF::CONSTRUCTOR_IMPLEMENTATION | SIF::IS_FRAME_SCOPE;
   case S::FUNCTION_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
@@ -725,7 +713,7 @@ getInfoFlags(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::CONTEXTUAL_VALUE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralSymbol(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::LITERAL);
 }
@@ -871,12 +859,6 @@ getIsAdapterImplementation(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsConstructorImplementation(rq::SymbolKind kind) {
-  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::CONSTRUCTOR_IMPLEMENTATION);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsFunctionImplementation(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::FUNCTION_IMPLEMENTATION);
@@ -982,8 +964,8 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsContextualValue(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralSymbol() const {
-  return rq::getIsLiteralSymbol(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLiteralType() const {
+  return rq::getIsLiteralType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() const {
@@ -1094,11 +1076,6 @@ Symbol::getIsInterfaceImplementation() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-Symbol::getIsConstructorImplementation() const {
-  return rq::getIsConstructorImplementation(this->getKind());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
 Symbol::getIsFunctionImplementation() const {
   return rq::getIsFunctionImplementation(this->getKind());
 }
@@ -1170,4 +1147,224 @@ RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
   return symbol.getIsSimpleSymbol();
 }
 
+#define RQ_IMPLEMENT_PARENT_CLASSOF(CLASS, PARENT, FLAG_GETTER)                \
+  [[nodiscard]] inline bool CLASS::classof(const rq::Entity *entity_ptr) {     \
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);                 \
+    if (!llvm::isa<rq::Symbol>(entity)) {                                      \
+      return false;                                                            \
+    }                                                                          \
+    const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);           \
+    return symbol.FLAG_GETTER();                                               \
+  }
+
+#define RQ_IMPLEMENT_LEAF_CLASSOF(CLASS, PARENT, KIND)                         \
+  [[nodiscard]] inline bool CLASS::classof(const rq::Entity *entity_ptr) {     \
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);                 \
+    if (!llvm::isa<rq::Symbol>(entity)) {                                      \
+      return false;                                                            \
+    }                                                                          \
+    const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);           \
+    return symbol.getKind() == rq::SymbolKind::KIND;                           \
+  }
+
+#define RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(CLASS, PARENT, FLAG_GETTER)          \
+  RQ_ALWAYS_INLINE CLASS::CLASS(rq::SymbolKind kind) : PARENT(kind) {          \
+    RQ_ASSERT(rq::FLAG_GETTER(kind), "invalid kind");                          \
+  }                                                                            \
+                                                                               \
+  RQ_IMPLEMENT_PARENT_CLASSOF(CLASS, PARENT, FLAG_GETTER)
+
+#define RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CLASS, PARENT, KIND)                   \
+  RQ_ALWAYS_INLINE CLASS::CLASS() : PARENT(rq::SymbolKind::KIND) {}            \
+                                                                               \
+  RQ_IMPLEMENT_LEAF_CLASSOF(CLASS, PARENT, KIND)
+
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(Literal, SimpleSymbol, getIsLiteralType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(IntegerLiteral, Literal, INTEGER_LITERAL_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FloatLiteral, Literal, FLOAT_LITERAL_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(StringLiteral, Literal, STRING_LITERAL_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CodeunitLiteral, Literal, CODEUNIT_LITERAL_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(Contextual, SimpleSymbol, getIsContextual)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ContextualType, Contextual,
+                                  getIsContextualType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(InferenceType, ContextualType, INFERENCE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VoidType, ContextualType, VOID_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(NoReturnType, ContextualType, NO_RETURN_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnknownType, ContextualType, UNKNOWN_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ContextualValue, Contextual,
+                                  getIsContextualValue)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnknownValue, ContextualValue, UNKNOWN_VALUE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ValueValue, ContextualValue, VALUE_VALUE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(IndexValue, ContextualValue, INDEX_VALUE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ReflectiveType, SimpleSymbol,
+                                  getIsReflectiveType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SymbolType, ReflectiveType, SYMBOL_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ExpressionType, ReflectiveType, EXPRESSION_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SymbolRangeType, ReflectiveType,
+                                SYMBOL_RANGE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ExpressionRangeType, ReflectiveType,
+                                EXPRESSION_RANGE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(PrimitiveType, SimpleSymbol,
+                                  getIsPrimitiveType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(FittingPrimitiveType, PrimitiveType,
+                                  getIsFittingPrimitiveType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FastSignedIntegerType, FittingPrimitiveType,
+                                FAST_SIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FastUnsignedIntegerType, FittingPrimitiveType,
+                                FAST_UNSIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LeastSignedIntegerType, FittingPrimitiveType,
+                                LEAST_SIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LeastUnsignedIntegerType, FittingPrimitiveType,
+                                LEAST_UNSIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(StandardPrimitiveType, PrimitiveType,
+                                  getIsStandardFittingType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary16Type, StandardPrimitiveType,
+                                BINARY16_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary32Type, StandardPrimitiveType,
+                                BINARY32_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary64Type, StandardPrimitiveType,
+                                BINARY64_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary128Type, StandardPrimitiveType,
+                                BINARY128_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BFloat16Type, StandardPrimitiveType,
+                                BFLOAT16_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AsciiType, StandardPrimitiveType, ASCII_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Utf8Type, StandardPrimitiveType, UTF8_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(PlatformPrimitiveType, PrimitiveType,
+                                  getIsPlatformPrimitiveType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(HalfType, PlatformPrimitiveType, HALF_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SingleType, PlatformPrimitiveType, SINGLE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(DoubleType, PlatformPrimitiveType, DOUBLE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(QuadrupleType, PlatformPrimitiveType,
+                                QUADRUPLE_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BooleanType, PlatformPrimitiveType,
+                                BOOLEAN_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedIntegerType, PlatformPrimitiveType,
+                                UNSIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedIntegerType, PlatformPrimitiveType,
+                                SIGNED_INTEGER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedIndexType, PlatformPrimitiveType,
+                                UNSIGNED_INDEX_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedIndexType, PlatformPrimitiveType,
+                                SIGNED_INDEX_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedAddressType, PlatformPrimitiveType,
+                                UNSIGNED_ADDRESS_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedAddressType, PlatformPrimitiveType,
+                                SIGNED_ADDRESS_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CharType, PlatformPrimitiveType, CHAR_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(QualifierType, SimpleSymbol,
+                                  getIsQualifierType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VarQualifierType, QualifierType,
+                                VAR_QUALIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VolatileQualifierType, QualifierType,
+                                VOLATILE_QUALIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AtomicQualifierType, QualifierType,
+                                ATOMIC_QUALIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(NullTerminateQualifierType, QualifierType,
+                                NULL_TERMINATE_QUALIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ModifierType, SimpleSymbol, getIsModifierType)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AnchorModifierType, ModifierType,
+                                ANCHOR_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ContainerModifierType, ModifierType,
+                                CONTAINER_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VisibilityModifierType, ModifierType,
+                                VISIBILITY_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AccessModifierType, ModifierType,
+                                ACCESS_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(MutateModifierType, ModifierType,
+                                MUTATE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CohortModifierType, ModifierType,
+                                COHORT_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CaptureModifierType, ModifierType,
+                                CAPTURE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LinkageModifierType, ModifierType,
+                                LINKAGE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(MangleModifierType, ModifierType,
+                                MANGLE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(PackModifierType, ModifierType,
+                                PACK_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BranchTrendModifierType, ModifierType,
+                                BRANCH_TREND_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SupportNoticeModifierType, ModifierType,
+                                SUPPORT_NOTICE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(StableAddressModifierType, ModifierType,
+                                STABLE_ADDRESS_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VariadicModifierType, ModifierType,
+                                VARIADIC_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(OffsetModifierType, ModifierType,
+                                OFFSET_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(TemplateModifierType, ModifierType,
+                                TEMPLATE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ConstraintModifierType, ModifierType,
+                                CONSTRAINT_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(WeightModifierType, ModifierType,
+                                WEIGHT_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(DeductionModifierType, ModifierType,
+                                DEDUCTION_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VirtualityModifierType, ModifierType,
+                                VIRTUALITY_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(RangerModifierType, ModifierType,
+                                RANGER_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(RequireModifierType, ModifierType,
+                                REQUIRE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(EnsureModifierType, ModifierType,
+                                ENSURE_MODIFIER_TYPE)
+
+#undef RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT
+#undef RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF
+
+RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
+                                  rq::ConstantSymbol &child)
+    : Symbol(kind), _child_ptr(&child) {
+  RQ_ASSERT(rq::getIsSubtype(kind), "not subtype");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+Subtype::getChild() const {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &Subtype::getChild() {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+RQ_IMPLEMENT_PARENT_CLASSOF(Subtype, Symbol, getIsSubtype)
+
+inline void Subtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileSubtype(inout_id, this->getKind(), this->getChild());
+}
+
+RQ_ALWAYS_INLINE void profileSubtype(llvm::FoldingSetNodeID &inout_id,
+                                     rq::SymbolKind kind,
+                                     const rq::ConstantSymbol &child) {
+  RQ_ASSERT(rq::getIsSubtype(kind), "not subtype");
+  RQ_ASSERT(kind != rq::SymbolKind::ARRAY_SUBTYPE,
+            "array not profiled like other subtypes");
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
+  inout_id.AddPointer(&child);
+}
+
+RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(std::size_t count,
+                                            rq::ConstantSymbol &child)
+    : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(count) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::size_t ArraySubtype::getCount() const {
+  return this->_count;
+}
+
+RQ_IMPLEMENT_LEAF_CLASSOF(ArraySubtype, Subtype, ARRAY_SUBTYPE)
+
+inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  return rq::profileArraySubtype(inout_id, this->getChild(), this->getCount());
+}
+
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::ConstantSymbol &child,
+                                          std::size_t count) {
+  inout_id.AddPointer(&child);
+  inout_id.AddInteger(count);
+}
+
+#undef RQ_IMPLEMENT_PARENT_CLASSOF
+#undef RQ_IMPLEMENT_LEAF_CLASSOF
 } // namespace rq
