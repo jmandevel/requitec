@@ -7,8 +7,8 @@
 // templates refeer to declarations with template modifiers
 
 template::{> NUM:si <}
-[weight]::3
-[function getNum, ()[signed_integer],
+weight::3
+[function getNum, ()si,
     [result] <:= NUM;
 ];
 
@@ -16,41 +16,41 @@ template::{> NUM:si <}
 
 // declarations without a template modifier are attached directly to the polymorph
 
-[function getNum, ()[signed_integer],
+[function getNum, ()si,
     [result] <:= 0;
 ];
 
-[function getNum, (> num:[signed_integer] <)[signed_integer],
+[function getNum, (> num:si <)si,
     [result] <:= num;
 ];
 
 // store polymorph in variable
-[baked] poly := getNum.[reflect];
+compile_time poly := getNum.[reflect];
 
 // get overload with no args.
-[baked] noArgs := getNum.[reflect].[resolve_function ()[signed_integer]];
+compile_time noArgs := getNum.[reflect].[resolve_function ()si];
 
 // get overload from variable containing polymorph
-[baked] noArgs1 := poly.[resolve_function ()[signed_integer]];
+compile_time noArgs1 := poly.[resolve_function ()si];
 
 // get specialization with signature and given template args
-[baked] templateNoArgs := getNum{ NUM=0 }.[resolve_function ()[signed_integer]];
+compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_function ()si];
 
 // loop over all template specializations of polymorph
-[static]
-[for getNum.[reflect].[weight_level_range], [static] weight_level := [value],
+static
+[for getNum.[reflect].[weight_level_range], static weight_level := [value],
     // loop over all templates of weight level
-    [static]
-    [for weight_level.[template_range], [static] template := [value],
-        [static]
-        [for template.[specialization_range], [static] specialization := [value],
+    static
+    [for weight_level.[template_range], static template := [value],
+        static
+        [for template.[specialization_range], static specialization := [value],
             // etc
         ];
     ];
 ];
 
 // loop over all overloads of polymorph
-[static]
-[for getNum.[reflect].[overload_range], [static] implementation := [value],
+static
+[for getNum.[reflect].[overload_range], static implementation := [value],
     // etc
 ];
