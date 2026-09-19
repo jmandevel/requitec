@@ -37,53 +37,9 @@ namespace rq {
     return "NoReturnType";
 
   // MODIFIER TYPES
-  case S::ANCHOR_MODIFIER_TYPE:
-    return "AnchorModifierType";
-  case S::CONTAINER_MODIFIER_TYPE:
-    return "ContainerModifierType";
-  case S::VISIBILITY_MODIFIER_TYPE:
-    return "VisibilityModifierType";
-  case S::ACCESS_MODIFIER_TYPE:
-    return "AccessModifierType";
-  case S::MUTATE_MODIFIER_TYPE:
-    return "MutateModifierType";
-  case S::COHORT_MODIFIER_TYPE:
-    return "CohortModifierType";
-  case S::CAPTURE_MODIFIER_TYPE:
-    return "CaptureModifierType";
-  case S::LINKAGE_MODIFIER_TYPE:
-    return "LinkageModifierType";
-  case S::MANGLE_MODIFIER_TYPE:
-    return "MangleModifierType";
-  case S::PACK_MODIFIER_TYPE:
-    return "PackModifierType";
-  case S::BRANCH_TREND_MODIFIER_TYPE:
-    return "BranchTrendModifierType";
-  case S::SUPPORT_NOTICE_MODIFIER_TYPE:
-    return "SupportNoticeModifierType";
-  case S::STABLE_ADDRESS_MODIFIER_TYPE:
-    return "StableAddressModifierType";
-  case S::VARIADIC_MODIFIER_TYPE:
-    return "VariadicModifierType";
-  case S::OFFSET_MODIFIER_TYPE:
-    return "OffsetModifierType";
-  case S::TEMPLATE_MODIFIER_TYPE:
-    return "TemplateModifierType";
-  case S::CONSTRAINT_MODIFIER_TYPE:
-    return "ConstraintModifierType";
-  case S::WEIGHT_MODIFIER_TYPE:
-    return "WeightModifierType";
-  case S::DEDUCTION_MODIFIER_TYPE:
-    return "DeductionModifierType";
-  case S::VIRTUALITY_MODIFIER_TYPE:
-    return "VirtualityModifierType";
-  case S::ENSURE_MODIFIER_TYPE:
-    return "EnsureModifierType";
-  case S::REQUIRE_MODIFIER_TYPE:
-    return "RequireModifierType";
-  case S::RANGER_MODIFIER_TYPE:
-    return "RangerModifierType";
-
+  case S::MODIFIER_TYPE:
+    return "ModifierType";
+ 
   // QUALIFIER TYPES
   case S::VAR_QUALIFIER_TYPE:
     return "VarQualifierType";
@@ -220,13 +176,13 @@ namespace rq {
   case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
     return "FiniteArithmeticSequenceType";
 
-  // LOCAL DECLARATIONS
+  // EAGER DECLARATIONS
   case S::ANCHOR:
     return "Anchor";
   case S::ENUMERATOR:
     return "Enumerator";
-  case S::LOCAL_VARIABLE:
-    return "LocalVariable";
+  case S::EAGER_VARIABLE:
+    return "EagerVariable";
 
   // PARAMETERS
   case S::PARAMETER:
@@ -258,7 +214,7 @@ namespace rq {
   case S::TOP_TABLE:
     return "TopTable";
 
-  // LOCAL STATEMENTS
+  // EAGER STATEMENTS
   case S::IF_STATEMENT:
     return "IfStatement";
   case S::ELSE_IF_STATEMENT:
@@ -297,8 +253,8 @@ namespace rq {
     return "AdapterOverload";
   case S::FUNCTION_OVERLOAD:
     return "FunctionOverload";
-  case S::GLOBAL_VARIABLE_OVERLOAD:
-    return "GlobalVariableOverload";
+  case S::LAZY_VARIABLE_OVERLOAD:
+    return "LazyVariableOverload";
 
   // SPECIALIZATIONS
   case S::CLASS_SPECIALIZATION:
@@ -311,8 +267,8 @@ namespace rq {
     return "AdapterSpecialization";
   case S::FUNCTION_SPECIALIZATION:
     return "FunctionSpecialization";
-  case S::GLOBAL_VARIABLE_SPECIALIZATION:
-    return "GlobalVariableSpecialization";
+  case S::LAZY_VARIABLE_SPECIALIZATION:
+    return "LazyVariableSpecialization";
 
   // TEMPLATES
   case S::CLASS_TEMPLATE:
@@ -325,8 +281,8 @@ namespace rq {
     return "AdapterTemplate";
   case S::FUNCTION_TEMPLATE:
     return "FunctionTemplate";
-  case S::GLOBAL_VARIABLE_TEMPLATE:
-    return "GlobalVariableTemplate";
+  case S::LAZY_VARIABLE_TEMPLATE:
+    return "LazyVariableTemplate";
 
   // POLYMORPHS
   case S::CLASS_POLYMORPH:
@@ -339,8 +295,8 @@ namespace rq {
     return "AdapterPolymorph";
   case S::FUNCTION_POLYMORPH:
     return "FunctionPolymorph";
-  case S::GLOBAL_VARIABLE_POLYMORPH:
-    return "GlobalVariablePolymorph";
+  case S::LAZY_VARIABLE_POLYMORPH:
+    return "LazyVariablePolymorph";
 
   // WEIGHT LEVELS
   case S::CLASS_WEIGHT_LEVEL:
@@ -353,8 +309,8 @@ namespace rq {
     return "AdapterWeightLevel";
   case S::FUNCTION_WEIGHT_LEVEL:
     return "FunctionWeightLevel";
-  case S::GLOBAL_VARIABLE_WEIGHT_LEVEL:
-    return "GlobalVariableWeightLevel";
+  case S::LAZY_VARIABLE_WEIGHT_LEVEL:
+    return "LazyVariableWeightLevel";
 
   case S::LAST:
     break;
@@ -391,52 +347,8 @@ getInfoFlags(rq::SymbolKind kind) {
     return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_TYPE | SIF::IS_TYPE;
   case S::NO_RETURN_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::CONTEXTUAL_TYPE | SIF::IS_TYPE;
-  case S::ANCHOR_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::CONTAINER_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::VISIBILITY_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::ACCESS_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::MUTATE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::COHORT_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::CAPTURE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::LINKAGE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::MANGLE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::PACK_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::BRANCH_TREND_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::SUPPORT_NOTICE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::STABLE_ADDRESS_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::VARIADIC_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::OFFSET_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::TEMPLATE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::CONSTRAINT_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::WEIGHT_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::DEDUCTION_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::VIRTUALITY_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::ENSURE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::REQUIRE_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
-  case S::RANGER_MODIFIER_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::MODIFIER_TYPE | SIF::IS_TYPE;
+  case S::MODIFIER_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::IS_TYPE;
   case S::VAR_QUALIFIER_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::QUALIFIER_TYPE | SIF::IS_TYPE;
   case S::VOLATILE_QUALIFIER_TYPE:
@@ -568,11 +480,11 @@ getInfoFlags(rq::SymbolKind kind) {
   case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
     return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_TYPE;
   case S::ANCHOR:
-    return SIF::TABLE_MEMBER | SIF::LOCAL_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
   case S::ENUMERATOR:
-    return SIF::TABLE_MEMBER | SIF::LOCAL_DECLARATION;
-  case S::LOCAL_VARIABLE:
-    return SIF::TABLE_MEMBER | SIF::LOCAL_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
+  case S::EAGER_VARIABLE:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
   case S::PARAMETER:
     return SIF::PARAMETER_LIST;
   case S::SIGNATURE_TYPE:
@@ -592,100 +504,100 @@ getInfoFlags(rq::SymbolKind kind) {
   case S::TOP_TABLE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::IS_FRAME_SCOPE;
   case S::IF_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::ELSE_IF_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::ELSE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::SWITCH_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::CASE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::DEFAULT_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::FOR_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::WHILE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::SPIN_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::WEAVE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::SCOPE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::LOCAL_SCOPE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::NAMESPACE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE;
   case S::CLASS_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::CLASS_IMPLEMENTATION | SIF::IS_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ENUM_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::ENUM_IMPLEMENTATION | SIF::IS_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::INTERFACE_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::INTERFACE_IMPLEMENTATION | SIF::IS_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ADAPTER_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::ADAPTER_IMPLEMENTATION | SIF::IS_OBJECT_SCOPE;
   case S::FUNCTION_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::FUNCTION_IMPLEMENTATION | SIF::IS_FRAME_SCOPE;
-  case S::GLOBAL_VARIABLE_OVERLOAD:
+  case S::LAZY_VARIABLE_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
-           SIF::GLOBAL_VARIABLE_IMPLEMENTATION;
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_VARIABLE_IMPLEMENTATION;
   case S::CLASS_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::SPECIALIZATION_SET | SIF::CLASS_IMPLEMENTATION | SIF::IS_TYPE |
            SIF::IS_OBJECT_SCOPE;
   case S::ENUM_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::SPECIALIZATION_SET | SIF::ENUM_IMPLEMENTATION | SIF::IS_TYPE |
            SIF::IS_OBJECT_SCOPE;
   case S::INTERFACE_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::SPECIALIZATION_SET | SIF::INTERFACE_IMPLEMENTATION |
            SIF::IS_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ADAPTER_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::SPECIALIZATION_SET | SIF::ADAPTER_IMPLEMENTATION |
            SIF::IS_OBJECT_SCOPE;
   case S::FUNCTION_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
            SIF::SPECIALIZATION_SET | SIF::FUNCTION_IMPLEMENTATION |
            SIF::IS_FRAME_SCOPE;
-  case S::GLOBAL_VARIABLE_SPECIALIZATION:
+  case S::LAZY_VARIABLE_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::IMPLEMENTATION |
-           SIF::SPECIALIZATION_SET | SIF::GLOBAL_VARIABLE_IMPLEMENTATION;
+           SIF::LAZY_DECLARATION | SIF::IMPLEMENTATION |
+           SIF::SPECIALIZATION_SET | SIF::LAZY_VARIABLE_IMPLEMENTATION;
   case S::CLASS_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE;
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::ENUM_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE;
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::INTERFACE_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE;
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::ADAPTER_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE;
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::FUNCTION_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE | SIF::IS_FRAME_SCOPE;
-  case S::GLOBAL_VARIABLE_TEMPLATE:
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE | SIF::IS_FRAME_SCOPE;
+  case S::LAZY_VARIABLE_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::GLOBAL_DECLARATION | SIF::TEMPLATE;
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::CLASS_POLYMORPH:
     return SIF::POLYMORPH;
   case S::ENUM_POLYMORPH:
@@ -696,7 +608,7 @@ getInfoFlags(rq::SymbolKind kind) {
     return SIF::POLYMORPH;
   case S::FUNCTION_POLYMORPH:
     return SIF::POLYMORPH;
-  case S::GLOBAL_VARIABLE_POLYMORPH:
+  case S::LAZY_VARIABLE_POLYMORPH:
     return SIF::POLYMORPH;
   case S::CLASS_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
@@ -708,7 +620,7 @@ getInfoFlags(rq::SymbolKind kind) {
     return SIF::WEIGHT_LEVEL;
   case S::FUNCTION_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
-  case S::GLOBAL_VARIABLE_WEIGHT_LEVEL:
+  case S::LAZY_VARIABLE_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
   case S::LAST:
     break;
@@ -779,11 +691,6 @@ getIsPlatformPrimitiveType(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::QUALIFIER_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsModifierType(rq::SymbolKind kind) {
-  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::MODIFIER_TYPE);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsScaledPrimitiveType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
@@ -842,9 +749,9 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::SYMBOL_TABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLocalScope(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_SCOPE);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::EAGER_SCOPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind) {
@@ -853,9 +760,9 @@ getIsSpecializationSet(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalDeclarataion(rq::SymbolKind kind) {
+getIsLazyDeclarataion(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::GLOBAL_DECLARATION);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::LAZY_DECLARATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation(rq::SymbolKind kind) {
@@ -894,10 +801,10 @@ getIsFunctionImplementation(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsGlobalVariableImplementation(rq::SymbolKind kind) {
+getIsLazyVariableImplementation(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags,
-                       rq::SymbolInfoFlags::GLOBAL_VARIABLE_IMPLEMENTATION);
+                       rq::SymbolInfoFlags::LAZY_VARIABLE_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
@@ -1021,10 +928,6 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsQualifierType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsModifierType() const {
-  return rq::getIsModifierType(this->getKind());
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsScaledPrimitiveType() const {
   return rq::getIsScaledPrimitiveType(this->getKind());
 }
@@ -1054,9 +957,9 @@ Symbol::getIsArithmeticSequenceType() const {
   return rq::getIsTableMember(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalDeclaration() const {
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsEagerDeclaration() const {
   const rq::SymbolInfoFlags flags = this->getInfoFlags();
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::LOCAL_DECLARATION);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::EAGER_DECLARATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPolymorph() const {
@@ -1075,16 +978,16 @@ Symbol::getIsArithmeticSequenceType() const {
   return rq::getIsSymbolTable(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLocalScope() const {
-  return rq::getIsLocalScope(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsEagerScope() const {
+  return rq::getIsEagerScope(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsNamedTable() const {
   return rq::getIsNamedTable(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsGlobalDeclarataion() const {
-  return rq::getIsGlobalDeclarataion(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsLazyDeclarataion() const {
+  return rq::getIsLazyDeclarataion(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsImplementation() const {
@@ -1114,8 +1017,8 @@ Symbol::getIsFunctionImplementation() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-Symbol::getIsGlobalVariableImplementation() const {
-  return rq::getIsGlobalVariableImplementation(this->getKind());
+Symbol::getIsLazyVariableImplementation() const {
+  return rq::getIsLazyVariableImplementation(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsType() const {
@@ -1295,53 +1198,8 @@ RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AtomicQualifierType, QualifierType,
                                 ATOMIC_QUALIFIER_TYPE)
 RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(NullTerminateQualifierType, QualifierType,
                                 NULL_TERMINATE_QUALIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ModifierType, SimpleSymbol, getIsModifierType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AnchorModifierType, ModifierType,
-                                ANCHOR_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ContainerModifierType, ModifierType,
-                                CONTAINER_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VisibilityModifierType, ModifierType,
-                                VISIBILITY_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AccessModifierType, ModifierType,
-                                ACCESS_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(MutateModifierType, ModifierType,
-                                MUTATE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CohortModifierType, ModifierType,
-                                COHORT_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CaptureModifierType, ModifierType,
-                                CAPTURE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LinkageModifierType, ModifierType,
-                                LINKAGE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(MangleModifierType, ModifierType,
-                                MANGLE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(PackModifierType, ModifierType,
-                                PACK_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BranchTrendModifierType, ModifierType,
-                                BRANCH_TREND_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SupportNoticeModifierType, ModifierType,
-                                SUPPORT_NOTICE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(StableAddressModifierType, ModifierType,
-                                STABLE_ADDRESS_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VariadicModifierType, ModifierType,
-                                VARIADIC_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(OffsetModifierType, ModifierType,
-                                OFFSET_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(TemplateModifierType, ModifierType,
-                                TEMPLATE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ConstraintModifierType, ModifierType,
-                                CONSTRAINT_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(WeightModifierType, ModifierType,
-                                WEIGHT_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(DeductionModifierType, ModifierType,
-                                DEDUCTION_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VirtualityModifierType, ModifierType,
-                                VIRTUALITY_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(RangerModifierType, ModifierType,
-                                RANGER_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(RequireModifierType, ModifierType,
-                                REQUIRE_MODIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(EnsureModifierType, ModifierType,
-                                ENSURE_MODIFIER_TYPE)
+RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ModifierType, SimpleSymbol,
+                                MODIFIER_TYPE)
 
 #undef RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT
 #undef RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF
@@ -2593,82 +2451,82 @@ RQ_ALWAYS_INLINE void InterfacePolymorph::addInterfaceWeightLevel(
          rq::SymbolKind::INTERFACE_POLYMORPH;
 }
 
-RQ_ALWAYS_INLINE GlobalVariablePolymorph::GlobalVariablePolymorph()
-    : Polymorph(rq::SymbolKind::GLOBAL_VARIABLE_POLYMORPH) {}
-RQ_ALWAYS_INLINE void GlobalVariablePolymorph::addGlobalVariableOverload(
-    rq::GlobalVariableOverload &overload) {
+RQ_ALWAYS_INLINE LazyVariablePolymorph::LazyVariablePolymorph()
+    : Polymorph(rq::SymbolKind::LAZY_VARIABLE_POLYMORPH) {}
+RQ_ALWAYS_INLINE void LazyVariablePolymorph::addLazyVariableOverload(
+    rq::LazyVariableOverload &overload) {
   overload._next_ptr = this->_first_overload_ptr;
   this->_first_overload_ptr = &overload;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::NextSubrange<rq::Implementation, rq::GlobalVariableOverload>
-    GlobalVariablePolymorph::getGlobalVariableOverloadSubrange() {
-  return {rq::NextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+    rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getLazyVariableOverloadSubrange() {
+  return {rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
               this->_first_overload_ptr),
-          rq::NextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+          rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
               nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Implementation, rq::GlobalVariableOverload>
-    GlobalVariablePolymorph::getGlobalVariableOverloadSubrange() const {
-  return {rq::ConstNextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+    rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getLazyVariableOverloadSubrange() const {
+  return {rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
               this->_first_overload_ptr),
-          rq::ConstNextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+          rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
               nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Implementation, rq::GlobalVariableOverload>
-    GlobalVariablePolymorph::getGlobalVariableOverloadConstSubrange() const {
-  return {rq::ConstNextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+    rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getLazyVariableOverloadConstSubrange() const {
+  return {rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
               this->_first_overload_ptr),
-          rq::ConstNextIterator<rq::Implementation, rq::GlobalVariableOverload>(
+          rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
               nullptr)};
 }
 
-RQ_ALWAYS_INLINE void GlobalVariablePolymorph::addGlobalVariableWeightLevel(
-    rq::GlobalVariableWeightLevel &weight_level) {
+RQ_ALWAYS_INLINE void LazyVariablePolymorph::addLazyVariableWeightLevel(
+    rq::LazyVariableWeightLevel &weight_level) {
   weight_level._next_ptr = this->_first_weight_level_ptr;
   this->_first_weight_level_ptr = &weight_level;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::NextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
-    GlobalVariablePolymorph::getGlobalVariableWeightLevelSubrange() {
-  return {rq::NextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+    rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getLazyVariableWeightLevelSubrange() {
+  return {rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               this->_first_weight_level_ptr),
-          rq::NextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+          rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
-    GlobalVariablePolymorph::getGlobalVariableWeightLevelSubrange() const {
-  return {rq::ConstNextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+    rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getLazyVariableWeightLevelSubrange() const {
+  return {rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               this->_first_weight_level_ptr),
-          rq::ConstNextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+          rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::WeightLevel, rq::GlobalVariableWeightLevel>
-    GlobalVariablePolymorph::getGlobalVariableWeightLevelConstSubrange() const {
-  return {rq::ConstNextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+    rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getLazyVariableWeightLevelConstSubrange() const {
+  return {rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               this->_first_weight_level_ptr),
-          rq::ConstNextIterator<rq::WeightLevel, rq::GlobalVariableWeightLevel>(
+          rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
               nullptr)};
 }
 
 [[nodiscard]] inline bool
-GlobalVariablePolymorph::classof(rq::Entity *entity_ptr) {
+LazyVariablePolymorph::classof(rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   if (!llvm::isa<rq::Symbol>(entity)) {
     return false;
   }
   return llvm::cast<const rq::Symbol>(entity).getKind() ==
-         rq::SymbolKind::GLOBAL_VARIABLE_POLYMORPH;
+         rq::SymbolKind::LAZY_VARIABLE_POLYMORPH;
 }
 
 RQ_ALWAYS_INLINE AdapterPolymorph::AdapterPolymorph()

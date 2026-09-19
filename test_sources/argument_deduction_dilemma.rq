@@ -15,12 +15,11 @@ constraint::(count_div_2 >= 0 && Element.[is_type])
     //    caring about values not determinable until specialization time
     // how do we solve this problem?
 
-    // constant variables are lazily evaluated
+    // compile_time variables are lazily evaluated
     // its is surveyed (added to symbol table) but its not evaluated until the first time its used
-    // unevaluated constant variables are NOT evaluated when mapping arguments for deduction during declaration!
+    // unevaluated compile_time variables are NOT evaluated when mapping arguments for deduction during declaration!
     // instead, the compiler ignores them until specialization.
-    constant
-    count := count_div_2 * 2; 
+    compile_time count := count_div_2 * 2; 
 
     public [layout_constructor];
 

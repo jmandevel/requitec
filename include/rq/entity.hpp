@@ -281,121 +281,108 @@ enum class Keyword : rq::EntityId {
   ASSUME,
 
   // MODIFIERS
-  // anchor_modifier
+  NO_MODIFIER,
+  // anchor
   ANCHOR,
-  // container_modifier
+  // container
   RESIDENT,
   FLANK,
-  // visibility_modifier
+  // visibility
   TRANSPARENT,
   OPAQUE,
-  // access_modifier
+  // access
   PRIVATE,
   PUBLIC,
-  // mutate_modifier
-  FULL_MUTATE,
-  PARTIAL_MUTATE,
-  // cohort_modifier
+  EXPORT,
+  // mutability
+  MUTABLE,
+  PARTIAL_MUTABLE,
+  CONSTANT,
+  // generation_time
   DYNAMIC,
   STATIC,
+  // execution_time
   RUNTIME,
-  COMPTIME,
+  COMPILE_TIME,
   HYBRID,
+  // evaluation_time
+  EAGER,
+  LAZY,
+  // initialization_time
+  PREDEFINED,
   SINGLETON,
-  // capture_modifier
+  // capture
   CAPTURE,
-  // linkage_modifier
+  // linkage
   LINKED,
   INLINE,
-  // mangle_modifier
-  AUTO_MANGLE,
-  MANUAL_MANGLE,
-  // pack_modifier
+  // mangle
+  STANDARD_MANGLE,
+  MANGLE,
+  // pack
   PAD,
   PACK,
-  // branch_trend_modifier
+  // branch_trend
   EQUIVOCAL,
   LIKELY,
   UNLIKELY,
-  // support_notice_modifier
+  // support_notice
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // address_stability_modifier
+  // address_stability
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic_modifier
+  // variadic
   INVARIADIC,
   VARIADIC,
-  // offset_modifier
-  FRUGAL,
+  // offset
+  BEST_LOCATION,
   LOCATION,
-  // template_modifier
+  // lazy_declaration_kind
   TEMPLATE,
-  // constraint_modifier
+  OVERLOAD,
+  // constraint
   CONSTRAINT,
-  // weight_modifier
+  // weight
   DEFAULT_WEIGHT,
   WEIGHT,
-  // deduction_modifier
+  // deduction
   MANUAL,
   AUTO,
-  // virtuality_modifier
+  // virtuality
   DIRECT,
   VIRTUAL,
-  // ranger_modifier
+  // ranger
   RANGER,
-  // require_modifier
+  // require
   REQUIRE,
-  // ensure_modifier
+  // ensure
   ENSURE,
 
   // QUALIFIERS
-  // var_qualifier
+  // var
   NO_VAR,
-  VAR,
   PARTIAL_VAR,
-  // volatile_qualifier
+  VAR,
+  // volatile
   NO_VOLATILE,
   VOLATILE,
-  // atomic_qualifier
+  // atomic
   NO_ATOMIC,
   ATOMIC,
-  // null_terminate_qualifier
+  // null_terminate
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-
-  // MODIFIER TYPES
-  ANCHOR_MODIFIER,         // anchor
-  CONTAINER_MODIFIER,      // resident vs flank
-  VISIBILITY_MODIFIER,     // transparent vs opaque
-  ACCESS_MODIFIER,         // privates vs public
-  MUTATE_MODIFIER,         // full_mutate vs partial_mutate
-  COHORT_MODIFIER,         // dynamic vs static vs runtime vs comptime vs
-                           // hybrid vs singleton
-  CAPTURE_MODIFIER,        // capture
-  LINKAGE_MODIFIER,        // linked vs inline
-  MANGLE_MODIFIER,         // generate_mangle vs mangle
-  PACK_MODIFIER,           // pad vs pack
-  BRANCH_TREND_MODIFIER,   // equivocsl vs likely vs unlikely
-  SUPPORT_NOTICE_MODIFIER, // supported vs depreciate vs experimental
-  STABLE_ADDRESS_MODIFIER, // unstable_address vs stable_address
-  VARIADIC_MODIFIER,       // invariadic vs variadic
-  OFFSET_MODIFIER,         // frugal vs location
-  TEMPLATE_MODIFIER,       // template
-  CONSTRAINT_MODIFIER,     // constraint
-  WEIGHT_MODIFIER,         // default_weight vs weight
-  DEDUCTION_MODIFIER,      // manual vs auto
-  VIRTUALITY_MODIFIER,     // direct vs virtual
-  RANGER_MODIFIER,         // ranger
-  REQUIRE_MODIFIER,        // require
-  ENSURE_MODIFIER,         // ensure
 
   // QUALIFIER TYPES
   VAR_QUALIFIER,            // no_var vs var vs partial_var
   VOLATILE_QUALIFIER,       // no_volatile vs volatile
   ATOMIC_QUALIFIER,         // no_atomic vs atomic
   NULL_TERMINATE_QUALIFIER, // no_null_terminate vs null_terminate
+
+  // MODIFIER TYPES
+  MODIFIER,
 
   // REFLECTIONS
   MEMBER_OF,
@@ -451,7 +438,6 @@ enum class Keyword : rq::EntityId {
   REFLECT_OF,
   POLYMORPH,
   POLYMORPH_OF,
-  OVERLOAD,
   OVERLOAD_OF,
   OVERLOAD_RANGE,
   OVERLOAD_RANGE_OF,
@@ -495,8 +481,6 @@ enum class Keyword : rq::EntityId {
   IS_STRING_TYPE_OF,
   IS_CODEUNIT_TYPE,
   IS_CODEUNIT_TYPE_OF,
-  IS_MODIFIER_TYPE,
-  IS_MODIFIER_TYPE_OF,
   IS_QUALIFIER_TYPE,
   IS_QUALIFIER_TYPE_OF,
 
@@ -524,29 +508,7 @@ enum class SymbolKind : rq::EntityId {
   NO_RETURN_TYPE,
 
   // MODIFIER TYPES
-  ANCHOR_MODIFIER_TYPE,
-  CONTAINER_MODIFIER_TYPE,
-  VISIBILITY_MODIFIER_TYPE,
-  ACCESS_MODIFIER_TYPE,
-  MUTATE_MODIFIER_TYPE,
-  COHORT_MODIFIER_TYPE,
-  CAPTURE_MODIFIER_TYPE,
-  LINKAGE_MODIFIER_TYPE,
-  MANGLE_MODIFIER_TYPE,
-  PACK_MODIFIER_TYPE,
-  BRANCH_TREND_MODIFIER_TYPE,
-  SUPPORT_NOTICE_MODIFIER_TYPE,
-  STABLE_ADDRESS_MODIFIER_TYPE,
-  VARIADIC_MODIFIER_TYPE,
-  OFFSET_MODIFIER_TYPE,
-  TEMPLATE_MODIFIER_TYPE,
-  CONSTRAINT_MODIFIER_TYPE,
-  WEIGHT_MODIFIER_TYPE,
-  DEDUCTION_MODIFIER_TYPE,
-  VIRTUALITY_MODIFIER_TYPE,
-  ENSURE_MODIFIER_TYPE,
-  REQUIRE_MODIFIER_TYPE,
-  RANGER_MODIFIER_TYPE,
+  MODIFIER_TYPE,
 
   // QUALIFIER TYPES
   VAR_QUALIFIER_TYPE,
@@ -633,10 +595,10 @@ enum class SymbolKind : rq::EntityId {
   INFINITE_ARITHMETIC_SEQUENCE_TYPE,
   FINITE_ARITHMETIC_SEQUENCE_TYPE,
 
-  // LOCAL DECLARATIONS
+  // EAGER DECLARATIONS
   ANCHOR,
   ENUMERATOR,
-  LOCAL_VARIABLE,
+  EAGER_VARIABLE,
 
   // PARAMETERS
   PARAMETER,
@@ -659,7 +621,7 @@ enum class SymbolKind : rq::EntityId {
   C_TABLE,
   TOP_TABLE,
 
-  // LOCAL STATEMENTS
+  // EAGER STATEMENTS
   IF_STATEMENT,
   ELSE_IF_STATEMENT,
   ELSE_STATEMENT,
@@ -681,7 +643,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_OVERLOAD,
   ADAPTER_OVERLOAD,
   FUNCTION_OVERLOAD,
-  GLOBAL_VARIABLE_OVERLOAD,
+  LAZY_VARIABLE_OVERLOAD,
 
   // SPECIALIZATIONS
   CLASS_SPECIALIZATION,
@@ -689,7 +651,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_SPECIALIZATION,
   ADAPTER_SPECIALIZATION,
   FUNCTION_SPECIALIZATION,
-  GLOBAL_VARIABLE_SPECIALIZATION,
+  LAZY_VARIABLE_SPECIALIZATION,
 
   // TEMPLATES
   CLASS_TEMPLATE,
@@ -697,7 +659,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_TEMPLATE,
   ADAPTER_TEMPLATE,
   FUNCTION_TEMPLATE,
-  GLOBAL_VARIABLE_TEMPLATE,
+  LAZY_VARIABLE_TEMPLATE,
 
   // POLYMORPHS
   CLASS_POLYMORPH,
@@ -705,7 +667,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_POLYMORPH,
   ADAPTER_POLYMORPH,
   FUNCTION_POLYMORPH,
-  GLOBAL_VARIABLE_POLYMORPH,
+  LAZY_VARIABLE_POLYMORPH,
 
   // WEIGHT LEVELS
   CLASS_WEIGHT_LEVEL,
@@ -713,7 +675,7 @@ enum class SymbolKind : rq::EntityId {
   INTERFACE_WEIGHT_LEVEL,
   ADAPTER_WEIGHT_LEVEL,
   FUNCTION_WEIGHT_LEVEL,
-  GLOBAL_VARIABLE_WEIGHT_LEVEL,
+  LAZY_VARIABLE_WEIGHT_LEVEL,
 
   LAST
 };

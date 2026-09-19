@@ -886,6 +886,8 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // MODIFIERS
+  case K::NO_MODIFIER:
+    [[fallthrough]];
   case K::ANCHOR:
     [[fallthrough]];
   case K::RESIDENT:
@@ -900,9 +902,13 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PUBLIC:
     [[fallthrough]];
-  case K::FULL_MUTATE:
+  case K::EXPORT:
     [[fallthrough]];
-  case K::PARTIAL_MUTATE:
+  case K::MUTABLE:
+    [[fallthrough]];
+  case K::PARTIAL_MUTABLE:
+    [[fallthrough]];
+  case K::CONSTANT:
     [[fallthrough]];
   case K::DYNAMIC:
     [[fallthrough]];
@@ -910,9 +916,15 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::RUNTIME:
     [[fallthrough]];
-  case K::COMPTIME:
+  case K::COMPILE_TIME:
     [[fallthrough]];
   case K::HYBRID:
+    [[fallthrough]];
+  case K::EAGER:
+    [[fallthrough]];
+  case K::LAZY:
+    [[fallthrough]];
+  case K::PREDEFINED:
     [[fallthrough]];
   case K::SINGLETON:
     [[fallthrough]];
@@ -922,9 +934,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INLINE:
     [[fallthrough]];
-  case K::AUTO_MANGLE:
+  case K::STANDARD_MANGLE:
     [[fallthrough]];
-  case K::MANUAL_MANGLE:
+  case K::MANGLE:
     [[fallthrough]];
   case K::PAD:
     [[fallthrough]];
@@ -950,11 +962,13 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VARIADIC:
     [[fallthrough]];
-  case K::FRUGAL:
+  case K::BEST_LOCATION:
     [[fallthrough]];
   case K::LOCATION:
     [[fallthrough]];
   case K::TEMPLATE:
+    [[fallthrough]];
+  case K::OVERLOAD:
     [[fallthrough]];
   case K::CONSTRAINT:
     [[fallthrough]];
@@ -1012,51 +1026,7 @@ bool Situator::situateTree(rq::Situation situation,
   }
 
   // MODIFIER TYPES
-  case K::ANCHOR_MODIFIER:
-    [[fallthrough]];
-  case K::CONTAINER_MODIFIER:
-    [[fallthrough]];
-  case K::VISIBILITY_MODIFIER:
-    [[fallthrough]];
-  case K::ACCESS_MODIFIER:
-    [[fallthrough]];
-  case K::MUTATE_MODIFIER:
-    [[fallthrough]];
-  case K::COHORT_MODIFIER:
-    [[fallthrough]];
-  case K::CAPTURE_MODIFIER:
-    [[fallthrough]];
-  case K::LINKAGE_MODIFIER:
-    [[fallthrough]];
-  case K::MANGLE_MODIFIER:
-    [[fallthrough]];
-  case K::PACK_MODIFIER:
-    [[fallthrough]];
-  case K::BRANCH_TREND_MODIFIER:
-    [[fallthrough]];
-  case K::SUPPORT_NOTICE_MODIFIER:
-    [[fallthrough]];
-  case K::STABLE_ADDRESS_MODIFIER:
-    [[fallthrough]];
-  case K::VARIADIC_MODIFIER:
-    [[fallthrough]];
-  case K::OFFSET_MODIFIER:
-    [[fallthrough]];
-  case K::TEMPLATE_MODIFIER:
-    [[fallthrough]];
-  case K::CONSTRAINT_MODIFIER:
-    [[fallthrough]];
-  case K::WEIGHT_MODIFIER:
-    [[fallthrough]];
-  case K::DEDUCTION_MODIFIER:
-    [[fallthrough]];
-  case K::VIRTUALITY_MODIFIER:
-    [[fallthrough]];
-  case K::RANGER_MODIFIER:
-    [[fallthrough]];
-  case K::REQUIRE_MODIFIER:
-    [[fallthrough]];
-  case K::ENSURE_MODIFIER:
+  case K::MODIFIER:
     [[fallthrough]];
 
     // QUALIFIER TYPES
@@ -1232,9 +1202,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::POLYMORPH_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::OVERLOAD:
-    is_ok = this->situateNullary(situation, expression);
-    break;
   case K::OVERLOAD_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
@@ -1362,12 +1329,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::IS_CODEUNIT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_MODIFIER_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_MODIFIER_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::IS_QUALIFIER_TYPE:

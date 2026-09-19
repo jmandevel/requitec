@@ -23,7 +23,7 @@ constraint::(Type.[is_type])
 [main ()si,
     printType{si32}();
     printType{single}();
-    printType{bool}();
+    printType{boolean}();
 
     [result] <:= 0;
 ];

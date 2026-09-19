@@ -8,8 +8,8 @@
 ];
 
 [main ()si,
-    // no properties are var for constant values:
-    constant := Partialable();
+    // no properties are var for compile_time values:
+    compile_time := Partialable();
 
     // all properties are var for fully var values:
     fully_var : var\ = Partialiable();

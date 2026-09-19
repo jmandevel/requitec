@@ -4,7 +4,7 @@
 // first time they are seen, they are surveyed:
 // their name is determined and they are added to symbol table.
 // first time they are used, the actual symbol data is evaluated (lazily)
-// captures are a way of "saving" local static variable values for the later evaluation stage
+// captures are a way of "saving" eager static variable values for the later evaluation stage
 
 // static statements in common scope are evaluated at compile time (same time common symbols are surveyed)
 static var :var\= 0;

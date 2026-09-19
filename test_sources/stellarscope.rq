@@ -9,36 +9,36 @@
 // variables in the top scope can shadow everything in the stellarscope.
 [stellarscope
 
-    // to demonstrate the power of this, look at what we can do assigning [constant]
-    // a variable named constant. we can use the variable as a modifier, and so we
+    // to demonstrate the power of this, look at what we can do assigning [compile_time]
+    // a variable named compile_time. we can use the variable as a modifier, and so we
     // don't have to write square brackets all over the place throughout the rest of 
     // this file. Its a variable, so it can be shadowed as well. If a programmer
-    // makes their own variable named constant, then it will override this variable.
-    // If the programmer still wants to use constant modifier, they can use it 
+    // makes their own variable named compile_time, then it will override this variable.
+    // If the programmer still wants to use compile_time modifier, they can use it 
     // explicitly with square brackets instead of accessing it via this variable.
-    [export][constant] constant := [constant];
+    [export][compile_time] compile_time := [compile_time];
 
     // now do the same with [export] so we can simplify wirting that modifier as well.
-    [export] constant export := [export];
+    [export] compile_time export := [export];
 
-    export constant symbol := [symbol];
-    export constant expression := [expression];
-    export constant void := [void];
-    export constant no_return := [no_return];
-    export constant boolean := [boolean];
-    export constant half := [half];
-    export constant single := [single];
-    export constant double := [double];
-    export constant binary16 := [binary16];
-    export constant binary32 := [binary32];
-    export constant binary64 := [binary64];
-    export constant binary128 := [binary128];
-    export constant bfloat16 := [bfloat16];
-    export constant si := [signed_integer];
-    export constant si8 := [signed_integer 8];
-    export constant si16 := [signed_integer 16];
-    export constant si32 := [signed_integer 32];
-    export constant si64 := [signed_integer 64];
-    export constant si128 := [signed_integer 128];
+    export compile_time symbol := [symbol];
+    export compile_time expression := [expression];
+    export compile_time void := [void];
+    export compile_time no_return := [no_return];
+    export compile_time boolean := [boolean];
+    export compile_time half := [half];
+    export compile_time single := [single];
+    export compile_time double := [double];
+    export compile_time binary16 := [binary16];
+    export compile_time binary32 := [binary32];
+    export compile_time binary64 := [binary64];
+    export compile_time binary128 := [binary128];
+    export compile_time bfloat16 := [bfloat16];
+    export compile_time si := [signed_integer];
+    export compile_time si8 := [signed_integer 8];
+    export compile_time si16 := [signed_integer 16];
+    export compile_time si32 := [signed_integer 32];
+    export compile_time si64 := [signed_integer 64];
+    export compile_time si128 := [signed_integer 128];
     // TODO etc etc...
 ];

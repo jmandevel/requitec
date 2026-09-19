@@ -4,7 +4,7 @@
     {>public arr : var#el<}, 
 ];
 
-constant VAR := 0;
+compile_time VAR := 0;
 
 [main 
     static Return := si;
