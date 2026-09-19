@@ -856,6 +856,15 @@ bool Situator::situateTree(rq::Situation situation,
     }
     break;
   }
+  case K::STELLARSCOPE:
+    switch (situation) {
+    case S::TOP:
+      is_ok = this->situateStatement(expression);
+      break;
+    default:
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
   case K::C:
     is_ok = this->situateNullary(situation, expression);
     break;

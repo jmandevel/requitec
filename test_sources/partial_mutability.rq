@@ -9,7 +9,7 @@
 
 [main ()si,
     // no properties are var for compile_time values:
-    compile_time := Partialable();
+    compile_time never_var := Partialable();
 
     // all properties are var for fully var values:
     fully_var : var\ = Partialiable();
