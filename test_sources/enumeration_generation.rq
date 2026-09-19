@@ -2,9 +2,9 @@
 
 [enum Fruit, ui32,
 	anchor::A
-	[static][for 0.<100, num:=[value],
-		[static] name := std.format(text= "MY_FRUIT" +> num);
-		[flank]::A name.getSlice().[identify];
+	static [for 0.<100, num:=[value],
+		static name := std.format(text= "MY_FRUIT" +> num);
+		flank::A name.getSlice().[identify];
 	];
 ];
 
