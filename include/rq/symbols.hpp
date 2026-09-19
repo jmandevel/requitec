@@ -269,6 +269,7 @@ struct Symbol;
       struct Enumerator;
       struct EagerVariable;
     struct SymbolTable;
+      struct StellarscopeTable;
       struct CTable;
       struct TopTable;
       struct EagerScope;
@@ -2018,6 +2019,14 @@ struct SymbolTable : public rq::TableMember {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::ConstSymbolTableIterator>
       getConstInclusiveAscendingSubrange() const;
+
+  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+};
+
+struct StellarscopeTable final : public rq::SymbolTable {
+  using Self = rq::CTable;
+
+  explicit RQ_ALWAYS_INLINE StellarscopeTable();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };

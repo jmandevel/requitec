@@ -209,6 +209,8 @@ namespace rq {
     return "SynonymType";
 
   // SYMBOL TABLES
+  case S::STELLARSCOPE_TABLE:
+    return "StellarscopeTable";
   case S::C_TABLE:
     return "CTable";
   case S::TOP_TABLE:
@@ -499,6 +501,8 @@ getInfoFlags(rq::SymbolKind kind) {
     return SIF::IS_TYPE;
   case S::SYNONYM_TYPE:
     return SIF::IS_TYPE;
+  case S::STELLARSCOPE_TABLE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
   case S::C_TABLE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
   case S::TOP_TABLE:

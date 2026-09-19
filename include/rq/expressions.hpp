@@ -472,6 +472,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "import";
   case K::NAMESPACE:
     return "namespace";
+  case K::STELLARSCOPE:
+    return "stellarscope";
   case K::C:
     return "c";
   case K::TOP:
@@ -1340,6 +1342,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::NAMESPACE:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
+  case K::STELLARSCOPE:
+    return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::C:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::TOP:
@@ -2345,7 +2349,7 @@ enum class Modifier : std::uint_fast8_t {
   EXPORT,
   // mutability
   MUTABLE,
-  PARTIAL_MUTABLE,
+  PARTIALLY_MUTABLE,
   CONSTANT,
   // generation_time
   DYNAMIC,
@@ -2435,8 +2439,8 @@ enum class Modifier : std::uint_fast8_t {
     return "EXPORT";
   case M::MUTABLE:
     return "MUTABLE";
-  case M::PARTIAL_MUTABLE:
-    return "PARTIAL_MUTABLE";
+  case M::PARTIALLY_MUTABLE:
+    return "PARTIALLY_MUTABLE";
   case M::CONSTANT:
     return "CONSTANT";
   case M::DYNAMIC:
@@ -2550,8 +2554,8 @@ enum class Modifier : std::uint_fast8_t {
     return M::EXPORT;
   case K::MUTABLE:
     return M::MUTABLE;
-  case K::PARTIAL_MUTABLE:
-    return M::PARTIAL_MUTABLE;
+  case K::PARTIALLY_MUTABLE:
+    return M::PARTIALLY_MUTABLE;
   case K::CONSTANT:
     return M::CONSTANT;
   case K::DYNAMIC:
@@ -2662,9 +2666,9 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   ACCESS_MODIFIER_MASK = PRIVATE | PUBLIC | EXPORT,
 
   MUTABLE = rq::getBit(8),
-  PARTIAL_MUTABLE = rq::getBit(9),
+  PARTIALLY_MUTABLE = rq::getBit(9),
   CONSTANT = rq::getBit(10),
-  MUTATE_MODIFIER_MASK = MUTABLE | PARTIAL_MUTABLE | CONSTANT,
+  MUTATE_MODIFIER_MASK = MUTABLE | PARTIALLY_MUTABLE | CONSTANT,
 
   DYNAMIC = rq::getBit(11),
   STATIC = rq::getBit(12),
@@ -2776,8 +2780,8 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::EXPORT;
   case M::MUTABLE:
     return MFF::MUTABLE;
-  case M::PARTIAL_MUTABLE:
-    return MFF::PARTIAL_MUTABLE;
+  case M::PARTIALLY_MUTABLE:
+    return MFF::PARTIALLY_MUTABLE;
   case M::CONSTANT:
     return MFF::CONSTANT;
   case M::DYNAMIC:
@@ -2900,7 +2904,7 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::MUTABLE:
     return MIF::NO_ATTACHMENT;
-  case M::PARTIAL_MUTABLE:
+  case M::PARTIALLY_MUTABLE:
     return MIF::NO_ATTACHMENT;
   case M::CONSTANT:
     return MIF::NO_ATTACHMENT;
@@ -3191,7 +3195,7 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::ACCESS;
   case M::MUTABLE:
     [[fallthrough]];
-  case M::PARTIAL_MUTABLE:
+  case M::PARTIALLY_MUTABLE:
     [[fallthrough]];
   case M::CONSTANT:
     return MK::MUTABILITY;

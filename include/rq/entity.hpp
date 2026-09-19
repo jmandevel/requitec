@@ -270,6 +270,7 @@ enum class Keyword : rq::EntityId {
   // TABLE GRAPH
   IMPORT,
   NAMESPACE,
+  STELLARSCOPE,
   C,
   TOP,
 
@@ -375,14 +376,14 @@ enum class Keyword : rq::EntityId {
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
 
+  // MODIFIER TYPES
+  MODIFIER,
+
   // QUALIFIER TYPES
   VAR_QUALIFIER,            // no_var vs var vs partial_var
   VOLATILE_QUALIFIER,       // no_volatile vs volatile
   ATOMIC_QUALIFIER,         // no_atomic vs atomic
   NULL_TERMINATE_QUALIFIER, // no_null_terminate vs null_terminate
-
-  // MODIFIER TYPES
-  MODIFIER,
 
   // REFLECTIONS
   MEMBER_OF,
@@ -618,6 +619,7 @@ enum class SymbolKind : rq::EntityId {
   SYNONYM_TYPE,
 
   // SYMBOL TABLES
+  STELLARSCOPE_TABLE,
   C_TABLE,
   TOP_TABLE,
 
