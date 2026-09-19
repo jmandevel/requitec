@@ -1,36 +1,36 @@
 [import "std"];
 
-[class MyClass, [public][layout_constructor]; {}];
+[class MyClass, public [layout_constructor]; {}];
 
 // This class has stable_address modifier, so it cannnot be moved to a new memory address
 [stable_address]
-[class MyPinned, [public][layout_constructor]; {}];
+[class MyPinned, public [layout_constructor]; {}];
 
-[function takeReciever, ()[void]=>MyPinned,
-
-];
-
-[function takeArg, (pinned:MyPinned<)[void],
+[function takeReciever, ()void=>MyPinned,
 
 ];
 
-[function takeOrCopyArg, (pinned:MyClass<)[void],
+[function takeArg, (pinned:MyPinned<)void,
 
 ];
 
-[main ()[signed_integer],
-  class :[var]\= MyClass();
+[function takeOrCopyArg, (pinned:MyClass<)void,
+
+];
+
+[main ()si,
+  class :var\= MyClass();
   copy := class;
   reference := class.[borrow];
-  reference_to_var := class.[var]\[borrow];
+  reference_to_var := class.var\[borrow];
   pointer := class.[address];
-  pointer_to_var := class.[var]\[address];
+  pointer_to_var := class.var\[address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.[var]\[borrow]->std.extract();
+  non_destructive_move := class.var\[borrow]->std.extract();
   destructive_move := class.[move];
   // class was forgetped because it was moved out of
   class := destructive_move.[move]; /// move it back!
-  pinned :[var]\= MyPinned();
+  pinned :var\= MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address modifier
   pinned.[take]->takeReciever(); // taking is fine, because memory address is not changed.
   // both .[move] and .[take] invalidate the variable moved or taken from

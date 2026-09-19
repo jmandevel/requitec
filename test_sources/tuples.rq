@@ -1,19 +1,19 @@
 [import "std"];
 
-[main ()[signed_integer],
+[main ()si,
     // for tuple with inferenced type, all parameters of type are nonpositional
     // nonpositional parameters are either name-keyed if name is specified, or type-keyed if name is noname
     // can only be one type-keyed parameter of any given type. this is enforced at compile time.
     // notice that each parameter has a binding with colon. 
     // the binding is required when tuple type is inferenced to specify type modifiers per element.
-    inferenced := { named:[var]\="I'm name-keyed", [noname]:[var]\="I'm type-keyed" };
+    inferenced := { named:var\="I'm name-keyed", noname:var\="I'm type-keyed" };
 
     // can determine if tuple has type-keyed value at compile time with .[has] reflection
-    [static]
-    [if inferenced.[variable].[type].[has @[utf8]],
+    static
+    [if inferenced.[variable].[type].[has @utf8],
         // can get the value with .[get] reflection
         // errors with .[get] are caught at compile time, so this is very safe.
-        type_keyed_text := inferenced.[get @[utf8]];
+        type_keyed_text := inferenced.[get @utf8];
         std.printJuxt(line=type_keyed_text);
         // see captures.rq for more example usage of this feature
     ];
@@ -21,7 +21,7 @@
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.
-    [static] Layout := {> x:[var]\[single], y:[var]\[single], z:[var]\[single] <};
+    static Layout := {> x:var\single, y:var\single, z:var\single <};
     explicit :Layout= { 0, 1, w=2, z=3 };
 
     [result] <:= 0;    

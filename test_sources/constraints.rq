@@ -1,10 +1,10 @@
 
-[static] u32 := [unsigned_integer 32];
+static u32 := ui32;
  
 integer_value  : u32 = 0;
 
-[template]::{> Type:[symbol] <}
-[constraint]::(Type.[is_integer_type])
+template::{> Type:symbol <}
+constraint::(Type.[is_integer_type])
 [function addA, (> a:Type, b:Type <)Type,
     [result] <:= a + b;
 ];

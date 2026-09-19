@@ -1,15 +1,15 @@
 [import "std"];
 
-[anchor]::A
-[static][for 0.<=10, [static] num:=[value],
-    [static] varname :std.String= std.format(text="VAR" +> num);
-    [flank]::A[common][capture]::{num:=num}
-    varname.getSlice().[identify] :[signed_integer]= num.[bake];
+anchor::A
+static [for 0.<=10, static num:=[value],
+    static varname :std.String= std.format(text="VAR" +> num);
+    flank::A common capture::{num:=num}
+    varname.getSlice().[identify] : si = num.[bake];
 ];
 
-[main ()[signed_integer],
-    [static][for 0.<=10, [static] num:=[value],
-        [static] varname :std.String= std.format(text="VAR" +> num);
+[main ()si,
+    static [for 0.<=10, static num:=[value],
+        static varname :std.String= std.format(text="VAR" +> num);
         std.printJuxt(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 

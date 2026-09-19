@@ -1,6 +1,6 @@
 [import "std"];
 
-[function myFunc, (>a:[fast_signed_integer 32], b:[fast_signed_integer 32]<)[fast_signed_integer 32],
+[function myFunc, (>a:fsi32, b:fsi32<)fsi32,
     [if a > b,
         std.printJuxt(line="a is greater than b");
     ][else_if b > a,
@@ -11,7 +11,7 @@
     [result] <:= a + b;
 ];
 
-[main ()[signed_integer],
+[main ()si,
     std.printJuxt(line="the return value is " +> myFunc(1, 2));
 
     [result] <:= 0;

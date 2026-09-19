@@ -1,0 +1,44 @@
+// This is an example of the automatic rq file which gets automatically
+// included by the compiler at the start of every requite source file. variables
+// are created here which act like keywords, but they are actually just variables.
+// the power in this is that you can do variable shadowing to override them with
+// user defined variables. this is how requite has no reserved words but yet has
+// a lot of keywords.
+
+// the stellarscope is a special scope that is above the top scope so that 
+// variables in the top scope can shadow everything in the stellarscope.
+[stellarscope
+
+    // to demonstrate the power of this, look at what we can do assigning [constant]
+    // a variable named constant. we can use the variable as a modifier, and so we
+    // don't have to write square brackets all over the place throughout the rest of 
+    // this file. Its a variable, so it can be shadowed as well. If a programmer
+    // makes their own variable named constant, then it will override this variable.
+    // If the programmer still wants to use constant modifier, they can use it 
+    // explicitly with square brackets instead of accessing it via this variable.
+    [export][constant] constant := [constant];
+
+    // now do the same with [export] so we can simplify wirting that modifier as well.
+    [export] constant export := [export];
+
+    export constant symbol := [symbol];
+    export constant expression := [expression];
+    export constant void := [void];
+    export constant no_return := [no_return];
+    export constant boolean := [boolean];
+    export constant half := [half];
+    export constant single := [single];
+    export constant double := [double];
+    export constant binary16 := [binary16];
+    export constant binary32 := [binary32];
+    export constant binary64 := [binary64];
+    export constant binary128 := [binary128];
+    export constant bfloat16 := [bfloat16];
+    export constant si := [signed_integer];
+    export constant si8 := [signed_integer 8];
+    export constant si16 := [signed_integer 16];
+    export constant si32 := [signed_integer 32];
+    export constant si64 := [signed_integer 64];
+    export constant si128 := [signed_integer 128];
+    // TODO etc etc...
+];

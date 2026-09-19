@@ -1,4 +1,4 @@
-[main ()[signed_integer],
+[main ()si,
     // tell debugger to break here.
     [debug_break];
 

@@ -1,10 +1,10 @@
 [import "std"];
 
-[main ()[signed_integer],
-    [fold int:[signed_integer], float:[single],
+[main ()si,
+    [fold int:si, float:single,
         int <:= 4;
         float <:= 3.14;
     ];
 
-    [result] <:= int + float.[cast [signed_integer]];
+    [result] <:= int + float.[cast si];
 ];

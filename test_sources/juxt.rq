@@ -1,6 +1,6 @@
 [import "std"];
 
-[template]::{> [auto] List:[symbol] <}
+template::{> auto List:symbol <}
 [function printList, (> list:List <)[void],
     std.printJuxt(line="begin!");
     [spin list,
@@ -15,12 +15,12 @@
     std.printJuxt(line="end!");
 ];
 
-[main ()[signed_integer],
+[main ()si,
     printList(
         "hello" +>
-        3.14.[as [single]] +>
-        0.[as[fast_signed_integer 32]] +>
-        [true]);
+        3.14.[as single] +>
+        0.[as fsi32] +>
+        true);
 
     printList(
         "this" *> 

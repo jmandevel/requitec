@@ -1,6 +1,6 @@
 [import "std"];
 
-[main ()[signed_integer],
+[main ()si,
     std.printJuxt(line="Hello, world!");
 
     [result] <:= 0;

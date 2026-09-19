@@ -1,16 +1,16 @@
 [import "std"];
 
-[enum Fruit, [unsigned_integer 32],
-	[anchor]::A
+[enum Fruit, ui32,
+	anchor::A
 	[static][for 0.<100, num:=[value],
 		[static] name := std.format(text= "MY_FRUIT" +> num);
 		[flank]::A name.getSlice().[identify];
 	];
 ];
 
-[main ()[signed_integer],
+[main ()si,
 	my_fruit := Fruit.MY_FRUIT42;
 	
-	[result] <:= my_fruit.[underlying_value].[cast [signed_integer 32]];
+	[result] <:= my_fruit.[underlying_value].[cast si32];
 ];
 

@@ -1,6 +1,6 @@
 [import "std"];
 
-[main (>args:@@[char]<)[signed_integer],
+[main (>args:@@char<)si,
     [if args.[element_count] == 0,
         [result] <:= 5;
     ][else 
@@ -8,9 +8,9 @@
     ];
 ];
 
-[function doMath, (>int:[signed_integer]<)[signed_integer],
+[function doMath, (>int:si<)si,
 
-    other_int :[var]\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
+    other_int :var\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 
     other_int = 3; // to reassign to existing variable dont add the binding.
 
@@ -21,7 +21,7 @@
     // upbinding to variable in loops is not allowed because this counts as multiple paths.
     // (maybe can allow variables without destructors to be upbound in loops somehow...)
 
-    [fold var:[signed_integer],
+    [fold var:si,
         [if int < 7,
             var <:= 7;
         ][else_if int > 9,

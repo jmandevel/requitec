@@ -6,7 +6,7 @@
 
 // templates refeer to declarations with template modifiers
 
-[template]::{> NUM:[signed_integer] <}
+template::{> NUM:si <}
 [weight]::3
 [function getNum, ()[signed_integer],
     [result] <:= NUM;

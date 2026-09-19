@@ -1,6 +1,6 @@
 [import "std"];
 
-[main ()[signed_integer],
+[main ()si,
 
     // all of these loops are equivalent
 
@@ -21,7 +21,7 @@
 
     [scope
         // while loop    
-        value : [var]\ = 0.[as [fast_signed_integer 32]];
+        value : var\ = 0.[as fsi32];
         [while value < 10,
             std.print(line="value is " +> value);   
             value = value + 1;

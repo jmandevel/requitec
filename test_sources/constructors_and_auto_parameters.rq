@@ -1,14 +1,14 @@
-[template]::{> [auto] Element:[symbol] <}
+template::{> auto Element:symbol <}
 [class Vector4,
     // everything before layout is surveyed (not evaluated) at class survey time.
     // constructors before signature can use auto template parameters.
 
     // layout constructor:
-    [public] 
+    public
     [layout_constructor];
 
     // scalar constructor:
-    [public]
+    public
     [constructor {> scalar:Element <},
         [result] <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
     ];
@@ -22,22 +22,22 @@
     ];
 ];
 
-[main ()[signed_integer],
+[main ()si,
 
     // using explicit parameter and layout constructor
-    var0 := Vector4{[single]}(0, 1, 2, 3);
+    var0 := Vector4{single}(0, 1, 2, 3);
 
     // using auto parameter and layout constructor
     var1 := Vector4(0, 1, 2, 3);
 
     // using explicit parameter with scalar constructor
-    var2 := Vector4{[single]}(0);
+    var2 := Vector4{single}(0);
 
     // using auto parameter and scalar constructor
     var3 := Vector4(0);
 
     // using explicit parameter with split constructor
-    var4 := Vector4{[single]}(0, 1);
+    var4 := Vector4{single}(0, 1);
 
     // NOTE: using auto parameters with split constructor will not work!
     // var5 := Vector4(0, 1); // COMPILER ERROR!

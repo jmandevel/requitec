@@ -1,3 +1,3 @@
-[main ()[signed_integer],
+[main ()si,
   [result] <:= 0;
 ];

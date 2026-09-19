@@ -1,10 +1,10 @@
-[main ()[signed_integer],
+[main ()si,
     // specify type in binding
-    var0 :[signed_integer 32] =0;
+    var0 : si32 =0;
 
     // can also cast literal using .[as]
     // binding type is inferred from the rvalue
-    var1 := 0.[as [signed_integer 32]];
+    var1 := 0.[as si32];
 
     // if no type is specified, integer literal is infered to [signed_integer]. size is dependent on platform.
     var2 := 0;
@@ -13,41 +13,41 @@
     // exact is [unsigned_integer 32]
     // fastest is [fast_unsigned_integer 32]
     // min bits with regsiter size on platform is [least_unsigned_integer 32]
-    var3 :[unsigned_integer 32] =0;
-    var4 :[fast_unsigned_integer 32] =0;
-    var5 :[least_unsigned_integer 32] =0;
+    var3 : ui32 =0;
+    var4 : fui32 =0;
+    var5 : lui32 =0;
 
     // special sizes:
     // [signed_address] and [unsigned_address] for memory address sized integers
     // [signed_index] and [unsigned_index] for memyr address index sized integers
-    var6 :[signed_address] =0;
-    var7 :[unsigned_address] =0;
-    var8 :[signed_address] =0;
-    var9 :[unsigned_address] =0;
+    var6 : saddress =0;
+    var7 : uaddress =0;
+    var8 : sindex =0;
+    var9 : uindex =0;
 
     // there are platform-changing float types:
     // [half] [single] [double] [quadruple]
-    var10 :[half] =0;
-    var11 :[single] =0;
-    var12 :[double] =0;
-    var13 :[quadruple] =0;
+    var10 : half =0;
+    var11 : single =0;
+    var12 : double =0;
+    var13 : quadruple =0;
 
     // you can use specific floating point formats instead:
     // [binary16] [binary32] [binary64] [binary128] [bfloat16]
-    var14 :[binary16] =0;
-    var16 :[binary32] =0;
-    var17 :[binary64] =0;
-    var18 :[binary128] =0;
-    var19 :[bfloat16] =0;
+    var14 : binary16 =0;
+    var16 : binary32 =0;
+    var17 : binary64 =0;
+    var18 : binary128 =0;
+    var19 : bfloat16 =0;
 
     // integers can be written with any base from 2 to 64
     // bases above 35 are case sensitive
-    var20 :[unsigned_integer 32] =2x101;
-    var21 :[unsigned_integer 64] =16xDeadBeef;
-    var22 :[unsigned_integer 512] =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
+    var20 : ui32 =2x101;
+    var21 : ui64 =16xDeadBeef;
+    var22 : ui512 =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
 
     // underscores in integers are ignored
-    var23 :[unsigned_integer 128] =16xBeef_Babe;
+    var23 : ui128 =16xBeef_Babe;
 
     // floats can be written with decimal
     var24 :=3.14; // type is [single], which depends on platform

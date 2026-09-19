@@ -1,8 +1,8 @@
-[main ()[signed_integer],
+[main ()si,
 
   float := 3.14;
 
-  int := float.[cast [signed_integer]];
+  int := float.[cast si];
 
   [result] <:= int;
 ];

@@ -5,14 +5,14 @@
         snippet:=[callsite].[snippet],
         line:=[callsite].[line],
         column:=[callsite].[column]
-    )[void],
+    )void,
     std.printJuxt(line=
         "snippet: \"" +> snippet +> "\"" +>
         " line: " +> line +>
         " column: " +> column);
 ];
 
-[main ()[signed_integer],
+[main ()si,
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();

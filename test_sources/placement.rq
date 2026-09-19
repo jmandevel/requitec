@@ -1,32 +1,32 @@
 
 
-[opaque][mangle]::malloc
-[function malloc, (size:[unsigned_address]<)?[var]\[void]];
+opaque mangle::malloc
+[function malloc, (size:uaddress<)?var\void];
 
-[opaque][mangle]::free
-[function free, (ptr:?[var]\[void]<)[void]];
+opaque mangle::free
+[function free, (ptr:?var\void<)void];
 
-[template]::{ Type:[symbol]<}
-[constraint]::(Type.[is_type])
+template::{ Type:symbol<}
+constraint::(Type.[is_type])
 [class UniquePtr,
-    { ptr:?[var]\Type <},
+    { ptr:?var\Type <},
 
-    [public][layout_constructor];
+    public[layout_constructor];
 
-    [public][inline]
-    [template]::{Placement:[symbol]<}
-    [constraint]::Placement.[is_placement_type Type]
+    public inline
+    template::{Placement:symbol<}
+    constraint::Placement.[is_placement_type Type]
     [function create, 
-        (placement:Placement<)[var]\UniquePtr{Type},
+        (placement:Placement<)var\UniquePtr{Type},
 
-        ptr := malloc(Type.[byte_size]).[cast ?[var]\Type];
+        ptr := malloc(Type.[byte_size]).[cast ?var\Type];
         [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
         [this].ptr.[inplace_init placement.[invoke]];
     ];
 
-    [public][destroy         
+    public[destructor         
         [this].ptr.[content].[inplace_destroy];
         free([this].ptr);
         [this].[forget];
@@ -35,12 +35,12 @@
 ];
 
 [class MyClass,
-    { val:[single] <},
+    { val:single <},
 
-    [public][layout_constructor];
+    public[layout_constructor];
 ];
 
-[main ()[signed_integer],
+[main ()si,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

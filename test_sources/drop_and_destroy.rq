@@ -1,15 +1,15 @@
 [import "std"];
 
-[class WithoutDestroy, [public][layout_constructor]; {}];
+[class WithoutDestroy, public[layout_constructor]; {}];
 
-[class WithDestroy, [public][layout_constructor]; {},
-    [function [destroy], ()[void]=>,
+[class WithDestroy, public[layout_constructor]; {},
+    [destructor
         std.printJuxt(line="In destroy!");
         [this].[forget];
     ];
 ];
 
-[main ()[signed_integer],
+[main ()si,
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();

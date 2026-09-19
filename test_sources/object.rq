@@ -2,24 +2,24 @@
 
 [class MyClass,
     {>
-        [public] x : [fast_signed_integer 32] = 0,
-        [public] y : [fast_signed_integer 32] = 0,
-        [public] z : [fast_signed_integer 32] = 0
+        public x : fsi32 = 0,
+        public y : fsi32 = 0,
+        public z : fsi32 = 0
     <},
 
-    [public][layout_constructor];
+    public [layout_constructor];
 
-    [public]
-    [function fromScalar, (> scalar:[fast_signed_integer 32] <)MyClass,
+    public
+    [function fromScalar, (> scalar:fsi32 <)MyClass,
         [result] <:= MyClass(scalar, scalar, scalar);    
     ];
 
-    [public]
-    [function getTotal, ()[fast_signed_integer 32]=>$,
+    public
+    [function getTotal, ()fsi32=>$,
         [result] <:= [this].x + [this].y + [this].z;
     ];
 
-    [public]
+    public
     [function add, (>a:MyClass, b:MyClass<)MyClass,
         [result] <:=
             MyClass(
@@ -30,7 +30,7 @@
     ];
 ];
 
-[main ()[signed_integer],
+[main ()si,
 
     a := MyClass();
     b := MyClass(1, 2, 3);

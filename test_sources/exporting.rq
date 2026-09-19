@@ -1,13 +1,13 @@
 // see this stuff imported in importing.rq
 
-[public] // export using public modifier
-[constant]
+public // export using public modifier
+runtime
 COMMONVAR := 5;
 
 /// this import has public modifier so its also imported by importers of this file
-[public][import "std"];
+public [import "std"];
 
-[public]
-[function printHelloWorld, ()[void],
+public
+[function printHelloWorld, ()void,
     std.printJuxt(line = "Hello, world!");
 ];

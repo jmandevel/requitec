@@ -1,11 +1,11 @@
-[enum Fruit, [fast_signed_integer], // will use the fastest signed integer that fits all values
+[enum Fruit, fsi, // will use the fastest signed integer that fits all values
     APPLE; // values that are not set will start at 0
     ORANGE = 3; // explicitly set orange to use underlying_value value of 3
     GRAPE; // this will automatically be set to 4, the previous value incremented by 1.
 ];
 
-[main ()[signed_integer],
+[main ()si,
     fruit := Fruit.APPLE;
 
-    [result] <:= fruit.[underlying_value].[cast [signed_integer]];
+    [result] <:= fruit.[underlying_value].[cast si];
 ];

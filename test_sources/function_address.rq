@@ -1,41 +1,41 @@
 [function myFunction, ( 
-        positional:[single]=0.0,
-        >positional_and_named:[single]=0.0<,
-        named:[single]=0.0,
-        |locked:[single]=0.0
-    )[single],
+        positional:single=0.0,
+        >positional_and_named:single=0.0<,
+        named:single=0.0,
+        |locked:single=0.0
+    )single,
     [result] <:= positional + positional_and_named + named + locked;
 ];
 
 [function myOtherFunction, ( 
-        positional:[single]=0.0,
-        >positional_and_named:[single]=0.0<,
-        named:[single]=0.0,
-        |locked:[single]=0.0
-    )[single],
+        positional:single=0.0,
+        >positional_and_named:single=0.0<,
+        named:single=0.0,
+        |locked:single=0.0
+    )single,
     [result] <:= 0;
 ];
 
 [function myThirdFunction, ( 
-        positional:[single]=0.0,
-        >positional_and_named:[single]=0.0<,
-        named:[single]=0.0 * 0.0,
-        |locked:[single]=0.0
-    )[single],
+        positional:single=0.0,
+        >positional_and_named:single=0.0<,
+        named:single=0.0 * 0.0,
+        |locked:single=0.0
+    )single,
     [result] <:= 0;
 ];
 
 [function myFourthFunction, ( 
-        first_arg:[single]=0.0,
-        >positional_and_named:[single]=0.0<,
-        named:[single]=0.0,
-        |locked:[single]=0.0
-    )[single],
+        first_arg:single=0.0,
+        >positional_and_named:single=0.0<,
+        named:single=0.0,
+        |locked:single=0.0
+    )single,
     [result] <:= 0;
 ];
 
 
-[main ()[signed_integer],
+[main ()si,
     // calling directly from myFunction
     // default values are used
     // locked parameters cannot be set
@@ -50,7 +50,7 @@
     g := myFunction(1.0, positional_and_named=2.0, named=3.0);
 
     // call from a pointer to myFunction
-    ptr :\[var]= myFunction.[function_address];
+    ptr :\var= myFunction.[function_address];
     // you can call from ptr just like myFunction
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();

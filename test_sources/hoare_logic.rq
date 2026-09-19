@@ -1,15 +1,15 @@
-[template]::{ Type:[symbol] <}
-[constraint]::(Type.[is_type])
-[require]::(b != 0)
-[ensure]::([result] >= 0)
+template::{ Type:symbol <}
+constraint::(Type.[is_type])
+require::(b != 0)
+ensure::([result] >= 0)
 [function divideSquare, ( a:Type, b:Type <)Type,
     divide_result := a / b;
     square := divide_result * divide_result;
     [result] <:= square;
 ];
 
-[main ()[signed_integer],
-    a := divideSquare{[signed_integer]}(6, 2);
+[main ()si,
+    a := divideSquare{si}(6, 2);
     
     [result] <:= 0;
 ];

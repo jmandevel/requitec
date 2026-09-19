@@ -1,5 +1,5 @@
-[template]::{> count_div_2:[unsigned_index], [auto] Element:[symbol] <}
-[constraint]::(count_div_2 >= 0 && Element.[is_type])
+template::{> count_div_2:uindex, auto Element:symbol <}
+constraint::(count_div_2 >= 0 && Element.[is_type])
 [class DoubleArray,
 
     // the problem is this: 
@@ -15,14 +15,14 @@
     //    caring about values not determinable until specialization time
     // how do we solve this problem?
 
-    // comptime variables are lazily evaluated
+    // constant variables are lazily evaluated
     // its is surveyed (added to symbol table) but its not evaluated until the first time its used
-    // unevaluated comptime variables are NOT evaluated when mapping arguments for deduction during declaration!
+    // unevaluated constant variables are NOT evaluated when mapping arguments for deduction during declaration!
     // instead, the compiler ignores them until specialization.
-    [comptime]
+    constant
     count := count_div_2 * 2; 
 
-    [public][layout_constructor];
+    public [layout_constructor];
 
     // note that Element is [auto], so its still possible to map arguments for deduction at declaration time
     // the value of count cannot be determined until specialization, but this does not stop the mapping during declaration!
@@ -30,7 +30,7 @@
 
 ];
 
-[main ()[signed_integer],
+[main ()si,
 
     my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
 

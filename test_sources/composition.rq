@@ -3,75 +3,75 @@
 [interface ISpeak,
     // this function is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
-    [public][virtual]
-    [function speak, ()[void]=>,
+    public virtual
+    [function speak, ()void=>,
         std.printJuxt(line="I don't speak.");
     ];
 
     // this function is not virtual so it cannot be overriden by adapters
-    [public]
-    [function doSomething, ()[void]=>,
+    public
+    [function doSomething, ()void=>,
         std.printJuxt(line="do something now!");
     ];
 
 ];
 
-[class Dog, [public][layout_constructor]; {},];
+[class Dog, public[layout_constructor]; {},];
 
-[class Cat, [public][layout_constructor]; {},];
+[class Cat, public[layout_constructor]; {},];
 
-[class Rat, [public][layout_constructor]; {},
-    [public]
-    [function squeak, ()[void]=>,
+[class Rat, public[layout_constructor]; {},
+    public
+    [function squeak, ()void=>,
         std.printJuxt(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [function speak, ()[void]=>,
+    [function speak, ()void=>,
         std.printJuxt(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
-    [public]
-    [function speak, ()[void]=>,
+    public
+    [function speak, ()void=>,
         std.printJuxt(line="Meow!");
     ];
 ];
 
 [adapter A, Rat==>ISpeak,
-    [use speak, Rat.squeak.[reflect].[resolve_function ()[void]=>$]];
+    [use speak, Rat.squeak.[reflect].[resolve_function ()void=>$]];
 ];
 
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
-    [public][virtual][opaque]
-    [function greet, ()[void]=>];
+    public virtual opaque
+    [function greet, ()void=>];
 ];
 
 [adapter A, Dog==>IGreet,
-    [public]
-    [function greet, ()[void]=>,
+    public
+    [function greet, ()void=>,
         std.printJuxt(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
-    [public]
-    [function greet, ()[void]=>,
+    public
+    [function greet, ()void=>,
         std.printJuxt(line="bark!");
     ];
 ];
 
-[main ()[signed_integer],
+[main ()si,
     dog := Dog();
     cat := Cat();
     rat := Rat();
 
     // use adapt to get interface of value.
-    speak_adpater :[var]\$^^ISpeak= dog.[adapt A-->ISpeak].[borrow];
+    speak_adpater :var\$^^ISpeak= dog.[adapt A-->ISpeak].[borrow];
     speak_adpater.speak();
     // can reassign a different interface of same type
     speak_adapter = cat.[adapt A-->ISpeak].[borrow];
@@ -90,7 +90,7 @@
     [result] <:= 0;
 ];
 
-[function speakAndGreet, (> animal:64^^[composition ISpeak, IGreet] <)[void],
+[function speakAndGreet, (> animal:64^^[composition ISpeak, IGreet] <)void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

@@ -3,18 +3,18 @@
 [class MyClass, 
 
 
-    {> [public] var:[signed_integer] },
+    {> public var:si },
 
-    [public][layout_constructor];
+    public[layout_constructor];
 
-    [public][constructor {> a:[signed_integer], b:[signed_integer] <},
+    public[constructor {> a:si, b:si <},
         [result] <:= MyClass.[init a + b];
     ];
 ];
 
-[main ()[signed_integer],
+[main ()si,
     // create stack
-    my_stack :[var]\= std.StackList{MyClass}();
+    my_stack :var\= std.StackList{MyClass}();
     
     // push back one element
     // emplace will call the function in the future with the given arguments forwarded

@@ -1,7 +1,7 @@
 // use auto modifier on template parameters to mark as auto deducing from arguments, reciever, or lvalue
 
-[template]::{> [auto] Type:[symbol] <}
-[constraint]::Type.[is_type]
+template::{> auto Type:symbol <}
+constraint::Type.[is_type]
 [function add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be static.
@@ -11,16 +11,16 @@
     [result] := a + b;
 ];
 
-[function, [main], ()[signed_integer],
-    var0 :[signed_integer] = add(1, 2); // Type is [signed_integer]
+[main ()si,
+    var0 :si = add(1, 2); // Type is [signed_integer]
 
-    var1 := add(1.[as [double]], 2.[as [double]]); // Type is [double]
+    var1 := add(1.[as double], 2.[as double]); // Type is [double]
 
     var2 := add(1, 2); // Type is [signed_integer]
 
     var3 := add(1.0, 2.0); // Type is [single]
 
-    add(2.[as [quadruple], 3.[as [quadruple]]]).[ignore]; // Type is [quadruple]
+    add(2.[as quadruple, 3.[as quadruple]]).[ignore]; // Type is [quadruple]
 
     [result] := add(1.0, 2.0).[cast]; // Type is [single]
 ];

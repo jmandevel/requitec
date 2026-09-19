@@ -1,7 +1,7 @@
 [import "std"];
 
-[main ()[signed_integer],
-    my_array : [var]\ = [array 0, 1, 2, 3, 4].[of [least_signed_integer 64]];
+[main ()si,
+    my_array : var\ = [array 0, 1, 2, 3, 4].[of lsi64];
     const_slice := my_array.[slice];
     
     std.printJuxt(line=
