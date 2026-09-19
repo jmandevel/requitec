@@ -906,7 +906,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::MUTABLE:
     [[fallthrough]];
-  case K::PARTIAL_MUTABLE:
+  case K::PARTIALLY_MUTABLE:
     [[fallthrough]];
   case K::CONSTANT:
     [[fallthrough]];

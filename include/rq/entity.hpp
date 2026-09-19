@@ -296,7 +296,7 @@ enum class Keyword : rq::EntityId {
   EXPORT,
   // mutability
   MUTABLE,
-  PARTIAL_MUTABLE,
+  PARTIALLY_MUTABLE,
   CONSTANT,
   // generation_time
   DYNAMIC,

@@ -510,8 +510,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "export";
   case K::MUTABLE:
     return "mutable";
-  case K::PARTIAL_MUTABLE:
-    return "partial_mutable";
+  case K::PARTIALLY_MUTABLE:
+    return "partially_mutable";
   case K::CONSTANT:
     return "constant";
   case K::DYNAMIC:
@@ -1378,7 +1378,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MUTABLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PARTIAL_MUTABLE:
+  case K::PARTIALLY_MUTABLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CONSTANT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
