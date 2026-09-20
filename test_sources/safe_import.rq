@@ -22,6 +22,9 @@
         // from this, its clear something funny is going on here.
         this_is_actually_false := A.true;
 
+        // this is in the same file, so don't have to specify full path.
+        this_is_false := VAR;
+
         [result] <:= this_is_still_true && this_is_actually_false;
     ];
 ];
