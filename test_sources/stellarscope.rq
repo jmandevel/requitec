@@ -34,13 +34,7 @@
     export [_sneaky_macro_statement return, [return]];
     export [_sneaky_macro_value true, [true]];
     export [_sneaky_macro_value false, [false]];
-    export [_sneaky_macro_value value, [value]];
-    export [_sneaky_macro_value index, [index]];
     export [_sneaky_macro_value this, [this]];
-    // notice how result ihas special modifier [_expand_dynamic_name]. it can 
-    // be expanded to be name of dynamic variable being binded. all macros that
-    // dont have this value are ignored when written as a dynamic variable name.
-    [_expand_dynamic_name] export [_sneaky_macro_value result, [result]]; 
     export [_sneaky_macro_value callsite, [callsite]];
     export [_sneaky_macro_value Symbol, [Symbol]];
     export [_sneaky_macro_value Expression, [Expression]];    
@@ -62,9 +56,9 @@
     export [_sneaky_macro_value Int32, [Int 32]];
     export [_sneaky_macro_value Int64, [Int 64]];
     export [_sneaky_macro_value Int128, [Int 128]];
-    export [_sneaky_macro_value Int256, [Int256]];
-    export [_sneaky_macro_value Int512, [Int512]];
-    export [_sneaky_macro_value Int1024, [Int1024]];
+    export [_sneaky_macro_value Int256, [Int 256]];
+    export [_sneaky_macro_value Int512, [Int 512]];
+    export [_sneaky_macro_value Int1024, [Int 1024]];
     export [_sneaky_macro_value Size, [Size]];
     export [_sneaky_macro_value Index, [Index]];
     export [_sneaky_macro_value Char, [Char]];

@@ -6,5 +6,5 @@
         float <:= 3.14;
     ];
 
-    result <:= int + float.[cast Int];
+    [result] <:= int + float.[cast Int];
 ];

@@ -20,7 +20,7 @@ constraint::(Type.[is_type])
         (placement:Placement<)var\UniquePtr{Type},
 
         ptr := malloc(Type.[byte_size]).[cast ?var\Type];
-        result := UniquePtr{Type}(
+        [result] := UniquePtr{Type}(
                 ptr=ptr
             );   
         this.ptr.[inplace_init placement.[invoke]];
@@ -44,5 +44,5 @@ constraint::(Type.[is_type])
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );
-    result <:= 0;
+    [result] <:= 0;
 ];

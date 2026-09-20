@@ -25,5 +25,5 @@ constraint::(Type.[is_type])
     printType{Single}();
     printType{Bool}();
 
-    result <:= 0;
+    [result] <:= 0;
 ];

@@ -8,7 +8,7 @@ constraint::Type.[is_type]
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
     (> a:Type, b:Type <)Type,
     // statements after signature are evaluated at specialization implementation time
-    result <:= a + b;
+    [result] <:= a + b;
 ];
 
 [main ()Int,
@@ -22,5 +22,5 @@ constraint::Type.[is_type]
 
     add(2.[as Quadruple], 3.[as Quadruple]).[ignore]; // Type is Quadruple
 
-    result <:= add(1.0, 2.0).[cast]; // Type is Single
+    [result] <:= add(1.0, 2.0).[cast]; // Type is Single
 ];

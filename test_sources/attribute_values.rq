@@ -9,7 +9,7 @@
     my_var_variable :qualifier\= 0;
     my_var_variable = 1;
 
-    result <:= my_var_variable;
+    [result] <:= my_var_variable;
 ];
 
 // equivalent to deducing this in c++
@@ -23,7 +23,7 @@
     public template::{| auto var0:Qualifier }
     constraint:var0.[is_var_qualifier]
     [function getNumRef, ()$var0\Int=>$var0\,
-        result <:var0\= this.num.[borrow];
+        [result] <:var0\= this.num.[borrow];
     ];
 
 ];

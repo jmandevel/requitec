@@ -3,15 +3,15 @@ opaque mangle::myForwardedAdd
 
 // you have to write the signature again, and it has to be identical
 [implement_function myForwardedAdd, (> a:Single, b:Single <)Single,
-    result <:= a + b;
+    [result] <:= a + b;
 ];
 
 [main ()Int,
     std.print(
-        "the result is " +>
+        "the [result] is " +>
         myForwardedAdd(
             1.0,
             2.0));
 
-    result <:= 0;
+    [result] <:= 0;
 ];

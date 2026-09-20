@@ -10,10 +10,10 @@ compile_time VAR := 0;
     static Return := si;
     ()Return,
 
-    result :var\= 0; 
+    [result] :var\= 0; 
 
     [if var0 == var1,
-        result = 1;
+        [result] = 1;
     ][else_if false, 
     
     ][else

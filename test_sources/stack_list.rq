@@ -8,7 +8,7 @@
     public [layout_constructor];
 
     public[constructor {> a:Int, b:Int <},
-        result <:= MyClass.[init a + b];
+        [result] <:= MyClass.[init a + b];
     ];
 ];
 
@@ -23,5 +23,5 @@
     // forget the last element
     my_stack.popBack();
     
-    result <:= 0;
+    [result] <:= 0;
 ];

@@ -1,12 +1,12 @@
 // all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
 
 [function nodiscard, ()fast\Int32,
-    result := 0;
+    [result] := 0;
 ];
 
 [main ()Int32,
     // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     nodiscard().[ignore]; 
 
-    result <:= 0;
+    [result] <:= 0;
 ];

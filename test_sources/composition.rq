@@ -87,7 +87,7 @@
     speakAndGreet(animal=cat.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=rat.[compose A-->ISpeak, A-->IGreet]);
 
-    result <:= 0;
+    [result] <:= 0;
 ];
 
 [function speakAndGreet, (> animal:64^^[composition ISpeak, IGreet] <)void,

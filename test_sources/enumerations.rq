@@ -7,5 +7,5 @@
 [main ()Int,
     fruit := Fruit.APPLE;
 
-    result <:= fruit.[underlying_value].[cast Int];
+    [result] <:= fruit.[underlying_value].[cast Int];
 ];

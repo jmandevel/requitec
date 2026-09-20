@@ -4,5 +4,5 @@
 
   int := float.[cast Int];
 
-  result <:= int;
+  [result] <:= int;
 ];

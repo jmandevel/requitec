@@ -17,5 +17,5 @@ COMMON_NUMBER := [capture].num;
 
 [main ()Int,
     std.print(line=COMMON_NUMBER);
-    result <:= 0;
+    [result] <:= 0;
 ];

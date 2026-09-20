@@ -4,7 +4,7 @@
         named:Single=0.0,
         |locked:Single=0.0
     )Single,
-    result <:= positional + positional_and_named + named + locked;
+    [result] <:= positional + positional_and_named + named + locked;
 ];
 
 [function myOtherFunction, ( 
@@ -13,7 +13,7 @@
         named:Single=0.0,
         |locked:Single=0.0
     )Single,
-    result <:= 0;
+    [result] <:= 0;
 ];
 
 [function myThirdFunction, ( 
@@ -22,7 +22,7 @@
         named:Single=0.0 * 0.0,
         |locked:Single=0.0
     )Single,
-    result <:= 0;
+    [result] <:= 0;
 ];
 
 [function myFourthFunction, ( 
@@ -31,7 +31,7 @@
         named:single=0.0,
         |locked:single=0.0
     )Single,
-    result <:= 0;
+    [result] <:= 0;
 ];
 
 
@@ -79,5 +79,5 @@
     ptr = myFourthFunction.[function_address].[signature_cast];
     ptr();
 
-    result <:= 0;  
+    [result] <:= 0;  
 ];

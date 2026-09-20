@@ -33,5 +33,5 @@ constraint::(count_div_2 >= 0 && Element.[is_type])
 
     my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
 
-    result <:= 0;
+    [result] <:= 0;
 ];
