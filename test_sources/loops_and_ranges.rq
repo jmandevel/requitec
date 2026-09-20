@@ -3,17 +3,21 @@
 [main ()Int,
 
     // all of these loops are equivalent
-    [for 0.!=9, value:=[value], 
+
+    // equal limit interval
+    // the lvalue "value" is name of variable, the rvalue "value" is an 
+    // expaneded _SneakyMacro. See stellarscope.rq!
+    [for 0.!=9, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
     // less limit interval
-    [for 0.<10, value:=[value], 
+    [for 0.<10, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
     // interval
-    [for 0.<10.+1, value:=[value], 
+    [for 0.<10.+1, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
@@ -27,7 +31,7 @@
     ];
 
     // array element range
-    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=[value],     
+    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=value,     
         std.print(line="value is " +> value);
     ];
 

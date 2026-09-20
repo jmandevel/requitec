@@ -2,7 +2,7 @@
 
 [enum Fruit, fast\unsigned\Int32,
 	anchor::A
-	static [for 0.<100, num:=[value],
+	static [for 0.<100, num:=value,
 		static name := std.format(text= "MY_FRUIT" +> num);
 		flank::A name.getSlice().[identify];
 	];

@@ -34,6 +34,8 @@
     export [_sneaky_macro_statement return, [return]];
     export [_sneaky_macro_value true, [true]];
     export [_sneaky_macro_value false, [false]];
+    export [_sneaky_macro_value value, value];
+    export [_sneaky_macro_value index, index];
     export [_sneaky_macro_value this, [this]];
     export [_sneaky_macro_value callsite, [callsite]];
     export [_sneaky_macro_value Symbol, [Symbol]];
