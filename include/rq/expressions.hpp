@@ -473,7 +473,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::NAMESPACE:
     return "namespace";
   case K::STELLARSCOPE:
-    return "stellarscope";
+    return "_stellarscope";
   case K::C:
     return "c";
   case K::TOP:

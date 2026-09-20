@@ -7,7 +7,7 @@
 
 // the stellarscope is a special scope that is above the top scope so that 
 // variables in the top scope can shadow everything in the stellarscope.
-[stellarscope
+[_stellarscope
 
     // to demonstrate the power of this, look at what we can do assigning [compile_time]
     // a variable named compile_time. we can use the variable as a modifier, and so we
@@ -91,7 +91,6 @@
     export compile_time ascii := [ascii];
     export compile_time utf8 := utf8;
     export compile_time variadic_arguments_type := [variadic_arguments_type];
-    export compile_time stellarscope := [stellarscope];
     export compile_time c := [c];
     export compile_time top := [top];
     export compile_time no_modifier := [no_modifier];
