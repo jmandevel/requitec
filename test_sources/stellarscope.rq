@@ -31,12 +31,12 @@
     // Now lets define a ton of sneaky macros so that there can be less square
     // brackets throughout all other requite code files!
     
-    export [_sneaky_macro_statement return, return];
+    export [_sneaky_macro_statement return, [return]];
     export [_sneaky_macro_value true, [true]];
     export [_sneaky_macro_value false, [false]];
     export [_sneaky_macro_value value, [value]];
     export [_sneaky_macro_value index, [index]];
-    export [_sneaky_macro_value this, this];
+    export [_sneaky_macro_value this, [this]];
     // notice how result ihas special modifier [_expand_dynamic_name]. it can 
     // be expanded to be name of dynamic variable being binded. all macros that
     // dont have this value are ignored when written as a dynamic variable name.
