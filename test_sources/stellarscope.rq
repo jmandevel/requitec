@@ -1,16 +1,16 @@
 // This is an example of the automatic rq file which gets automatically
-// included by the compiler at the start of every requite source file. variables
-// are created here which act like keywords, but they are actually just variables.
-// the power in this is that you can do variable shadowing to override them with
-// user defined variables. this is how requite has no reserved words but yet has
-// a lot of keywords.
+// included by the compiler at the start of every requite source file. things
+// are created here which act like keywords, but they are actually just macros.
+// the power in this is that you can do shadowing to override them with
+// user defined symbols of the same names. this is how requite has no reserved 
+// words but yet has a lot of keywords.
 
 // the stellarscope is a special scope that is above the top scope so that 
 // variables in the top scope can shadow everything in the stellarscope.
 [_stellarscope
     // _SneakyMacro symbols are like variables that do pure AST replacement.
     // Wherever you drop a _SneakyMacro, the compiler will automatically
-    // expand whatever symbols are in the macro inplace. Note the underscore
+    // expand whatever expression are in the macro inplace. Note the underscore
     // in front of the symbol kind name. This is here because you can only 
     // declare _SneakyMacro with [_sneaky_macro] statments, which are not 
     // meant to be done by programmers and instead only done in the 
@@ -38,9 +38,8 @@
     export [_sneaky_macro_value index, [index]];
     export [_sneaky_macro_value this, this];
     // notice how result ihas special modifier [_expand_dynamic_name]. it can 
-    // be expanded as a name too! (it can be expanded to be name of
-    // dynamic variable being binded). all macros that dont have this value are 
-    // ignored when written as a dynamic variable name.
+    // be expanded to be name of dynamic variable being binded. all macros that
+    // dont have this value are ignored when written as a dynamic variable name.
     [_expand_dynamic_name] export [_sneaky_macro_value result, [result]]; 
     export [_sneaky_macro_value callsite, [callsite]];
     export [_sneaky_macro_value Symbol, [Symbol]];
