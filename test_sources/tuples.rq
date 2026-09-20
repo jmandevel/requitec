@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [main ()Int,
     // for tuple with inferenced type, all parameters of type are nonpositional

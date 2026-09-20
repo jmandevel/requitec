@@ -1,13 +1,16 @@
 // see this stuff imported in importing.rq
 
-public // export using public modifier
-runtime
-COMMONVAR := 5;
+[namespace MyNamespace,
+    export // export using export modifier
+    runtime
+    COMMONVAR := 5;
 
-/// this import has public modifier so its also imported by importers of this file
-public [import "std"];
-
-public
-[function printHelloWorld, ()Void,
-    std.print(line = "Hello, world!");
+    export
+    [function printHelloWorld, ()Void,
+        std.print(line = "Hello, world!");
+    ];
 ];
+
+export [import "std", std];
+
+

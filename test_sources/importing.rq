@@ -1,9 +1,14 @@
 // see exporting.rq for what is being imported
 
-[import "exporting"] // notice there is no .rq file extension
+[import "exporting", // notice there is no .rq file extension
+    // you have to list all things you want to import explicitly
+    MyNamespace,
+    std
+]; 
 
 [main ()Int,
-    printHelloWorld(); // this function is from exporting.rq
+    // notice the dots in front. things that are imported need to start with a double dot!
+    MyNamespace.printHelloWorld(); // this function is from exporting.rq
     std.print(line="Goodbye, world!"); // std was imported by exporting.rq
-    [result] <:= COMMONVAR; // COMMONVAR is from exporting.rq
+    [result] <:= MyNamespace.COMMONVAR; // COMMONVAR is from exporting.rq
 ];

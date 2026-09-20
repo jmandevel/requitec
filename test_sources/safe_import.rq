@@ -1,0 +1,28 @@
+// you have to specify what you want to import!
+// importing false will import the single symbol false.
+// importing namespace A will import everything in namespace A that was exported.
+[import "safe_export", false, A]; 
+
+[main ()Int,
+    // the user should be aware they imported something named false, which is suspicious.
+    actually_true := false;
+    [result] <:= 0;
+];
+
+[namespace A,
+
+    compile_time VAR := false;
+
+    [function getBool, ()Bool,
+        // imported symbols in same namespace have to be specified with full path!
+
+        // this still uses the _SneakyMacro so it expands to [true].
+        this_is_still_true := true;
+    
+        // from this, its clear something funny is going on here.
+        this_is_actually_false := A.true;
+
+        [result] <:= this_is_still_true && this_is_actually_false;
+    ];
+];
+

@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [main (>args:@@Char<)Int,
     [if args.[element_count] == 0,

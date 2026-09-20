@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [main ()Int,
     [fold int:Int, float:Single,

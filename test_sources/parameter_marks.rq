@@ -8,7 +8,7 @@
 
 // when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
 
-[import "std"];
+[import "std", std];
 
 [function allPositional, (arg0:Binary32, arg1:Binary32 <)Void];
 

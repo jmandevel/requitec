@@ -1,0 +1,10 @@
+// this variable named false shadows false _SneakyMacro from stellarscope.rq!
+// it shadows it with value of true. this type of thing could be dangerous.
+export compile_time false := true;
+
+[namespace A,
+    // same issue, but its in a namespace...
+    export compile_time true := false;
+];
+
+// look at safe_import.rq to see how issues with this are avoided

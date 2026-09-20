@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [main ()Int,
     binary32 := 3.14.[as Binary32];

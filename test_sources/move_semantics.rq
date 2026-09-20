@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [class MyClass, public [layout_constructor]; {}];
 

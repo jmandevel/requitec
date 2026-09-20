@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [function myFunc, (>a:fast\Int32, b:fast\Int32<)fast\Int32,
     [if a > b,

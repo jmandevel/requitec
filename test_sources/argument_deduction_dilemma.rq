@@ -31,7 +31,7 @@ constraint::(count_div_2 >= 0 && Element.[is_type])
 
 [main ()Int,
 
-    my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
+    my_double_array := A.Array{count_div_2=1}([array 1, 2].[emplace]);
 
     [result] <:= 0;
 ];
