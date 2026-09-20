@@ -15,7 +15,10 @@
     // declare _SneakyMacro with [_sneaky_macro] statments, which are not 
     // meant to be done by programmers and instead only done in the 
     // stellarscope file. _SneakyMacro are dangerous to be used for things
-    // other than this file. One special feature of _SneakyMacro is that
+    // other than this file. This is because if they were not declared in 
+    // stellarscope, they could be used to covertly override variables with 
+    // other ones. Because of this, declaring them outside of the _stellarscope
+    // causes a compiler error. One special feature of _SneakyMacro is that
     // they cannot be reflected on, and .[reflect] railcars will reflect
     // on what was expanded. 
 
@@ -34,8 +37,8 @@
     export [_sneaky_macro_statement return, [return]];
     export [_sneaky_macro_value true, [true]];
     export [_sneaky_macro_value false, [false]];
-    export [_sneaky_macro_value value, value];
-    export [_sneaky_macro_value index, index];
+    export [_sneaky_macro_value value, [value]];
+    export [_sneaky_macro_value index, [index]];
     export [_sneaky_macro_value this, [this]];
     export [_sneaky_macro_value callsite, [callsite]];
     export [_sneaky_macro_value Symbol, [Symbol]];
