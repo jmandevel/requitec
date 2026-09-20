@@ -2,8 +2,8 @@
 
 [import "exporting"] // notice there is no .rq file extension
 
-[main ()si,
+[main ()Int,
     printHelloWorld(); // this function is from exporting.rq
-    std.printJuxt(line="Goodbye, world!"); // std was imported by exporting.rq
-    [result] <:= COMMONVAR; // COMMONVAR is from exporting.rq
+    std.print(line="Goodbye, world!"); // std was imported by exporting.rq
+    result <:= COMMONVAR; // COMMONVAR is from exporting.rq
 ];

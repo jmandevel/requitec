@@ -2,22 +2,22 @@
 
 [function printMe, 
     (|
-        snippet:=[callsite].[snippet],
-        line:=[callsite].[line],
-        column:=[callsite].[column]
-    )void,
-    std.printJuxt(line=
+        snippet:=callsite.[snippet],
+        line:=callsite.[line],
+        column:=callsite.[column]
+    )Void,
+    std.print(line=
         "snippet: \"" +> snippet +> "\"" +>
         " line: " +> line +>
         " column: " +> column);
 ];
 
-[main ()si,
+[main ()Int,
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();
 
-    [result] <:= 0;
+    result <:= 0;
 ];
 
-// [callsite] is only usable for default parameter/property values
+// callsite is only usable for default parameter/property values

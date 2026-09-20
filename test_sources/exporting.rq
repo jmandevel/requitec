@@ -8,6 +8,6 @@ COMMONVAR := 5;
 public [import "std"];
 
 public
-[function printHelloWorld, ()void,
-    std.printJuxt(line = "Hello, world!");
+[function printHelloWorld, ()Void,
+    std.print(line = "Hello, world!");
 ];

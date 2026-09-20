@@ -1,17 +1,17 @@
 opaque mangle::myForwardedAdd
-[function myForwardedAdd, (> a:single, b:single <)single];
+[function myForwardedAdd, (> a:Single, b:Single <)Single];
 
 // you have to write the signature again, and it has to be identical
-[implement_function myForwardedAdd, (> a:single, b:single <)single,
-    [result] <:= a + b;
+[implement_function myForwardedAdd, (> a:Single, b:Single <)Single,
+    result <:= a + b;
 ];
 
-[main ()si,
-    std.printJuxt(
+[main ()Int,
+    std.print(
         "the result is " +>
         myForwardedAdd(
             1.0,
             2.0));
 
-    [result] <:= 0;
+    result <:= 0;
 ];

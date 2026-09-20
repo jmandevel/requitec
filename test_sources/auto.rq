@@ -1,6 +1,6 @@
 // use auto modifier on template parameters to mark as auto deducing from arguments, reciever, or lvalue
 
-template::{> auto Type:symbol <}
+template::{> auto Type:Symbol <}
 constraint::Type.[is_type]
 [function add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
@@ -8,19 +8,19 @@ constraint::Type.[is_type]
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
     (> a:Type, b:Type <)Type,
     // statements after signature are evaluated at specialization implementation time
-    [result] <:= a + b;
+    result <:= a + b;
 ];
 
-[main ()si,
-    var0 :si = add(1, 2); // Type is [signed_integer]
+[main ()Int,
+    var0 :Int = add(1, 2); // Type is [signed_integer]
 
-    var1 := add(1.[as double], 2.[as double]); // Type is [double]
+    var1 := add(1.[as double], 2.[as double]); // Type is Double
 
     var2 := add(1, 2); // Type is [signed_integer]
 
-    var3 := add(1.0, 2.0); // Type is [single]
+    var3 := add(1.0, 2.0); // Type is Single
 
-    add(2.[as quadruple, 3.[as quadruple]]).[ignore]; // Type is [quadruple]
+    add(2.[as Quadruple], 3.[as Quadruple]).[ignore]; // Type is Quadruple
 
-    [result] <:= add(1.0, 2.0).[cast]; // Type is [single]
+    result <:= add(1.0, 2.0).[cast]; // Type is Single
 ];

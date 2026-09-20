@@ -4,12 +4,12 @@
 
 [class WithDestroy, public[layout_constructor]; {},
     [destructor
-        std.printJuxt(line="In destroy!");
-        [this].[forget];
+        std.print(line="In destroy!");
+        this.[forget];
     ];
 ];
 
-[main ()si,
+[main ()Int,
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();
@@ -36,6 +36,6 @@
     // this results in a compile error if uncommented because cannot shallow copy types with destroys 
     // other_copy := with;
 
-    [result] <:= 0;
+    result <:= 0;
 ];
 

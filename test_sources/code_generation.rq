@@ -1,17 +1,17 @@
 [import "std"];
 
 anchor::A
-static [for 0.<=10, static num:=[value],
+static [for 0.<=10, static num:=value,
     static varname :std.String= std.format(text="VAR" +> num);
     flank::A common capture::{num:=num}
-    varname.getSlice().[identify] : si = num.[bake];
+    varname.getSlice().[identify] : Int = num.[bake];
 ];
 
-[main ()si,
-    static [for 0.<=10, static num:=[value],
+[main ()Int,
+    static [for 0.<=10, static num:=value,
         static varname :std.String= std.format(text="VAR" +> num);
-        std.printJuxt(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
+        std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
-    [result] <:= 0;
+    result <:= 0;
 ];

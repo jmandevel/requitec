@@ -10,22 +10,22 @@
 
 [import "std"];
 
-[function allPositional, (arg0:binary32, arg1:binary32 <)void];
+[function allPositional, (arg0:Binary32, arg1:Binary32 <)Void];
 
-[function allNamed, (> arg0:binary32, arg1:binary32)void];
+[function allNamed, (> arg0:Binary32, arg1:Binary32)Void];
 
-[function namedOrPositional, (> arg0:binary32, arg1:binary32<)void];
+[function namedOrPositional, (> arg0:Binary32, arg1:Binary32<)Void];
 
-[function nonSettable, (| a:=0, b:=1 )void];
+[function nonSettable, (| a:=0, b:=1 )Void];
 
 // a must be positional
 // b can be either named or positional
 // c must be named
 // d can not be set and will use default value (3)
-[function mix, (a:=0,> b:=1 <, c:=2, | d:=3)void];
+[function mix, (a:=0,> b:=1 <, c:=2, | d:=3)Void];
 
 // parameter marks work the same way for template layouts and class layouts
-[template]::{a:=0, > b:=1 <, c:=2, | d:=3}
+template::{a:=0, > b:=1 <, c:=2, | d:=3}
 [class MyTemplateClass,     
     {},
     public[layout_constructor];
@@ -36,8 +36,8 @@
     public[layout_constructor];
 ];
 
-[main ()si,
+[main ()Int,
     template : MyTemplateClass{0, b=1, c=2} = MyTemplateClass{0, b=1, c=2}();
     class : MyClass = MyClass(0, b=1, c=2);
-    [result] <:= 0;
+    result <:= 0;
 ];

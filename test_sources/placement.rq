@@ -1,10 +1,10 @@
 
 
 opaque mangle::malloc
-[function malloc, (size:uaddress<)?var\void];
+[function malloc, (size:unsigned\Size<)?var\Void];
 
 opaque mangle::free
-[function free, (ptr:?var\void<)void];
+[function free, (ptr:?var\Void<)Void];
 
 template::{ Type:symbol<}
 constraint::(Type.[is_type])
@@ -20,29 +20,29 @@ constraint::(Type.[is_type])
         (placement:Placement<)var\UniquePtr{Type},
 
         ptr := malloc(Type.[byte_size]).[cast ?var\Type];
-        [result] := UniquePtr{Type}(
+        result := UniquePtr{Type}(
                 ptr=ptr
             );   
-        [this].ptr.[inplace_init placement.[invoke]];
+        this.ptr.[inplace_init placement.[invoke]];
     ];
 
     public[destructor         
-        [this].ptr.[content].[inplace_destroy];
-        free([this].ptr);
-        [this].[forget];
+        this.ptr.[content].[inplace_destroy];
+        free(this.ptr);
+        this.[forget];
     ];
 
 ];
 
 [class MyClass,
-    { val:single <},
+    { val:Single <},
 
     public[layout_constructor];
 ];
 
-[main ()si,
+[main ()Int,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );
-    [result] <:= 0;
+    result <:= 0;
 ];

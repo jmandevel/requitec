@@ -3,16 +3,16 @@
 [class MyClass, 
 
 
-    {> public var:si },
+    {> public var:Int },
 
-    public[layout_constructor];
+    public [layout_constructor];
 
-    public[constructor {> a:si, b:si <},
-        [result] <:= MyClass.[init a + b];
+    public[constructor {> a:Int, b:Int <},
+        result <:= MyClass.[init a + b];
     ];
 ];
 
-[main ()si,
+[main ()Int,
     // create stack
     my_stack :var\= std.StackList{MyClass}();
     
@@ -23,5 +23,5 @@
     // forget the last element
     my_stack.popBack();
     
-    [result] <:= 0;
+    result <:= 0;
 ];

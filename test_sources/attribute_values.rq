@@ -1,4 +1,4 @@
-[main ()si,
+[main ()Int,
     // high and modifiers are compile time values
 
     static modifier := static;
@@ -9,7 +9,7 @@
     my_var_variable :qualifier\= 0;
     my_var_variable = 1;
 
-    [result] <:= my_var_variable;
+    result <:= my_var_variable;
 ];
 
 // equivalent to deducing this in c++
@@ -20,9 +20,10 @@
     public [layout_constructor];
 
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
-    public template::{| auto var:var_modifier }
-    [function getNumRef, ()$var\si=>$var\,
-        [result] <:var\= [this].num.[borrow];
+    public template::{| auto var0:Qualifier }
+    constraint:var0.[is_var_qualifier]
+    [function getNumRef, ()$var0\Int=>$var0\,
+        result <:var0\= this.num.[borrow];
     ];
 
 ];

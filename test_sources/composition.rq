@@ -4,14 +4,14 @@
     // this function is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
     public virtual
-    [function speak, ()void=>,
-        std.printJuxt(line="I don't speak.");
+    [function speak, ()Void=>,
+        std.print(line="I don't speak.");
     ];
 
     // this function is not virtual so it cannot be overriden by adapters
     public
-    [function doSomething, ()void=>,
-        std.printJuxt(line="do something now!");
+    [function doSomething, ()Void=>,
+        std.print(line="do something now!");
     ];
 
 ];
@@ -22,50 +22,50 @@
 
 [class Rat, public[layout_constructor]; {},
     public
-    [function squeak, ()void=>,
-        std.printJuxt(line="Squeak!");  
+    [function squeak, ()Void=>,
+        std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [function speak, ()void=>,
-        std.printJuxt(line="Woof!");
+    [function speak, ()Void=>,
+        std.print(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
     public
-    [function speak, ()void=>,
-        std.printJuxt(line="Meow!");
+    [function speak, ()Void=>,
+        std.print(line="Meow!");
     ];
 ];
 
 [adapter A, Rat==>ISpeak,
-    [use speak, Rat.squeak.[reflect].[resolve_function ()void=>$]];
+    [use speak, Rat.squeak.[reflect].[resolve_function ()Void=>$]];
 ];
 
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
     public virtual opaque
-    [function greet, ()void=>];
+    [function greet, ()Void=>];
 ];
 
 [adapter A, Dog==>IGreet,
     public
-    [function greet, ()void=>,
-        std.printJuxt(line="*wags tail*");
+    [function greet, ()Void=>,
+        std.print(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
     public
-    [function greet, ()void=>,
-        std.printJuxt(line="bark!");
+    [function greet, ()Void=>,
+        std.print(line="bark!");
     ];
 ];
 
-[main ()si,
+[main ()Int,
     dog := Dog();
     cat := Cat();
     rat := Rat();
@@ -87,7 +87,7 @@
     speakAndGreet(animal=cat.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=rat.[compose A-->ISpeak, A-->IGreet]);
 
-    [result] <:= 0;
+    result <:= 0;
 ];
 
 [function speakAndGreet, (> animal:64^^[composition ISpeak, IGreet] <)void,

@@ -1,4 +1,4 @@
-template::{> count_div_2:uindex, auto Element:symbol <}
+template::{> count_div_2:unsigned\Index, auto Element:Symbol <}
 constraint::(count_div_2 >= 0 && Element.[is_type])
 [class DoubleArray,
 
@@ -29,9 +29,9 @@ constraint::(count_div_2 >= 0 && Element.[is_type])
 
 ];
 
-[main ()si,
+[main ()Int,
 
     my_double_array := DoubleArray{count_div_2=1}([array 1, 2].[emplace]);
 
-    [result] <:= 0;
+    result <:= 0;
 ];

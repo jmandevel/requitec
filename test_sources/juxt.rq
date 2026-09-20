@@ -1,25 +1,25 @@
 [import "std"];
 
-template::{> auto List:symbol <}
-[function printList, (> list:List <)[void],
-    std.printJuxt(line="begin!");
+template::{> auto List:Symbol <}
+[function printList, (> list:List <)Void,
+    std.print(line="begin!");
     [spin list,
-        std.printJuxt(line="weave!");
-        ][weave [value].[type].[is_integer_type], int:=[value],
-            std.printJuxt(line="found integer: " +> int);    
-        ][weave [value].[type].[is_float_type], float:=[value],
-            std.printJuxt(line="found float: " +> float);
-        ][weave [true], any:=[value],
-            std.printJuxt(line="found something else: " +> any.[borrow]);
+        std.print(line="weave!");
+        ][weave value.[type].[is_integer_type], int:=value,
+            std.print(line="found integer: " +> int);    
+        ][weave value.[type].[is_float_type], float:=value,
+            std.print(line="found float: " +> float);
+        ][weave [true], any:=value,
+            std.print(line="found something else: " +> any.[borrow]);
         ];
-    std.printJuxt(line="end!");
+    std.print(line="end!");
 ];
 
 [main ()si,
     printList(
         "hello" +>
-        3.14.[as single] +>
-        0.[as fsi32] +>
+        3.14.[as Single] +>
+        0.[as fast\Int32] +>
         true);
 
     printList(
@@ -29,5 +29,5 @@ template::{> auto List:symbol <}
         "string" *>
         "literal");
 
-    [result] <:= 0;
+    result <:= 0;
 ];

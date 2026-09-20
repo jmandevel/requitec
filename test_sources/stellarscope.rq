@@ -8,157 +8,141 @@
 // the stellarscope is a special scope that is above the top scope so that 
 // variables in the top scope can shadow everything in the stellarscope.
 [_stellarscope
+    // _SneakyMacro symbols are like variables that do pure AST replacement.
+    // Wherever you drop a _SneakyMacro, the compiler will automatically
+    // expand whatever symbols are in the macro inplace. Note the underscore
+    // in front of the symbol kind name. This is here because you can only 
+    // declare _SneakyMacro with [_sneaky_macro] statments, which are not 
+    // meant to be done by programmers and instead only done in the 
+    // stellarscope file. _SneakyMacro are dangerous to be used for things
+    // other than this file. One special feature of _SneakyMacro is that
+    // they cannot be reflected on, and .[reflect] railcars will reflect
+    // on what was expanded. 
 
-    // to demonstrate the power of this, look at what we can do assigning [compile_time]
-    // a variable named compile_time. we can use the variable as a modifier, and so we
-    // don't have to write square brackets all over the place throughout the rest of 
-    // this file. Its a variable, so it can be shadowed as well. If a programmer
-    // makes their own variable named compile_time, then it will override this variable.
-    // If the programmer still wants to use compile_time modifier, they can use it 
-    // explicitly with square brackets instead of accessing it via this variable.
-    [export][compile_time] compile_time := [compile_time];
+    // to demonstrate the power of this, look at what we can do with a
+    // _SneakyMacro within the stellarscope file. If we create one that
+    // expands export to [export], we can avoid writing the square
+    // brackets for the rest of the file. 
+    [export][_sneaky_macro_value export, [export]];
 
-    // now do the same with [export] so we can simplify wirting that modifier as well.
-    [export] compile_time export := [export];
+    // _SneakyMacro act like keywords, but they can be shadowed so they
+    // are not reserved! This is great for readability!
 
-    export compile_time symbol := [symbol];
-    export compile_time expression := [expression];
-    export compile_time void := [void];
-    export compile_time no_return := [no_return];
-    export compile_time boolean := [boolean];
-    export compile_time half := [half];
-    export compile_time single := [single];
-    export compile_time double := [double];
-    export compile_time quadruple := [quadruple];
-    export compile_time binary16 := [binary16];
-    export compile_time binary32 := [binary32];
-    export compile_time binary64 := [binary64];
-    export compile_time binary128 := [binary128];
-    export compile_time bfloat16 := [bfloat16];
-    export compile_time si := [signed_integer];
-    export compile_time si8 := [signed_integer 8];
-    export compile_time si16 := [signed_integer 16];
-    export compile_time si32 := [signed_integer 32];
-    export compile_time si64 := [signed_integer 64];
-    export compile_time si128 := [signed_integer 128];
-    export compile_time si256 := [signed_integer 256];
-    export compile_time si512 := [signed_integer 512];
-    export compile_time ui := [unsigned_integer];
-    export compile_time ui8 := [unsigned_integer 8];
-    export compile_time ui16 := [unsigned_integer 16];
-    export compile_time ui32 := [unsigned_integer 32];
-    export compile_time ui64 := [unsigned_integer 64];
-    export compile_time ui128 := [unsigned_integer 128];
-    export compile_time ui256 := [unsigned_integer 256];
-    export compile_time ui512 := [unsigned_integer 512];
-    export compile_time fsi := [fast_signed_integer];
-    export compile_time fsi8 := [fast_signed_integer 8];
-    export compile_time fsi16 := [fast_signed_integer 16];
-    export compile_time fsi32 := [fast_signed_integer 32];
-    export compile_time fsi64 := [fast_signed_integer 64];
-    export compile_time fsi128 := [fast_signed_integer 128];
-    export compile_time fsi256 := [fast_signed_integer 256];
-    export compile_time fsi512 := [fast_signed_integer 512];
-    export compile_time fui := [fast_unsigned_integer];
-    export compile_time fui8 := [fast_unsigned_integer 8];
-    export compile_time fui16 := [fast_unsigned_integer 16];
-    export compile_time fui32 := [fast_unsigned_integer 32];
-    export compile_time fui64 := [fast_unsigned_integer 64];
-    export compile_time fui128 := [fast_unsigned_integer 128];
-    export compile_time fui256 := [fast_unsigned_integer 256];
-    export compile_time fui512 := [fast_unsigned_integer 512];
-    export compile_time lsi := [least_signed_integer];
-    export compile_time lsi8 := [least_signed_integer 8];
-    export compile_time lsi16 := [least_signed_integer 16];
-    export compile_time lsi32 := [least_signed_integer 32];
-    export compile_time lsi64 := [least_signed_integer 64];
-    export compile_time lsi128 := [least_signed_integer 128];
-    export compile_time lsi256 := [least_signed_integer 256];
-    export compile_time lsi512 := [least_signed_integer 512];
-    export compile_time lui := [least_unsigned_integer];
-    export compile_time lui8 := [least_unsigned_integer 8];
-    export compile_time lui16 := [least_unsigned_integer 16];
-    export compile_time lui32 := [least_unsigned_integer 32];
-    export compile_time lui64 := [least_unsigned_integer 64];
-    export compile_time lui128 := [least_unsigned_integer 128];
-    export compile_time lui256 := [least_unsigned_integer 256];
-    export compile_time lui512 := [least_unsigned_integer 512];
-    export compile_time sindex := [signed_index];
-    export compile_time uindex := [unsigned_index];
-    export compile_time saddress := [signed_address];
-    export compile_time uaddress := [unsigned_address];
-    export compile_time char := [char];
-    export compile_time ascii := [ascii];
-    export compile_time utf8 := utf8;
-    export compile_time variadic_arguments_type := [variadic_arguments_type];
-    export compile_time c := [c];
-    export compile_time top := [top];
-    export compile_time no_modifier := [no_modifier];
-    export compile_time anchor := [anchor];
-    export compile_time resident := [resident];
-    export compile_time flank := [flank];
-    export compile_time transparent := [transparent];
-    export compile_time opaque := [opaque];
-    export compile_time private := [private];
-    export compile_time public := [public];
-    // export
-    export compile_time mutable := [mutable];
-    export compile_time partially_mutable := [partially_mutable];
-    export compile_time constant := [constant];
-    export compile_time dynamic := [dynamic];
-    export compile_time static := [static];
-    export compile_time runtime := [runtime];
-    // compile_time
-    export compile_time hybrid := [hybrid];
-    export compile_time eager := [eager];
-    export compile_time lazy := [lazy];
-    export compile_time predefined := [predefined];
-    export compile_time singleton := [singleton];
-    export compile_time capture := [capture];
-    export compile_time linked := [linked];
-    export compile_time inline := [inline];
-    export compile_time standard_mangle := [standard_mangle];
-    export compile_time mangle := [mangle];
-    export compile_time pad := [pad];
-    export compile_time pack := [pack];
-    export compile_time equivocal := [equivocal];
-    export compile_time likely := [likely];
-    export compile_time unlikely := [unlikely];
-    export compile_time supported := [supported];
-    export compile_time depreciated := [depreciated];
-    export compile_time experimental := [experimental];
-    export compile_time unstable_address := [unstable_address];
-    export compile_time stable_address := [stable_address];
-    export compile_time invariadic := [invariadic];
-    export compile_time variadic := [variadic];
-    export compile_time best_location := [best_location];
-    export compile_time location := [location];
-    export compile_time template := [template];
-    export compile_time overload := [overload];
-    export compile_time constraint := [constraint];
-    export compile_time default_weight := [default_weight];
-    export compile_time weight := [weight];
-    export compile_time manual := [manual];
-    export compile_time auto := [auto];
-    export compile_time direct := [direct];
-    export compile_time virtual := [virtual];
-    export compile_time ranger := [ranger];
-    export compile_time require := [require];
-    export compile_time ensure := [ensure];
-    export compile_time no_var := [no_var];
-    export compile_time partial_var := [partial_var];
-    export compile_time var := [var];
-    export compile_time no_volatile := [no_volatile];
-    export compile_time volatile := [volatile];
-    export compile_time no_atomic := [no_atomic];
-    export compile_time atomic := [atomic];
-    export compile_time no_null_terminate := [no_null_terminate];
-    export compile_time null_terminate := [null_terminate];
-    export compile_time modifier := [modifier];
-    export compile_time var_qualifier := [var_qualifier];
-    export compile_time volatile_qualifier := [volatile_qualifier];
-    export compile_time atomic_qualifier := [atomic_qualifier];
-    export compile_time null_terminate_qualifier := [null_terminate_qualifier];
-    export compile_time true := [true];
-    export compile_time false := [false];
+    // Now lets define a ton of sneaky macros so that there can be less square
+    // brackets throughout all other requite code files!
+    
+    export [_sneaky_macro_statement return, return];
+    export [_sneaky_macro_value true, [true]];
+    export [_sneaky_macro_value false, [false]];
+    export [_sneaky_macro_value value, [value]];
+    export [_sneaky_macro_value index, [index]];
+    export [_sneaky_macro_value this, this];
+    // notice how result ihas special modifier [_expand_dynamic_name]. it can 
+    // be expanded as a name too! (it can be expanded to be name of
+    // dynamic variable being binded). all macros that dont have this value are 
+    // ignored when written as a dynamic variable name.
+    [_expand_dynamic_name] export [_sneaky_macro_value result, [result]]; 
+    export [_sneaky_macro_value callsite, [callsite]];
+    export [_sneaky_macro_value Symbol, [Symbol]];
+    export [_sneaky_macro_value Expression, [Expression]];    
+    export [_sneaky_macro_value Void, [Void]];
+    export [_sneaky_macro_value NoReturn, [NoReturn]];
+    export [_sneaky_macro_value Bool, [Bool]];
+    export [_sneaky_macro_value Half, [Half]];
+    export [_sneaky_macro_value Single, [Single]];
+    export [_sneaky_macro_value Double, [Double]];
+    export [_sneaky_macro_value Quadruple, [Quadruple]];
+    export [_sneaky_macro_value Binary16, [Binary16]];
+    export [_sneaky_macro_value Binary32, [Binary32]];
+    export [_sneaky_macro_value Binary64, [Binary64]];
+    export [_sneaky_macro_value Binary128, [Binary128]];
+    export [_sneaky_macro_value Bfloat16, [Bfloat16]];
+    export [_sneaky_macro_value Int, [Int]];
+    export [_sneaky_macro_value Int8, [Int 8]];
+    export [_sneaky_macro_value Int16, [Int 16]];
+    export [_sneaky_macro_value Int32, [Int 32]];
+    export [_sneaky_macro_value Int64, [Int 64]];
+    export [_sneaky_macro_value Int128, [Int 128]];
+    export [_sneaky_macro_value Int256, [Int256]];
+    export [_sneaky_macro_value Int512, [Int512]];
+    export [_sneaky_macro_value Int1024, [Int1024]];
+    export [_sneaky_macro_value Size, [Size]];
+    export [_sneaky_macro_value Index, [Index]];
+    export [_sneaky_macro_value Char, [Char]];
+    export [_sneaky_macro_value Ascii, [Ascii]];
+    export [_sneaky_macro_value Utf8, [Utf8]];
+    export [_sneaky_macro_value VariadicArguments, [VariadicArguments]];
+    export [_sneaky_macro_value C, [C]];
+    export [_sneaky_macro_value Top, [Top]];
+    export [_sneaky_macro_statement debug_break, [debug_break]];
+    export [_sneaky_macro_statement unreachable, [unreachable]];
+    export [_sneaky_macro_value no_modifier, [no_modifier]];
+    export [_sneaky_macro_value anchor, [anchor]];
+    export [_sneaky_macro_value resident, [resident]];
+    export [_sneaky_macro_value flank, [flank]];
+    export [_sneaky_macro_value transparent, [transparent]];
+    export [_sneaky_macro_value opaque, [opaque]];
+    export [_sneaky_macro_value private, [private]];
+    // export already declared above!
+    export [_sneaky_macro_value mutable, [mutable]];
+    export [_sneaky_macro_value partially_mutable, [partially_mutable]];
+    export [_sneaky_macro_value constant, [constant]];
+    export [_sneaky_macro_value dynamic, [dynamic]];
+    export [_sneaky_macro_value static, [static]];
+    export [_sneaky_macro_value runtime, [runtime]];
+    export [_sneaky_macro_value compile_time, [compile_time]];
+    export [_sneaky_macro_value hybrid, [hybrid]];
+    export [_sneaky_macro_value eager, [eager]];
+    export [_sneaky_macro_value lazy, [lazy]];
+    export [_sneaky_macro_value predefined, [predefined]];
+    export [_sneaky_macro_value singleton, [singleton]];
+    export [_sneaky_macro_value capture, [capture]];
+    export [_sneaky_macro_value linked, [linked]];
+    export [_sneaky_macro_value inline, [inline]];
+    export [_sneaky_macro_value standard_mangle, [standard_mangle]];
+    export [_sneaky_macro_value mangle, [mangle]];
+    export [_sneaky_macro_value pad, [pad]];
+    export [_sneaky_macro_value pack, [pack]];
+    export [_sneaky_macro_value equivocal, [equivocal]];
+    export [_sneaky_macro_value likely, [likely]];
+    export [_sneaky_macro_value unlikely, [unlikely]];
+    export [_sneaky_macro_value supported, [supported]];
+    export [_sneaky_macro_value depreciated, [depreciated]];
+    export [_sneaky_macro_value experimental, [experimental]];
+    export [_sneaky_macro_value unstable_address, [unstable_address]];
+    export [_sneaky_macro_value stable_address, [stable_address]];
+    export [_sneaky_macro_value invariadic, [invariadic]];
+    export [_sneaky_macro_value variadic, [variadic]];
+    export [_sneaky_macro_value best_location, [best_location]];
+    export [_sneaky_macro_value location, [location]];
+    export [_sneaky_macro_value template, [template]];
+    export [_sneaky_macro_value overload, [overload]];
+    export [_sneaky_macro_value constraint, [constraint]];
+    export [_sneaky_macro_value default_weight, [default_weight]];
+    export [_sneaky_macro_value weight, [weight]];
+    export [_sneaky_macro_value manual, [manual]];
+    export [_sneaky_macro_value auto, [auto]];
+    export [_sneaky_macro_value direct, [direct]];
+    export [_sneaky_macro_value virtual, [virtual]];
+    export [_sneaky_macro_value ranger, [ranger]];
+    export [_sneaky_macro_value require, [require]];
+    export [_sneaky_macro_value ensure, [ensure]];
+    export [_sneaky_macro_value break, [break]];
+    export [_sneaky_macro_value continue, [continue]];
+    export [_sneaky_macro_value no_var, [no_var]];
+    export [_sneaky_macro_value var, [var]];
+    export [_sneaky_macro_value no_volatile, [no_volatile]];
+    export [_sneaky_macro_value volatile, [volatile]];
+    export [_sneaky_macro_value no_atomic, [no_atomic]];
+    export [_sneaky_macro_value atomic, [atomic]];
+    export [_sneaky_macro_value no_null_terminate, [no_null_terminate]];
+    export [_sneaky_macro_value null_terminate, [null_terminate]];
+    export [_sneaky_macro_value no_signedness, [no_signedness]];
+    export [_sneaky_macro_value signed, [signed]];
+    export [_sneaky_macro_value unsigned, [unsigned]];
+    export [_sneaky_macro_value no_optimization, [no_optimization]];
+    export [_sneaky_macro_value fast, [fast]];
+    export [_sneaky_macro_value least, [least]];
+    export [_sneaky_macro_value Modifier, [Modifier]];
+    export [_sneaky_macro_value Qualifier, [Qualifier]];
 ];

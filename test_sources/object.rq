@@ -2,26 +2,26 @@
 
 [class MyClass,
     {>
-        public x : fsi32 = 0,
-        public y : fsi32 = 0,
-        public z : fsi32 = 0
+        public x : fast\Int32 = 0,
+        public y : fast\Int32 = 0,
+        public z : fast\Int32 = 0
     <},
 
     public [layout_constructor];
 
     public
-    [function fromScalar, (> scalar:fsi32 <)MyClass,
-        [result] <:= MyClass(scalar, scalar, scalar);    
+    [function fromScalar, (> scalar:fast\Int32 <)MyClass,
+        result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public
-    [function getTotal, ()fsi32=>$,
-        [result] <:= [this].x + [this].y + [this].z;
+    [function getTotal, ()fast\Int21=>$,
+        result <:= this.x + this.y + this.z;
     ];
 
     public
     [function add, (>a:MyClass, b:MyClass<)MyClass,
-        [result] <:=
+        result <:=
             MyClass(
                 a.x + b.x,
                 a.y + b.y,
@@ -30,15 +30,15 @@
     ];
 ];
 
-[main ()si,
+[main ()Int,
 
     a := MyClass();
     b := MyClass(1, 2, 3);
     c := MyClass.fromScalar(4);
 
-    std.printJuxt(line="a total:{a.[borrow].getTotal()}");
+    std.print(line="a total:{a.[borrow].getTotal()}");
 
     added := MyClass.add(b, c);
 
-    [result] := added.[borrow].getTotal();
+    result := added.[borrow].getTotal();
 ];

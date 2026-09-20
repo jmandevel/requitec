@@ -1,11 +1,11 @@
-template::{ Type:symbol <}
+template::{ Type:Symbol <}
 constraint::(Type.[is_type])
 [function asSigned, 
-    static Signed : = [signed_integer Type.[byte_size]]; // this wont situate correctly yet!
+    static Signed : = signed\[Int Type.[byte_size]];
     ( var:Type <)Signed,
-    [result] <:= var.[bitwise_cast Signed];
+    result <:= var.[bitwise_cast Signed];
 ];
 
-[main ()si,
-    [result] <:= asSigned{single}(3.14);
+[main ()Int,
+    result <:= asSigned{Single}(3.14);
 ];

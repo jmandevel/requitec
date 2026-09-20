@@ -3,22 +3,22 @@
 [class MyClass, public [layout_constructor]; {}];
 
 // This class has stable_address modifier, so it cannnot be moved to a new memory address
-[stable_address]
+stable_address
 [class MyPinned, public [layout_constructor]; {}];
 
-[function takeReciever, ()void=>MyPinned,
+[function takeReciever, ()Void=>MyPinned,
 
 ];
 
-[function takeArg, (pinned:MyPinned<)void,
+[function takeArg, (pinned:MyPinned<)Void,
 
 ];
 
-[function takeOrCopyArg, (pinned:MyClass<)void,
+[function takeOrCopyArg, (pinned:MyClass<)Void,
 
 ];
 
-[main ()si,
+[main ()Int,
   class :var\= MyClass();
   copy := class;
   reference := class.[borrow];
@@ -43,8 +43,8 @@
   // when something is taken into a call, it is assumed thing is destroyed/forgetped within it, so its gone after.
   // sometimes compiler may turn .[take] to a shallow copy, so arg address is not necessarily the same!
   // other times when object is taken, compiler will pass object into function by address, so address remains same for the arg.
-  // if a taken type has an [stable_address] modifier, it will never shallow copy and will also always be passed by address.
+  // if a taken type has an stable_address modifier, it will never shallow copy and will also always be passed by address.
   // however, compiler is allowed to optimize other taken things which can fit into a register into a shallow copy.
-  // never rely on the address not changing unless the type has [unno_stable_address] modifier!
-  [result] <:= 0;
+  // never rely on the address not changing unless the type has stable_address modifier!
+  result <:= 0;
 ];

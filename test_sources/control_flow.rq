@@ -1,39 +1,39 @@
 [import "std"];
 
-[main ()si,
-    [result] <:var\=0;
+[main ()Int,
+    result <:var\=0;
 
     anchor::MyWhile
     [while true,
-        [result] = [result] + 1;
-        [if [result] == 10,
+        result = result + 1;
+        [if result == 10,
             break MyWhile;
         ];
     ];
 
     anchor::MyWhile
     [while true,
-        [result] = [result] + 1;
-        [if [result] == 12,
-            [result] = [result] + 2;
+        result = result + 1;
+        [if result == 12,
+            result = result + 2;
             continue MyWhile;
-        ][else_if [result] == 20,
+        ][else_if result == 20,
             break MyWhile;
         ];
     ];
 
-    [switch [result]
+    [switch result
         ][case 20, 21,
-            [result] = 2
+            result = 2
         ][default
-            [result] = 3;
+            result = 3;
         ];    
 
     anchor::F
-    [fold folded:si,
+    [fold folded:Int,
             var := 0;
             [if true,
-                [return]; // if folded not set, must break from outer scope too.
+                return; // if folded not set, must break from outer scope too.
             ];
             folded <:var\= var + 1;
             folded = 2; // note that within the fold, folded is var, but outside the fold its [no_var].

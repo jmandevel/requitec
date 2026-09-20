@@ -1,7 +1,7 @@
 [import "std"];
 
-[main ()si,
-    std.printJuxt(line="Hello, world!");
+[main ()Int,
+    std.print(line="Hello, world!");
 
-    [result] <:= 0;
+    result <:= 0;
 ];

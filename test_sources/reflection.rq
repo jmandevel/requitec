@@ -6,44 +6,44 @@
 
 // templates refeer to declarations with template modifiers
 
-template::{> NUM:si <}
+template::{> NUM:Int <}
 weight::3
-[function getNum, ()si,
-    [result] <:= NUM;
+[function getNum, ()Int,
+    result <:= NUM;
 ];
 
 // templates have different overloads attached to them, one for each specialization
 
 // declarations without a template modifier are attached directly to the polymorph
 
-[function getNum, ()si,
-    [result] <:= 0;
+[function getNum, ()Int,
+    result <:= 0;
 ];
 
-[function getNum, (> num:si <)si,
-    [result] <:= num;
+[function getNum, (> num:Int <)Int,
+    result <:= num;
 ];
 
 // store polymorph in variable
 compile_time poly := getNum.[reflect];
 
 // get overload with no args.
-compile_time noArgs := getNum.[reflect].[resolve_function ()si];
+compile_time noArgs := getNum.[reflect].[resolve_function ()Int];
 
 // get overload from variable containing polymorph
-compile_time noArgs1 := poly.[resolve_function ()si];
+compile_time noArgs1 := poly.[resolve_function ()Int];
 
 // get specialization with signature and given template args
-compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_function ()si];
+compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_function ()Int];
 
 // loop over all template specializations of polymorph
 static
-[for getNum.[reflect].[weight_level_range], static weight_level := [value],
+[for getNum.[reflect].[weight_level_range], static weight_level := value,
     // loop over all templates of weight level
     static
-    [for weight_level.[template_range], static template := [value],
+    [for weight_level.[template_range], static template := value,
         static
-        [for template.[specialization_range], static specialization := [value],
+        [for template.[specialization_range], static specialization := value,
             // etc
         ];
     ];
@@ -51,6 +51,6 @@ static
 
 // loop over all overloads of polymorph
 static
-[for getNum.[reflect].[overload_range], static implementation := [value],
+[for getNum.[reflect].[overload_range], static implementation := value,
     // etc
 ];

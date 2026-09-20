@@ -1,19 +1,19 @@
 
 [namespace example,
-    template::{> Type:type, LENGTH:uindex <}
-    [function getElementCount, ()uindex=>$LENGTH#Type,
-        [result] <:= LENGTH;
+    template::{> Type:type, LENGTH:unsigned\Size <}
+    [function getElementCount, ()unsigned\Size=>$LENGTH#Type,
+        result <:= LENGTH;
     ];
 
     [class Foo, public[layout_constructor]; {}];
 
-    [function bar, ()void=>$Foo,
+    [function bar, ()Void=>$Foo,
     
     ];
 ];
 
-[main ()si,
-    my_array :5#si= [array 0, 1, 2, 3, 4].[of fsi32];
+[main ()Int,
+    my_array :5#fast\Int= [array 0, 1, 2, 3, 4].[of fast\Int32];
 
     // call extension function
     my_array.[borrow]->example.getElementCount().[ignore];
@@ -21,5 +21,5 @@
     // construct variable of type declared in same table as extension functions
     foo := example.Foo();
 
-    [result] <:= 0;
+    result <:= 0;
 ];

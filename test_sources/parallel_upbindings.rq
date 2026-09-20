@@ -1,35 +1,35 @@
 [import "std"];
 
-[main (>args:@@char<)si,
+[main (>args:@@Char<)Int,
     [if args.[element_count] == 0,
-        [result] <:= 5;
+        result <:= 5;
     ][else 
-        [result] <:= 6;
+        result <:= 6;
     ];
 ];
 
-[function doMath, (>int:si<)si,
+[function doMath, (>int:Int<)Int,
 
     other_int :var\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 
     other_int = 3; // to reassign to existing variable dont add the binding.
 
-    // folded variables must be initialized exactly once in each control flow path of fold or function must [return] before fold is done.
-    // for functions that [return], [result] must have upbinding exactly once for each control flow path.
+    // folded variables must be initialized exactly once in each control flow path of fold or function must return before fold is done.
+    // for functions that return, result must have upbinding exactly once for each control flow path.
 
     // binding to variable more than once in any control flow path (upbinding or otherwise) is compiler error.
     // upbinding to variable in loops is not allowed because this counts as multiple paths.
     // (maybe can allow variables without destructors to be upbound in loops somehow...)
 
-    [fold var:si,
+    [fold var:Int,
         [if int < 7,
             var <:= 7;
         ][else_if int > 9,
-            [result] <:= 0; // [result] must be set before [return]
-            [return]; // dont need to set var because function returns before the fold ends
+            result <:= 0; // result must be set before return
+            return; // dont need to set var because function returns before the fold ends
         ][else
             var <:= 1;
         ];
     ];
-    [result] <:= var; // [result] was set in [else_if] condition which never reaches here, so its ok to initialize it again.
+    result <:= var; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
 ];

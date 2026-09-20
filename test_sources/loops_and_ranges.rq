@@ -1,41 +1,43 @@
 [import "std"];
 
-[main ()si,
+[main ()Int,
 
     // all of these loops are equivalent
 
     // equal limit interval
-    [for 0.!=9, value:=[value],
-        std.printjuxt(line="value is " +> value);    
+    // the lvalue "value" is name of variable, the rvalue "value" is an 
+    // expaneded _SneakyMacro. See stellarscope.rq!
+    [for 0.!=9, value:=value, 
+        std.print(line="value is " +> value);    
     ];
 
     // less limit interval
-    [for 0.<10, value:=[value], 
-        std.printjuxt(line="value is " +> value);    
+    [for 0.<10, value:=value, 
+        std.print(line="value is " +> value);    
     ];
 
     // interval
-    [for 0.<10.+1, value:=[value], 
-        std.printjuxt(line="value is " +> value);    
+    [for 0.<10.+1, value:=value, 
+        std.print(line="value is " +> value);    
     ];
 
     [scope
         // while loop    
         value : var\ = 0.[as fsi32];
         [while value < 10,
-            std.printjuxt(line="value is " +> value);   
+            std.print(line="value is " +> value);   
             value = value + 1;
         ];
     ];
 
     // array element range
-    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=[value],     
-        std.printjuxt(line="value is " +> value);
+    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=value,     
+        std.print(line="value is " +> value);
     ];
 
     [if (0.<10)->std.getContains(5),
-        std.printjuxt(line="5 is within interval over 0 to 10");
+        std.print(line="5 is within interval over 0 to 10");
     ];
 
-    [result] <:= 0;
+    result <:= 0;
 ];

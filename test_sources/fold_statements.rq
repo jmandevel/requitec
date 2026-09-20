@@ -1,10 +1,10 @@
 [import "std"];
 
-[main ()si,
-    [fold int:si, float:single,
+[main ()Int,
+    [fold int:Int, float:Single,
         int <:= 4;
         float <:= 3.14;
     ];
 
-    [result] <:= int + float.[cast si];
+    result <:= int + float.[cast Int];
 ];

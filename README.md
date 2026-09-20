@@ -13,8 +13,8 @@ Requite is a statically typed systems programming langauge with an orthogonal sy
 ```
 [import "std"];
 
-[main ()[signed_integer],
-    std.printJuxt(line="hello, world");
+[main ()Int,
+    std.print(line="hello, world");
 ];
 ```
 
