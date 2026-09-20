@@ -1,0 +1,6 @@
+[import "std", output=std.print];
+
+[main ()Int,
+    output(line="Hello, world!");
+    [result] <:= 0;
+];
