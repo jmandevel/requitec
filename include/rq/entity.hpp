@@ -172,10 +172,6 @@ enum class Keyword : rq::EntityId {
 
   // CONTROL FLOW
   RETURN,
-  BREAK,
-  BREAK_OF,
-  CONTINUE,
-  CONTINUE_OF,
 
   // DECLARED TYPES
   CLASS,
@@ -360,6 +356,9 @@ enum class Keyword : rq::EntityId {
   REQUIRE,
   // ensure
   ENSURE,
+  // control_flow
+  BREAK,
+  CONTINUE,
 
   // QUALIFIERS
   // var
@@ -517,7 +516,7 @@ enum class SymbolKind : rq::EntityId {
   ATOMIC_QUALIFIER_TYPE,
   NULL_TERMINATE_QUALIFIER_TYPE,
 
-  // REFLECTIVE TYPES
+  // REFLECTION TYPES
   SYMBOL_TYPE,
   SYMBOL_RANGE_TYPE,
   EXPRESSION_TYPE,
@@ -884,6 +883,18 @@ struct Entity {
     return this->_id;
   }
 
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUnsafeKeyword() const {
+    return static_cast<rq::Keyword>(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getUnsafeSymbolKind() const {
+    return static_cast<rq::SymbolKind>(this->_id + rq::SYMBOL_OFFSET);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getUnsafeOpcode() const {
+    return static_cast<rq::Opcode>(this->_id + rq::OPCODE_OFFSET);
+  }
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
     return this->_id < rq::getUnderlyingValue(rq::Keyword::LAST);
   }
@@ -893,7 +904,11 @@ struct Entity {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return this->_id >= rq::OPCODE_OFFSET;
+    return this->_id >= rq::OPCODE_OFFSET && this->_id < rq::CFG_BLOCK_ID;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCfgBlock() const {
+    return this->_id == rq::CFG_BLOCK_ID;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::DottedInstructionIterator>

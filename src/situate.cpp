@@ -606,18 +606,6 @@ bool Situator::situateTree(rq::Situation situation,
     }
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::BREAK:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::BREAK_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::CONTINUE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::CONTINUE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
 
   // DECLARED TYPES
   case K::CLASS:
@@ -997,7 +985,11 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
-  case K::ENSURE: {
+  case K::ENSURE: 
+    [[fallthrough]]
+  case K::BREAK:
+    [[fallthrough]];
+  case K::CONTINUE: {
     is_ok = this->situateNullary(situation, expression);
     break;
   }

@@ -300,14 +300,6 @@ static constexpr std::size_t KEYWORD_COUNT =
   // CONTROL FLOW
   case K::RETURN:
     return "return";
-  case K::BREAK:
-    return "break";
-  case K::BREAK_OF:
-    return "_break_of";
-  case K::CONTINUE:
-    return "continue";
-  case K::CONTINUE_OF:
-    return "_continue_of";
 
   // DECLARED TYPES
   case K::CLASS:
@@ -596,6 +588,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "require";
   case K::ENSURE:
     return "ensure";
+  case K::BREAK:
+    return "break";
+  case K::CONTINUE:
+    return "continue";
 
   // TYPE MODIFIERS
   case K::NO_VAR:
@@ -1166,14 +1162,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // CONTROL FLOW
   case K::RETURN:
     return KIF::STATEMENT;
-  case K::BREAK:
-    return KIF::RAILCAR;
-  case K::BREAK_OF:
-    return KIF::STATEMENT;
-  case K::CONTINUE:
-    return KIF::RAILCAR;
-  case K::CONTINUE_OF:
-    return KIF::STATEMENT;
 
   // DECLARED TYPES
   case K::CLASS:
@@ -1468,6 +1456,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::REQUIRE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ENSURE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::BREAK:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::CONTINUE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // QUALIFIERS
@@ -1940,10 +1932,6 @@ getDescription(rq::Situation situation) {
     return K::INPLACE_DESTROY_OF;
   case K::INPLACE_INIT:
     return K::INPLACE_INIT_OF;
-  case K::BREAK:
-    return K::BREAK_OF;
-  case K::CONTINUE:
-    return K::CONTINUE_OF;
   case K::FIRST_VARIADIC_ARGUMENT:
     return K::FIRST_VARIADIC_ARGUMENT_OF;
   case K::NEXT_VARIADIC_ARGUMENT:
@@ -2412,6 +2400,9 @@ enum class Modifier : std::uint_fast8_t {
   REQUIRE,
   // ensure
   ENSURE,
+  // control_flow
+  BREAK,
+  CONTINUE,
   LAST
 };
 
@@ -2523,6 +2514,10 @@ enum class Modifier : std::uint_fast8_t {
     return "REQUIRE";
   case M::ENSURE:
     return "ENSURE";
+  case M::BREAK:
+    return "BREAK";
+  case M::CONTINUE:
+    return "CONTINUE";
   case M::LAST:
     break;
   }
@@ -2638,6 +2633,10 @@ enum class Modifier : std::uint_fast8_t {
     return M::REQUIRE;
   case K::ENSURE:
     return M::ENSURE;
+  case K::BREAK:
+    return M::BREAK;
+  case K::CONTINUE:
+    return M::CONTINUE;
   default:
     break;
   }
@@ -2750,7 +2749,11 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
   ENSURE = rq::getBit(49),
-  ENSURE_MODIFIER_MASK = ENSURE
+  ENSURE_MODIFIER_MASK = ENSURE,
+
+  BREAK = rq::getBit(50),
+  CONTINUE = rq::getBit(51),
+  CONTROL_FLOW_MODIFIER_MASK = BREAK | CONTINUE
 };
 
 RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
@@ -2864,6 +2867,10 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::REQUIRE;
   case M::ENSURE:
     return MFF::ENSURE;
+  case M::BREAK:
+    return MFF::BREAK;
+  case M::CONTINUE:
+    return MFF::CONTINUE;
   case M::LAST:
     break;
   }
@@ -2988,6 +2995,10 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::ENSURE:
     return MIF::NO_ATTACHMENT;
+  case M::BREAK:
+    return MIF::NO_ATTACHMENT;
+  case M::CONTINUE:
+    return MIF::NO_ATTACHMENT;
   case M::LAST:
     break;
   }
@@ -3041,6 +3052,7 @@ enum class ModifierKind : std::uint_fast8_t {
   RANGER,
   REQUIRE,
   ENSURE,
+  CONTROL_FLOW,
   LAST
 };
 
@@ -3101,6 +3113,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "require modifier";
   case MK::ENSURE:
     return "ensure modifier";
+  case MK::CONTROL_FLOW:
+    return "control flow modifier";
   case MK::LAST:
     break;
   }
@@ -3165,6 +3179,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::REQUIRE_MODIFIER_MASK;
   case MK::ENSURE:
     return MFF::ENSURE_MODIFIER_MASK;
+  case MK::CONTROL_FLOW:
+    return MFF::CONTROL_FLOW_MODIFIER_MASK;
   case MK::LAST:
     break;
   }
@@ -3279,6 +3295,10 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::REQUIRE;
   case M::ENSURE:
     return MK::ENSURE;
+  case M::BREAK:
+    [[fallthrough]];
+  case M::CONTINUE:
+    return MK::CONTROL_FLOW;
   case M::LAST:
     break;
   }
