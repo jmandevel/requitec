@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 [interface ISpeak,
     // this function is virtual so can be overriden by adapters

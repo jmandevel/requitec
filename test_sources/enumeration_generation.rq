@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 [enum Fruit, fast\unsigned\Int32,
 	anchor::A

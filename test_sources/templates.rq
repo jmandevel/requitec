@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 template::{> Type:Symbol <}
 constraint::(Type.[is_float_type])

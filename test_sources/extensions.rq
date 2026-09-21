@@ -7,7 +7,7 @@
 
     [class Foo, public[layout_constructor]; {}];
 
-    [function bar, ()Void=>$Foo,
+    [function bar, ()Void=>$example.Foo,
     
     ];
 ];

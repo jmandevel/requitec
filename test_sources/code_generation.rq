@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 anchor::A
 static [for 0.<=10, static num:=value,

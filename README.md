@@ -11,7 +11,7 @@ __NOTICE: This repository contains a compiler front-end that is in the early sta
 Requite is a statically typed systems programming langauge with an orthogonal syntax. It has been in development since June 2024. Look in the [test_sources](test_sources) folder for example source code files.
 
 ```
-[import "std", std];
+[import "std"];
 
 [main ()Int,
     std.print(line="hello, world!");

@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 [main ()Int,
     std.print(line="Hello, world!");

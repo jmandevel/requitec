@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 [function printMe, 
     (|

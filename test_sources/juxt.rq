@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 template::{> auto List:Symbol <}
 [function printList, (> list:List <)Void,

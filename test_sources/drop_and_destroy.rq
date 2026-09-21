@@ -1,4 +1,4 @@
-[import "std", std];
+[import "std"];
 
 [class WithoutDestroy, public[layout_constructor]; {}];
 
