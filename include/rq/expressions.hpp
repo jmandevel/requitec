@@ -310,6 +310,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "interface";
   case K::ADAPTER:
     return "adapter";
+  case K::SNEAKY_MACRO_STATEMENT:
+    return "_sneaky_macro_statement";
+  case K::SNEAKY_MACRO_VALUE:
+    return "_sneaky_macro_value";
 
   // VALUES
   case K::ARRAY:
@@ -331,65 +335,51 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // BUILTIN TYPES
   case K::SYMBOL:
-    return "symbol";
+    return "Symbol";
   case K::INFERENCE:
-    return "_inference";
+    return "_Inference";
   case K::EXPRESSION:
-    return "expression";
+    return "Expression";
   case K::VOID:
-    return "void";
+    return "Void";
   case K::NO_RETURN:
-    return "no_return";
-  case K::BOOLEAN:
-    return "boolean";
+    return "NoReturn";
+  case K::BOOL:
+    return "Bool";
   case K::HALF:
-    return "half";
+    return "Half";
   case K::SINGLE:
-    return "single";
+    return "Single";
   case K::DOUBLE:
-    return "double";
+    return "Double";
   case K::QUADRUPLE:
-    return "quadruple";
+    return "Quadruple";
   case K::BINARY16:
-    return "binary16";
+    return "Binary16";
   case K::BINARY32:
-    return "binary32";
+    return "Binary32";
   case K::BINARY64:
-    return "binary64";
+    return "Binary64";
   case K::BINARY128:
-    return "binary128";
+    return "Binary128";
   case K::BFLOAT16:
-    return "bfloat16";
-  case K::SIGNED_INTEGER:
-    return "signed_integer";
-  case K::UNSIGNED_INTEGER:
-    return "unsigned_integer";
-  case K::FAST_SIGNED_INTEGER:
-    return "fast_signed_integer";
-  case K::FAST_UNSIGNED_INTEGER:
-    return "fast_unsigned_integer";
-  case K::LEAST_SIGNED_INTEGER:
-    return "least_signed_integer";
-  case K::LEAST_UNSIGNED_INTEGER:
-    return "least_unsigned_integer";
-  case K::SIGNED_INDEX:
-    return "signed_index";
-  case K::UNSIGNED_INDEX:
-    return "unsigned_index";
-  case K::SIGNED_ADDRESS:
-    return "signed_address";
-  case K::UNSIGNED_ADDRESS:
-    return "unsigned_address";
+    return "Bfloat16";
+  case K::INT:
+    return "Int";
+  case K::SIZE_TYPE:
+    return "Size";
+  case K::INDEX_TYPE:
+    return "Index";
   case K::CHAR:
-    return "char";
+    return "Char";
   case K::ASCII:
-    return "ascii";
+    return "Ascii";
   case K::UTF8:
-    return "utf8";
+    return "Utf8";
 
   // VARIADIC ARGUMENTS
   case K::VARIADIC_ARGUMENTS_TYPE:
-    return "variadic_arguments_type";
+    return "VariadicArguments";
   case K::FIRST_VARIADIC_ARGUMENT:
     return "first_variadic_argument";
   case K::FIRST_VARIADIC_ARGUMENT_OF:
@@ -612,20 +602,24 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
+  case K::NO_SIGNEDNESS:
+    return "no_signedness";
+  case K::UNSIGNED:
+    return "unsigned";
+  case K::SIGNED:
+    return "signed";
+  case K::NO_SCALING:
+    return "no_scaling";
+  case K::FAST:
+    return "fast";
+  case K::LEAST:
+    return "least";
 
-  // MODIFIER TYPES
+  // ATTRIBUTE TYPES
   case K::MODIFIER:
-    return "modifier";
-
-  // QUALIFIER TYPES
-  case K::VAR_QUALIFIER:
-    return "var_qualifier";
-  case K::VOLATILE_QUALIFIER:
-    return "volatile_qualifier";
-  case K::ATOMIC_QUALIFIER:
-    return "atomic_qualifier";
-  case K::NULL_TERMINATE_QUALIFIER:
-    return "null_terminate_qualifier";
+    return "Modifier";
+  case K::QUALIFIER:
+    return "Qualifier";
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -816,10 +810,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "is_codeunit_type";
   case K::IS_CODEUNIT_TYPE_OF:
     return "_is_codeunit_type_of";
-  case K::IS_QUALIFIER_TYPE:
-    return "is_qualifier_type";
-  case K::IS_QUALIFIER_TYPE_OF:
-    return "_is_qualifier_type_of";
 
   case K::LAST:
     break;
@@ -852,14 +842,14 @@ enum class KeywordInfoFlags : std::uint32_t {
   TUPLE_ELEMENT = rq::getBit(17),
   BINDING = rq::getBit(18),
   NAME = rq::getBit(19),
-  NAMESPACE = rq::getBit(20),
+  PATH = rq::getBit(20),
   ASCRIPTION = rq::getBit(21),
   MODIFIER = rq::getBit(22),
   QUALIFIER = rq::getBit(23),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-      PARAMETER | BINDING | NAME | NAMESPACE | ASCRIPTION | MODIFIER |
+      PARAMETER | BINDING | NAME | PATH | ASCRIPTION | MODIFIER |
       QUALIFIER | ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -890,7 +880,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::NAMESPACE;
+           KIF::PATH;
 
   // ERRORS
   case K::ERROR:
@@ -901,7 +891,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     // NOTE: not allowed in STATEMENT and PARAMETER situations so that low
     // modifiers do not get confused with _call (and also this would be weird).
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::LVALUE | KIF::NAME | KIF::NAMESPACE |
+           KIF::LVALUE | KIF::NAME | KIF::PATH |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
@@ -917,7 +907,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::NAMESPACE;
+           KIF::PATH;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -974,7 +964,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::NAMESPACE;
+           KIF::TUPLE_ELEMENT | KIF::PATH;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1172,6 +1162,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::ADAPTER:
     return KIF::STATEMENT;
+  case K::SNEAKY_MACRO_STATEMENT:
+    return KIF::STATEMENT;
+  case K::SNEAKY_MACRO_VALUE:
+    return KIF::STATEMENT;
 
   // VALUES
   case K::ARRAY:
@@ -1202,7 +1196,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NO_RETURN:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::BOOLEAN:
+  case K::BOOL:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HALF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1222,25 +1216,11 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BFLOAT16:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SIGNED_INTEGER:
+  case K::INT:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::UNSIGNED_INTEGER:
+  case K::SIZE_TYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FAST_SIGNED_INTEGER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FAST_UNSIGNED_INTEGER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LEAST_SIGNED_INTEGER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LEAST_UNSIGNED_INTEGER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SIGNED_INDEX:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::UNSIGNED_INDEX:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SIGNED_ADDRESS:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::UNSIGNED_ADDRESS:
+  case K::INDEX_TYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CHAR:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1481,19 +1461,23 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::NO_SIGNEDNESS:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::UNSIGNED:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SIGNED:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::NO_SCALING:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::FAST:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::LEAST:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // MODIFIER TYPES
   case K::MODIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-
-  // QUALIFIER TYPES
-  case K::VAR_QUALIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VOLATILE_QUALIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ATOMIC_QUALIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::NULL_TERMINATE_QUALIFIER:
+  case K::QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
@@ -1685,10 +1669,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::IS_CODEUNIT_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_QUALIFIER_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_QUALIFIER_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   case K::LAST:
     break;
@@ -1795,7 +1775,7 @@ enum class Situation : std::uint_fast8_t {
   TUPLE_ELEMENT,
   BINDING,
   NAME,
-  NAMESPACE,
+  PATH,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
   QUALIFIER_INSTANTIATION,
@@ -1844,8 +1824,8 @@ getDescription(rq::Situation situation) {
     return "binding expression";
   case S::NAME:
     return "name expression";
-  case S::NAMESPACE:
-    return "namespace expression";
+  case S::PATH:
+    return "path expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
@@ -2032,8 +2012,6 @@ getDescription(rq::Situation situation) {
     return K::IS_STRING_TYPE_OF;
   case K::IS_CODEUNIT_TYPE:
     return K::IS_CODEUNIT_TYPE_OF;
-  case K::IS_QUALIFIER_TYPE:
-    return K::IS_QUALIFIER_TYPE_OF;
   default:
     break;
   }
@@ -2093,9 +2071,9 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::NAME);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNamespace(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::NAMESPACE);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::PATH);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2272,8 +2250,8 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeBinding(keyword);
   case S::NAME:
     return rq::getCanBeName(keyword);
-  case S::NAMESPACE:
-    return rq::getCanBeNamespace(keyword);
+  case S::PATH:
+    return rq::getCanBePath(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
@@ -3411,38 +3389,50 @@ enum class Qualifier : std::uint_fast8_t {
   ATOMIC,
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  NO_GREATEST,
-  GREATEST
+  NO_SIGNEDNESS,
+  UNSIGNED,
+  SIGNED,
+  NO_SCALING,
+  FAST,
+  LEAST
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::Qualifier modifier) {
   using namespace rq;
-  using HA = Qualifier;
+  using Q = Qualifier;
   switch (modifier) {
-  case HA::NONE:
+  case Q::NONE:
     return "none";
-  case HA::NO_VAR:
+  case Q::NO_VAR:
     return "no_var";
-  case HA::VAR:
+  case Q::VAR:
     return "var";
-  case HA::PARTIAL_VAR:
+  case Q::PARTIAL_VAR:
     return "partial_var";
-  case HA::NO_VOLATILE:
+  case Q::NO_VOLATILE:
     return "no_volatile";
-  case HA::VOLATILE:
+  case Q::VOLATILE:
     return "volatile";
-  case HA::NO_ATOMIC:
+  case Q::NO_ATOMIC:
     return "no_atomic";
-  case HA::ATOMIC:
+  case Q::ATOMIC:
     return "atomic";
-  case HA::NO_NULL_TERMINATE:
+  case Q::NO_NULL_TERMINATE:
     return "no_null_terminate";
-  case HA::NULL_TERMINATE:
+  case Q::NULL_TERMINATE:
     return "null_terminate";
-  case HA::NO_GREATEST:
-    return "no_greatest";
-  case HA::GREATEST:
-    return "greatest";
+  case Q::NO_SIGNEDNESS:
+    return "no_signedness";
+  case Q::UNSIGNED:
+    return "unsigned";
+  case Q::SIGNED:
+    return "signed";
+  case Q::NO_SCALING:
+    return "no_scaling";
+  case Q::FAST:
+    return "fast";
+  case Q::LEAST:
+    return "least";
   }
   RQ_UNREACHABLE();
 }
@@ -3450,50 +3440,73 @@ enum class Qualifier : std::uint_fast8_t {
 [[nodiscard]] inline rq::Qualifier getQualifier(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using HA = Qualifier;
+  using Q = Qualifier;
   switch (keyword) {
   case K::NO_VAR:
-    return HA::NO_VAR;
+    return Q::NO_VAR;
   case K::VAR:
-    return HA::VAR;
+    return Q::VAR;
   case K::PARTIAL_VAR:
-    return HA::PARTIAL_VAR;
+    return Q::PARTIAL_VAR;
   case K::NO_VOLATILE:
-    return HA::NO_VOLATILE;
+    return Q::NO_VOLATILE;
   case K::VOLATILE:
-    return HA::VOLATILE;
+    return Q::VOLATILE;
   case K::NO_ATOMIC:
-    return HA::NO_ATOMIC;
+    return Q::NO_ATOMIC;
   case K::ATOMIC:
-    return HA::ATOMIC;
+    return Q::ATOMIC;
   case K::NO_NULL_TERMINATE:
-    return HA::NO_NULL_TERMINATE;
+    return Q::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
-    return HA::NULL_TERMINATE;
+    return Q::NULL_TERMINATE;
+  case K::NO_SIGNEDNESS:
+    return Q::NO_SIGNEDNESS;
+  case K::UNSIGNED:
+    return Q::UNSIGNED;
+  case K::SIGNED:
+    return Q::SIGNED;
+  case K::NO_SCALING:
+    return Q::NO_SCALING;
+  case K::FAST:
+    return Q::FAST;
+  case K::LEAST:
+    return Q::LEAST;
   default:
     break;
   }
-  return HA::NONE;
+  return Q::NONE;
 }
 
-enum class QualifierFuseFlags : std::uint_fast8_t {
+enum class QualifierFuseFlags : std::uint_fast16_t {
   NONE = 0,
 
-  VAR = rq::getBit(0),
-  PARTIAL_VAR = rq::getBit(1),
-  VAR_MASK = VAR | PARTIAL_VAR,
+  NO_VAR = rq::getBit(0),
+  VAR = rq::getBit(1),
+  PARTIAL_VAR = rq::getBit(2),
+  VAR_MASK = NO_VAR | VAR | PARTIAL_VAR,
 
-  VOLATILE = rq::getBit(2),
-  VOLATILE_MASK = VOLATILE,
+  NO_VOLATILE = rq::getBit(3),
+  VOLATILE = rq::getBit(4),
+  VOLATILE_MASK = NO_VOLATILE | VOLATILE,
 
-  ATOMIC = rq::getBit(3),
-  ATOMIC_MASK = ATOMIC,
+  NO_ATOMIC = rq::getBit(5),
+  ATOMIC = rq::getBit(6),
+  ATOMIC_MASK = NO_ATOMIC | ATOMIC,
 
-  NULL_TERMINATE = rq::getBit(4),
-  NULL_TERMINATE_MASK = NULL_TERMINATE,
+  NO_NULL_TERMINATE = rq::getBit(7),
+  NULL_TERMINATE = rq::getBit(8),
+  NULL_TERMINATE_MASK = NO_NULL_TERMINATE | NULL_TERMINATE,
 
-  GREATEST = rq::getBit(5),
-  GREATEST_MASK = GREATEST
+  NO_SIGNEDNESS = rq::getBit(9),
+  UNSIGNED = rq::getBit(10),
+  SIGNED = rq::getBit(11),
+  SIGNEDNESS_MASK = NO_SIGNEDNESS | UNSIGNED | SIGNED,
+
+  NO_SCALING = rq::getBit(12),
+  FAST = rq::getBit(13),
+  LEAST = rq::getBit(14),
+  SCALING_MASK = NO_SCALING | FAST | LEAST
 };
 
 RQ_DEFINE_FLAGS(rq::QualifierFuseFlags);
@@ -3507,27 +3520,35 @@ getFuseFlags(rq::Qualifier modifier) {
   case Q::NONE:
     return QFF::NONE;
   case Q::NO_VAR:
-    return QFF::NONE;
+    return QFF::NO_VAR;
   case Q::VAR:
     return QFF::VAR;
   case Q::PARTIAL_VAR:
     return QFF::PARTIAL_VAR;
   case Q::NO_VOLATILE:
-    return QFF::NONE;
+    return QFF::NO_VOLATILE;
   case Q::VOLATILE:
     return QFF::VOLATILE;
   case Q::NO_ATOMIC:
-    return QFF::NONE;
+    return QFF::NO_ATOMIC;
   case Q::ATOMIC:
     return QFF::ATOMIC;
   case Q::NO_NULL_TERMINATE:
-    return QFF::NONE;
+    return QFF::NO_NULL_TERMINATE;
   case Q::NULL_TERMINATE:
     return QFF::NULL_TERMINATE;
-  case Q::NO_GREATEST:
-    return QFF::NONE;
-  case Q::GREATEST:
-    return QFF::GREATEST;
+  case Q::NO_SIGNEDNESS:
+    return QFF::NO_SIGNEDNESS;
+  case Q::UNSIGNED:
+    return QFF::UNSIGNED;
+  case Q::SIGNED:
+    return QFF::SIGNED;
+  case Q::NO_SCALING:
+    return QFF::NO_SCALING;
+  case Q::FAST:
+    return QFF::FAST;
+  case Q::LEAST:
+    return QFF::LEAST;
   }
   RQ_UNREACHABLE();
 }
@@ -3538,56 +3559,67 @@ enum class QualifierKind : std::uint_fast8_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATE,
-  GREATEST
+  SIGNEDNESS,
+  SCALING
 };
 
 [[nodiscard]] inline llvm::StringRef getDescription(rq::QualifierKind kind) {
   using HAK = rq::QualifierKind;
   switch (kind) {
   case HAK::NONE:
-    return "none";
+    return "no qualifier";
   case HAK::VAR:
-    return "var modifier";
+    return "var qualifier";
   case HAK::VOLATILE:
-    return "volatile modifier";
+    return "volatile qualifier";
   case HAK::ATOMIC:
-    return "atomic modifier";
+    return "atomic qualifier";
   case HAK::NULL_TERMINATE:
-    return "null terminate modifier";
-  case HAK::GREATEST:
-    return "greatest";
+    return "null terminate qualifier";
+  case HAK::SIGNEDNESS:
+    return "signedness qualifier";
+  case HAK::SCALING:
+    return "scaling qualifier";
   }
   RQ_UNREACHABLE();
 }
 
 [[nodiscard]] inline rq::QualifierKind getKind(rq::Qualifier modifier) {
-  using HA = rq::Qualifier;
-  using HAK = rq::QualifierKind;
+  using Q = rq::Qualifier;
+  using QK = rq::QualifierKind;
   switch (modifier) {
-  case HA::NONE:
-    return HAK::NONE;
-  case HA::NO_VAR:
+  case Q::NONE:
+    return QK::NONE;
+  case Q::NO_VAR:
     [[fallthrough]];
-  case HA::VAR:
+  case Q::VAR:
     [[fallthrough]];
-  case HA::PARTIAL_VAR:
-    return HAK::VAR;
-  case HA::NO_VOLATILE:
+  case Q::PARTIAL_VAR:
+    return QK::VAR;
+  case Q::NO_VOLATILE:
     [[fallthrough]];
-  case HA::VOLATILE:
-    return HAK::VOLATILE;
-  case HA::NO_ATOMIC:
+  case Q::VOLATILE:
+    return QK::VOLATILE;
+  case Q::NO_ATOMIC:
     [[fallthrough]];
-  case HA::ATOMIC:
-    return HAK::ATOMIC;
-  case HA::NO_NULL_TERMINATE:
+  case Q::ATOMIC:
+    return QK::ATOMIC;
+  case Q::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case HA::NULL_TERMINATE:
-    return HAK::NULL_TERMINATE;
-  case HA::NO_GREATEST:
+  case Q::NULL_TERMINATE:
+    return QK::NULL_TERMINATE;
+  case Q::NO_SIGNEDNESS:
     [[fallthrough]];
-  case HA::GREATEST:
-    return HAK::GREATEST;
+  case Q::UNSIGNED:
+    [[fallthrough]];
+  case Q::SIGNED:
+    return QK::SIGNEDNESS;
+  case Q::NO_SCALING:
+    [[fallthrough]];
+  case Q::FAST:
+    [[fallthrough]];
+  case Q::LEAST:
+    return QK::SCALING;
   }
   RQ_UNREACHABLE();
 }
@@ -3968,8 +4000,8 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeName() const {
     return rq::getCanBeName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNamespace() const {
-    return rq::getCanBeNamespace(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath() const {
+    return rq::getCanBePath(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

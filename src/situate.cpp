@@ -651,7 +651,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_RETURN:
     [[fallthrough]];
-  case K::BOOLEAN:
+  case K::BOOL:
     [[fallthrough]];
   case K::HALF:
     [[fallthrough]];
@@ -672,26 +672,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::BFLOAT16:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::SIGNED_INTEGER:
-    [[fallthrough]];
-  case K::UNSIGNED_INTEGER:
-    [[fallthrough]];
-  case K::FAST_SIGNED_INTEGER:
-    [[fallthrough]];
-  case K::FAST_UNSIGNED_INTEGER:
-    [[fallthrough]];
-  case K::LEAST_SIGNED_INTEGER:
-    [[fallthrough]];
-  case K::LEAST_UNSIGNED_INTEGER:
+  case K::INT:
     is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::SIGNED_INDEX:
+  case K::SIZE_TYPE:
     [[fallthrough]];
-  case K::UNSIGNED_INDEX:
-    [[fallthrough]];
-  case K::SIGNED_ADDRESS:
-    [[fallthrough]];
-  case K::UNSIGNED_ADDRESS:
+  case K::INDEX_TYPE:
     [[fallthrough]];
   case K::CHAR:
     [[fallthrough]];
@@ -807,7 +793,7 @@ bool Situator::situateTree(rq::Situation situation,
 
   // TABLE GRAPH
   case K::IMPORT:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
   case K::NAMESPACE: {
     is_ok = this->stiuateNameStatement(situation, expression, S::NAMESPACE);
@@ -985,8 +971,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
-  case K::ENSURE: 
-    [[fallthrough]]
+  case K::ENSURE:
+    [[fallthrough]];
   case K::BREAK:
     [[fallthrough]];
   case K::CONTINUE: {
@@ -1029,15 +1015,7 @@ bool Situator::situateTree(rq::Situation situation,
   // MODIFIER TYPES
   case K::MODIFIER:
     [[fallthrough]];
-
-    // QUALIFIER TYPES
-  case K::VAR_QUALIFIER:
-    [[fallthrough]];
-  case K::VOLATILE_QUALIFIER:
-    [[fallthrough]];
-  case K::ATOMIC_QUALIFIER:
-    [[fallthrough]];
-  case K::NULL_TERMINATE_QUALIFIER:
+  case K::QUALIFIER:
     is_ok = this->situateNullary(situation, expression);
     break;
 
@@ -1330,12 +1308,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::IS_CODEUNIT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_QUALIFIER_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_QUALIFIER_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 

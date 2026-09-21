@@ -39,7 +39,7 @@ namespace rq {
   // MODIFIER TYPES
   case S::MODIFIER_TYPE:
     return "ModifierType";
- 
+
   // QUALIFIER TYPES
   case S::VAR_QUALIFIER_TYPE:
     return "VarQualifierType";
@@ -50,7 +50,7 @@ namespace rq {
   case S::NULL_TERMINATE_QUALIFIER_TYPE:
     return "NullTerminateQualifierType";
 
-  // REFLECTIVE TYPES
+  // REFLECTION TYPES
   case S::SYMBOL_TYPE:
     return "SymbolType";
   case S::SYMBOL_RANGE_TYPE:
@@ -209,8 +209,6 @@ namespace rq {
     return "SynonymType";
 
   // SYMBOL TABLES
-  case S::STELLARSCOPE_TABLE:
-    return "StellarscopeTable";
   case S::C_TABLE:
     return "CTable";
   case S::TOP_TABLE:
@@ -360,13 +358,13 @@ getInfoFlags(rq::SymbolKind kind) {
   case S::NULL_TERMINATE_QUALIFIER_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::QUALIFIER_TYPE | SIF::IS_TYPE;
   case S::SYMBOL_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE | SIF::IS_TYPE;
   case S::SYMBOL_RANGE_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE | SIF::IS_TYPE;
   case S::EXPRESSION_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE | SIF::IS_TYPE;
   case S::EXPRESSION_RANGE_TYPE:
-    return SIF::SIMPLE_SYMBOL | SIF::REFLECTIVE_TYPE | SIF::IS_TYPE;
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE | SIF::IS_TYPE;
   case S::BOOLEAN_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_TYPE;
   case S::HALF_TYPE:
@@ -629,7 +627,7 @@ getInfoFlags(rq::SymbolKind kind) {
   case S::LAST:
     break;
   }
-  RQ_UNREACHABLE();
+  return SIF::NONE;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind) {
@@ -658,9 +656,9 @@ getInfoFlags(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::LITERAL);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectiveType(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::REFLECTIVE_TYPE);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::REFLECTION_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind) {
@@ -673,13 +671,7 @@ getInfoFlags(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsFittingPrimitiveType(rq::SymbolKind kind) {
-  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::FITTING_PRIMITIVE_TYPE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsStandardFittingType(rq::SymbolKind kind) {
+getIsStandardPrimitiveType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::STANDARD_PRIMITIVE_TYPE);
 }
@@ -690,9 +682,9 @@ getIsPlatformPrimitiveType(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsQualifierType(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::QUALIFIER_TYPE);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::ATTRIBUTE_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -733,6 +725,11 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::TABLE_MEMBER);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration(rq::SymbolKind kind) {
+  const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::EAGER_DECLARATION);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::POLYMORPH);
@@ -763,8 +760,7 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasAll(flags, rq::SymbolInfoFlags::NAMED_TABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsLazyDeclarataion(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion(rq::SymbolKind kind) {
   const rq::SymbolInfoFlags flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, rq::SymbolInfoFlags::LAZY_DECLARATION);
 }
@@ -908,8 +904,8 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsLiteralType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectiveType() const {
-  return rq::getIsReflectiveType(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsReflectionType() const {
+  return rq::getIsReflectionType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPrimitiveType() const {
@@ -920,16 +916,16 @@ Symbol::getDerivedExpressionPtr() const {
   return rq::getIsFittingPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsStandardFittingType() const {
-  return rq::getIsStandardFittingType(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsStandardPrimitiveType() const {
+  return rq::getIsStandardPrimitiveType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPlatformPrimitiveType() const {
   return rq::getIsPlatformPrimitiveType(this->getKind());
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsQualifierType() const {
-  return rq::getIsQualifierType(this->getKind());
+[[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsAttributeType() const {
+  return rq::getIsAttributeType(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsScaledPrimitiveType() const {
@@ -962,8 +958,7 @@ Symbol::getIsArithmeticSequenceType() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsEagerDeclaration() const {
-  const rq::SymbolInfoFlags flags = this->getInfoFlags();
-  return rq::getHasAll(flags, rq::SymbolInfoFlags::EAGER_DECLARATION);
+  return rq::getIsEagerDeclaration(this->getKind());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool Symbol::getIsPolymorph() const {
@@ -1076,142 +1071,426 @@ Symbol::getIsLazyVariableImplementation() const {
 }
 
 RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
-    : Symbol(kind) {}
+    : Symbol(kind) {
+  RQ_ASSERT(rq::getIsSimpleSymbol(kind), "not simple symbol");
+}
 
 [[nodiscard]] inline bool SimpleSymbol::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  if (!llvm::isa<rq::Symbol>(entity)) {
-    return false;
-  }
-  const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);
-  return symbol.getIsSimpleSymbol();
+  return rq::getIsSimpleSymbol(entity.getUnsafeSymbolKind());
 }
 
-#define RQ_IMPLEMENT_INTERNAL_CLASSOF(CLASS, PARENT, FLAG_GETTER)              \
-  [[nodiscard]] inline bool CLASS::classof(const rq::Entity *entity_ptr) {     \
-    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);                 \
-    if (!llvm::isa<rq::Symbol>(entity)) {                                      \
-      return false;                                                            \
-    }                                                                          \
-    const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);           \
-    return symbol.FLAG_GETTER();                                               \
-  }
+RQ_ALWAYS_INLINE Literal::Literal(rq::SymbolKind kind) : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsLiteralType(kind), "not literal");
+}
 
-#define RQ_IMPLEMENT_LEAF_CLASSOF(CLASS, PARENT, KIND)                         \
-  [[nodiscard]] inline bool CLASS::classof(const rq::Entity *entity_ptr) {     \
-    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);                 \
-    if (!llvm::isa<rq::Symbol>(entity)) {                                      \
-      return false;                                                            \
-    }                                                                          \
-    const rq::Symbol &symbol = llvm::cast<const rq::Symbol>(entity);           \
-    return symbol.getKind() == rq::SymbolKind::KIND;                           \
-  }
+[[nodiscard]] inline bool Literal::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsLiteralType(entity.getUnsafeSymbolKind());
+}
 
-#define RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(CLASS, PARENT, FLAG_GETTER)          \
-  RQ_ALWAYS_INLINE CLASS::CLASS(rq::SymbolKind kind) : PARENT(kind) {          \
-    RQ_ASSERT(rq::FLAG_GETTER(kind), "invalid kind");                          \
-  }                                                                            \
-                                                                               \
-  RQ_IMPLEMENT_INTERNAL_CLASSOF(CLASS, PARENT, FLAG_GETTER)
+RQ_ALWAYS_INLINE IntegerLiteral::IntegerLiteral()
+    : Literal(rq::SymbolKind::INTEGER_LITERAL_TYPE) {}
 
-#define RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CLASS, PARENT, KIND)                   \
-  RQ_ALWAYS_INLINE CLASS::CLASS() : PARENT(rq::SymbolKind::KIND) {}            \
-                                                                               \
-  RQ_IMPLEMENT_LEAF_CLASSOF(CLASS, PARENT, KIND)
+[[nodiscard]] inline bool
+IntegerLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::INTEGER_LITERAL_TYPE);
+}
 
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(Literal, SimpleSymbol, getIsLiteralType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(IntegerLiteral, Literal, INTEGER_LITERAL_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FloatLiteral, Literal, FLOAT_LITERAL_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(StringLiteral, Literal, STRING_LITERAL_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CodeunitLiteral, Literal, CODEUNIT_LITERAL_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(Contextual, SimpleSymbol, getIsContextual)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ContextualType, Contextual,
-                                  getIsContextualType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(InferenceType, ContextualType, INFERENCE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VoidType, ContextualType, VOID_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(NoReturnType, ContextualType, NO_RETURN_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnknownType, ContextualType, UNKNOWN_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ContextualValue, Contextual,
-                                  getIsContextualValue)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnknownValue, ContextualValue, UNKNOWN_VALUE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ValueValue, ContextualValue, VALUE_VALUE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(IndexValue, ContextualValue, INDEX_VALUE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(ReflectiveType, SimpleSymbol,
-                                  getIsReflectiveType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SymbolType, ReflectiveType, SYMBOL_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ExpressionType, ReflectiveType, EXPRESSION_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SymbolRangeType, ReflectiveType,
-                                SYMBOL_RANGE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ExpressionRangeType, ReflectiveType,
-                                EXPRESSION_RANGE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(PrimitiveType, SimpleSymbol,
-                                  getIsPrimitiveType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(FittingPrimitiveType, PrimitiveType,
-                                  getIsFittingPrimitiveType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FastSignedIntegerType, FittingPrimitiveType,
-                                FAST_SIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(FastUnsignedIntegerType, FittingPrimitiveType,
-                                FAST_UNSIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LeastSignedIntegerType, FittingPrimitiveType,
-                                LEAST_SIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(LeastUnsignedIntegerType, FittingPrimitiveType,
-                                LEAST_UNSIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(StandardPrimitiveType, PrimitiveType,
-                                  getIsStandardFittingType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary16Type, StandardPrimitiveType,
-                                BINARY16_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary32Type, StandardPrimitiveType,
-                                BINARY32_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary64Type, StandardPrimitiveType,
-                                BINARY64_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Binary128Type, StandardPrimitiveType,
-                                BINARY128_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BFloat16Type, StandardPrimitiveType,
-                                BFLOAT16_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AsciiType, StandardPrimitiveType, ASCII_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(Utf8Type, StandardPrimitiveType, UTF8_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(PlatformPrimitiveType, PrimitiveType,
-                                  getIsPlatformPrimitiveType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(HalfType, PlatformPrimitiveType, HALF_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SingleType, PlatformPrimitiveType, SINGLE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(DoubleType, PlatformPrimitiveType, DOUBLE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(QuadrupleType, PlatformPrimitiveType,
-                                QUADRUPLE_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(BooleanType, PlatformPrimitiveType,
-                                BOOLEAN_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedIntegerType, PlatformPrimitiveType,
-                                UNSIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedIntegerType, PlatformPrimitiveType,
-                                SIGNED_INTEGER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedIndexType, PlatformPrimitiveType,
-                                UNSIGNED_INDEX_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedIndexType, PlatformPrimitiveType,
-                                SIGNED_INDEX_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(UnsignedAddressType, PlatformPrimitiveType,
-                                UNSIGNED_ADDRESS_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(SignedAddressType, PlatformPrimitiveType,
-                                SIGNED_ADDRESS_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(CharType, PlatformPrimitiveType, CHAR_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT(QualifierType, SimpleSymbol,
-                                  getIsQualifierType)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VarQualifierType, QualifierType,
-                                VAR_QUALIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(VolatileQualifierType, QualifierType,
-                                VOLATILE_QUALIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(AtomicQualifierType, QualifierType,
-                                ATOMIC_QUALIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(NullTerminateQualifierType, QualifierType,
-                                NULL_TERMINATE_QUALIFIER_TYPE)
-RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF(ModifierType, SimpleSymbol,
-                                MODIFIER_TYPE)
+RQ_ALWAYS_INLINE FloatLiteral::FloatLiteral()
+    : Literal(rq::SymbolKind::FLOAT_LITERAL_TYPE) {}
 
-#undef RQ_IMPLEMENT_SIMPLE_SYMBOL_PARENT
-#undef RQ_IMPLEMENT_SIMPLE_SYMBOL_LEAF
+[[nodiscard]] inline bool FloatLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::FLOAT_LITERAL_TYPE);
+}
 
-RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
-                                  rq::ConstantSymbol &child)
-    : Symbol(kind), _child_ptr(&child) {
-  RQ_ASSERT(rq::getIsSubtype(kind), "not subtype");
+RQ_ALWAYS_INLINE StringLiteral::StringLiteral()
+    : Literal(rq::SymbolKind::STRING_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool StringLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::STRING_LITERAL_TYPE);
+}
+
+RQ_ALWAYS_INLINE CodeunitLiteral::CodeunitLiteral()
+    : Literal(rq::SymbolKind::CODEUNIT_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool
+CodeunitLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::CODEUNIT_LITERAL_TYPE);
+}
+
+RQ_ALWAYS_INLINE Contextual::Contextual(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsContextual(kind), "not contextual");
+}
+
+[[nodiscard]] inline bool Contextual::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsContextual(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE ContextualType::ContextualType(rq::SymbolKind kind)
+    : Contextual(kind) {
+  RQ_ASSERT(rq::getIsContextualType(kind), "not contextual type");
+}
+
+[[nodiscard]] inline bool
+ContextualType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsContextualType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE InferenceType::InferenceType()
+    : ContextualType(rq::SymbolKind::INFERENCE_TYPE) {}
+
+[[nodiscard]] inline bool InferenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::INFERENCE_TYPE);
+}
+
+RQ_ALWAYS_INLINE VoidType::VoidType()
+    : ContextualType(rq::SymbolKind::VOID_TYPE) {}
+
+[[nodiscard]] inline bool VoidType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::VOID_TYPE);
+}
+
+RQ_ALWAYS_INLINE NoReturnType::NoReturnType()
+    : ContextualType(rq::SymbolKind::NO_RETURN_TYPE) {}
+
+[[nodiscard]] inline bool NoReturnType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::NO_RETURN_TYPE);
+}
+
+RQ_ALWAYS_INLINE UnknownType::UnknownType()
+    : ContextualType(rq::SymbolKind::UNKNOWN_TYPE) {}
+
+[[nodiscard]] inline bool UnknownType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::UNKNOWN_TYPE);
+}
+
+RQ_ALWAYS_INLINE ContextualValue::ContextualValue(rq::SymbolKind kind)
+    : Contextual(kind) {
+  RQ_ASSERT(rq::getIsContextualValue(kind), "not contextual value");
+}
+
+[[nodiscard]] inline bool
+ContextualValue::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsContextualValue(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE ValueValue::ValueValue()
+    : ContextualValue(rq::SymbolKind::VALUE_VALUE) {}
+
+[[nodiscard]] inline bool ValueValue::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::VALUE_VALUE);
+}
+
+RQ_ALWAYS_INLINE IndexValue::IndexValue()
+    : ContextualValue(rq::SymbolKind::INDEX_VALUE) {}
+
+[[nodiscard]] inline bool IndexValue::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::INDEX_VALUE);
+}
+
+RQ_ALWAYS_INLINE ReflectionType::ReflectionType(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsReflectionType(kind), "not reflection type");
+}
+
+[[nodiscard]] inline bool
+ReflectionType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsReflectionType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE ExpressionType::ExpressionType()
+    : ReflectionType(rq::SymbolKind::EXPRESSION_TYPE) {}
+
+[[nodiscard]] inline bool
+ExpressionType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::EXPRESSION_TYPE);
+}
+
+RQ_ALWAYS_INLINE SymbolRangeType::SymbolRangeType()
+    : ReflectionType(rq::SymbolKind::SYMBOL_RANGE_TYPE) {}
+
+[[nodiscard]] inline bool
+SymbolRangeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SYMBOL_RANGE_TYPE);
+}
+
+RQ_ALWAYS_INLINE ExpressionRangeType::ExpressionRangeType()
+    : ReflectionType(rq::SymbolKind::EXPRESSION_RANGE_TYPE) {}
+
+[[nodiscard]] inline bool
+ExpressionRangeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::EXPRESSION_RANGE_TYPE);
+}
+
+RQ_ALWAYS_INLINE PrimitiveType::PrimitiveType(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsPrimitiveType(kind), "not primitive type");
+}
+
+[[nodiscard]] inline bool PrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsPrimitiveType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE FittingPrimitiveType::FittingPrimitiveType(rq::SymbolKind kind)
+    : PrimitiveType(kind) {
+  RQ_ASSERT(rq::getIsFittingPrimitiveType(kind), "not fitting primitive type");
+}
+
+[[nodiscard]] inline bool
+FittingPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsFittingPrimitiveType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE FastSignedIntegerType::FastSignedIntegerType()
+    : FittingPrimitiveType(rq::SymbolKind::FAST_SIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+FastSignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::FAST_SIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE FastUnsignedIntegerType::FastUnsignedIntegerType()
+    : FittingPrimitiveType(rq::SymbolKind::FAST_UNSIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+FastUnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::FAST_UNSIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE LeastSignedIntegerType::LeastSignedIntegerType()
+    : FittingPrimitiveType(rq::SymbolKind::LEAST_SIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+LeastSignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::LEAST_SIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE LeastUnsignedIntegerType::LeastUnsignedIntegerType()
+    : FittingPrimitiveType(rq::SymbolKind::LEAST_UNSIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+LeastUnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::LEAST_UNSIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE
+StandardPrimitiveType::StandardPrimitiveType(rq::SymbolKind kind)
+    : PrimitiveType(kind) {
+  RQ_ASSERT(rq::getIsStandardPrimitiveType(kind),
+            "not standard primitive type");
+}
+
+[[nodiscard]] inline bool
+StandardPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsStandardPrimitiveType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE Binary16Type::Binary16Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY16_TYPE) {}
+
+[[nodiscard]] inline bool Binary16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BINARY16_TYPE);
+}
+
+RQ_ALWAYS_INLINE Binary32Type::Binary32Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY32_TYPE) {}
+
+[[nodiscard]] inline bool Binary32Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BINARY32_TYPE);
+}
+
+RQ_ALWAYS_INLINE Binary64Type::Binary64Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY64_TYPE) {}
+
+[[nodiscard]] inline bool Binary64Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BINARY64_TYPE);
+}
+
+RQ_ALWAYS_INLINE Binary128Type::Binary128Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY128_TYPE) {}
+
+[[nodiscard]] inline bool Binary128Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BINARY128_TYPE);
+}
+
+RQ_ALWAYS_INLINE BFloat16Type::BFloat16Type()
+    : StandardPrimitiveType(rq::SymbolKind::BFLOAT16_TYPE) {}
+
+[[nodiscard]] inline bool BFloat16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BFLOAT16_TYPE);
+}
+
+RQ_ALWAYS_INLINE AsciiType::AsciiType()
+    : StandardPrimitiveType(rq::SymbolKind::ASCII_TYPE) {}
+
+[[nodiscard]] inline bool AsciiType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::ASCII_TYPE);
+}
+
+RQ_ALWAYS_INLINE Utf8Type::Utf8Type()
+    : StandardPrimitiveType(rq::SymbolKind::UTF8_TYPE) {}
+
+[[nodiscard]] inline bool Utf8Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::UTF8_TYPE);
+}
+
+RQ_ALWAYS_INLINE
+PlatformPrimitiveType::PlatformPrimitiveType(rq::SymbolKind kind)
+    : PrimitiveType(kind) {
+  RQ_ASSERT(rq::getIsPlatformPrimitiveType(kind),
+            "not platform primitive type");
+}
+
+[[nodiscard]] inline bool
+PlatformPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsPlatformPrimitiveType(entity.getUnsafeSymbolKind());
+}
+
+RQ_ALWAYS_INLINE HalfType::HalfType()
+    : PlatformPrimitiveType(rq::SymbolKind::HALF_TYPE) {}
+
+[[nodiscard]] inline bool HalfType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::HALF_TYPE);
+}
+
+RQ_ALWAYS_INLINE SingleType::SingleType()
+    : PlatformPrimitiveType(rq::SymbolKind::SINGLE_TYPE) {}
+
+[[nodiscard]] inline bool SingleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SINGLE_TYPE);
+}
+
+RQ_ALWAYS_INLINE DoubleType::DoubleType()
+    : PlatformPrimitiveType(rq::SymbolKind::DOUBLE_TYPE) {}
+
+[[nodiscard]] inline bool DoubleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::DOUBLE_TYPE);
+}
+
+RQ_ALWAYS_INLINE QuadrupleType::QuadrupleType()
+    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool DoubleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::QUADRUPLE_TYPE);
+}
+
+RQ_ALWAYS_INLINE BooleanType::BooleanType()
+    : PlatformPrimitiveType(rq::SymbolKind::BOOLEAN_TYPE) {}
+
+[[nodiscard]] inline bool BooleanType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::BOOLEAN_TYPE);
+}
+
+RQ_ALWAYS_INLINE UnsignedIntegerType::UnsignedIntegerType()
+    : PlatformPrimitiveType(rq::SymbolKind::UNSIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+UnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::UNSIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE SignedIntegerType::SignedIntegerType()
+    : PlatformPrimitiveType(rq::SymbolKind::SIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+SignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE UnsignedAddressType::UnsignedAddressType()
+    : PlatformPrimitiveType(rq::SymbolKind::UNSIGNED_INTEGER_TYPE) {}
+
+[[nodiscard]] inline bool
+UnsignedAddressType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getSymbolId(rq::SymbolKind::UNSIGNED_INTEGER_TYPE);
+}
+
+RQ_ALWAYS_INLINE SignedAddressType::SignedAddressType()
+    : PlatformPrimitiveType(rq::SymbolKind::SIGNED_ADDRESS_TYPE) {}
+
+[[nodiscard]] inline bool
+SignedAddressType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SIGNED_ADDRESS_TYPE);
+}
+
+RQ_ALWAYS_INLINE CharType::CharType()
+    : PlatformPrimitiveType(rq::SymbolKind::CHAR_TYPE) {}
+
+[[nodiscard]] inline bool CharType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::CHAR_TYPE);
+}
+
+RQ_ALWAYS_INLINE QualifierType::QualifierType(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsAttributeType(kind), "not qualifier type");
+}
+
+[[nodiscard]] inline bool QualifierType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsAttributeType(entity.getUnsafeSymbolKind());
+}
+
+// TODO
+
+RQ_ALWAYS_INLINE SymbolType::SymbolType()
+    : ReflectionType(rq::SymbolKind::SYMBOL_TYPE) {}
+
+[[nodiscard]] inline bool SymbolType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SYMBOL_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
@@ -1223,8 +1502,6 @@ Subtype::getChild() const {
   return rq::dereferencePtr(this->_child_ptr);
 }
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(Subtype, Symbol, getIsSubtype)
-
 RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(std::size_t count,
                                             rq::ConstantSymbol &child)
     : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(count) {}
@@ -1232,8 +1509,6 @@ RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(std::size_t count,
 [[nodiscard]] RQ_ALWAYS_INLINE std::size_t ArraySubtype::getCount() const {
   return this->_count;
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(ArraySubtype, Subtype, ARRAY_SUBTYPE)
 
 inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
   return rq::profileArraySubtype(inout_id, this->getChild(), this->getCount());
@@ -1250,8 +1525,6 @@ RQ_ALWAYS_INLINE SimpleSubtype::SimpleSubtype(rq::SymbolKind kind,
                                               rq::ConstantSymbol &child)
     : Subtype(kind, child) {}
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(SimpleSubtype, Subtype, getIsSimpleSubtype)
-
 inline void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileSimpleSubtype(inout_id, this->getKind(), this->getChild());
 }
@@ -1267,87 +1540,63 @@ RQ_ALWAYS_INLINE void profileSimpleSubtype(llvm::FoldingSetNodeID &inout_id,
 RQ_ALWAYS_INLINE ReferenceSubtype::ReferenceSubtype(rq::ConstantSymbol &child)
     : SimpleSubtype(rq::SymbolKind::REFERENCE_SUBTYPE, child) {}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(ReferenceSubtype, SimpleSubtype, REFERENCE_SUBTYPE)
-
 RQ_ALWAYS_INLINE PointerSubtype::PointerSubtype(rq::ConstantSymbol &child)
     : SimpleSubtype(rq::SymbolKind::POINTER_SUBTYPE, child) {}
-
-RQ_IMPLEMENT_LEAF_CLASSOF(PointerSubtype, SimpleSubtype, POINTER_SUBTYPE)
 
 RQ_ALWAYS_INLINE InferenceCountArraySubtype::InferenceCountArraySubtype(
     rq::ConstantSymbol &child)
     : SimpleSubtype(rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child) {}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(InferenceCountArraySubtype, SimpleSubtype,
-                          INFERENCE_COUNT_ARRAY_SUBTYPE)
-
 RQ_ALWAYS_INLINE SliceSubtype::SliceSubtype(rq::ConstantSymbol &child)
     : SimpleSubtype(rq::SymbolKind::SLICE_SUBTYPE, child) {}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(SliceSubtype, SimpleSubtype, SLICE_SUBTYPE)
+RQ_ALWAYS_INLINE IntegerType::IntegerType(rq::SymbolKind kind, unsigned scale,
+                                          std::uint64_t synonym_id)
+    : Symbol(kind), _scale(scale), _synonym_id(synonym_id) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ScaleKind kind) {
-  using SK = rq::ScaleKind;
-  switch (kind) {
-  case SK::EXACT:
-    return "exact";
-  case SK::FAST:
-    return "fast";
-  case SK::LEAST:
-    return "least";
-  default:
-    break;
-  }
-  RQ_UNREACHABLE();
+[[nodiscard]] RQ_ALWAYS_INLINE bool IntegerType::getIsSizeScaled() const {
+  return this->_scale == rq::IntegerType::SIZE_SCALE;
 }
 
-RQ_ALWAYS_INLINE ScaledPrimitiveType::ScaledPrimitiveType(
-    rq::SymbolKind kind, rq::ScaleKind scale_kind, unsigned scale,
-    std::uint64_t synonym_id)
-    : Symbol(kind), _scale_kind(scale_kind), _scale(scale),
-      _synonym_id(synonym_id) {
-  RQ_ASSERT(rq::getIsScaledPrimitiveType(kind), "not scaled primitive type");
+[[nodiscard]] RQ_ALWAYS_INLINE bool IntegerType::getIsIndexScaled() const {
+  return this->_scale == rq::IntegerType::INDEX_SCALE;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ScaleKind
-ScaledPrimitiveType::getScaleKind() const {
-  return this->_scale_kind;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE unsigned ScaledPrimitiveType::getScale() const {
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned IntegerType::getScale() const {
   return this->_scale;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE unsigned
-ScaledPrimitiveType::getSynonymId() const {
+[[nodiscard]] RQ_ALWAYS_INLINE unsigned IntegerType::getSynonymId() const {
   return this->_synonym_id;
 }
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(ScaledPrimitiveType, Symbol,
-                              getIsScaledPrimitiveType)
-
-inline void
-ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  rq::profileScaledPrimitiveType(inout_id, this->getKind(),
-                                 this->getScaleKind(), this->getScale(),
-                                 this->getSynonymId());
+[[nodiscard]] inline bool IntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsIntegerType(entity.getUnsafeSymbolKind());
 }
 
-RQ_ALWAYS_INLINE void
-profileScaledPrimitiveType(llvm::FoldingSetNodeID &inout_id,
-                           rq::SymbolKind kind, rq::ScaleKind scale_kind,
-                           unsigned scale, unsigned synonym_id) {
+inline void IntegerType::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileIntegerType(inout_id, this->getKind(), this->getScale(),
+                         this->getSynonymId());
+}
+
+RQ_ALWAYS_INLINE void profileIntegerType(llvm::FoldingSetNodeID &inout_id,
+                                         rq::SymbolKind kind, unsigned scale,
+                                         unsigned synonym_id) {
   inout_id.AddInteger(rq::getUnderlyingValue(kind));
-  inout_id.AddInteger(rq::getUnderlyingValue(scale_kind));
   inout_id.AddInteger(scale);
-  inout_id.AddInteger(synonym_id);
+  inout_id.AddInteger(scale);
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(ScaledUnsignedIntegerType, ScaledPrimitiveType,
-                          SCALED_UNSIGNED_INTEGER_TYPE)
+[[nodiscard]] inline bool SignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::SIGNED_INTEGER_TYPE);
+}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(ScaledSignedIntegerType, ScaledPrimitiveType,
-                          SCALED_SIGNED_INTEGER_TYPE)
+[[nodiscard]] inline bool UnsignedIntegerType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getSymbolId(rq::SymbolKind::UNSIGNED_INTEGER_TYPE);
+}
 
 RQ_ALWAYS_INLINE Adaption::Adaption(rq::InterfaceImplementation &interface,
                                     rq::AdapterImplementation &adapter)
@@ -1373,8 +1622,6 @@ Adaption::getAdapter() const {
 Adaption::getAdapter() {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(Adaption, Symbol, ADAPTION);
 
 inline void Adaption::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileAdaption(inout_id, this->getInterface(), this->getAdapter());
@@ -1412,8 +1659,6 @@ Conformity::getAdapter() {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(Conformity, Symbol, CONFORMITY)
-
 inline void Conformity::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileConformity(inout_id, this->getInterface(), this->getAdapter());
 }
@@ -1439,8 +1684,6 @@ JuxtListItem::getType() const {
   return rq::dereferencePtr(this->_type_ptr);
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(JuxtListItem, Symbol, JUXT_LIST_ITEM)
-
 inline void JuxtListItem::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileJuxtListItem(inout_id, this->_next_ptr, this->getType());
 }
@@ -1456,8 +1699,6 @@ JuxtListType::getFirst() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::JuxtListItem &JuxtListType::getFirst() {
   return rq::dereferencePtr(this->_first_ptr);
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(JuxtListType, Symbol, JUXT_LIST_TYPE);
 
 inline void JuxtListType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileJuxtListType(inout_id, this->_first_ptr);
@@ -1478,8 +1719,6 @@ RQ_ALWAYS_INLINE SynonymType::SynonymType(rq::Symbol &original)
 [[nodiscard]] rq::Symbol &SynonymType::getOriginal() {
   return rq::dereferencePtr(this->_original_ptr);
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(SynonymType, Symbol, SYNONYM_TYPE)
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
   using MK = rq::ModuleKind;
@@ -1574,8 +1813,6 @@ void Module::addImport(rq::Import &import) {
   this->_first_ptr = &import;
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(Module, Symbol, MODULE)
-
 RQ_ALWAYS_INLINE
 ArithmeticSequenceType::ArithmeticSequenceType(
     rq::SymbolKind kind, rq::ConstantSymbol &child,
@@ -1605,9 +1842,6 @@ ArithmeticSequenceType::getStep() const {
   return this->_step;
 }
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(ArithmeticSequenceType, Symbol,
-                              getIsArithmeticSequenceType)
-
 inline void
 ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileArithmeticSequenceType(inout_id, this->getChild(),
@@ -1621,16 +1855,6 @@ RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
   inout_id.AddInteger(rq::getUnderlyingValue(condition));
   inout_id.AddInteger(rq::getUnderlyingValue(step));
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(ArithmeticIntervalType, ArithmeticSequenceType,
-                          ARITHMETIC_INTERVAL_TYPE)
-
-RQ_IMPLEMENT_LEAF_CLASSOF(InfiniteArithmeticSequenceType,
-                          ArithmeticSequenceType,
-                          INFINITE_ARITHMETIC_SEQUENCE_TYPE)
-
-RQ_IMPLEMENT_LEAF_CLASSOF(FiniteArithmeticSequenceType, ArithmeticSequenceType,
-                          FINITE_ARITHMETIC_SEQUENCE_TYPE);
 
 RQ_ALWAYS_INLINE Import::Import() : Symbol(rq::SymbolKind::IMPORT) {}
 
@@ -1682,8 +1906,6 @@ RQ_ALWAYS_INLINE void Import::setModule(rq::Module &module) {
 
 [[nodiscard]] rq::Module *Import::getModulePtr() { return this->_module_ptr; }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(Import, Symbol, IMPORT)
-
 RQ_ALWAYS_INLINE
 SpecializationSetArgument::SpecializationSetArgument(
     rq::Name name, rq::Entity &value, rq::SpecializationSetArgument *next_ptr)
@@ -1705,9 +1927,6 @@ SpecializationSetArgument::getValue() {
   return rq::dereferencePtr(this->_value_ptr);
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(SpecializationSetArgument, Symbol,
-                          SPECIALIZATION_SET_ARGUMENT);
-
 inline void
 SpecializationSetArgument::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileSpecializationSetArgument(inout_id, this->getName(),
@@ -1722,12 +1941,6 @@ profileSpecializationSetArgument(llvm::FoldingSetNodeID &inout_id,
   inout_id.AddPointer(&value);
   inout_id.AddPointer(next_ptr);
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(FunctionSpecializationSet, SpecializationSet,
-                          FUNCTION_SPECIALIZATION_SET)
-
-RQ_IMPLEMENT_LEAF_CLASSOF(AdapterSpecializationSet, SpecializationSet,
-                          ADAPTER_SPECIALIZATION_SET)
 
 RQ_ALWAYS_INLINE
 ParameterDetail::ParameterDetail(rq::Name name, rq::ConstantSymbol &type,
@@ -1810,8 +2023,6 @@ Parameter::getDefaultPtr() const {
   return this->_default_ptr;
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(Parameter, Symbol, PARAMETER)
-
 inline void Parameter::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileParameter(inout_id, this->getKind(), this->_next_ptr,
                        this->getName(), this->getType(),
@@ -1852,8 +2063,6 @@ RQ_ALWAYS_INLINE
 CompositionComponent::CompositionComponent(rq::CompositionComponent *next_ptr)
     : Symbol(rq::SymbolKind::COMPOSITION_COMPONENT), _next_ptr(next_ptr) {}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(CompositionComponent, Symbol, COMPOSITION_COMPONENT);
-
 inline void
 CompositionComponent::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileCompositionComponent(inout_id, this->_next_ptr);
@@ -1868,8 +2077,6 @@ profileCompositionComponent(llvm::FoldingSetNodeID &inout_id,
 RQ_ALWAYS_INLINE
 CompositionType::CompositionType(rq::CompositionComponent *first_ptr)
     : Symbol(rq::SymbolKind::COMPOSITION_TYPE), _first_ptr(first_ptr) {}
-
-RQ_IMPLEMENT_LEAF_CLASSOF(CompositionType, Symbol, COMPOSITION_TYPE)
 
 inline void CompositionType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileCompositionType(inout_id, this->_first_ptr);
@@ -1963,8 +2170,6 @@ ParameterList::getParameterSubrange() {
       rq::NextIterator<rq::Parameter>(nullptr));
 }
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(ParameterList, Symbol, getIsParameterList)
-
 RQ_ALWAYS_INLINE
 SignatureType::SignatureType(rq::Parameter *first_parameter_ptr,
                              rq::ConstantSymbol &return_type)
@@ -1981,8 +2186,6 @@ SignatureType::getReturnType() {
   return rq::dereferencePtr(this->_return_type_ptr);
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(SignatureType, ParameterList, SIGNATURE_TYPE)
-
 inline void SignatureType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileSignatureType(inout_id, this->_first_ptr, this->getReturnType());
 }
@@ -1998,8 +2201,6 @@ profileSignatureType(llvm::FoldingSetNodeID &inout_id,
 RQ_ALWAYS_INLINE LayoutType::LayoutType(rq::Parameter *first_parameter_ptr)
     : ParameterList(rq::SymbolKind::LAYOUT_TYPE, first_parameter_ptr) {}
 
-RQ_IMPLEMENT_LEAF_CLASSOF(LayoutType, ParameterList, LAYOUT_TYPE)
-
 inline void LayoutType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   rq::profileLayoutType(inout_id, this->_first_ptr);
 }
@@ -2013,8 +2214,6 @@ profileLayoutType(llvm::FoldingSetNodeID &inout_id,
 RQ_ALWAYS_INLINE
 PlacementType::PlacementType(rq::FunctionImplementation &function)
     : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _function_ptr(&function) {}
-
-RQ_IMPLEMENT_LEAF_CLASSOF(PlacementType, Symbol, PLACEMENT_TYPE)
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::FunctionImplementation &
 PlacementType::getFunction() const {
@@ -2075,8 +2274,6 @@ WeightLevel::getConstTemplateSubrange() const {
       rq::ConstNextIterator<rq::Template>(nullptr));
 }
 
-RQ_IMPLEMENT_INTERNAL_CLASSOF(WeightLevel, Symbol, getIsWeightLevel)
-
 RQ_ALWAYS_INLINE InterfaceWeightLevel::InterfaceWeightLevel(unsigned weight)
     : WeightLevel(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL, weight) {}
 
@@ -2126,9 +2323,6 @@ InterfaceWeightLevel::addInterfaceTemplate(rq::InterfaceTemplate &template_) {
           this->_first_ptr),
       rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>(nullptr));
 }
-
-RQ_IMPLEMENT_LEAF_CLASSOF(InterfaceWeightLevel, WeightLevel,
-                          INTERFACE_WEIGHT_LEVEL)
 
 RQ_ALWAYS_INLINE FunctionWeightLevel::FunctionWeightLevel(unsigned weight)
     : WeightLevel(rq::SymbolKind::FUNCTION_WEIGHT_LEVEL, weight) {}
@@ -2180,9 +2374,6 @@ FunctionWeightLevel::addFunctionTemplate(rq::FunctionTemplate &template_) {
       rq::ConstNextIterator<rq::Template, rq::FunctionTemplate>(nullptr));
 }
 
-RQ_IMPLEMENT_LEAF_CLASSOF(FunctionWeightLevel, WeightLevel,
-                          FUNCTION_WEIGHT_LEVEL)
-
 RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
   RQ_ASSERT(rq::getIsPolymorph(kind), "not kind");
 }
@@ -2228,8 +2419,6 @@ Polymorph::getConstWeightLevelSubrange() const {
       rq::ConstNextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
       rq::ConstNextIterator<rq::WeightLevel>(nullptr));
 }
-
-RQ_IMPLEMENT_INTERNAL_CLASSOF(Polymorph, Symbol, getIsPolymorph)
 
 RQ_ALWAYS_INLINE ClassPolymorph::ClassPolymorph(rq::SymbolKind kind)
     : Polymorph(kind) {}
@@ -2466,10 +2655,10 @@ RQ_ALWAYS_INLINE void LazyVariablePolymorph::addLazyVariableOverload(
 [[nodiscard]] RQ_ALWAYS_INLINE
     rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
     LazyVariablePolymorph::getLazyVariableOverloadSubrange() {
-  return {rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
-              this->_first_overload_ptr),
-          rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
-              nullptr)};
+  return {
+      rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -2499,10 +2688,10 @@ RQ_ALWAYS_INLINE void LazyVariablePolymorph::addLazyVariableWeightLevel(
 [[nodiscard]] RQ_ALWAYS_INLINE
     rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
     LazyVariablePolymorph::getLazyVariableWeightLevelSubrange() {
-  return {rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
-              this->_first_weight_level_ptr),
-          rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
-              nullptr)};
+  return {
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(nullptr)};
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -2683,6 +2872,48 @@ RQ_ALWAYS_INLINE void FunctionPolymorph::addFunctionWeightLevel(
          rq::SymbolKind::FUNCTION_POLYMORPH;
 }
 
-#undef RQ_IMPLEMENT_INTERNAL_CLASSOF
-#undef RQ_IMPLEMENT_LEAF_CLASSOF
+RQ_ALWAYS_INLINE TableMember::TableMember(rq::SymbolKind kind) : Symbol(kind) {
+  RQ_ASSERT(rq::getIsTableMember(kind), "not table member");
+}
+
+RQ_ALWAYS_INLINE void TableMember::setContainer(rq::SymbolTable &container) {
+  this->_container_ptr = &container;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *TableMember::getContainerPtr() {
+  return this->_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+TableMember::getContainerPtr() const {
+  return this->_container_ptr;
+}
+
+RQ_ALWAYS_INLINE EagerDeclaration::EagerDeclaration(rq::SymbolKind kind)
+    : TableMember(kind) {
+  RQ_ASSERT(rq::getIsEagerDeclaration(kind), "not eager declaration");
+}
+
+RQ_ALWAYS_INLINE void EagerDeclaration::setName(rq::Name name) {
+  RQ_ASSERT(this->getName().getIsEmpty(), "name already set");
+  RQ_ASSERT(!name.getIsEmpty(), "name empty");
+  this->_name = name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name EagerDeclaration::getName() const {
+  return this->_name;
+}
+
+RQ_ALWAYS_INLINE void EagerDeclaration::setHost(rq::SymbolTable &host) {
+  rq::assignSingleValue(this->_host_ptr, &host);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *EagerDeclaration::getHostPtr() {
+  return this->_host_ptr;
+}
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+EagerDeclaration::getHostPtr() const {
+  return this->_host_ptr;
+}
+
 } // namespace rq
