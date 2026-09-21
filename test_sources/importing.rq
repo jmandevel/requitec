@@ -1,10 +1,10 @@
 // see exporting.rq for what is being imported
 
-[import "exporting", // notice there is no .rq file extension
-    // you have to list all things you want to import explicitly
+[import "exporting",  // notice there is no .rq file extension
+    // list out the things from imported files want to use in this file
     MyNamespace,
     std
-]; 
+];
 
 [main ()Int,
     // notice the dots in front. things that are imported need to start with a double dot!

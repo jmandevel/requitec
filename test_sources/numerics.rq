@@ -1,4 +1,4 @@
-[main ()si,
+[main ()Int,
     // specify type in binding
     var0 : Int32 =0;
 

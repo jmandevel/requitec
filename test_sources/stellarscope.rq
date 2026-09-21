@@ -70,8 +70,8 @@
     export [_sneaky_macro_value Ascii, [Ascii]];
     export [_sneaky_macro_value Utf8, [Utf8]];
     export [_sneaky_macro_value VariadicArguments, [VariadicArguments]];
-    export [_sneaky_macro_value C, [C]];
-    export [_sneaky_macro_value Top, [Top]];
+    export [_sneaky_macro_value c, [C]];
+    export [_sneaky_macro_value top, [Top]];
     export [_sneaky_macro_statement debug_break, [debug_break]];
     export [_sneaky_macro_statement unreachable, [unreachable]];
     export [_sneaky_macro_value no_modifier, [no_modifier]];

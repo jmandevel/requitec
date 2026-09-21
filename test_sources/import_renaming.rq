@@ -1,6 +1,10 @@
-[import "std", output=std.print];
+[import "std", lib=std];
+
+[namespace std,
+    compile_time TEXT := "Hello, world!";
+];
 
 [main ()Int,
-    output(line="Hello, world!");
+    lib.print(line=std.TEXT);
     [result] <:= 0;
 ];

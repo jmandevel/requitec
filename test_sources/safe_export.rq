@@ -5,6 +5,7 @@ export compile_time false := true;
 [namespace A,
     // same issue, but its in a namespace...
     export compile_time true := false;
+    export compile_time false := true;
 ];
 
 // look at safe_import.rq to see how issues with this are avoided
