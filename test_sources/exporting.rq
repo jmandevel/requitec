@@ -1,10 +1,10 @@
 // see this stuff imported in importing.rq
 
-[namespace MyNamespace,
+[table my_stuff,
     export
     [function printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
 ];
 
-export [import "std"];
+[import "std", export std];

@@ -1,29 +1,29 @@
-[main ()Int,
+[main ()SInt,
     // specify type in binding
-    var0 : Int32 =0;
+    var0 : SInt32 =0;
 
     // can also cast literal using .[as]
     // binding type is inferred from the rvalue
-    var1 := 0.[as Int32];
+    var1 := 0.[as SInt32];
 
     // if no type is specified, integer literal is infered to Int. size is dependent on platform.
     var2 := 0;
 
     // for unsigned integers at least 32 bits in size:
-    // exact is unsigned\Int32
-    // fastest is fast\unsigned\Int32
-    // min bits with regsiter size on platform is least\unsigned\Int32
-    var3 : unsigned\Int32 =0;
-    var4 : fast\unsigned\Int32 =0;
-    var5 : least\unsigned\Int32 =0;
+    // exact is UInt32
+    // fastest is FUInt32
+    // min bits with regsiter size on platform is LUInt32
+    var3 : UInt32 =0;
+    var4 : FUInt32 =0;
+    var5 : FUInt32 =0;
 
     // special sizes:
-    // signed\Size and unsigned\Size for memory address sized integers
-    // signed\Index and unsigned\Index for address index sized integers
-    var6 : signed\Size =0;
-    var7 : unsigned\Size =0;
-    var8 : signed\Index =0;
-    var9 : unsigned\Index =0;
+    // signed\Size and USize for memory address sized integers
+    // signed\Index and UIndex for address index sized integers
+    var6 : SSize =0;
+    var7 : USize =0;
+    var8 : UIndex =0;
+    var9 : UIndex =0;
 
     // there are platform-changing float types:
     // Half Single Double Quadruple
@@ -33,21 +33,21 @@
     var13 : Quadruple =0;
 
     // you can use specific floating point formats instead:
-    // Binary16 Binary32 Binary64 Binary128 Bfloat16
+    // Binary16 Binary32 Binary64 Binary128 BFloat16
     var14 : Binary16 =0;
     var16 : Binary32 =0;
     var17 : Binary64 =0;
     var18 : Binary128 =0;
-    var19 : Bfloat16 =0;
+    var19 : BFloat16 =0;
 
     // integers can be written with any base from 2 to 64
     // bases above 35 are case sensitive
-    var20 : unsigned\Int64 =2x101;
-    var21 : unsigned\Int64 =16xDeadBeef;
-    var22 : unsigned\Int512 =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
+    var20 : UInt64 =2x101;
+    var21 : UInt64 =16xDeadBeef;
+    var22 : UInt512 =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
 
     // underscores in integers are ignored
-    var23 : unsigned\Int128 =16xBeef_Babe;
+    var23 : UInt128 =16xBeef_Babe;
 
     // floats can be written with decimal
     var24 :=3.14; // type is Single, which depends on platform

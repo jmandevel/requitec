@@ -8,8 +8,8 @@ ensure::([result] >= 0)
     [result] <:= square;
 ];
 
-[main ()Int,
-    a := divideSquare{Int}(6, 2);
+[main ()SInt,
+    a := divideSquare{SInt}(6, 2);
     
     [result] <:= 0;
 ];

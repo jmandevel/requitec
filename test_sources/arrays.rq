@@ -1,7 +1,7 @@
-[import "std"];
+[import "std", std];
 
-[main ()Int,
-    my_array : var\ = [array 0, 1, 2, 3, 4].[of least\Int64];
+[main ()SInt,
+    my_array : var\ = [array 0, 1, 2, 3, 4].[of LSInt64];
     const_slice := my_array.[slice];
     
     std.print(line=

@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [function printMe, 
     (|
@@ -12,7 +12,7 @@
         " column: " +> column);
 ];
 
-[main ()Int,
+[main ()SInt,
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();

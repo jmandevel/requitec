@@ -6,7 +6,7 @@ opaque mangle::myForwardedAdd
     [result] <:= a + b;
 ];
 
-[main ()Int,
+[main ()SInt,
     std.print(
         "the [result] is " +>
         myForwardedAdd(

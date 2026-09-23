@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[main (>args:@@Char<)Int,
+[main (>args:@@Char<)SInt,
     [if args.[element_count] == 0,
         [result] <:= 5;
     ][else 
@@ -8,7 +8,7 @@
     ];
 ];
 
-[function doMath, (>int:Int<)Int,
+[function doMath, (>int:SInt<)SInt,
 
     other_int :var\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 
@@ -21,7 +21,7 @@
     // upbinding to variable in loops is not allowed because this counts as multiple paths.
     // (maybe can allow variables without destructors to be upbound in loops somehow...)
 
-    [fold var:Int,
+    [fold var:SInt,
         [if int < 7,
             var <:= 7;
         ][else_if int > 9,

@@ -23,7 +23,7 @@ constraint::Element.[is_type]
     ];
 ];
 
-[main ()Int,
+[main ()SInt,
 
     // using explicit parameter and layout constructor
     var0 := Vector4{Single}(0, 1, 2, 3);

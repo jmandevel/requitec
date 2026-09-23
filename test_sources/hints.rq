@@ -1,4 +1,4 @@
-[main ()Int,
+[main ()SInt,
     // tell debugger to break here.
     debug_break;
 

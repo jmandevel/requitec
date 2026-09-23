@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[main ()Int,
+[main ()SInt,
     std.print(line="Hello, world!");
 
     [result] <:= 0;

@@ -1,5 +1,5 @@
-[main ()Int,
-    static i32 := Int32;
+[main ()SInt,
+    static i32 := SInt32;
     static other_i32 := i32.[synonym];
 
     var0 :i32= 30;

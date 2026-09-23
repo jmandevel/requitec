@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 [interface ISpeak,
     // this function is virtual so can be overriden by adapters
@@ -65,7 +65,7 @@
     ];
 ];
 
-[main ()Int,
+[main ()SInt,
     dog := Dog();
     cat := Cat();
     rat := Rat();

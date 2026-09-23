@@ -1,18 +1,18 @@
-[import "std"];
+[import "std", std];
 
 [class MyClass, 
 
 
-    {> public var:Int },
+    {> public var:SInt },
 
     public [layout_constructor];
 
-    public[constructor {> a:Int, b:Int <},
+    public[constructor {> a:SInt, b:SInt <},
         [result] <:= MyClass.[init a + b];
     ];
 ];
 
-[main ()Int,
+[main ()SInt,
     // create stack
     my_stack :var\= std.StackList{MyClass}();
     

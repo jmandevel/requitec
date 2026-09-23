@@ -1,7 +1,7 @@
 
-[namespace example,
-    template::{> Type:type, LENGTH:unsigned\Size <}
-    [function getElementCount, ()unsigned\Size=>$LENGTH#Type,
+[table example,
+    template::{> Type:type, LENGTH:USize <}
+    [function getElementCount, ()USize=>$LENGTH#Type,
         [result] <:= LENGTH;
     ];
 
@@ -13,7 +13,7 @@
 ];
 
 [main ()Int,
-    my_array :5#fast\Int= [array 0, 1, 2, 3, 4].[of fast\Int32];
+    my_array :5#FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
     // call extension function
     my_array.[borrow]->example.getElementCount().[ignore];

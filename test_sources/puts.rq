@@ -1,8 +1,8 @@
 opaque mangle::puts
 [function [noname], (>str:?no_var\Char<)Void];
 
-[main ()Int,
-    c.puts("hello, world\n".[of char].[data_address]);
+[main ()SInt,
+    C.puts("hello, world\n".[of char].[data_address]);
 
     [result] <:= 0;
 ];

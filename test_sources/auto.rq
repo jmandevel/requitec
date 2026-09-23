@@ -11,10 +11,10 @@ constraint::Type.[is_type]
     [result] <:= a + b;
 ];
 
-[main ()Int,
-    var0 :Int = add(1, 2); // Type is [signed_integer]
+[main ()SInt,
+    var0 :SInt = add(1, 2); // Type is SInt
 
-    var1 := add(1.[as double], 2.[as double]); // Type is Double
+    var1 := add(1.[as Double], 2.[as Double]); // Type is Double
 
     var2 := add(1, 2); // Type is [signed_integer]
 

@@ -1,4 +1,4 @@
-[main ()Int,
+[main ()SInt,
     // an array and its elements share variability
     arr :var\= [array 0, 1, 2, 3];
     arr.var\[borrow].[at 1] = 2;

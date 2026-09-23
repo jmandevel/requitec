@@ -7,7 +7,7 @@
 compile_time VAR := 0;
 
 [main 
-    static Return := si;
+    static Return := SInt;
     ()Return,
 
     [result] :var\= 0; 

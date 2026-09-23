@@ -1,4 +1,4 @@
-[main ()Int,
+[main ()SInt,
     // high and modifiers are compile time values
 
     static modifier := static;
@@ -22,7 +22,7 @@
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
     public template::{| auto var0:Qualifier }
     constraint:var0.[is_var_qualifier]
-    [function getNumRef, ()$var0\Int=>$var0\,
+    [function getNumRef, ()$var0\SInt=>$var0\,
         [result] <:var0\= this.num.[borrow];
     ];
 

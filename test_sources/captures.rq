@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 // requite common declarations are lazily evaluated.
 // first time they are seen, they are surveyed:
@@ -15,7 +15,7 @@ static val = 1;
 common capture::{ num:=val }
 COMMON_NUMBER := [capture].num;
 
-[main ()Int,
+[main ()SInt,
     std.print(line=COMMON_NUMBER);
     [result] <:= 0;
 ];

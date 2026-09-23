@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[main ()Int,
+[main ()SInt,
 
     // all of these loops are equivalent
 
@@ -23,7 +23,7 @@
 
     [scope
         // while loop    
-        value : var\ = 0.[as fsi32];
+        value : var\ = 0;
         [while value < 10,
             std.print(line="value is " +> value);   
             value = value + 1;

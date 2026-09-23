@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[main ()Int,
+[main ()SInt,
     [result] <:var\=0;
 
     anchor::MyWhile
@@ -30,12 +30,12 @@
         ];    
 
     anchor::F
-    [fold folded:Int,
+    [fold folded:SInt,
             var := 0;
             [if true,
                 return; // if folded not set, must break from outer scope too.
             ];
-            folded <:var\= var + 1;
+            folded <: var\ = var + 1;
             folded = 2; // note that within the fold, folded is var, but outside the fold its [no_var].
             // (folded cannot be mutated after the fold ends)
             [if true,

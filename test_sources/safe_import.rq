@@ -2,16 +2,16 @@
 // importing false will import the single symbol false.
 // importing namespace A will import everything in namespace A that was exported.
 
-[import "safe_export"];
+[import "safe_export", A];
 
-[main ()Int,
+[main ()SInt,
     // things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;
     [result] <:= 0;
 ];
 
-[namespace A,
+[table A,
     [function getBool, ()Bool,
         // lazy symbols in same namespace have to be specified with whole path!
 

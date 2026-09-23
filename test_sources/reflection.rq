@@ -6,9 +6,9 @@
 
 // templates refeer to declarations with template modifiers
 
-template::{> NUM:Int <}
+template::{> NUM:SInt <}
 weight::3
-[function getNum, ()Int,
+[function getNum, ()SInt,
     [result] <:= NUM;
 ];
 
@@ -16,11 +16,11 @@ weight::3
 
 // declarations without a template modifier are attached directly to the polymorph
 
-[function getNum, ()Int,
+[function getNum, ()SInt,
     [result] <:= 0;
 ];
 
-[function getNum, (> num:Int <)Int,
+[function getNum, (> num:SInt <)SInt,
     [result] <:= num;
 ];
 
@@ -28,13 +28,13 @@ weight::3
 compile_time poly := getNum.[reflect];
 
 // get overload with no args.
-compile_time noArgs := getNum.[reflect].[resolve_function ()Int];
+compile_time noArgs := getNum.[reflect].[resolve_function ()SInt];
 
 // get overload from variable containing polymorph
-compile_time noArgs1 := poly.[resolve_function ()Int];
+compile_time noArgs1 := poly.[resolve_function ()SInt];
 
 // get specialization with signature and given template args
-compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_function ()Int];
+compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_function ()SInt];
 
 // loop over all template specializations of polymorph
 static

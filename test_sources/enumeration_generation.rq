@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[enum Fruit, fast\unsigned\Int32,
+[enum Fruit, FUInt32,
 	anchor::A
 	static [for 0.<100, num:=value,
 		static name := std.format(text= "MY_FRUIT" +> num);
@@ -8,9 +8,9 @@
 	];
 ];
 
-[main ()Int,
+[main ()SInt,
 	my_fruit := Fruit.MY_FRUIT42;
 	
-	[result] <:= my_fruit.[underlying_value].[cast Int32];
+	[result] <:= my_fruit.[underlying_value].[cast SInt32];
 ];
 

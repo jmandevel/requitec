@@ -1,13 +1,13 @@
-[import "std"];
+[import "std", std];
 
 anchor::A
 static [for 0.<=10, static num:=value,
     static varname :std.String= std.format(text="VAR" +> num);
     flank::A common capture::{num:=num}
-    varname.getSlice().[identify] : Int = num.[bake];
+    varname.getSlice().[identify] : SInt = num.[bake];
 ];
 
-[main ()Int,
+[main ()SInt,
     static [for 0.<=10, static num:=value,
         static varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  

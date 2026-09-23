@@ -1,6 +1,6 @@
-[import "std"];
+[import "std", std];
 
-[function myFunc, (>a:fast\Int32, b:fast\Int32<)fast\Int32,
+[function myFunc, (>a:SInt32, b:SInt32<)SInt32,
     [if a > b,
         std.print(line="a is greater than b");
     ][else_if b > a,
@@ -11,7 +11,7 @@
     [result] <:= a + b;
 ];
 
-[main ()si,
+[main ()SInt,
     std.print(line="the return value is " +> myFunc(1, 2));
 
     [result] <:= 0;

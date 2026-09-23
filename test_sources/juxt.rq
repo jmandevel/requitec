@@ -1,4 +1,4 @@
-[import "std"];
+[import "std", std];
 
 template::{> auto List:Symbol <}
 [function printList, (> list:List <)Void,
@@ -15,11 +15,11 @@ template::{> auto List:Symbol <}
     std.print(line="end!");
 ];
 
-[main ()si,
+[main ()SInt,
     printList(
         "hello" +>
         3.14.[as Single] +>
-        0.[as fast\Int32] +>
+        0.[as FSInt32] +>
         true);
 
     printList(

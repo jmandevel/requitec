@@ -1,13 +1,13 @@
 [class Partialable,
     {>
-        public partial_mutate property_a : fast\Int32 = 0,
-        public property_b : fast\Int32 = 0
+        public partial_mutate property_a : FSInt32 = 0,
+        public property_b : FSInt32 = 0
     <},
 
      public[layout_constructor];
 ];
 
-[main ()Int,
+[main ()SInt,
     // compile_time variables must have variables of no_var type becauese
     // they are constant:
     compile_time never_var : no_var\ = Partialable();
