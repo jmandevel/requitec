@@ -1,7 +1,7 @@
 [class MyObject, 
-    static var := 0;
-    static el := Int;
-    {>public arr : var#el<}, 
+    static size := 0;
+    static Element := Int;
+    {>public arr : [array size]#Element <}, 
 ];
 
 compile_time VAR := 0;
@@ -22,4 +22,4 @@ compile_time VAR := 0;
 ];
 
 opaque mangle::puts
-[function noname, (>str:?no_var\Char<)Void];
+[function noname, (>str:pointer#no_var\Char<)Void];

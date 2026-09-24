@@ -8,10 +8,10 @@ opaque mangle::getInstanceRef
 
 // when this class fully implemented, it can be a maximum of 64 bits in size
 opaque mangle::SizedClass
-[class SizedClass, 64^^Unknown,
+[class SizedClass, [greatest 64]#Unknown,
 
     opaque
-    [function doSomething, ()Void=>$var\];
+    [function doSomething, ()Void=>Ref#var\];
 ];
 
 opaque mangle::getSized

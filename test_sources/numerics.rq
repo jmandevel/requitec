@@ -18,8 +18,8 @@
     var5 : FUInt32 =0;
 
     // special sizes:
-    // signed\Size and USize for memory address sized integers
-    // signed\Index and UIndex for address index sized integers
+    // SSize and USize for memory address sized integers
+    // SIndex and UIndex for address index sized integers
     var6 : SSize =0;
     var7 : USize =0;
     var8 : UIndex =0;

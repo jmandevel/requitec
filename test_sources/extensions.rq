@@ -1,7 +1,7 @@
 
 [table example,
     template::{> Type:type, LENGTH:USize <}
-    [function getElementCount, ()USize=>$LENGTH#Type,
+    [function getElementCount, ()USize=>Ref#[array LENGTH]#Type,
         [result] <:= LENGTH;
     ];
 
