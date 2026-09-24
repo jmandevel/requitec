@@ -1,14 +1,14 @@
 template::{ Type:Symbol <}
 constraint::(Type.[is_type])
 require::(b != 0)
-ensure::([result] >= 0)
-[function divideSquare, ( a:Type, b:Type <)Type,
-    divide_[result] := a / b;
-    square := divide_[result] * divide_[result];
-    square.[return];
+ensure::(result >= 0)
+[function divideSquare, ( a:Type, b:Type <)Type, result,
+    divide_result := a / b;
+    square := divide_result * divide_result;
+    result <:= square;
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     a := divideSquare{SInt}(6, 2);
     
     result <:= 0;

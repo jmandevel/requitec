@@ -1,4 +1,4 @@
-[main ()SInt,
+[main ()SInt, result,
     // specify type in binding
     var0 : SInt32 =0;
 
@@ -56,5 +56,5 @@
     // if you want to convert between types, you need to use casts
     // see casts.rq
 
-    0.[return];
+    result <:= 0;
 ];

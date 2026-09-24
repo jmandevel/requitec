@@ -2,8 +2,8 @@
 
 [import "exporting", stuff=my_stuff];  // notice there is no .rq file extension
 
-[main ()SInt,
+[main ()SInt, result,
     stuff.printHelloWorld(); // this function is from exporting.rq
     std.print(line="Goodbye, world!"); // std was imported by exporting.rq
-    0.[return];
+    result <:= 0;
 ];

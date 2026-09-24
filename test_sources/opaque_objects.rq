@@ -17,12 +17,12 @@ opaque mangle::SizedClass
 opaque mangle::getSized
 [function getSized, ()MyClass];
 
-[main ()SInt,
+[main ()SInt, result,
     ref := getInstanceRef().[borrow];
     sized := getSized(); 
     // Sized uses 64 bits of memory in the stack.
     // However, the class layout is unknown.
     // Its not possible to access members directly.
     sized.var\[borrow].doSomething();
-    ref.[address].[cast].[return];
+    result <:= ref.[address].[cast];
 ];

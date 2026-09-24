@@ -8,7 +8,7 @@
     ];
 ];
 
-[function doMath, (>int:SInt<)SInt,
+[function doMath, (>int:SInt<)SInt, result,
 
     other_int :var\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 
@@ -31,5 +31,5 @@
             var <:= 1;
         ];
     ];
-    var.[return]; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
+    result <:= var; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
 ];

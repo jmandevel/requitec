@@ -15,7 +15,7 @@ template::{> auto List:Symbol <}
     std.print(line="end!");
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     printList(
         "hello" +>
         3.14.[as Single] +>
@@ -29,5 +29,5 @@ template::{> auto List:Symbol <}
         "string" *>
         "literal");
 
-    0.[return];
+    result <:= 0;
 ];

@@ -40,9 +40,9 @@ constraint::(Type.[is_type])
     public[layout_constructor];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );
-    0.[return];
+    result <:= 0;
 ];

@@ -1,6 +1,6 @@
 [import "std", std];
 
-[main ()SInt,
+[main ()SInt, result,
 
     // all of these loops are equivalent
 
@@ -39,5 +39,5 @@
         std.print(line="5 is within interval over 0 to 10");
     ];
 
-    0.[return];
+    result <:= 0;
 ];

@@ -30,7 +30,7 @@
     ];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
 
     a := MyClass();
     b := MyClass(1, 2, 3);
@@ -40,5 +40,5 @@
 
     added := MyClass.add(b, c);
 
-    added.[borrow].getTotal().[return];
+    result <:= added.[borrow].getTotal();
 ];

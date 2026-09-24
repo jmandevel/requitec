@@ -1,12 +1,12 @@
 // all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
 
-[function nodiscard, ()FSInt32,
-    0.[return];
+[function nodiscard, ()FSInt32, result,
+    result <:= 0;
 ];
 
-[main ()SInt32,
+[main ()SInt32, result,
     // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     nodiscard().[ignore]; 
 
-    0.[return];
+    result <:= 0;
 ];

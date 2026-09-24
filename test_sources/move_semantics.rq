@@ -18,7 +18,7 @@ stable_address
 
 ];
 
-[main ()SInt,
+[main ()SInt, result,
   class :var\= MyClass();
   copy := class;
   reference := class.[borrow];
@@ -46,5 +46,5 @@ stable_address
   // if a taken type has an stable_address modifier, it will never shallow copy and will also always be passed by address.
   // however, compiler is allowed to optimize other taken things which can fit into a register into a shallow copy.
   // never rely on the address not changing unless the type has stable_address modifier!
-  0.[return];
+  result <:= 0;
 ];

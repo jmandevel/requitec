@@ -1,4 +1,4 @@
-[main ()SInt,
+[main ()SInt, result,
     // an array and its elements share variability
     arr :var\= [array 0, 1, 2, 3];
     arr.var\[borrow].[at 1] = 2;
@@ -14,5 +14,5 @@
     // y can still be accessed
     y := vector4_b.y;
 
-    0.[return];
+    result <:= 0;
 ];
