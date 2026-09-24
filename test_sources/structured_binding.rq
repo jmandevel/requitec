@@ -1,0 +1,28 @@
+
+[function multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <},
+    div <:= a / b;
+    mul <:= a * b;
+];
+
+[main ()SInt, 
+    // by name
+    ( divided:= in.div, multiplied:= in.mul ) = multiReturn(0, 1);
+
+    // by index
+    ( divided = in.0, multiplied = in.1 ) = multiReturn(0, 1);
+
+    // as tuple
+    tuple := multiReturn(0, 1);
+
+    // as split tuple
+    { a:=in.0, b:=in.mul, c:=3 } := multiReturn(0, 1);
+
+    // as split tuple from multiple returns
+    { a:=apple.0, b:=apple.1, c:=orange.mul, d:=orange.div, e:=100 } := 
+        (
+            apple:multiReturn(0, 1),
+            orange:multiReturn(2, 3)
+        );
+
+    [result] <:= 0;
+];

@@ -6,9 +6,9 @@ constraint::Type.[is_type]
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be static.
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
-    (> a:Type, b:Type <)Type,
+    (> a:Type, b:Type <)(c:Type<),
     // statements after signature are evaluated at specialization implementation time
-    [result] <:= a + b;
+    c <:= a + b;
 ];
 
 [main ()SInt,
