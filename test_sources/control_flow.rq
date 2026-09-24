@@ -1,32 +1,32 @@
 [import "std", std];
 
-[main ()SInt,
-    [result] <:var\=0;
+[main ()SInt, result,
+    result <:var\=0;
 
     anchor::MyWhile
     [while true,
-        [result] = [result] + 1;
-        [if [result] == 10,
+        result = result + 1;
+        [if result == 10,
             MyWhile.[break];
         ];
     ];
 
     anchor::MyWhile
     [while true,
-        [result] = [result] + 1;
-        [if [result] == 12,
-            [result] = [result] + 2;
+        result = result + 1;
+        [if result == 12,
+            result = result + 2;
             continue MyWhile;
-        ][else_if [result] == 20,
+        ][else_if result == 20,
             MyWhile.[break];
         ];
     ];
 
-    [switch [result]
+    [switch result,
         ][case 20, 21,
-            [result] = 2
+            result = 2
         ][default
-            [result] = 3;
+            result = 3;
         ];    
 
     anchor::F
@@ -42,4 +42,6 @@
                 F.[break]; // since folded is set, its ok to break outer scope.
             ];
     ];
+
+    result = folded;
 ];

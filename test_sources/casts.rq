@@ -1,8 +1,8 @@
-[main ()SInt,
+[main ()SInt, result,
 
   float := 3.14;
 
   int := float.[cast SInt];
 
-  [result] <:= int;
+  result <:= int;
 ];

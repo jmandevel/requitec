@@ -4,8 +4,8 @@
     GRAPE; // this will automatically be set to 4, the previous value incremented by 1.
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     fruit := Fruit.APPLE;
 
-    [result] <:= fruit.[underlying_value].[cast SInt];
+    result <:= fruit.[underlying_value].[cast];
 ];

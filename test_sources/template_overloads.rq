@@ -2,10 +2,10 @@ template::{ Type:Symbol <}
 constraint::(Type.[is_type])
 [function asSigned, 
     static Signed : = [SInt Type.[byte_size]];
-    ( var:Type <)Signed,
-    [result] <:= var.[bitwise_cast Signed];
+    ( var:Type <)Signed, result,
+    result <:= var.[bitwise_cast Signed];
 ];
 
-[main ()SInt,
-    [result] <:= asSigned{Single}(3.14);
+[main ()SInt, result,
+    result <:= asSigned{Single}(3.14);
 ];

@@ -1,10 +1,10 @@
 [import "std", std];
 
-[main (>args:Ptr@Ptr@Char<)SInt,
+[main (>args:Ptr@Ptr@Char<)SInt, result,
     [if args.[element_count] == 0,
-        [result] <:= 5;
+        result <:= 5;
     ][else 
-        [result] <:= 6;
+        result <:= 6;
     ];
 ];
 
@@ -31,5 +31,5 @@
             var <:= 1;
         ];
     ];
-    [result] <:= var; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
+    var.[return]; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
 ];

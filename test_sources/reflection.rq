@@ -8,20 +8,20 @@
 
 template::{> NUM:SInt <}
 weight::3
-[function getNum, ()SInt,
-    [result] <:= NUM;
+[function getNum, ()SInt, result,
+    result <:= NUM;
 ];
 
 // templates have different overloads attached to them, one for each specialization
 
 // declarations without a template modifier are attached directly to the polymorph
 
-[function getNum, ()SInt,
-    [result] <:= 0;
+[function getNum, ()SInt, result,
+    result <:= 0;
 ];
 
-[function getNum, (> num:SInt <)SInt,
-    [result] <:= num;
+[function getNum, (> num:SInt <)SInt, result,
+    result <:= num;
 ];
 
 // store polymorph in variable

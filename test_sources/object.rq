@@ -10,18 +10,18 @@
     public [layout_constructor];
 
     public
-    [function fromScalar, (> scalar:FSInt32 <)MyClass,
-        [result] <:= MyClass(scalar, scalar, scalar);    
+    [function fromScalar, (> scalar:FSInt32 <)MyClass, result,
+        result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public
-    [function getTotal, ()FSInt32=>Ref@,
-        [result] <:= this.x + this.y + this.z;
+    [function getTotal, ()FSInt32=>Ref@, result,
+        result <:= this.x + this.y + this.z;
     ];
 
     public
-    [function add, (>a:MyClass, b:MyClass<)MyClass,
-        [result] <:=
+    [function add, (>a:MyClass, b:MyClass<)MyClass, result,
+        result <:=
             MyClass(
                 a.x + b.x,
                 a.y + b.y,
@@ -40,5 +40,5 @@
 
     added := MyClass.add(b, c);
 
-    [result] := added.[borrow].getTotal();
+    added.[borrow].getTotal().[return];
 ];

@@ -7,11 +7,11 @@ static [for 0.<=10, static num:=value,
     varname.getSlice().[identify] : SInt = num.[bake];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     static [for 0.<=10, static num:=value,
         static varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
-    [result] <:= 0;
+    result <:= 0;
 ];

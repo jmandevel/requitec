@@ -22,8 +22,8 @@
     // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
     public template::{| auto var0:Qualifier }
     constraint:var0.[is_var_qualifier]
-    [function getNumRef, ()Ref@var0\SInt=>Ref@var0\,
-        [result] <:var0\= this.num.[borrow];
+    [function getNumRef, ()Ref@var0\SInt=>Ref@var0\, result,
+        result <:= this.num.var0\[borrow]
     ];
 
 ];

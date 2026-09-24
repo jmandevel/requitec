@@ -3,8 +3,9 @@
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
         |locked:Single=0.0
-    )Single,
-    [result] <:= positional + positional_and_named + named + locked;
+    )Single, result,
+    result <:= 
+    (positional + positional_and_named + named + locked);
 ];
 
 [function myOtherFunction, ( 
@@ -12,8 +13,8 @@
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
         |locked:Single=0.0
-    )Single,
-    [result] <:= 0;
+    )Single, result,
+    result <:= (positional + positional_and_named + named + locked);
 ];
 
 [function myThirdFunction, ( 
@@ -21,8 +22,8 @@
         >positional_and_named:Single=0.0<,
         named:Single=0.0 * 0.0,
         |locked:Single=0.0
-    )Single,
-    [result] <:= 0;
+    )Single, result,
+    result <:= (positional + positional_and_named + named + locked);
 ];
 
 [function myFourthFunction, ( 
@@ -30,12 +31,12 @@
         >positional_and_named:single=0.0<,
         named:single=0.0,
         |locked:single=0.0
-    )Single,
-    [result] <:= 0;
+    )Single, result,
+    result <:= (positional + positional_and_named + named + locked);
 ];
 
 
-[main ()SInt,
+[main ()SInt, result,
     // calling directly from myFunction
     // default values are used
     // locked parameters cannot be set
@@ -79,5 +80,5 @@
     ptr = myFourthFunction.[function_address].[signature_cast];
     ptr();
 
-    [result] <:= 0;  
+    result <:= 0;
 ];

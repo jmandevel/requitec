@@ -6,12 +6,12 @@ constraint::Type.[is_type]
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be static.
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
-    (> a:Type, b:Type <)(c:Type<),
+    (> a:Type, b:Type <)Split@{ c:Type <}, result,
     // statements after signature are evaluated at specialization implementation time
-    c <:= a + b;
+    result.c <:= a + b;
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     var0 :SInt = add(1, 2); // Type is SInt
 
     var1 := add(1.[as Double], 2.[as Double]); // Type is Double
@@ -22,5 +22,5 @@ constraint::Type.[is_type]
 
     add(2.[as Quadruple], 3.[as Quadruple]).[ignore]; // Type is Quadruple
 
-    [result] <:= add(1.0, 2.0).[cast]; // Type is Single
+    result <:= add(1.0, 2.0).[cast]; // Type is Single
 ];

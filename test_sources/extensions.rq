@@ -1,8 +1,8 @@
 
 [table example,
     template::{> Type:type, LENGTH:USize <}
-    [function getElementCount, ()USize=>Ref@[array LENGTH]@Type,
-        [result] <:= LENGTH;
+    [function getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
+        result <:= LENGTH;
     ];
 
     [class Foo, public[layout_constructor]; {}];
@@ -12,7 +12,7 @@
     ];
 ];
 
-[main ()Int,
+[main ()SInt, result,
     my_array :5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
     // call extension function
@@ -21,5 +21,5 @@
     // construct variable of type declared in same table as extension functions
     foo := example.Foo();
 
-    [result] <:= 0;
+    result <:= 0;
 ];

@@ -17,10 +17,10 @@ constraint::(Type.[is_type])
     template::{Placement:symbol<}
     constraint::Placement.[is_placement_type Type]
     [function create, 
-        (placement:Placement<)var\UniquePtr{Type},
+        (placement:Placement<)var\UniquePtr{Type}, result,
 
         ptr := malloc(Type.[byte_size]).[cast ?var\Type];
-        [result] := UniquePtr{Type}(
+        result <:= UniquePtr{Type}(
                 ptr=ptr
             );   
         this.ptr.[inplace_init placement.[invoke]];
@@ -44,5 +44,5 @@ constraint::(Type.[is_type])
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );
-    [result] <:= 0;
+    0.[return];
 ];

@@ -5,5 +5,5 @@
 [main ()SInt,
     stuff.printHelloWorld(); // this function is from exporting.rq
     std.print(line="Goodbye, world!"); // std was imported by exporting.rq
-    [result] <:= 0;
+    0.[return];
 ];

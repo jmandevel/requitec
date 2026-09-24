@@ -1,9 +1,8 @@
 [import "std", std];
 
-[main ()SInt,
+[main ()SInt, result,
     binary32 := 3.14.[as Binary32];
     int32 := binary32.[bitwise_cast SInt32];
     std.print(line=binary32 +> " as integer is " +> int32);
-    
-    [result] <:= 0;
+    result <:= 0;
 ];

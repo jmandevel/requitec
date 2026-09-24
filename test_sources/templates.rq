@@ -20,10 +20,10 @@ constraint::(Type.[is_type])
     std.print(line="Its something");
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     printType{SInt32}();
     printType{Single}();
     printType{Bool}();
 
-    [result] <:= 0;
+    result <:= 0;
 ];

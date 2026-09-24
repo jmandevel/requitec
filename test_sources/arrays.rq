@@ -1,6 +1,6 @@
 [import "std", std];
 
-[main ()SInt,
+[main ()SInt, result,
     my_array : var\[array 4]@LSInt64 = [array 0, 1, 2, 3, 4].[of LSInt64];
     const_slice : var\slice@LSInt64 = my_array.[slice];
     
@@ -17,5 +17,5 @@
     ];
     std.print(line="it starts with " +> my_array.[borrow].[at 0] +> "!");
 
-    [result] <:= 0;
+    result <:= 0;
 ];

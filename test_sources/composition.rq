@@ -65,7 +65,7 @@
     ];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     dog := Dog();
     cat := Cat();
     rat := Rat();
@@ -87,10 +87,10 @@
     speakAndGreet(animal=cat.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=rat.[compose A-->ISpeak, A-->IGreet]);
 
-    [result] <:= 0;
+    result <:= 0;
 ];
 
-[function speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)void,
+[function speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)Void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

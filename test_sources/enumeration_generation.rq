@@ -8,9 +8,9 @@
 	];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
 	my_fruit := Fruit.MY_FRUIT42;
 	
-	[result] <:= my_fruit.[underlying_value].[cast SInt32];
+	result <:= my_fruit.[underlying_value].[cast];
 ];
 

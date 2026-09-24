@@ -29,5 +29,5 @@ template::{> auto List:Symbol <}
         "string" *>
         "literal");
 
-    [result] <:= 0;
+    0.[return];
 ];

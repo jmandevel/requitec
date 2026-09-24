@@ -4,15 +4,15 @@
 
 [import "safe_export", A];
 
-[main ()SInt,
+[main ()SInt, result,
     // things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;
-    [result] <:= 0;
+    result <:= 0;
 ];
 
 [table A,
-    [function getBool, ()Bool,
+    [function getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 
         // this still uses the _SneakyMacro so it expands to [true].
@@ -24,7 +24,7 @@
         // this is in the same file, but still have to specify full path
         this_is_false := A.VAR;
 
-        [result] <:= this_is_still_true && this_is_actually_false;
+        result <:= this_is_still_true && this_is_actually_false;
     ];
 
     eager static my_static_var := false;

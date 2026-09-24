@@ -15,7 +15,7 @@ static val = 1;
 common capture::{ num:=val }
 COMMON_NUMBER := [capture].num;
 
-[main ()SInt,
+[main ()SInt, result,
     std.print(line=COMMON_NUMBER);
-    [result] <:= 0;
+    result <:= 0;
 ];

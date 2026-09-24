@@ -7,12 +7,12 @@
 
     public [layout_constructor];
 
-    public[constructor {> a:SInt, b:SInt <},
-        [result] <:= MyClass.[init a + b];
+    public[constructor {> a:SInt, b:SInt <}, result,
+        result <:= MyClass.[init a + b];
     ];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
     // create stack
     my_stack :var\= std.StackList{MyClass}();
     
@@ -23,5 +23,5 @@
     // forget the last element
     my_stack.popBack();
     
-    [result] <:= 0;
+    result <:= 0;
 ];

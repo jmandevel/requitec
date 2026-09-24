@@ -10,20 +10,20 @@ constraint::Element.[is_type]
 
     // scalar constructor:
     public
-    [constructor {> scalar:Element <},
-        [result] <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
+    [constructor {> scalar:Element <}, result,
+        result <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
     ];
 
     {> x:Element, y:Element, z:Element, w:Element <},
 
     // NOTE: auto parameters in constructors after layout do not work.
     // split constructor:
-    [constructor {> xy:Element, zw:Element <},
-        [result] <:= Vector4.[init x=xy, y=xy, z=zw, w=zw];
+    [constructor {> xy:Element, zw:Element <}, result,
+        result <:= Vector4.[init x=xy, y=xy, z=zw, w=zw];
     ];
 ];
 
-[main ()SInt,
+[main ()SInt, result,
 
     // using explicit parameter and layout constructor
     var0 := Vector4{Single}(0, 1, 2, 3);
@@ -43,6 +43,6 @@ constraint::Element.[is_type]
     // NOTE: using auto parameters with split constructor will not work!
     // var5 := Vector4(0, 1); // COMPILER ERROR!
 
-    [result] <:= 0;
+    result <:= 0;
 ];
 

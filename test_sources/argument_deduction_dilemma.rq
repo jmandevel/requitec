@@ -29,9 +29,8 @@ constraint::(count_div_2 >= 0 && Element.[is_type])
 
 ];
 
-[main ()SInt,
-
+[main ()SInt, result,
     my_double_array := A.Array{count_div_2=1}([array 1, 2].[emplace]);
 
-    [result] <:= 0;
+    result <:= 0;
 ];
