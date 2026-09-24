@@ -15,7 +15,7 @@
     ];
 
     public
-    [function getTotal, ()FSInt32=>Ref#,
+    [function getTotal, ()FSInt32=>Ref@,
         [result] <:= this.x + this.y + this.z;
     ];
 

@@ -42,7 +42,7 @@
 ];
 
 [adapter A, Rat==>ISpeak,
-    [use speak, Rat.squeak.[reflect].[resolve_function ()Void=>Ref#]];
+    [use speak, Rat.squeak.[reflect].[resolve_function ()Void=>Ref@]];
 ];
 
 [interface IGreet,
@@ -71,16 +71,16 @@
     rat := Rat();
 
     // use adapt to get interface of value.
-    speak_adpater :var\Ref#Greatest#ISpeak= dog.[adapt A-->ISpeak].[borrow];
+    speak_adpater :var\Ref@Greatest@ISpeak= dog.[adapt A-->ISpeak].[borrow];
     speak_adpater.speak();
     // can reassign a different interface of same type
     speak_adapter = cat.[adapt A-->ISpeak].[borrow];
     speak_adapter.speak();
 
     // use compose to create composition of 1 or more interfaces
-    dog_composition:Ref#Greatest#[composition ISpeak, IGreet]= dog.[compose A-->IGreet, A-->ISpeak].[borrow];
+    dog_composition:Ref@Greatest@[composition ISpeak, IGreet]= dog.[compose A-->IGreet, A-->ISpeak].[borrow];
     // decompose a composition to get one of its interfaces
-    dog_greet_adapter :Ref#Greatest#IGreet= dog_composition.[decompose IGreet].[borrow];
+    dog_greet_adapter :Ref@Greatest@IGreet= dog_composition.[decompose IGreet].[borrow];
     dog_greet_adapter.greet();
 
     speakAndGreet(animal=dog.[compose A-->ISpeak, A-->IGreet]);
@@ -90,7 +90,7 @@
     [result] <:= 0;
 ];
 
-[function speakAndGreet, (> animal:[Greatest 64]#[composition ISpeak, IGreet] <)void,
+[function speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

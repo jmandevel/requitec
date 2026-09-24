@@ -10,10 +10,10 @@
 
     // can determine if tuple has type-keyed value at compile time with .[has] ailcar
     static
-    [if inferenced.[variable].[type].[has Slice#Utf8],
+    [if inferenced.[variable].[type].[has Slice@Utf8],
         // can get the value with .[get] railcar
         // errors with .[get] are caught at compile time, so this is very safe.
-        type_keyed_text := inferenced.[get Slice#Utf8];
+        type_keyed_text := inferenced.[get Slice@Utf8];
         std.print(line=type_keyed_text);
         // see captures.rq for more example usage of this feature
     ];

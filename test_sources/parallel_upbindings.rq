@@ -1,6 +1,6 @@
 [import "std", std];
 
-[main (>args:Ptr#Ptr#Char<)SInt,
+[main (>args:Ptr@Ptr@Char<)SInt,
     [if args.[element_count] == 0,
         [result] <:= 5;
     ][else 

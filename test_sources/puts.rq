@@ -1,5 +1,5 @@
 opaque mangle::puts
-[function [noname], (>str:Ptr#no_var\Char<)Void];
+[function [noname], (>str:Ptr@no_var\Char<)Void];
 
 [main ()SInt,
     C.puts("hello, world\n".[of char].[data_address]);

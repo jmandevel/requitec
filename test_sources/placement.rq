@@ -1,15 +1,15 @@
 
 
 opaque mangle::malloc
-[function malloc, (size:USize<)Ptr#var\Void];
+[function malloc, (size:USize<)Ptr@var\Void];
 
 opaque mangle::free
-[function free, (ptr:Ptr#var\Void<)Void];
+[function free, (ptr:Ptr@var\Void<)Void];
 
 template::{ Type:symbol<}
 constraint::(Type.[is_type])
 [class UniquePtr,
-    { ptr:Ptr#var\Type <},
+    { ptr:Ptr@var\Type <},
 
     public[layout_constructor];
 
