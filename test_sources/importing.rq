@@ -1,6 +1,6 @@
 // see exporting.rq for what is being imported
 
-[import "exporting", stuff=my_stuff];  // notice there is no .rq file extension
+[import "exporting", stuff=my_stuff, std];  // notice there is no .rq file extension
 
 [main ()SInt, result,
     stuff.printHelloWorld(); // this function is from exporting.rq
