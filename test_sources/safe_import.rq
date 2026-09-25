@@ -27,10 +27,10 @@
         result <:= this_is_still_true && this_is_actually_false;
     ];
 
-    eager static my_static_mut := false;
+    eager static my_static_var := false;
 
     // note that full paths are not required for eager symbols even in namespaces
-    lazy compile_time VAR := my_static_mut;
+    lazy compile_time VAR := my_static_var;
 
     // note that full paths are not required for eager symbols even in namespaces
     lazy compile_time VAR := my_static_var;
