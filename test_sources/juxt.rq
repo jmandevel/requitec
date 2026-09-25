@@ -1,7 +1,7 @@
 [import "std", std];
 
 template::{> auto List:Symbol <}
-[function printList, (> list:List <)Void,
+[proc printList, (> list:List <)Void,
     std.print(line="begin!");
     [spin list,
         std.print(line="weave!");

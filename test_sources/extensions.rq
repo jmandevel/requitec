@@ -1,13 +1,13 @@
 
-[table example,
+[node example,
     template::{> Type:type, LENGTH:USize <}
-    [function getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
+    [proc getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
         result <:= LENGTH;
     ];
 
     [class Foo, public[layout_constructor]; {}];
 
-    [function bar, ()Void=>$example.Foo,
+    [proc bar, ()Void=>$example.Foo,
     
     ];
 ];

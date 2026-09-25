@@ -2,9 +2,9 @@
     static i32 := SInt32;
     static other_i32 := i32.[synonym];
 
-    var0 :i32= 30;
-    var1 :var\other_i32= 30;
-    var1 = var0; // compile error! no implicit casting between types.
+    mut0 :i32= 30;
+    mut1 :mut\other_i32= 30;
+    mut1 = mut0; // compile error! no implicit casting between types.
 
     result <:SInt= 0.[cast];
 ];

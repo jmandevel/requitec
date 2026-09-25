@@ -11,8 +11,8 @@
     result <:= 0;
 ];
 
-[table A,
-    [function getBool, ()Bool, result,
+[node A,
+    [proc getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 
         // this still uses the _SneakyMacro so it expands to [true].
@@ -27,9 +27,13 @@
         result <:= this_is_still_true && this_is_actually_false;
     ];
 
-    eager static my_static_var := false;
+    eager static my_static_mut := false;
 
-    // note that full paths nare not required for eager symbols even in namespaces
-    lazy compile_time VAR := my_static_var;
+    // note that full paths are not required for eager symbols even in namespaces
+    lazy compile_time VAR := my_static_mut;
+
+    // NOTE: compile_time are always lazy, static are always eager. Writing it
+    // here explicitly to make it more clear, but you can leave out the eager
+    // and lazy modifiers.
 ];
 

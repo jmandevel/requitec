@@ -1,13 +1,13 @@
 [main ()SInt, result,
-    // an array and its elements share variability
-    arr :var\= [array 0, 1, 2, 3];
-    arr.var\[borrow].[at 1] = 2;
+    // an array and its elements share mutiability
+    arr :mut\= [array 0, 1, 2, 3];
+    arr.mut\[borrow].[at 1] = 2;
 
-    // a tuple and its elements have different variability
-    vector4 :var\= { x:=0, y:var\=1, z:=2, w:=3 };
+    // a tuple and its elements have different mutiability
+    vector4 :mut\= { x:=0, y:mut\=1, z:=2, w:=3 };
     vector4.y = 3;
 
-    // variability of tuple uses variability of its elements
+    // mutiability of tuple uses mutiability of its elements
     vector4_b := vector4;
     // y cannot be set again
 

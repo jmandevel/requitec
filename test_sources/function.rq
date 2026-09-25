@@ -1,6 +1,6 @@
 [import "std", std];
 
-[function myFunc, (>a:SInt32, b:SInt32<)SInt32, result,
+[proc myFunc, (>a:SInt32, b:SInt32<)SInt32, result,
     [if a > b,
         std.print(line="a is greater than b");
     ][else_if b > a,

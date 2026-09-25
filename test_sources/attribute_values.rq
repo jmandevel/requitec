@@ -4,12 +4,12 @@
     static modifier := static;
 
     // the modifier stored in modifier is ascribed to the variable qualifier
-    modifier qualifier := var;
+    modifier qualifier := mut;
 
-    my_var_variable :qualifier\= 0;
-    my_var_variable = 1;
+    my_mut_variable :qualifier\= 0;
+    my_mut_variable = 1;
 
-    [result] <:= my_var_variable;
+    [result] <:= my_mut_variable;
 ];
 
 // equivalent to deducing this in c++
@@ -19,11 +19,11 @@
 
     public [layout_constructor];
 
-    // if reciever is var, return is ref to var. is reciver is no_var, return is ref to no_var.
-    public template::{| auto var0:Qualifier }
-    constraint:var0.[is_var_qualifier]
-    [function getNumRef, ()Ref@var0\SInt=>Ref@var0\, result,
-        result <:= this.num.var0\[borrow]
+    // if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
+    public template::{| auto mut0:Qualifier }
+    constraint:mut0.[is_mut_qualifier]
+    [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\, result,
+        result <:= this.num.mut0\[borrow]
     ];
 
 ];

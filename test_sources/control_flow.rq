@@ -1,7 +1,7 @@
 [import "std", std];
 
 [main ()SInt, result,
-    result <:var\=0;
+    result <:mut\=0;
 
     anchor::MyWhile
     [while true,
@@ -31,12 +31,12 @@
 
     anchor::F
     [fold folded:SInt,
-            var := 0;
+            mut := 0;
             [if true,
                 return; // if folded not set, must break from outer scope too.
             ];
-            folded <: var\ = var + 1;
-            folded = 2; // note that within the fold, folded is var, but outside the fold its [no_var].
+            folded <: mut\ = mut + 1;
+            folded = 2; // note that within the fold, folded is mut, but outside the fold its [no_mut].
             // (folded cannot be mutated after the fold ends)
             [if true,
                 F.[break]; // since folded is set, its ok to break outer scope.

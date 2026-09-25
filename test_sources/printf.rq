@@ -1,8 +1,8 @@
 opaque mangle::printf
-[function [noname], (>format:Ptr@no_var\Char, variadic vargs:VariadicArguments<)Void];
+[proc [noname], (>format:Ptr@no_mut\Char, mutiadic mutgs:VariadicArguments<)Void];
 
 [main ()SInt, result,
-    C.printf("Hello, %s! I am %d.".[of char].[data_address], [variadic_arguments "world", 30]);
+    C.printf("Hello, %s! I am %d.".[of char].[data_address], [mutiadic_arguments "world", 30]);
 
     result <:= 0;
 ];

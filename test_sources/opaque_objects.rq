@@ -4,18 +4,18 @@ opaque mangle::MyClass
 [class MyClass, Unknown];
 
 opaque mangle::getInstanceRef
-[function getInstance, ()$MyClass];
+[proc getInstance, ()Ref@MyClass];
 
 // when this class fully implemented, it can be a maximum of 64 bits in size
 opaque mangle::SizedClass
-[class SizedClass, [greatest 64]@Unknown,
+[class SizedClass, margin::64\Unknown,
 
     opaque
-    [function doSomething, ()Void=>Ref@var\];
+    [proc doSomething, ()Void=>Ref@mut\];
 ];
 
 opaque mangle::getSized
-[function getSized, ()MyClass];
+[proc getSized, ()MyClass];
 
 [main ()SInt, result,
     ref := getInstanceRef().[borrow];
@@ -23,6 +23,6 @@ opaque mangle::getSized
     // Sized uses 64 bits of memory in the stack.
     // However, the class layout is unknown.
     // Its not possible to access members directly.
-    sized.var\[borrow].doSomething();
+    sized.mut\[borrow].doSomething();
     result <:= ref.[address].[cast];
 ];

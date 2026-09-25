@@ -1,8 +1,8 @@
 // see this stuff imported in importing.rq
 
-[table my_stuff,
+[node my_stuff,
     export
-    [function printHelloWorld, ()Void,
+    [proc printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
 ];

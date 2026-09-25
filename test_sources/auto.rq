@@ -2,7 +2,7 @@
 
 template::{> auto Type:Symbol <}
 constraint::Type.[is_type]
-[function add, 
+[proc add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be static.
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
@@ -12,13 +12,13 @@ constraint::Type.[is_type]
 ];
 
 [main ()SInt, result,
-    var0 :SInt = add(1, 2); // Type is SInt
+    mut0 :SInt = add(1, 2); // Type is SInt
 
-    var1 := add(1.[as Double], 2.[as Double]); // Type is Double
+    mut1 := add(1.[as Double], 2.[as Double]); // Type is Double
 
-    var2 := add(1, 2); // Type is [signed_integer]
+    mut2 := add(1, 2); // Type is [signed_integer]
 
-    var3 := add(1.0, 2.0); // Type is Single
+    mut3 := add(1.0, 2.0); // Type is Single
 
     add(2.[as Quadruple], 3.[as Quadruple]).[ignore]; // Type is Quadruple
 

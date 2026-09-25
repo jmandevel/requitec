@@ -26,22 +26,22 @@ constraint::Element.[is_type]
 [main ()SInt, result,
 
     // using explicit parameter and layout constructor
-    var0 := Vector4{Single}(0, 1, 2, 3);
+    mut0 := Vector4{Single}(0, 1, 2, 3);
 
     // using auto parameter and layout constructor
-    var1 := Vector4(0, 1, 2, 3);
+    mut1 := Vector4(0, 1, 2, 3);
 
     // using explicit parameter with scalar constructor
-    var2 := Vector4{Single}(0);
+    mut2 := Vector4{Single}(0);
 
     // using auto parameter and scalar constructor
-    var3 := Vector4(0);
+    mut3 := Vector4(0);
 
     // using explicit parameter with split constructor
-    var4 := Vector4{Single}(0, 1);
+    mut4 := Vector4{Single}(0, 1);
 
     // NOTE: using auto parameters with split constructor will not work!
-    // var5 := Vector4(0, 1); // COMPILER ERROR!
+    // mut5 := Vector4(0, 1); // COMPILER ERROR!
 
     result <:= 0;
 ];

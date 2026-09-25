@@ -1,25 +1,25 @@
 
 
 opaque mangle::malloc
-[function malloc, (size:USize<)Ptr@var\Void];
+[proc malloc, (size:USize<)Ptr@mut\Void];
 
 opaque mangle::free
-[function free, (ptr:Ptr@var\Void<)Void];
+[proc free, (ptr:Ptr@mut\Void<)Void];
 
 template::{ Type:symbol<}
 constraint::(Type.[is_type])
 [class UniquePtr,
-    { ptr:Ptr@var\Type <},
+    { ptr:Ptr@mut\Type <},
 
     public[layout_constructor];
 
     public inline
     template::{Placement:symbol<}
     constraint::Placement.[is_placement_type Type]
-    [function create, 
-        (placement:Placement<)var\UniquePtr{Type}, result,
+    [proc create, 
+        (placement:Placement<)mut\UniquePtr{Type}, result,
 
-        ptr := malloc(Type.[byte_size]).[cast ?var\Type];
+        ptr := malloc(Type.[byte_size]).[cast ?mut\Type];
         result <:= UniquePtr{Type}(
                 ptr=ptr
             );   

@@ -3,7 +3,7 @@
 [class MyClass, 
 
 
-    {> public var:SInt },
+    {> public mut:SInt },
 
     public [layout_constructor];
 
@@ -14,7 +14,7 @@
 
 [main ()SInt, result,
     // create stack
-    my_stack :var\= std.StackList{MyClass}();
+    my_stack :mut\= std.StackList{MyClass}();
     
     // push back one element
     // emplace will call the function in the future with the given arguments forwarded

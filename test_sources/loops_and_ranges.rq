@@ -23,7 +23,7 @@
 
     [scope
         // while loop    
-        value : var\ = 0;
+        value : mut\ = 0;
         [while value < 10,
             std.print(line="value is " +> value);   
             value = value + 1;

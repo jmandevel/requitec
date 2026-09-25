@@ -6,7 +6,7 @@
     // can only be one type-keyed parameter of any given type. this is enforced at compile time.
     // notice that each parameter has a binding with colon. 
     // the binding is required when tuple type is inferenced to specify type modifiers per element.
-    inferenced := { named:var\="I'm name-keyed", noname:var\="I'm type-keyed" };
+    inferenced := { named:mut\="I'm name-keyed", noname:mut\="I'm type-keyed" };
 
     // can determine if tuple has type-keyed value at compile time with .[has] ailcar
     static
@@ -21,7 +21,7 @@
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.
-    static Layout := {> x:var\Single, y:var\Single, z:var\Single <};
+    static Layout := {> x:mut\Single, y:mut\Single, z:mut\Single <};
     explicit :Layout= { 0, 1, w=2, z=3 };
 
     result <:= 0;    

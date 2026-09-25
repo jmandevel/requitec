@@ -6,31 +6,31 @@
 stable_address
 [class MyPinned, public [layout_constructor]; {}];
 
-[function takeReciever, ()Void=>MyPinned,
+[proc takeReciever, ()Void=>MyPinned,
 
 ];
 
-[function takeArg, (pinned:MyPinned<)Void,
+[proc takeArg, (pinned:MyPinned<)Void,
 
 ];
 
-[function takeOrCopyArg, (pinned:MyClass<)Void,
+[proc takeOrCopyArg, (pinned:MyClass<)Void,
 
 ];
 
 [main ()SInt, result,
-  class :var\= MyClass();
+  class :mut\= MyClass();
   copy := class;
   reference := class.[borrow];
-  reference_to_var := class.var\[borrow];
+  reference_to_mut := class.mut\[borrow];
   pointer := class.[address];
-  pointer_to_var := class.var\[address];
+  pointer_to_mut := class.mut\[address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.var\[borrow]->std.extract();
+  non_destructive_move := class.mut\[borrow]->std.extract();
   destructive_move := class.[move];
   // class was forgetped because it was moved out of
   class := destructive_move.[move]; /// move it back!
-  pinned :var\= MyPinned();
+  pinned :mut\= MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address modifier
   pinned.[take]->takeReciever(); // taking is fine, because memory address is not changed.
   // both .[move] and .[take] invalidate the variable moved or taken from

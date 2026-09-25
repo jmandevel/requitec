@@ -1,4 +1,4 @@
-[function myFunction, ( 
+[proc myFunction, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -8,7 +8,7 @@
     (positional + positional_and_named + named + locked);
 ];
 
-[function myOtherFunction, ( 
+[proc myOtherFunction, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -17,7 +17,7 @@
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-[function myThirdFunction, ( 
+[proc myThirdFunction, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0 * 0.0,
@@ -26,7 +26,7 @@
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-[function myFourthFunction, ( 
+[proc myFourthFunction, ( 
         first_arg:single=0.0,
         >positional_and_named:single=0.0<,
         named:single=0.0,
@@ -51,7 +51,7 @@
     g := myFunction(1.0, positional_and_named=2.0, named=3.0);
 
     // call from a pointer to myFunction
-    ptr :\var= myFunction.[function_address];
+    ptr :\mut= myFunction.[proc_address];
     // you can call from ptr just like myFunction
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();
@@ -63,21 +63,21 @@
     o := ptr(1.0, 2.0, named=3.0);
     p := ptr(1.0, positional_and_named=2.0, named=3.0);
 
-    // can assign different function to variable if its [var] and has EXACTLY the same signature.
+    // can assign different function to variable if its [mut] and has EXACTLY the same signature.
     // the default values need to have identical expressions when situated.
-    ptr = myOtherFunction.[function_address];
+    ptr = myOtherFunction.[proc_address];
     ptr();
 
     // type is different even if default value evaluates to the same result.
-    // ptr = myThirdFunction.[function_address]; 
+    // ptr = myThirdFunction.[proc_address]; 
     // this would result in compile error because named parameter's default value is wrong.
     // its wrong even though it still evaluates to 0.
-    // need to use signature_cast
-    ptr = myThirdFunction.[function_address].[signature_cast];
+    // need to use sig_cast
+    ptr = myThirdFunction.[proc_address].[sig_cast];
     ptr();
     
     // need to cast if parameters are named differently
-    ptr = myFourthFunction.[function_address].[signature_cast];
+    ptr = myFourthFunction.[proc_address].[sig_cast];
     ptr();
 
     result <:= 0;

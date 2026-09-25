@@ -4,7 +4,7 @@
     // compiler sees two binary operators next to each other, its inserts [_inference] between them
     // in the case of types, it means that the type is inferred from the initial rvalue
 
-    variable :var\ = 0;
+    variable :mut\ = 0;
 
     // in descriptive requite (square bracket form), line 7 is 
     // [_assign
@@ -12,7 +12,7 @@
     //         variable,
     //         [_ascribe_high
     //             [_inference],
-    //             [var]
+    //             [mut]
     //         ]
     //     ],
     //     0

@@ -4,13 +4,13 @@
     // this function is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
     public virtual
-    [function speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="I don't speak.");
     ];
 
     // this function is not virtual so it cannot be overriden by adapters
     public
-    [function doSomething, ()Void=>,
+    [proc doSomething, ()Void=>,
         std.print(line="do something now!");
     ];
 
@@ -22,21 +22,21 @@
 
 [class Rat, public[layout_constructor]; {},
     public
-    [function squeak, ()Void=>,
+    [proc squeak, ()Void=>,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [function speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
     public
-    [function speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="Meow!");
     ];
 ];
@@ -48,19 +48,19 @@
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
     public virtual opaque
-    [function greet, ()Void=>];
+    [proc greet, ()Void=>];
 ];
 
 [adapter A, Dog==>IGreet,
     public
-    [function greet, ()Void=>,
+    [proc greet, ()Void=>,
         std.print(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
     public
-    [function greet, ()Void=>,
+    [proc greet, ()Void=>,
         std.print(line="bark!");
     ];
 ];
@@ -71,7 +71,7 @@
     rat := Rat();
 
     // use adapt to get interface of value.
-    speak_adpater :var\Ref@Greatest@ISpeak= dog.[adapt A-->ISpeak].[borrow];
+    speak_adpater :mut\Ref@Greatest@ISpeak= dog.[adapt A-->ISpeak].[borrow];
     speak_adpater.speak();
     // can reassign a different interface of same type
     speak_adapter = cat.[adapt A-->ISpeak].[borrow];
@@ -90,7 +90,7 @@
     result <:= 0;
 ];
 
-[function speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)Void,
+[proc speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)Void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

@@ -2,15 +2,15 @@
 
 anchor::A
 static [for 0.<=10, static num:=value,
-    static varname :std.String= std.format(text="VAR" +> num);
+    static mutname :std.String= std.format(text="VAR" +> num);
     flank::A common capture::{num:=num}
-    varname.getSlice().[identify] : SInt = num.[bake];
+    mutname.getSlice().[identify] : SInt = num.[bake];
 ];
 
 [main ()SInt, result,
     static [for 0.<=10, static num:=value,
-        static varname :std.String= std.format(text="VAR" +> num);
-        std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
+        static mutname :std.String= std.format(text="VAR" +> num);
+        std.print(line=mutname.getSlice().[bake] +> " is " +> (mutname.getSlice().[identify]) +> "!");  
     ];
 
     result <:= 0;

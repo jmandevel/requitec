@@ -1,5 +1,5 @@
 
-[function multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <}, result,
+[proc multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <}, result,
     result.div <:= a / b;
     result.mul <:= a * b;
 ];

@@ -3,7 +3,7 @@
 // export // compile error if you uncomment this!
 compile_time false := true; 
 
-[table A,
+[node A,
     // same issue, but its in a namespace...
     export compile_time true := false;
     export compile_time false := true;
