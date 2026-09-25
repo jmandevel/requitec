@@ -32,6 +32,9 @@
     // note that full paths are not required for eager symbols even in namespaces
     lazy compile_time VAR := my_static_mut;
 
+    // note that full paths are not required for eager symbols even in namespaces
+    lazy compile_time VAR := my_static_var;
+
     // NOTE: compile_time are always lazy, static are always eager. Writing it
     // here explicitly to make it more clear, but you can leave out the eager
     // and lazy modifiers.
