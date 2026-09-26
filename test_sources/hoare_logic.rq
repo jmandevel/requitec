@@ -2,7 +2,7 @@ template::{ Type:Symbol <}
 constraint::(Type.[is_type])
 require::(b != 0)
 ensure::(result >= 0)
-[proc divideSquare, ( a:Type, b:Type <)Type, result,
+[procedure divideSquare, ( a:Type, b:Type <)Type, result,
     divide_result := a / b;
     square := divide_result * divide_result;
     result <:= square;

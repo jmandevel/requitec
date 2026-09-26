@@ -626,39 +626,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
         precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_EXTENSION);
         continue;
       }
-      case rq::TokenKind::HASH_OPERATOR: {
-        rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::Keyword::INFERENCE);
-        inference.setIsInserted();
-        inference.setSourceBefore(token);
-        precedence_factory.setRecent(inference);
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_ARRAY);
-        continue;
-      }
-      case rq::TokenKind::DOUBLE_CAROT_OPERATOR: {
-        rq::Expression &inference = this->getContext().acquireExpression();
-        inference.setKeyword(rq::Keyword::INFERENCE);
-        inference.setIsInserted();
-        inference.setSourceBefore(token);
-        precedence_factory.setRecent(inference);
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_GREATEST);
-        continue;
-      }
-      case rq::TokenKind::AT_OPERATOR:
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_SLICE);
-        continue;
-      case rq::TokenKind::DOLLAR_OPERATOR:
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token,
-                                      rq::Keyword::INSTANTIATE_REFERENCE);
-        continue;
-      case rq::TokenKind::WHAT_OPERATOR:
-        this->getRanger().incrementToken(1);
-        precedence_factory.parseUnary(token, rq::Keyword::INSTANTIATE_POINTER);
-        continue;
       default:
         break;
       }
@@ -688,12 +655,6 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     }
     const rq::Token post_token = this->getRanger().getToken();
     switch (post_token.getKind()) {
-    case rq::TokenKind::HASH_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token,
-                                          rq::Keyword::INSTANTIATE_ARRAY);
-      continue;
     case rq::TokenKind::ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
@@ -712,6 +673,12 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.appendRecent();
       continue;
     }
+    case rq::TokenKind::AT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.appendRecent();
+      precedence_factory.parseOuterBinary(post_token,
+                                          rq::Keyword::INSTANTIATE_SUBTYPE);
+      continue;
     case rq::TokenKind::DOUBLE_THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();

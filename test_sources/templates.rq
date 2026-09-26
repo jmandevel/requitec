@@ -3,20 +3,20 @@
 template::{> Type:Symbol <}
 constraint::(Type.[is_float_type])
 weight::1
-[proc printType, ( val:Type <)Void,
+[procedure printType, ( val:Type <)Void,
     std.print(line="Its a float");
 ];
 
 template::{> Type:Symbol <}
 constraint::(Type.[is_integer_type])
 weight::1
-[proc printType, ( val:Type <)Void,
+[procedure printType, ( val:Type <)Void,
     std.print(line="Its an integer");
 ];
 
 template::{> Type:Symbol <}
 constraint::(Type.[is_type])
-[proc printType, ( val:Type <)Void,
+[procedure printType, ( val:Type <)Void,
     std.print(line="Its something");
 ];
 

@@ -2,7 +2,7 @@
 
 [node my_stuff,
     export
-    [proc printHelloWorld, ()Void,
+    [procedure printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
 ];

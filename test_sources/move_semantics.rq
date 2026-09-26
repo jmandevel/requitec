@@ -6,15 +6,15 @@
 stable_address
 [class MyPinned, public [layout_constructor]; {}];
 
-[proc takeReciever, ()Void=>MyPinned,
+[procedure takeReciever, ()Void=>MyPinned,
 
 ];
 
-[proc takeArg, (pinned:MyPinned<)Void,
+[procedure takeArg, (pinned:MyPinned<)Void,
 
 ];
 
-[proc takeOrCopyArg, (pinned:MyClass<)Void,
+[procedure takeOrCopyArg, (pinned:MyClass<)Void,
 
 ];
 

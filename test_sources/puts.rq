@@ -1,5 +1,5 @@
 opaque mangle::puts
-[proc [noname], (>str:Ptr@no_mut\Char<)Void];
+[procedure [noname], (>str:Ptr@no_mut\Char<)Void];
 
 [main ()SInt, result,
     C.puts("hello, world\n".[of char].[data_address]);

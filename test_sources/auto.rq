@@ -2,7 +2,7 @@
 
 template::{> auto Type:Symbol <}
 constraint::Type.[is_type]
-[proc add, 
+[procedure add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be static.
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.

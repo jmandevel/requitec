@@ -1,5 +1,5 @@
 opaque mangle::myForwardedAdd
-[proc myForwardedAdd, (> a:Single, b:Single <)Single];
+[procedure myForwardedAdd, (> a:Single, b:Single <)Single];
 
 // you have to write the signature again, and it has to be identical
 [implement_proc myForwardedAdd, (> a:Single, b:Single <)Single,

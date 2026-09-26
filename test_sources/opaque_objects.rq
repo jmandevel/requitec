@@ -4,18 +4,18 @@ opaque mangle::MyClass
 [class MyClass, Unknown];
 
 opaque mangle::getInstanceRef
-[proc getInstance, ()Ref@MyClass];
+[procedure getInstance, ()Ref@MyClass];
 
 // when this class fully implemented, it can be a maximum of 64 bits in size
 opaque mangle::SizedClass
 [class SizedClass, margin::64\Unknown,
 
     opaque
-    [proc doSomething, ()Void=>Ref@mut\];
+    [procedure doSomething, ()Void=>Ref@mut\];
 ];
 
 opaque mangle::getSized
-[proc getSized, ()MyClass];
+[procedure getSized, ()MyClass];
 
 [main ()SInt, result,
     ref := getInstanceRef().[borrow];

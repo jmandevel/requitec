@@ -112,8 +112,8 @@ enum class Keyword : rq::EntityId {
   ADDRESS_OF,
   SLICE,
   SLICE_OF,
-  FUNCTION_ADDRESS,
-  FUNCTION_ADDRESS_OF,
+  PROCEDURE_ADDRESS,
+  PROCEDURE_ADDRESS_OF,
   BORROW,
   BORROW_OF,
   DATA_ADDRESS,
@@ -141,11 +141,12 @@ enum class Keyword : rq::EntityId {
   INPLACE_INIT_OF,
 
   // SUBTYPE
-  INSTANTIATE_ARRAY,
-  INSTANTIATE_REFERENCE,
-  INSTANTIATE_POINTER,
-  INSTANTIATE_SLICE,
-  INSTANTIATE_GREATEST,
+  INSTANTIATE_SUBTYPE,
+  ARRAY_SUBTYPE,
+  REFERENCE_SUBTYPE,
+  POINTER_SUBTYPE,
+  SLICE_SUBTYPE,
+  SPLIT_SUBTYPE,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -165,8 +166,8 @@ enum class Keyword : rq::EntityId {
   PLACEMENT,
   COMPOSITION,
   DEFAULT_VALUE_PARAMETER,
-  FUNCTION,
-  IMPLEMENT_FUNCTION,
+  PROCEDURE,
+  IMPLEMENT_PROCEDURE,
   CONSTRUCTOR,
   LAYOUT_CONSTRUCTOR,
 
@@ -178,8 +179,6 @@ enum class Keyword : rq::EntityId {
   ENUM,
   INTERFACE,
   ADAPTER,
-  SNEAKY_MACRO_STATEMENT,
-  SNEAKY_MACRO_VALUE,
 
   // VALUES
   ARRAY,
@@ -189,11 +188,9 @@ enum class Keyword : rq::EntityId {
   VALUE,
   // vignette index.
   INDEX,
-  // reference to extended value of function or extension_function.
+  // reference to reciever
   THIS,
-  // value returned from a function.
-  RESULT,
-  // get information about location of function call
+  // get information about location of a proc call
   CALLSITE,
 
   // BUILTIN TYPES
@@ -212,9 +209,16 @@ enum class Keyword : rq::EntityId {
   BINARY64,
   BINARY128,
   BFLOAT16,
-  INT,
-  SIZE_TYPE,
-  INDEX_TYPE,
+  SINT,
+  UINT,
+  FSINT,
+  FUINT,
+  LSINT,
+  LUINT,
+  SSIZE,
+  USIZE,
+  SINDEX,
+  UINDEX,
   CHAR,
   ASCII,
   UTF8,
@@ -243,6 +247,10 @@ enum class Keyword : rq::EntityId {
   WEAVE,
   SCOPE,
   FOLD,
+  BREAK,
+  BREAK_OF,
+  CONTINUE,
+  CONTINUE_OF,
 
   // RANGES
   ARITHMETIC_SEQUENCE,
@@ -260,8 +268,7 @@ enum class Keyword : rq::EntityId {
 
   // TABLE GRAPH
   IMPORT,
-  NAMESPACE,
-  STELLARSCOPE,
+  NODE,
   C,
   TOP,
 
@@ -301,7 +308,7 @@ enum class Keyword : rq::EntityId {
   EAGER,
   LAZY,
   // initialization_time
-  PREDEFINED,
+  PRESET,
   SINGLETON,
   // capture
   CAPTURE,
@@ -351,15 +358,12 @@ enum class Keyword : rq::EntityId {
   REQUIRE,
   // ensure
   ENSURE,
-  // control_flow
-  BREAK,
-  CONTINUE,
 
   // QUALIFIERS
-  // var
-  NO_VAR,
-  PARTIAL_VAR,
-  VAR,
+  // mut
+  NO_MUT,
+  PARTIAL_MUT,
+  MUT,
   // volatile
   NO_VOLATILE,
   VOLATILE,
@@ -369,14 +373,9 @@ enum class Keyword : rq::EntityId {
   // null_terminate
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
-  // signednesss
-  NO_SIGNEDNESS,
-  UNSIGNED,
-  SIGNED,
-  // scaling,
-  NO_SCALING,
-  FAST,
-  LEAST,
+  // margin
+  NO_MARGIN,
+  MARGIN,
 
   // ATTRIBUTE TYPES
   MODIFIER,
@@ -453,8 +452,8 @@ enum class Keyword : rq::EntityId {
   CONSTRUCTOR_RANGE_OF,
   RESOLVE_TEMPLATE,
   RESOLVE_TEMPLATE_OF,
-  RESOLVE_FUNCTION,
-  RESOLVE_FUNCTION_OF,
+  RESOLVE_PROCEDURE,
+  RESOLVE_PROCEDURE_OF,
   RESOLVE_ADAPTER,
   RESOLVE_ADAPTER_OF,
   IS_TYPE,
@@ -493,7 +492,6 @@ enum class SymbolKind : rq::EntityId {
   CODEUNIT_LITERAL_TYPE,
 
   // CONTEXTUAL VALUE
-  UNKNOWN_VALUE,
   VALUE_VALUE,
   INDEX_VALUE,
 
@@ -513,13 +511,33 @@ enum class SymbolKind : rq::EntityId {
   EXPRESSION_TYPE,
   EXPRESSION_RANGE_TYPE,
 
+  // PLATFORM FITTING TYPES
+  FSINT,
+  FUINT,
+  LSINT,
+  LUINT,
+
   // PLATFORM PRIMITIVE TYPES
   BOOLEAN_TYPE,
   HALF_TYPE,
   SINGLE_TYPE,
   DOUBLE_TYPE,
   QUADRUPLE_TYPE,
+  SINT,
+  UINT,
+  SSIZE,
+  USIZE,
+  SINDEX,
+  UINDEX,
   CHAR_TYPE,
+
+  // SCALED PRIMITIVE TYPES
+  SCALED_SINT,
+  SCALED_UINT,
+  SCALED_FSINT,
+  SCALED_FUINT,
+  SCALED_LSINT,
+  SCALED_LUINT,
 
   // STANDARD PRIMITIVE TYPE
   BINARY16_TYPE,
@@ -533,13 +551,8 @@ enum class SymbolKind : rq::EntityId {
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS_TYPE,
 
-  // INTEGER TYPES
-  SIGNED_INTEGER_TYPE,
-  UNSIGNED_INTEGER_TYPE,
-
   // SUBTYPES
   ARRAY_SUBTYPE,
-  GREATEST_SUBTYPE,
   REFERENCE_SUBTYPE,
   POINTER_SUBTYPE,
   SLICE_SUBTYPE,
@@ -549,6 +562,7 @@ enum class SymbolKind : rq::EntityId {
   MODULE,
 
   // IMPORTS
+  IMPORT_SPECIFIER,
   IMPORT,
 
   // CONFORMITY
@@ -567,7 +581,7 @@ enum class SymbolKind : rq::EntityId {
   // SPECIALIZATION SET
   SPECIALIATION_SET,
   ADAPTER_SPECIALIZATION_SET,
-  FUNCTION_SPECIALIZATION_SET,
+  PROCEDURE_SPECIALIZATION_SET,
 
   // ARITHMETIC SEQUENCES
   ARITHMETIC_INTERVAL_TYPE,
@@ -597,9 +611,8 @@ enum class SymbolKind : rq::EntityId {
   SYNONYM_TYPE,
 
   // SYMBOL TABLES
-  STELLARSCOPE_TABLE,
   C_TABLE,
-  TOP_TABLE,
+  USER_TABLE,
 
   // EAGER STATEMENTS
   IF_STATEMENT,
@@ -614,15 +627,12 @@ enum class SymbolKind : rq::EntityId {
   WEAVE_STATEMENT,
   SCOPE_STATEMENT,
 
-  // NAMED TABLE
-  NAMESPACE,
-
   // OVERLOADS
   CLASS_OVERLOAD,
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
   ADAPTER_OVERLOAD,
-  FUNCTION_OVERLOAD,
+  PROCEDURE_OVERLOAD,
   LAZY_VARIABLE_OVERLOAD,
 
   // SPECIALIZATIONS
@@ -630,7 +640,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
   ADAPTER_SPECIALIZATION,
-  FUNCTION_SPECIALIZATION,
+  PROCEDURE_SPECIALIZATION,
   LAZY_VARIABLE_SPECIALIZATION,
 
   // TEMPLATES
@@ -638,7 +648,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_TEMPLATE,
   INTERFACE_TEMPLATE,
   ADAPTER_TEMPLATE,
-  FUNCTION_TEMPLATE,
+  PROCEDURE_TEMPLATE,
   LAZY_VARIABLE_TEMPLATE,
 
   // POLYMORPHS
@@ -646,7 +656,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_POLYMORPH,
   INTERFACE_POLYMORPH,
   ADAPTER_POLYMORPH,
-  FUNCTION_POLYMORPH,
+  PROCEDURE_POLYMORPH,
   LAZY_VARIABLE_POLYMORPH,
 
   // WEIGHT LEVELS
@@ -654,7 +664,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_WEIGHT_LEVEL,
   INTERFACE_WEIGHT_LEVEL,
   ADAPTER_WEIGHT_LEVEL,
-  FUNCTION_WEIGHT_LEVEL,
+  PROCEDURE_WEIGHT_LEVEL,
   LAZY_VARIABLE_WEIGHT_LEVEL,
 
   LAST
@@ -713,7 +723,7 @@ enum class Opcode : rq::EntityId {
 
   RETURN,
 
-  // address0 = function
+  // address0 = proc
   // address1 = push_args
   CALL,
 

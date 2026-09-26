@@ -22,7 +22,7 @@
     // if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
     public template::{| auto mut0:Qualifier }
     constraint:mut0.[is_mut_qualifier]
-    [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\, result,
+    [procedure getNumRef, ()Ref@mut0\SInt=>Ref@mut0\, result,
         result <:= this.num.mut0\[borrow]
     ];
 

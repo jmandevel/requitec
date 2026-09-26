@@ -1,6 +1,6 @@
 [import "std", std];
 
-[proc printMe, 
+[procedure printMe, 
     (|
         snippet:=callsite.[snippet],
         line:=callsite.[line],

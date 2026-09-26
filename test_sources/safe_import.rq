@@ -12,7 +12,7 @@
 ];
 
 [node A,
-    [proc getBool, ()Bool, result,
+    [procedure getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 
         // this still uses the _SneakyMacro so it expands to [true].

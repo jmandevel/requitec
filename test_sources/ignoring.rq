@@ -1,6 +1,6 @@
 // all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
 
-[proc nodiscard, ()FSInt32, result,
+[procedure nodiscard, ()FSInt32, result,
     result <:= 0;
 ];
 

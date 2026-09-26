@@ -1,16 +1,16 @@
 [import "std", std];
 
 [interface ISpeak,
-    // this function is virtual so can be overriden by adapters
+    // this procedure is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
     public virtual
-    [proc speak, ()Void=>,
+    [procedure speak, ()Void=>,
         std.print(line="I don't speak.");
     ];
 
-    // this function is not virtual so it cannot be overriden by adapters
+    // this procedure is not virtual so it cannot be overriden by adapters
     public
-    [proc doSomething, ()Void=>,
+    [procedure doSomething, ()Void=>,
         std.print(line="do something now!");
     ];
 
@@ -22,21 +22,21 @@
 
 [class Rat, public[layout_constructor]; {},
     public
-    [proc squeak, ()Void=>,
+    [procedure squeak, ()Void=>,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [proc speak, ()Void=>,
+    [procedure speak, ()Void=>,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
     public
-    [proc speak, ()Void=>,
+    [procedure speak, ()Void=>,
         std.print(line="Meow!");
     ];
 ];
@@ -48,19 +48,19 @@
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
     public virtual opaque
-    [proc greet, ()Void=>];
+    [procedure greet, ()Void=>];
 ];
 
 [adapter A, Dog==>IGreet,
     public
-    [proc greet, ()Void=>,
+    [procedure greet, ()Void=>,
         std.print(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
     public
-    [proc greet, ()Void=>,
+    [procedure greet, ()Void=>,
         std.print(line="bark!");
     ];
 ];
@@ -90,7 +90,7 @@
     result <:= 0;
 ];
 
-[proc speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)Void,
+[procedure speakAndGreet, (> animal:[Greatest 64]@[composition ISpeak, IGreet] <)Void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

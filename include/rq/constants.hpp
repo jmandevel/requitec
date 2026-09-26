@@ -168,8 +168,10 @@ struct ConstantDataArray final : public rq::Constant,
 
 inline void profileConstantSymbol(llvm::FoldingSetNodeID &inout_id,
                                   rq::HighFuseFlags flags,
+                                  std::size_t margin,
                                   const rq::Symbol &symbol) {
   inout_id.AddInteger(rq::getUnderlyingValue(flags));
+  inout_id.AddInteger(margin);
   inout_id.AddPointer(&symbol);
 }
 
@@ -177,15 +179,20 @@ struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
   using Self = rq::ConstantSymbol;
 
   rq::HighFuseFlags _flags;
+  std::size_t _margin;
   rq::Symbol *_symbol_ptr;
 
-  explicit RQ_ALWAYS_INLINE ConstantSymbol(rq::HighFuseFlags flags,
+  explicit RQ_ALWAYS_INLINE ConstantSymbol(rq::HighFuseFlags flags, std::size_t margin,
                                            rq::Symbol &symbol)
-      : Constant(rq::ConstantKind::SYMBOL), _flags(flags),
+      : Constant(rq::ConstantKind::SYMBOL), _flags(flags), _margin(margin), 
         _symbol_ptr(&symbol) {}
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighFuseFlags getInfoFlags() const {
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HighFuseFlags getFuseFlags() const {
     return this->_flags;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getMargin() const {
+    return this->_margin;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const {
@@ -204,7 +211,7 @@ struct ConstantSymbol final : public rq::Constant, public llvm::FoldingSetNode {
   }
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
-    rq::profileConstantSymbol(inout_id, this->getInfoFlags(), this->getSymbol());
+    rq::profileConstantSymbol(inout_id, this->getFuseFlags(), this->getMargin(), this->getSymbol());
   }
 };
 

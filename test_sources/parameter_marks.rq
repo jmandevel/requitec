@@ -10,19 +10,19 @@
 
 [import "std", std];
 
-[proc allPositional, (arg0:Binary32, arg1:Binary32 <)Void];
+[procedure allPositional, (arg0:Binary32, arg1:Binary32 <)Void];
 
-[proc allNamed, (> arg0:Binary32, arg1:Binary32)Void];
+[procedure allNamed, (> arg0:Binary32, arg1:Binary32)Void];
 
-[proc namedOrPositional, (> arg0:Binary32, arg1:Binary32<)Void];
+[procedure namedOrPositional, (> arg0:Binary32, arg1:Binary32<)Void];
 
-[proc nonSettable, (| a:=0, b:=1 )Void];
+[procedure nonSettable, (| a:=0, b:=1 )Void];
 
 // a must be positional
 // b can be either named or positional
 // c must be named
 // d can not be set and will use default value (3)
-[proc mix, (a:=0,> b:=1 <, c:=2, | d:=3)Void];
+[procedure mix, (a:=0,> b:=1 <, c:=2, | d:=3)Void];
 
 // parameter marks work the same way for template layouts and class layouts
 template::{a:=0, > b:=1 <, c:=2, | d:=3}

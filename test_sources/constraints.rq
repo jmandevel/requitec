@@ -5,6 +5,6 @@ integer_value  : u32 = 0;
 
 template::{> Type:symbol <}
 constraint::(Type.[is_integer_type])
-[proc addA, (> a:Type, b:Type <)Type, result,
+[procedure addA, (> a:Type, b:Type <)Type, result,
     result <:= a + b;
 ];

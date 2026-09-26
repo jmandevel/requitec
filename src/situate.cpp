@@ -201,8 +201,8 @@ bool Situator::situateTree(rq::Situation situation,
     expression.changeKeyword(chain_keyword);
   } break;
   case K::UNSITUATED_TRAIN: {
-    if (situation == S::NAMESPACE) {
-      is_ok = this->situateNaryTag(situation, expression, 2, S::NAMESPACE);
+    if (situation == S::PATH) {
+      is_ok = this->situateNaryTag(situation, expression, 2, S::PATH);
       break;
     }
     if (!expression.getHasBranch()) {
@@ -439,10 +439,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SLICE_OF:
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
-  case K::FUNCTION_ADDRESS:
+  case K::PROCEDURE_ADDRESS:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::FUNCTION_ADDRESS_OF:
+  case K::PROCEDURE_ADDRESS_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::BORROW:
@@ -524,18 +524,26 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // SUBTYPE
-  case K::INSTANTIATE_ARRAY:
+  case K::INSTANTIATE_SUBTYPE:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::INSTANTIATE_REFERENCE:
-    [[fallthrough]];
-  case K::INSTANTIATE_POINTER:
-    [[fallthrough]];
-  case K::INSTANTIATE_SLICE:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+  case K::ARRAY_SUBTYPE:
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
+    if (!expression.getHasBranch()) {
+      rq::Expression &inference = this->getContext().acquireExpression();
+      inference.setSourceAtEnd(expression);
+      inference.setKeyword(K::INFERENCE);
+      expression.setBranch(inference);
+    }
     break;
-  case K::INSTANTIATE_GREATEST:
-    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+  case K::REFERENCE_SUBTYPE:
+    [[fallthrough]];
+  case K::POINTER_SUBTYPE:
+    [[fallthrough]];
+  case K::SLICE_SUBTYPE:
+    [[fallthrough]];
+  case K::SPLIT_SUBTYPE:
+    is_ok = this->situateNullary(situation, expression);
     break;
 
   // PARAMETER RULES
@@ -587,9 +595,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateBinaryTag(situation, expression, S::BINDING, S::RVALUE);
     break;
-  case K::FUNCTION:
+  case K::PROCEDURE:
     [[fallthrough]];
-  case K::IMPLEMENT_FUNCTION:
+  case K::IMPLEMENT_PROCEDURE:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
   case K::CONSTRUCTOR:
@@ -620,7 +628,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ADAPTER:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
-
+  
   // VALUES
   case K::ARRAY:
     is_ok = this->situateNaryTag(situation, expression, 0, S::RVALUE);
@@ -634,8 +642,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INDEX:
     [[fallthrough]];
   case K::THIS:
-    [[fallthrough]];
-  case K::RESULT:
     [[fallthrough]];
   case K::CALLSITE:
     [[fallthrough]];
@@ -672,12 +678,26 @@ bool Situator::situateTree(rq::Situation situation,
   case K::BFLOAT16:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::INT:
+  case K::SINT:
+    [[fallthrough]];
+  case K::UINT:
+    [[fallthrough]];
+  case K::FSINT:
+    [[fallthrough]];
+  case K::FUINT:
+    [[fallthrough]];
+  case K::LSINT:
+    [[fallthrough]];
+  case K::LUINT:
     is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::SIZE_TYPE:
+  case K::SSIZE:
     [[fallthrough]];
-  case K::INDEX_TYPE:
+  case K::USIZE:
+    [[fallthrough]];
+  case K::SINDEX:
+    [[fallthrough]];
+  case K::UINDEX:
     [[fallthrough]];
   case K::CHAR:
     [[fallthrough]];
@@ -760,6 +780,17 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING,
                                                     expression);
     break;
+  case K::BREAK:
+      is_ok = this->situateNullary(situation, expression);
+      break;
+  case K::BREAK_OF:
+      is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+  case K::CONTINUE:
+      is_ok = this->situateNullary(situation, expression);
+      break;
+  case K::CONTINUE_OF:
+      is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+      break;
 
   // RANGES
   case K::ARITHMETIC_SEQUENCE:
@@ -795,8 +826,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IMPORT:
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
-  case K::NAMESPACE: {
-    is_ok = this->stiuateNameStatement(situation, expression, S::NAMESPACE);
+  case K::NODE: {
+    is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
     if (!is_ok) {
       break;
     }
@@ -806,11 +837,11 @@ bool Situator::situateTree(rq::Situation situation,
       rq::Expression *body_ptr = path.popNextPtr();
       this->getContext().discardExpression(expression.replaceBranch(branch));
       rq::Expression &branch_next = branch.popNext();
-      rq::Expression &nested_namespace = this->getContext().acquireExpression();
-      nested_namespace.setIsInserted();
-      nested_namespace.setSource(expression);
-      nested_namespace.setKeyword(K::NAMESPACE);
-      nested_namespace.setBranch(branch_next);
+      rq::Expression &nested_table = this->getContext().acquireExpression();
+      nested_table.setIsInserted();
+      nested_table.setSource(expression);
+      nested_table.setKeyword(K::NODE);
+      nested_table.setBranch(branch_next);
       rq::Expression *previous_path_ptr = &branch_next;
       while (previous_path_ptr != nullptr) {
         rq::Expression &previous_path = rq::dereferencePtr(previous_path_ptr);
@@ -819,26 +850,17 @@ bool Situator::situateTree(rq::Situation situation,
           break;
         }
         rq::Expression &path_next = branch.popNext();
-        rq::Expression &next_namespace = this->getContext().acquireExpression();
-        next_namespace.setIsInserted();
-        next_namespace.setSource(expression);
-        next_namespace.setKeyword(K::NAMESPACE);
-        next_namespace.setBranch(path_next);
+        rq::Expression &next_table = this->getContext().acquireExpression();
+        next_table.setIsInserted();
+        next_table.setSource(expression);
+        next_table.setKeyword(K::NODE);
+        next_table.setBranch(path_next);
         previous_path_ptr = &path_next;
       }
-      branch.setNext(nested_namespace);
+      branch.setNext(nested_table);
     }
     break;
   }
-  case K::STELLARSCOPE:
-    switch (situation) {
-    case S::TOP:
-      is_ok = this->situateStatement(expression);
-      break;
-    default:
-      is_ok = this->situateNullary(situation, expression);
-    }
-    break;
   case K::C:
     is_ok = this->situateNullary(situation, expression);
     break;
@@ -907,7 +929,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::LAZY:
     [[fallthrough]];
-  case K::PREDEFINED:
+  case K::PRESET:
     [[fallthrough]];
   case K::SINGLETON:
     [[fallthrough]];
@@ -971,21 +993,17 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
-  case K::ENSURE:
-    [[fallthrough]];
-  case K::BREAK:
-    [[fallthrough]];
-  case K::CONTINUE: {
+  case K::ENSURE: {
     is_ok = this->situateNullary(situation, expression);
     break;
   }
 
   // QUALIFIERS
-  case K::NO_VAR:
+  case K::NO_MUT:
     [[fallthrough]];
-  case K::VAR:
+  case K::MUT:
     [[fallthrough]];
-  case K::PARTIAL_VAR:
+  case K::PARTIAL_MUT:
     [[fallthrough]];
   case K::NO_VOLATILE:
     [[fallthrough]];
@@ -997,7 +1015,11 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case K::NULL_TERMINATE: {
+  case K::NULL_TERMINATE: 
+    [[fallthrough]];
+  case K::NO_MARGIN:
+    [[fallthrough]];
+  case K::MARGIN: {
     if (!this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE)) {
       is_ok = false;
       break;
@@ -1232,10 +1254,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RESOLVE_TEMPLATE_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::RESOLVE_FUNCTION:
+  case K::RESOLVE_PROCEDURE:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::RESOLVE_FUNCTION_OF:
+  case K::RESOLVE_PROCEDURE_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::RESOLVE_ADAPTER:

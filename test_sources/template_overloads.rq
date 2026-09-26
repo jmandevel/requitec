@@ -1,6 +1,6 @@
 template::{ Type:Symbol <}
 constraint::(Type.[is_type])
-[proc asSigned, 
+[procedure asSigned, 
     static Signed : = [SInt Type.[byte_size]];
     ( mut:Type <)Signed, result,
     result <:= mut.[bitwise_cast Signed];

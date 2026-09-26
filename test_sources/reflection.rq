@@ -8,7 +8,7 @@
 
 template::{> NUM:SInt <}
 weight::3
-[proc getNum, ()SInt, result,
+[procedure getNum, ()SInt, result,
     result <:= NUM;
 ];
 
@@ -16,11 +16,11 @@ weight::3
 
 // declarations without a template modifier are attached directly to the polymorph
 
-[proc getNum, ()SInt, result,
+[procedure getNum, ()SInt, result,
     result <:= 0;
 ];
 
-[proc getNum, (> num:SInt <)SInt, result,
+[procedure getNum, (> num:SInt <)SInt, result,
     result <:= num;
 ];
 

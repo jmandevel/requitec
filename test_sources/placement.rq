@@ -1,10 +1,10 @@
 
 
 opaque mangle::malloc
-[proc malloc, (size:USize<)Ptr@mut\Void];
+[procedure malloc, (size:USize<)Ptr@mut\Void];
 
 opaque mangle::free
-[proc free, (ptr:Ptr@mut\Void<)Void];
+[procedure free, (ptr:Ptr@mut\Void<)Void];
 
 template::{ Type:symbol<}
 constraint::(Type.[is_type])
@@ -16,7 +16,7 @@ constraint::(Type.[is_type])
     public inline
     template::{Placement:symbol<}
     constraint::Placement.[is_placement_type Type]
-    [proc create, 
+    [procedure create, 
         (placement:Placement<)mut\UniquePtr{Type}, result,
 
         ptr := malloc(Type.[byte_size]).[cast ?mut\Type];

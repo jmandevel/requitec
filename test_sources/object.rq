@@ -10,17 +10,17 @@
     public [layout_constructor];
 
     public
-    [proc fromScalar, (> scalar:FSInt32 <)MyClass, result,
+    [procedure fromScalar, (> scalar:FSInt32 <)MyClass, result,
         result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public
-    [proc getTotal, ()FSInt32=>Ref@, result,
+    [procedure getTotal, ()FSInt32=>Ref@, result,
         result <:= this.x + this.y + this.z;
     ];
 
     public
-    [proc add, (>a:MyClass, b:MyClass<)MyClass, result,
+    [procedure add, (>a:MyClass, b:MyClass<)MyClass, result,
         result <:=
             MyClass(
                 a.x + b.x,

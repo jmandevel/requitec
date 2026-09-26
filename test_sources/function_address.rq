@@ -1,4 +1,4 @@
-[proc myFunction, ( 
+[procedure myProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -8,7 +8,7 @@
     (positional + positional_and_named + named + locked);
 ];
 
-[proc myOtherFunction, ( 
+[procedure myOtherProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -17,7 +17,7 @@
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-[proc myThirdFunction, ( 
+[procedure myThirdProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0 * 0.0,
@@ -26,7 +26,7 @@
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-[proc myFourthFunction, ( 
+[procedure myFourthProcedure, ( 
         first_arg:single=0.0,
         >positional_and_named:single=0.0<,
         named:single=0.0,
@@ -37,22 +37,22 @@
 
 
 [main ()SInt, result,
-    // calling directly from myFunction
+    // calling directly from myProcedure
     // default values are used
     // locked parameters cannot be set
     // parameter marks apply
-    a := myFunction();
-    b := myFunction(1.0);
-    b := myFunction(1.0, 2.0);
-    c := myFunction(1.0, positional_and_named);
-    d := myFunction(1.0, named=2.0);
-    e := myFunction(1.0, named=2.0, positional_and_named=3.0);
-    f := myFunction(1.0, 2.0, named=3.0);
-    g := myFunction(1.0, positional_and_named=2.0, named=3.0);
+    a := myProcedure();
+    b := myProcedure(1.0);
+    b := myProcedure(1.0, 2.0);
+    c := myProcedure(1.0, positional_and_named);
+    d := myProcedure(1.0, named=2.0);
+    e := myProcedure(1.0, named=2.0, positional_and_named=3.0);
+    f := myProcedure(1.0, 2.0, named=3.0);
+    g := myProcedure(1.0, positional_and_named=2.0, named=3.0);
 
-    // call from a pointer to myFunction
-    ptr :\mut= myFunction.[proc_address];
-    // you can call from ptr just like myFunction
+    // call from a pointer to myProcedure
+    ptr :\mut= myProcedure.[procedure_address];
+    // you can call from ptr just like myProcedure
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();
     j := ptr(1.0);
@@ -65,19 +65,19 @@
 
     // can assign different function to variable if its [mut] and has EXACTLY the same signature.
     // the default values need to have identical expressions when situated.
-    ptr = myOtherFunction.[proc_address];
+    ptr = myOtherProcedure.[procedure_address];
     ptr();
 
     // type is different even if default value evaluates to the same result.
-    // ptr = myThirdFunction.[proc_address]; 
+    // ptr = myThirdProcedure.[procedure_address]; 
     // this would result in compile error because named parameter's default value is wrong.
     // its wrong even though it still evaluates to 0.
-    // need to use sig_cast
-    ptr = myThirdFunction.[proc_address].[sig_cast];
+    // need to use signature_cast
+    ptr = myThirdProcedure.[procedure_address].[signature_cast];
     ptr();
     
     // need to cast if parameters are named differently
-    ptr = myFourthFunction.[proc_address].[sig_cast];
+    ptr = myFourthProcedure.[procedure_address].[signature_cast];
     ptr();
 
     result <:= 0;
