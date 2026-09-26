@@ -1628,6 +1628,7 @@ struct ImportSpecifier final : public rq::TableMember {
   rq::Name _name{};
   rq::TableMember *_target_ptr{nullptr};
   llvm::SmallPtrSet<rq::Module *, 1> _constituent_ptrs{};
+  
 
   explicit RQ_ALWAYS_INLINE ImportSpecifier();
 

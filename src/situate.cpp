@@ -100,13 +100,6 @@ bool Situator::situateTree(rq::Situation situation,
       }
       expression.changeKeyword(K::DEFAULT_VALUE_PARAMETER);
     } break;
-    case S::IMPORT_PATH: {
-      if (!this->situateBinaryTag(situation, expression, S::NAME, S::IMPORT_PATH)) {
-        is_ok = false;
-        break;
-      }
-      expression.changeKeyword(K::RENAME);
-    } break;
     case S::TUPLE_ELEMENT: {
       if (!this->situateBinaryTag(situation, expression, S::LVALUE,
                                   S::RVALUE)) {
@@ -879,9 +872,6 @@ bool Situator::situateTree(rq::Situation situation,
     default:
       is_ok = this->situateNullary(situation, expression);
     }
-    break;
-  case K::RENAME:
-    is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::IMPORT_PATH);
     break;
 
   // HINTS

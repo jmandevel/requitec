@@ -271,7 +271,6 @@ enum class Keyword : rq::EntityId {
   NODE,
   C,
   TOP,
-  RENAME,
 
   // HINTS
   DEBUG_BREAK,

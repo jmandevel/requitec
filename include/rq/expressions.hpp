@@ -476,8 +476,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "_top";
-  case K::RENAME:
-    return "_rename";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -899,13 +897,13 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
-    // NOTE: not allowed in STATEMENT and PARAMETER situations so that low
-    // modifiers do not get confused with _call (and also this would be weird).
+    // NOTE: not allowed in STATEMENT, PARAMETER, and IMPORT_PATH situations so that
+    // modifiers do not get confused with _call.
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::LVALUE | KIF::NAME | KIF::NODE_PATH | KIF::IMPORT_PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
+           KIF::LVALUE | KIF::NAME | KIF::NODE_PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
-    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT | KIF::IMPORT_PATH;
+    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::IMPORT_PATH;
@@ -1343,8 +1341,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::TOP:
     return KIF::NONE; // TOP
-  case K::RENAME:
-    return KIF::IMPORT_PATH;
 
   // HINTS
   case K::DEBUG_BREAK:
