@@ -2,7 +2,7 @@ opaque mangle::puts
 [procedure [noname], (>str:Ptr@no_mut\Char<)Void];
 
 [main ()SInt, result,
-    C.puts("hello, world\n".[of char].[data_address]);
+    c.puts("hello, world\n".[of char].[data_address]);
 
     result <:= 0;
 ];

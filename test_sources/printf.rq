@@ -2,7 +2,7 @@ opaque mangle::printf
 [procedure [noname], (>format:Ptr@no_mut\Char, variadic mutgs:VariadicArguments<)Void];
 
 [main ()SInt, result,
-    C.printf("Hello, %s! I am %d.".[of char].[data_address], [variadic_arguments "world", 30]);
+    c.printf("Hello, %s! I am %d.".[of char].[data_address], [variadic_arguments "world", 30]);
 
     result <:= 0;
 ];
