@@ -42,7 +42,7 @@
 ];
 
 [adapter A, Rat==>ISpeak,
-    [use speak, Rat.squeak.[reflect].[resolve_function ()Void=>Ref@]];
+    [use speak, Rat.squeak.[resolve_function ()Void=>Ref@]];
 ];
 
 [interface IGreet,

@@ -1,8 +1,8 @@
 opaque mangle::printf
-[procedure [noname], (>format:Ptr@no_mut\Char, variadic mutgs:VariadicArguments<)Void];
+[procedure [noname], (>format:Ptr@no_mut\Char, dynamic_variadic args:DynamicDynamic_variadic<)Void];
 
 [main ()SInt, result,
-    c.printf("Hello, %s! I am %d.".[of char].[data_address], [variadic_arguments "world", 30]);
+    c.printf("Hello, %s! I am %d.".[of char].[data_address], [dynamic_variadic_arguments "world", 30]);
 
     result <:= 0;
 ];

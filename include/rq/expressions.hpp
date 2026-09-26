@@ -387,19 +387,19 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::UTF8:
     return "Utf8";
 
-  // VARIADIC ARGUMENTS
-  case K::VARIADIC_ARGUMENTS_TYPE:
-    return "VariadicArguments";
-  case K::FIRST_VARIADIC_ARGUMENT:
-    return "first_variadic_argument";
-  case K::FIRST_VARIADIC_ARGUMENT_OF:
-    return "_first_variadic_argument_of";
-  case K::NEXT_VARIADIC_ARGUMENT:
-    return "next_variadic_argument";
-  case K::NEXT_VARIADIC_ARGUMENT_OF:
-    return "_next_variadic_argument_of";
-  case K::VARIADIC_ARGUMENTS:
-    return "variadic_arguments";
+  // DYNAMIC_VARIADIC ARGUMENTS
+  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+    return "DynamicVariadicArguments";
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
+    return "first_dynamic_variadic_argument";
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
+    return "_first_dynamic_variadic_argument_of";
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
+    return "next_dynamic_variadic_argument";
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
+    return "_next_dynamic_variadic_argument_of";
+  case K::DYNAMIC_VARIADIC_ARGUMENTS:
+    return "dynamic_variadic_arguments";
 
   // SCOPES
   case K::IF_CHAIN:
@@ -564,8 +564,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "stable_address";
   case K::INVARIADIC:
     return "invariadic";
-  case K::VARIADIC:
-    return "variadic";
+  case K::DYNAMIC_VARIADIC:
+    return "dynamic_variadic";
   case K::BEST_LOCATION:
     return "best_location";
   case K::LOCATION:
@@ -724,10 +724,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "underlying_type";
   case K::UNDERLYING_TYPE_OF:
     return "_underlying_type_of";
-  case K::REFLECT:
-    return "reflect";
-  case K::REFLECT_OF:
-    return "_reflect_of";
+  case K::VARIABLE:
+    return "variable";
+  case K::VARIABLE_OF:
+    return "_variable_of";
   case K::POLYMORPH:
     return "polymorph";
   case K::POLYMORPH_OF:
@@ -850,15 +850,15 @@ enum class KeywordInfoFlags : std::uint32_t {
   TUPLE_ELEMENT = rq::getBit(17),
   BINDING = rq::getBit(18),
   NAME = rq::getBit(19),
-  NODE_PATH = rq::getBit(20),
-  IMPORT_PATH = rq::getBit(21),
+  PATH = rq::getBit(20),
+  ROUTE = rq::getBit(21),
   ASCRIPTION = rq::getBit(22),
   MODIFIER = rq::getBit(23),
   QUALIFIER = rq::getBit(24),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-      PARAMETER | BINDING | NAME | NODE_PATH | IMPORT_PATH | ASCRIPTION | MODIFIER | QUALIFIER |
+      PARAMETER | BINDING | NAME | PATH | ROUTE | ASCRIPTION | MODIFIER | QUALIFIER |
       ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -889,7 +889,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::NODE_PATH | KIF::IMPORT_PATH;
+           KIF::PATH | KIF::ROUTE;
 
   // ERRORS
   case K::ERROR:
@@ -897,16 +897,16 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
-    // NOTE: not allowed in STATEMENT, PARAMETER, and IMPORT_PATH situations so that
+    // NOTE: not allowed in STATEMENT, PARAMETER, and ROUTE situations so that
     // modifiers do not get confused with _call.
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::LVALUE | KIF::NAME | KIF::NODE_PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
+           KIF::LVALUE | KIF::NAME | KIF::PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::IMPORT_PATH;
+           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
@@ -916,7 +916,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::NODE_PATH | KIF::IMPORT_PATH;
+           KIF::PATH | KIF::ROUTE;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -973,7 +973,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::NODE_PATH | KIF::IMPORT_PATH;
+           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1248,18 +1248,18 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::UTF8:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
-  // VARIADIC ARGUMENTS
-  case K::VARIADIC_ARGUMENTS:
+  // DYNAMIC_VARIADIC ARGUMENTS
+  case K::DYNAMIC_VARIADIC_ARGUMENTS:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FIRST_VARIADIC_ARGUMENT:
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
     return KIF::RAILCAR;
-  case K::FIRST_VARIADIC_ARGUMENT_OF:
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::NEXT_VARIADIC_ARGUMENT:
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
     return KIF::RAILCAR;
-  case K::NEXT_VARIADIC_ARGUMENT_OF:
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIADIC_ARGUMENTS_TYPE:
+  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // SCOPES
@@ -1429,7 +1429,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INVARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIADIC:
+  case K::DYNAMIC_VARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BEST_LOCATION:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1499,7 +1499,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::WITHOUT:
     return KIF::RAILCAR;
   case K::WITHOUT_OF:
-    return KIF::IMPORT_PATH;
+    return KIF::ROUTE;
   case K::BAKE:
     return KIF::RAILCAR;
   case K::BAKE_OF:
@@ -1592,9 +1592,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::UNDERLYING_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::REFLECT:
+  case K::VARIABLE:
     return KIF::RAILCAR;
-  case K::REFLECT_OF:
+  case K::VARIABLE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::POLYMORPH:
     return KIF::RAILCAR;
@@ -1792,8 +1792,8 @@ enum class Situation : std::uint_fast8_t {
   TUPLE_ELEMENT,
   BINDING,
   NAME,
-  NODE_PATH,
-  IMPORT_PATH,
+  PATH,
+  ROUTE,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
   QUALIFIER_INSTANTIATION,
@@ -1842,10 +1842,10 @@ getDescription(rq::Situation situation) {
     return "binding expression";
   case S::NAME:
     return "name expression";
-  case S::NODE_PATH:
-    return "node path expression";
-  case S::IMPORT_PATH:
-    return "import path expression";
+  case S::PATH:
+    return "path expression";
+  case S::ROUTE:
+    return "route expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
@@ -1932,10 +1932,10 @@ getDescription(rq::Situation situation) {
     return K::INPLACE_DESTROY_OF;
   case K::INPLACE_INIT:
     return K::INPLACE_INIT_OF;
-  case K::FIRST_VARIADIC_ARGUMENT:
-    return K::FIRST_VARIADIC_ARGUMENT_OF;
-  case K::NEXT_VARIADIC_ARGUMENT:
-    return K::NEXT_VARIADIC_ARGUMENT_OF;
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
+    return K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF;
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
+    return K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF;
   case K::BREAK:
     return K::BREAK_OF;
   case K::CONTINUE:
@@ -1988,8 +1988,8 @@ getDescription(rq::Situation situation) {
     return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:
     return K::UNDERLYING_TYPE_OF;
-  case K::REFLECT:
-    return K::REFLECT_OF;
+  case K::VARIABLE:
+    return K::VARIABLE_OF;
   case K::POLYMORPH:
     return K::POLYMORPH_OF;
   case K::OVERLOAD:
@@ -2097,14 +2097,14 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::NAME);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNodePath(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::NODE_PATH);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::PATH);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportPath(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRoute(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::IMPORT_PATH);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::ROUTE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2281,10 +2281,10 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeBinding(keyword);
   case S::NAME:
     return rq::getCanBeName(keyword);
-  case S::NODE_PATH:
-    return rq::getCanBeNodePath(keyword);
-  case S::IMPORT_PATH:
-    return rq::getCanBeImportPath(keyword);
+  case S::PATH:
+    return rq::getCanBePath(keyword);
+  case S::ROUTE:
+    return rq::getCanBeRoute(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
@@ -2385,9 +2385,9 @@ enum class Modifier : std::uint_fast8_t {
   // address_stability
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // variadic
+  // dynamic_variadic
   INVARIADIC,
-  VARIADIC,
+  DYNAMIC_VARIADIC,
   // offset
   BEST_LOCATION,
   LOCATION,
@@ -2492,8 +2492,8 @@ enum class Modifier : std::uint_fast8_t {
     return "STABLE_ADDRESS";
   case M::INVARIADIC:
     return "INVARIADIC";
-  case M::VARIADIC:
-    return "VARIADIC";
+  case M::DYNAMIC_VARIADIC:
+    return "DYNAMIC_VARIADIC";
   case M::BEST_LOCATION:
     return "BEST_LOCATION";
   case M::LOCATION:
@@ -2607,8 +2607,8 @@ enum class Modifier : std::uint_fast8_t {
     return M::STABLE_ADDRESS;
   case K::INVARIADIC:
     return M::INVARIADIC;
-  case K::VARIADIC:
-    return M::VARIADIC;
+  case K::DYNAMIC_VARIADIC:
+    return M::DYNAMIC_VARIADIC;
   case K::BEST_LOCATION:
     return M::BEST_LOCATION;
   case K::LOCATION:
@@ -2716,8 +2716,8 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
   INVARIADIC = rq::getBit(34),
-  VARIADIC = rq::getBit(35),
-  VARIADIC_MODIFIER_MASK,
+  DYNAMIC_VARIADIC = rq::getBit(35),
+  DYNAMIC_VARIADIC_MODIFIER_MASK,
 
   BEST_LOCATION = rq::getBit(36),
   LOCATION = rq::getBit(37),
@@ -2833,8 +2833,8 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::STABLE_ADDRESS;
   case M::INVARIADIC:
     return MFF::INVARIADIC;
-  case M::VARIADIC:
-    return MFF::VARIADIC;
+  case M::DYNAMIC_VARIADIC:
+    return MFF::DYNAMIC_VARIADIC;
   case M::BEST_LOCATION:
     return MFF::BEST_LOCATION;
   case M::LOCATION:
@@ -2957,7 +2957,7 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::INVARIADIC:
     return MIF::NO_ATTACHMENT;
-  case M::VARIADIC:
+  case M::DYNAMIC_VARIADIC:
     return MIF::NO_ATTACHMENT;
   case M::BEST_LOCATION:
     return MIF::NO_ATTACHMENT;
@@ -3030,7 +3030,7 @@ enum class ModifierKind : std::uint_fast8_t {
   BRANCH_TREND,
   SUPPORT_NOTICE,
   ADDRESS_STABILITY,
-  VARIADIC,
+  DYNAMIC_VARIADIC,
   OFFSET,
   LAZY_DECLARATION_KIND,
   CONSTRAINT,
@@ -3080,8 +3080,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "support modifier";
   case MK::ADDRESS_STABILITY:
     return "address stability modifier";
-  case MK::VARIADIC:
-    return "variadic modifier";
+  case MK::DYNAMIC_VARIADIC:
+    return "dynamic variadic modifier";
   case MK::OFFSET:
     return "offset modifier";
   case MK::LAZY_DECLARATION_KIND:
@@ -3144,8 +3144,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::SUPPORT_NOTICE_MODIFIER_MASK;
   case MK::ADDRESS_STABILITY:
     return MFF::ADDRESS_STABILITY_MODIFIER_MASK;
-  case MK::VARIADIC:
-    return MFF::VARIADIC_MODIFIER_MASK;
+  case MK::DYNAMIC_VARIADIC:
+    return MFF::DYNAMIC_VARIADIC_MODIFIER_MASK;
   case MK::OFFSET:
     return MFF::OFFSET_MODIFIER_MASK;
   case MK::LAZY_DECLARATION_KIND:
@@ -3248,8 +3248,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::ADDRESS_STABILITY;
   case M::INVARIADIC:
     [[fallthrough]];
-  case M::VARIADIC:
-    return MK::VARIADIC;
+  case M::DYNAMIC_VARIADIC:
+    return MK::DYNAMIC_VARIADIC;
   case M::BEST_LOCATION:
     [[fallthrough]];
   case M::LOCATION:
@@ -3956,11 +3956,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeName() const {
     return rq::getCanBeName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNodePath() const {
-    return rq::getCanBeNodePath(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath() const {
+    return rq::getCanBePath(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportPath() const {
-    return rq::getCanBeNodePath(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRoute() const {
+    return rq::getCanBePath(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

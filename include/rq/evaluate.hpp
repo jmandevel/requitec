@@ -12,6 +12,13 @@
 
 namespace rq {
 
+struct Evaluator final {
+  // etc etc
+
+  void getOuterMemberOf(rq::SymbolTable& host, rq::Expression &path, llvm::SmallVector<rq::Symbol*>& inout_candidate_ptrs);
+  void getInnerMemberOf(rq::SymbolTable& host, rq::Expression& path, llvm::SmallVector<rq::Symbol*>& inout_candidate_ptrs);
+};
+
   // TODO
   
 } // namespace rq

@@ -1622,27 +1622,22 @@ struct TableMember : public rq::Symbol {
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-struct ImportSpecifier final : public rq::TableMember {
-  using Self = rq::ImportSpecifier;
+struct Route final : public rq::TableMember {
+  using Self = rq::Route;
 
   rq::Name _name{};
-  rq::TableMember *_target_ptr{nullptr};
-  llvm::SmallPtrSet<rq::Module *, 1> _constituent_ptrs{};
+  rq::TableMember* _symlink_ptr{nullptr};
+  llvm::SmallPtrSet<rq::TableMember*, 1> _without_ptr_set;
   
-
-  explicit RQ_ALWAYS_INLINE ImportSpecifier();
+  explicit RQ_ALWAYS_INLINE Route();
 
   RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
   RQ_ALWAYS_INLINE void setTarget(rq::TableMember &member);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::TableMember *getTargetPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TableMember *getTargetPtr() const;
-  RQ_ALWAYS_INLINE void setPath(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getPathPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getPathPtr() const;
-  RQ_ALWAYS_INLINE bool addConstituent(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsConstituent(const rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TableMember *getSymlinkPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::TableMember *getSymlinkPtr() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Import final : public rq::Symbol {

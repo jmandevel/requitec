@@ -201,8 +201,8 @@ bool Situator::situateTree(rq::Situation situation,
     expression.changeKeyword(chain_keyword);
   } break;
   case K::UNSITUATED_TRAIN: {
-    if (situation == S::NODE_PATH) {
-      is_ok = this->situateNaryTag(situation, expression, 2, S::NODE_PATH);
+    if (situation == S::PATH) {
+      is_ok = this->situateNaryTag(situation, expression, 2, S::PATH);
       break;
     }
     if (!expression.getHasBranch()) {
@@ -707,23 +707,23 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
 
-  // VARIADIC ARGUMENTS
-  case K::VARIADIC_ARGUMENTS_TYPE:
+  // DYNAMIC_VARIADIC ARGUMENTS
+  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::FIRST_VARIADIC_ARGUMENT:
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::FIRST_VARIADIC_ARGUMENT_OF:
+  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::NEXT_VARIADIC_ARGUMENT:
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::NEXT_VARIADIC_ARGUMENT_OF:
+  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::VARIADIC_ARGUMENTS:
+  case K::DYNAMIC_VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
 
@@ -827,7 +827,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
   case K::NODE: {
-    is_ok = this->stiuateNameStatement(situation, expression, S::NODE_PATH);
+    is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
     if (!is_ok) {
       break;
     }
@@ -965,7 +965,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INVARIADIC:
     [[fallthrough]];
-  case K::VARIADIC:
+  case K::DYNAMIC_VARIADIC:
     [[fallthrough]];
   case K::BEST_LOCATION:
     [[fallthrough]];
@@ -1046,10 +1046,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::WITHOUT:
-    is_ok = this->situateNaryTag(situation, expression, 1, S::IMPORT_PATH);
+    is_ok = this->situateNaryTag(situation, expression, 1, S::ROUTE);
     break;
   case K::WITHOUT_OF:
-    is_ok = this->situateNaryTag(situation, expression, 2, S::IMPORT_PATH);
+    is_ok = this->situateNaryTag(situation, expression, 2, S::ROUTE);
     break;
   case K::BAKE:
     is_ok = this->situateNullary(situation, expression);
@@ -1197,10 +1197,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNDERLYING_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::REFLECT:
+  case K::VARIABLE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::REFLECT_OF:
+  case K::VARIABLE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::POLYMORPH:
