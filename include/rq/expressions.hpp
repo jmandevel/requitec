@@ -476,6 +476,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "_top";
+  case K::RENAME:
+    return "_rename";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -628,6 +630,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // REFLECTIONS
   case K::MEMBER_OF:
     return "_member_of";
+  case K::WITHOUT:
+    return "without";
+  case K::WITHOUT_OF:
+    return "_without_of";
   case K::BAKE:
     return "bake";
   case K::BAKE_OF:
@@ -846,14 +852,15 @@ enum class KeywordInfoFlags : std::uint32_t {
   TUPLE_ELEMENT = rq::getBit(17),
   BINDING = rq::getBit(18),
   NAME = rq::getBit(19),
-  PATH = rq::getBit(20),
-  ASCRIPTION = rq::getBit(21),
-  MODIFIER = rq::getBit(22),
-  QUALIFIER = rq::getBit(23),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
+  NODE_PATH = rq::getBit(20),
+  IMPORT_PATH = rq::getBit(21),
+  ASCRIPTION = rq::getBit(22),
+  MODIFIER = rq::getBit(23),
+  QUALIFIER = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-      PARAMETER | BINDING | NAME | PATH | ASCRIPTION | MODIFIER | QUALIFIER |
+      PARAMETER | BINDING | NAME | NODE_PATH | IMPORT_PATH | ASCRIPTION | MODIFIER | QUALIFIER |
       ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -884,7 +891,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::PATH;
+           KIF::NODE_PATH | KIF::IMPORT_PATH;
 
   // ERRORS
   case K::ERROR:
@@ -895,13 +902,13 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     // NOTE: not allowed in STATEMENT and PARAMETER situations so that low
     // modifiers do not get confused with _call (and also this would be weird).
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::LVALUE | KIF::NAME | KIF::PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
+           KIF::LVALUE | KIF::NAME | KIF::NODE_PATH | KIF::IMPORT_PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
-    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
+    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT | KIF::IMPORT_PATH;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
+           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::IMPORT_PATH;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
@@ -911,7 +918,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::PATH;
+           KIF::NODE_PATH | KIF::IMPORT_PATH;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -968,7 +975,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::PATH;
+           KIF::TUPLE_ELEMENT | KIF::NODE_PATH | KIF::IMPORT_PATH;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1336,6 +1343,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::TOP:
     return KIF::NONE; // TOP
+  case K::RENAME:
+    return KIF::IMPORT_PATH;
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -1491,6 +1500,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // REFLECTIONS
   case K::MEMBER_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::WITHOUT:
+    return KIF::RAILCAR;
+  case K::WITHOUT_OF:
+    return KIF::IMPORT_PATH;
   case K::BAKE:
     return KIF::RAILCAR;
   case K::BAKE_OF:
@@ -1783,7 +1796,8 @@ enum class Situation : std::uint_fast8_t {
   TUPLE_ELEMENT,
   BINDING,
   NAME,
-  PATH,
+  NODE_PATH,
+  IMPORT_PATH,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
   QUALIFIER_INSTANTIATION,
@@ -1832,8 +1846,10 @@ getDescription(rq::Situation situation) {
     return "binding expression";
   case S::NAME:
     return "name expression";
-  case S::PATH:
-    return "path expression";
+  case S::NODE_PATH:
+    return "node path expression";
+  case S::IMPORT_PATH:
+    return "import path expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
@@ -1928,6 +1944,8 @@ getDescription(rq::Situation situation) {
     return K::BREAK_OF;
   case K::CONTINUE:
     return K::CONTINUE_OF;
+  case K::WITHOUT:
+    return K::WITHOUT_OF;
   case K::BAKE:
     return K::BAKE_OF;
   case K::IGNORE:
@@ -2083,9 +2101,14 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::NAME);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNodePath(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::PATH);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::NODE_PATH);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportPath(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::IMPORT_PATH);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2262,8 +2285,10 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeBinding(keyword);
   case S::NAME:
     return rq::getCanBeName(keyword);
-  case S::PATH:
-    return rq::getCanBePath(keyword);
+  case S::NODE_PATH:
+    return rq::getCanBeNodePath(keyword);
+  case S::IMPORT_PATH:
+    return rq::getCanBeImportPath(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
@@ -3935,8 +3960,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeName() const {
     return rq::getCanBeName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePath() const {
-    return rq::getCanBePath(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeNodePath() const {
+    return rq::getCanBeNodePath(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportPath() const {
+    return rq::getCanBeNodePath(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

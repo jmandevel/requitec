@@ -69,12 +69,12 @@ enum class SymbolInfoFlags : std::uint64_t {
   ADAPTER_IMPLEMENTATION = rq::getBit(26),
   PROCEDURE_IMPLEMENTATION = rq::getBit(27),
   LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(28),
-  CONTEXTUAL_TYPE = rq::getBit(29),
-  CONTEXTUAL_VALUE = rq::getBit(30),
+  FIGURATIVE_TYPE = rq::getBit(29),
+  FIGURATIVE_VALUE = rq::getBit(30),
 
   // SYMBOL DETAIL
   IS_TYPE = rq::getBit(50),
-  IS_FIGURATIVE = rq::getBit(51),
+  IS_CONTEXTUAL = rq::getBit(51),
   IS_INTEGER = rq::getBit(52),
   IS_FAST = rq::getBit(55),
   IS_LEAST = rq::getBit(56),
@@ -96,9 +96,9 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsStandardPrimitiveType(rq::SymbolKind kind);
@@ -135,7 +135,7 @@ getIsProcedureImplementation(rq::SymbolKind kind);
 getIsLazyVariableImplementation(rq::SymbolKind kind);
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative(rq::SymbolKind kind);
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::SymbolKind kind);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFast(rq::SymbolKind kind);
@@ -174,13 +174,13 @@ struct Symbol;
       struct FloatLiteral;
       struct StringLiteral;
       struct CodeunitLiteral;
-    struct Contextual;
-      struct ContextualType;
+    struct Figurative;
+      struct FigurativeType;
         struct InferenceType;
         struct VoidType;
         struct NoReturnType;
         struct UnknownType;
-      struct ContextualValue;
+      struct FigurativeValue;
         struct ValueValue;
         struct IndexValue;
     struct ReflectionType;
@@ -321,61 +321,52 @@ struct Symbol : public rq::Entity {
 
   [[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags() const;
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextualValue(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsStandardPrimitiveType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsPlatformPrimitiveType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsArithmeticSequenceType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsSpecializationSet(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsEagerDeclaration(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsLazyDeclarataion(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsClassImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsEnumImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsInterfaceImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsAdapterImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsProcedureImplementation(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool
-  getIsLazyVariableImplementation(rq::SymbolKind kind);
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureImplementation();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyVariableImplementation();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumericType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIntegerType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloatType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinaryType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBFloatType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunitType(rq::SymbolKind kind);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSign();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAlwaysSigned();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAlwaysUnsigned();
-  [[nodiscard]] RQ_ALWAYS_INLINE bool geteIsSometimesSigned();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFast();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeast();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSize();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndex();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBFloat();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned();
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope();
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope();
 
@@ -430,23 +421,23 @@ struct CodeunitLiteral final : public rq::Literal {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct Contextual : public rq::SimpleSymbol {
-  using Self = rq::Contextual;
+struct Figurative : public rq::SimpleSymbol {
+  using Self = rq::Figurative;
 
-  explicit RQ_ALWAYS_INLINE Contextual(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ContextualType : public rq::Contextual {
-  using Self = rq::ContextualType;
-
-  explicit RQ_ALWAYS_INLINE ContextualType(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Figurative(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct InferenceType final : public rq::ContextualType {
+struct FigurativeType : public rq::Figurative {
+  using Self = rq::FigurativeType;
+
+  explicit RQ_ALWAYS_INLINE FigurativeType(rq::SymbolKind kind);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct InferenceType final : public rq::FigurativeType {
   using Self = rq::InferenceType;
 
   explicit RQ_ALWAYS_INLINE InferenceType();
@@ -454,7 +445,7 @@ struct InferenceType final : public rq::ContextualType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct VoidType final : public rq::ContextualType {
+struct VoidType final : public rq::FigurativeType {
   using Self = rq::VoidType;
 
   explicit RQ_ALWAYS_INLINE VoidType();
@@ -462,7 +453,7 @@ struct VoidType final : public rq::ContextualType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct NoReturnType final : public rq::ContextualType {
+struct NoReturnType final : public rq::FigurativeType {
   using Self = rq::NoReturnType;
 
   explicit RQ_ALWAYS_INLINE NoReturnType();
@@ -470,7 +461,7 @@ struct NoReturnType final : public rq::ContextualType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct UnknownType final : public rq::ContextualType {
+struct UnknownType final : public rq::FigurativeType {
   using Self = rq::UnknownType;
 
   explicit RQ_ALWAYS_INLINE UnknownType();
@@ -478,15 +469,15 @@ struct UnknownType final : public rq::ContextualType {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ContextualValue : public rq::Contextual {
-  using Self = rq::ContextualValue;
+struct FigurativeValue : public rq::Figurative {
+  using Self = rq::FigurativeValue;
 
-  explicit RQ_ALWAYS_INLINE ContextualValue(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE FigurativeValue(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct ValueValue final : public rq::ContextualValue {
+struct ValueValue final : public rq::FigurativeValue {
   using Self = rq::ValueValue;
 
   explicit RQ_ALWAYS_INLINE ValueValue();
@@ -494,7 +485,7 @@ struct ValueValue final : public rq::ContextualValue {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct IndexValue final : public rq::ContextualValue {
+struct IndexValue final : public rq::FigurativeValue {
   using Self = rq::IndexValue;
 
   explicit RQ_ALWAYS_INLINE IndexValue();
@@ -758,25 +749,6 @@ struct ArraySubtype final : public rq::Subtype {
 RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &inout_id,
                                           const rq::ConstantSymbol &child,
                                           std::size_t count);
-
-struct GreatestSubtype final : public rq::Subtype {
-  using Self = rq::GreatestSubtype;
-
-  unsigned _greatest_depth;
-
-  explicit RQ_ALWAYS_INLINE GreatestSubtype(unsigned greatest_depth,
-                                            rq::ConstantSymbol &child);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE unsigned getGreatestDepth() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
-  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-RQ_ALWAYS_INLINE void profileGreatestSubtype(llvm::FoldingSetNodeID &inout_id,
-                                             rq::ConstantSymbol &type,
-                                             unsigned greatest_depth);
 
 struct SimpleSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   using Self = rq::SimpleSubtype;
@@ -1250,7 +1222,8 @@ struct PlacementType final : public rq::Symbol, public llvm::FoldingSetNode {
 
   rq::ProcedureImplementation *_procedure_ptr;
 
-  explicit RQ_ALWAYS_INLINE PlacementType(rq::ProcedureImplementation &function);
+  explicit RQ_ALWAYS_INLINE
+  PlacementType(rq::ProcedureImplementation &function);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureImplementation &
   getProcedure() const;
@@ -1318,7 +1291,8 @@ struct ProcedureWeightLevel final : public rq::WeightLevel {
 
   explicit RQ_ALWAYS_INLINE ProcedureWeightLevel(unsigned weight);
 
-  RQ_ALWAYS_INLINE void setProcedurePolymorph(rq::ProcedurePolymorph &polymorph);
+  RQ_ALWAYS_INLINE void
+  setProcedurePolymorph(rq::ProcedurePolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedurePolymorph *
   getProcedurePolymorphPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedurePolymorph *
@@ -1857,7 +1831,6 @@ struct SymbolTable : public rq::TableMember {
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
 
-
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind);
@@ -2075,9 +2048,9 @@ struct LazyDeclaration : public rq::NamedTable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostTablePtr() const;
   void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
-  RQ_ALWAYS_INLINE void setModule(rq::Module& module);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module& getModule() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module& getModule();
+  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };

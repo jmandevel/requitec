@@ -190,7 +190,7 @@ enum class Keyword : rq::EntityId {
   INDEX,
   // reference to reciever
   THIS,
-  // get information about location of a proc call
+  // get information about location of a procedure call
   CALLSITE,
 
   // BUILTIN TYPES
@@ -271,6 +271,7 @@ enum class Keyword : rq::EntityId {
   NODE,
   C,
   TOP,
+  RENAME,
 
   // HINTS
   DEBUG_BREAK,
@@ -383,6 +384,8 @@ enum class Keyword : rq::EntityId {
 
   // REFLECTIONS
   MEMBER_OF,
+  WITHOUT,
+  WITHOUT_OF,
   BAKE,
   BAKE_OF,
   IGNORE,

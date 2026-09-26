@@ -5,6 +5,9 @@
     [procedure printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
+    [node detail,
+        export compile_time NO_EXPORT_VAR := 0;    
+    ]
 ];
 
 [import "std", export std];

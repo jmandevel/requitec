@@ -100,6 +100,13 @@ bool Situator::situateTree(rq::Situation situation,
       }
       expression.changeKeyword(K::DEFAULT_VALUE_PARAMETER);
     } break;
+    case S::IMPORT_PATH: {
+      if (!this->situateBinaryTag(situation, expression, S::NAME, S::IMPORT_PATH)) {
+        is_ok = false;
+        break;
+      }
+      expression.changeKeyword(K::RENAME);
+    } break;
     case S::TUPLE_ELEMENT: {
       if (!this->situateBinaryTag(situation, expression, S::LVALUE,
                                   S::RVALUE)) {
@@ -201,8 +208,8 @@ bool Situator::situateTree(rq::Situation situation,
     expression.changeKeyword(chain_keyword);
   } break;
   case K::UNSITUATED_TRAIN: {
-    if (situation == S::PATH) {
-      is_ok = this->situateNaryTag(situation, expression, 2, S::PATH);
+    if (situation == S::NODE_PATH) {
+      is_ok = this->situateNaryTag(situation, expression, 2, S::NODE_PATH);
       break;
     }
     if (!expression.getHasBranch()) {
@@ -827,7 +834,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
   case K::NODE: {
-    is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
+    is_ok = this->stiuateNameStatement(situation, expression, S::NODE_PATH);
     if (!is_ok) {
       break;
     }
@@ -872,6 +879,9 @@ bool Situator::situateTree(rq::Situation situation,
     default:
       is_ok = this->situateNullary(situation, expression);
     }
+    break;
+  case K::RENAME:
+    is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::IMPORT_PATH);
     break;
 
   // HINTS
@@ -1044,6 +1054,12 @@ bool Situator::situateTree(rq::Situation situation,
     // REFLECTIONS
   case K::MEMBER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::WITHOUT:
+    is_ok = this->situateNaryTag(situation, expression, 1, S::IMPORT_PATH);
+    break;
+  case K::WITHOUT_OF:
+    is_ok = this->situateNaryTag(situation, expression, 2, S::IMPORT_PATH);
     break;
   case K::BAKE:
     is_ok = this->situateNullary(situation, expression);

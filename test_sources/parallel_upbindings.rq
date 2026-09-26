@@ -15,7 +15,7 @@
     other_int = 3; // to reassign to existing variable dont add the binding.
 
     // folded variables must be initialized exactly once in each control flow path of fold or function must return before fold is done.
-    // for functions that return, [result] must have upbinding exactly once for each control flow path.
+    // for functions that return, result must have upbinding exactly once for each control flow path.
 
     // binding to variable more than once in any control flow path (upbinding or otherwise) is compiler error.
     // upbinding to variable in loops is not allowed because this counts as multiple paths.
@@ -25,7 +25,7 @@
         [if int < 7,
             mut <:= 7;
         ][else_if int > 9,
-            [result] <:= 0; // result must be set before return
+            result <:= 0; // result must be set before return
             return; // dont need to set mut because function returns before the fold ends
         ][else
             mut <:= 1;

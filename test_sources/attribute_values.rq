@@ -1,4 +1,4 @@
-[main ()SInt,
+[main ()SInt, result,
     // high and modifiers are compile time values
 
     static modifier := static;
@@ -9,7 +9,7 @@
     my_mut_variable :qualifier\= 0;
     my_mut_variable = 1;
 
-    [result] <:= my_mut_variable;
+    result <:= my_mut_variable;
 ];
 
 // equivalent to deducing this in c++
