@@ -1,0 +1,20 @@
+[import "std", std];
+
+[node a,
+    [node b,
+        compile_time VAR := 0;
+    ];
+    [class b, {},
+        public compile_time VAR := 1;
+    ];
+    compile_time VAR := 2;
+];
+compile_time VAR := 3;
+
+[main ()SInt, result,
+    std.print(line=VAR);
+    std.print(line=a.VAR);
+    std.print(line=a.b.[where_is Node].VAR);
+    std.print(line=a.b.[where_is Class].VAR);
+    result <:= 0;
+];
