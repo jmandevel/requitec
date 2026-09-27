@@ -156,7 +156,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool tokenizeSourceText(rq::ModuleDetail &detail);
   [[nodiscard]] bool parseRequite(rq::ModuleDetail &detail);
   [[nodiscard]] bool situateModule(rq::ModuleDetail &detail);
-  [[nodiscard]] bool evaluateSourceModule();
+  [[nodiscard]] bool generateSourceModule();
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);

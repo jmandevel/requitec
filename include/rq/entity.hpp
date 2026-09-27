@@ -271,6 +271,7 @@ enum class Keyword : rq::EntityId {
   NODE,
   C,
   TOP,
+  ALIAS,
 
   // HINTS
   DEBUG_BREAK,
@@ -297,16 +298,16 @@ enum class Keyword : rq::EntityId {
   MUTABLE,
   PARTIALLY_MUTABLE,
   CONSTANT,
-  // generation_time
-  DYNAMIC,
-  STATIC,
-  // execution_time
-  RUNTIME,
-  COMPILE_TIME,
-  HYBRID,
   // evaluation_time
   EAGER,
   LAZY,
+  // generation_time (eager symbols and statements)
+  DYNAMIC,
+  STATIC,
+  // execution_time (lazy symbols)
+  RUNTIME,
+  COMPILE_TIME,
+  HYBRID,
   // initialization_time
   PRESET,
   SINGLETON,
@@ -433,19 +434,13 @@ enum class Keyword : rq::EntityId {
   UNDERLYING_VALUE_OF,
   UNDERLYING_TYPE,
   UNDERLYING_TYPE_OF,
-  VARIABLE,
-  VARIABLE_OF,
-  POLYMORPH,
-  POLYMORPH_OF,
+  REFLECT,
+  REFLECT_OF,
   OVERLOAD_OF,
   OVERLOAD_RANGE,
   OVERLOAD_RANGE_OF,
   SPECIALIZATION_RANGE,
   SPECIALIZATION_RANGE_OF,
-  WEIGHT_LEVEL,
-  WEIGHT_LEVEL_OF,
-  WEIGHT_LEVEL_RANGE,
-  WEIGHT_LEVEL_RANGE_OF,
   WEIGHT_OF,
   TEMPLATE_OF,
   TEMPLATE_RANGE,
@@ -458,6 +453,8 @@ enum class Keyword : rq::EntityId {
   RESOLVE_PROCEDURE_OF,
   RESOLVE_ADAPTER,
   RESOLVE_ADAPTER_OF,
+  WHERE_IS,
+  WHERE_IS_OF,
   IS_TYPE,
   IS_TYPE_OF,
   IS_RANGE_TYPE,
@@ -564,7 +561,6 @@ enum class SymbolKind : rq::EntityId {
   MODULE,
 
   // IMPORTS
-  IMPORT_SPECIFIER,
   IMPORT,
 
   // CONFORMITY
@@ -612,9 +608,13 @@ enum class SymbolKind : rq::EntityId {
   // SYNONYMS
   SYNONYM_TYPE,
 
+  // ROUTES
+  ALIAS,
+  IMPORT_SPECIFIER,
+
   // SYMBOL TABLES
   C_TABLE,
-  USER_TABLE,
+  NODE,
 
   // EAGER STATEMENTS
   IF_STATEMENT,

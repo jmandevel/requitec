@@ -29,7 +29,7 @@ The requitec front-end compiles source files in 6 stages.
 2. Tokenization - In the tokenization stage, raw source file text is seperated into a list of tokens that correlate to different lexemes.
 3. Parsing - In the parsing stage, the list of tokens emitted by the tokenizer are parsed into an Abstract-Syntax Tree (AST) structure that represents Requite code in a format that is efficient for the compiler to manipulate.
 4. Situation - In the situation stage, the compiler performs a pre-order traversal in order to do error checking and modification of the AST. This stage is important because it greatly simplifies later stages.
-5. Evaluation - In the evaluation stage, the compiler traverses the outermost scopes of Requite source files and builds symbol tables of lazy symbols. Symbols are lazily evaluated, and only the kind and name of each symbol is recorded at this stage unless more work is necessary to fully build out all tables. Then, all symbols in the source file are evaluated fully. When generating source files, Requite Intermediate Representation (RQIR) is built, which is used for symbolic execution. Symbols in imported source files are lazily evaluated.
+5. Generation - In the generation stage, the compiler traverses the outermost scopes of Requite source files and generates global symbols while also executing eager code to do code generation.  All global symbols in the source file are fully generated, and symbols from imported files lazily evaluated.
 6. IR Building - In the building stage, the symbol tables and RQIR are used to build LLVM Intermediate Representation (IR).
 
 ## How to Use
@@ -41,12 +41,12 @@ The requitec compiler can be controlled from the command line. It is easy to set
 ### Options
 
 | Option / Flag         | Description                                                    | Required | Default   |
-|---------------------- |---------------------------------------------------------------|----------|-----------|
-| `<input file>`        | Path to the input source file (positional argument)           | Yes      |           |
-| `--no-comment`        | Do not add comments to output files                           | No       | false     |
-| `-o <output file>`    | Path to the output build file                                 | Yes      |           |
+|---------------------- |----------------------------------------------------------------|----------|-----------|
+| `<input file>`        | Path to the input source file (positional argument)            | Yes      |           |
+| `--no-comment`        | Do not add comments to output files                            | No       | false     |
+| `-o <output file>`    | Path to the output build file                                  | Yes      |           |
 | `-I <dir>`            | Import directories (can be specified multiple times)           | No       |           |
-| `--emit <mode>`       | Choose the type of target to build (see below)                | No       | object    |
+| `--emit <mode>`       | Choose the type of target to build (see below)                 | No       | object    |
 
 ### Emit Modes
 

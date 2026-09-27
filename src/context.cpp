@@ -2,7 +2,7 @@
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
 #include <rq/entity.hpp>
-#include <rq/evaluate.hpp>
+#include <rq/generate.hpp>
 #include <rq/json.hpp>
 #include <rq/literals.hpp>
 #include <rq/options.hpp>
@@ -292,7 +292,7 @@ bool Context::run() {
   if (!this->initializeLlvm()) {
     return false;
   }
-  if (!this->evaluateSourceModule()) {
+  if (!this->generateSourceModule()) {
     return false;
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
@@ -339,7 +339,7 @@ bool Context::situateModule(rq::ModuleDetail &detail) {
   return is_ok;
 }
 
-bool Context::evaluateSourceModule() {
+bool Context::generateSourceModule() {
   RQ_TODO_IMPLEMENTATION();
 }
 

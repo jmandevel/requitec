@@ -476,6 +476,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "c";
   case K::TOP:
     return "_top";
+  case K::ALIAS:
+    return "alias";
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -514,6 +516,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "partially_mutable";
   case K::CONSTANT:
     return "constant";
+  case K::EAGER:
+    return "eager";
+  case K::LAZY:
+    return "lazy";
   case K::DYNAMIC:
     return "dynamic";
   case K::STATIC:
@@ -524,10 +530,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "compile_time";
   case K::HYBRID:
     return "hybrid";
-  case K::EAGER:
-    return "eager";
-  case K::LAZY:
-    return "lazy";
   case K::PRESET:
     return "preset";
   case K::SINGLETON:
@@ -724,14 +726,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "underlying_type";
   case K::UNDERLYING_TYPE_OF:
     return "_underlying_type_of";
-  case K::VARIABLE:
-    return "variable";
-  case K::VARIABLE_OF:
-    return "_variable_of";
-  case K::POLYMORPH:
-    return "polymorph";
-  case K::POLYMORPH_OF:
-    return "_polymorph_of";
+  case K::REFLECT:
+    return "reflect";
+  case K::REFLECT_OF:
+    return "_reflect_of";
   case K::OVERLOAD_OF:
     return "_overload_of";
   case K::OVERLOAD_RANGE:
@@ -742,14 +740,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "specialization_range";
   case K::SPECIALIZATION_RANGE_OF:
     return "_specialization_range_of";
-  case K::WEIGHT_LEVEL:
-    return "weight_level";
-  case K::WEIGHT_LEVEL_OF:
-    return "_weight_level_of";
-  case K::WEIGHT_LEVEL_RANGE:
-    return "weight_level_range";
-  case K::WEIGHT_LEVEL_RANGE_OF:
-    return "_weight_level_range_of";
   case K::WEIGHT_OF:
     return "_weight_of";
   case K::TEMPLATE_OF:
@@ -774,6 +764,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "resolve_adapter";
   case K::RESOLVE_ADAPTER_OF:
     return "_resolve_adapter_of";
+  case K::WHERE_IS:
+    return "where_is";
+  case K::WHERE_IS_OF:
+    return "_where_is_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -852,13 +846,14 @@ enum class KeywordInfoFlags : std::uint32_t {
   NAME = rq::getBit(19),
   PATH = rq::getBit(20),
   ROUTE = rq::getBit(21),
-  ASCRIPTION = rq::getBit(22),
-  MODIFIER = rq::getBit(23),
-  QUALIFIER = rq::getBit(24),
+  IMPORT_SPECIFIER = rq::getBit(22),
+  ASCRIPTION = rq::getBit(23),
+  MODIFIER = rq::getBit(24),
+  QUALIFIER = rq::getBit(25),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-      PARAMETER | BINDING | NAME | PATH | ROUTE | ASCRIPTION | MODIFIER | QUALIFIER |
+      PARAMETER | BINDING | NAME | PATH | ROUTE | IMPORT_SPECIFIER | ASCRIPTION | MODIFIER | QUALIFIER |
       ARITHMETIC_SEQUENCE_STEP | ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -889,7 +884,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::PATH | KIF::ROUTE;
+           KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
 
   // ERRORS
   case K::ERROR:
@@ -903,7 +898,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::LVALUE | KIF::NAME | KIF::PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
-    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT;
+    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::TUPLE_ELEMENT | KIF::IMPORT_SPECIFIER;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE;
@@ -916,7 +911,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::PATH | KIF::ROUTE;
+           KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -973,7 +968,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE;
+           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1341,6 +1336,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::TOP:
     return KIF::NONE; // TOP
+  case K::ALIAS:
+    return KIF::STATEMENT;
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -1379,6 +1376,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CONSTANT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::EAGER:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::LAZY:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DYNAMIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STATIC:
@@ -1388,10 +1389,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::COMPILE_TIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::HYBRID:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::EAGER:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LAZY:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PRESET:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1499,7 +1496,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::WITHOUT:
     return KIF::RAILCAR;
   case K::WITHOUT_OF:
-    return KIF::ROUTE;
+    return KIF::ROUTE | KIF::IMPORT_SPECIFIER;
   case K::BAKE:
     return KIF::RAILCAR;
   case K::BAKE_OF:
@@ -1592,13 +1589,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::UNDERLYING_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIABLE:
+  case K::REFLECT:
     return KIF::RAILCAR;
-  case K::VARIABLE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::POLYMORPH:
-    return KIF::RAILCAR;
-  case K::POLYMORPH_OF:
+  case K::REFLECT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OVERLOAD_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1609,14 +1602,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPECIALIZATION_RANGE:
     return KIF::RAILCAR;
   case K::SPECIALIZATION_RANGE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_LEVEL:
-    return KIF::RAILCAR;
-  case K::WEIGHT_LEVEL_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_LEVEL_RANGE:
-    return KIF::RAILCAR;
-  case K::WEIGHT_LEVEL_RANGE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::WEIGHT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1641,6 +1626,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::RESOLVE_ADAPTER:
     return KIF::RAILCAR;
   case K::RESOLVE_ADAPTER_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::WHERE_IS:
+    return KIF::RAILCAR;
+  case K::WHERE_IS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
     return KIF::RAILCAR;
@@ -1794,6 +1783,7 @@ enum class Situation : std::uint_fast8_t {
   NAME,
   PATH,
   ROUTE,
+  IMPORT_SPECIFIER,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
   QUALIFIER_INSTANTIATION,
@@ -1846,6 +1836,8 @@ getDescription(rq::Situation situation) {
     return "path expression";
   case S::ROUTE:
     return "route expression";
+  case S::IMPORT_SPECIFIER:
+    return "import specifier expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
@@ -1988,20 +1980,14 @@ getDescription(rq::Situation situation) {
     return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:
     return K::UNDERLYING_TYPE_OF;
-  case K::VARIABLE:
-    return K::VARIABLE_OF;
-  case K::POLYMORPH:
-    return K::POLYMORPH_OF;
+  case K::REFLECT:
+    return K::REFLECT_OF;
   case K::OVERLOAD:
     return K::OVERLOAD_OF;
   case K::OVERLOAD_RANGE:
     return K::OVERLOAD_RANGE_OF;
   case K::SPECIALIZATION_RANGE:
     return K::SPECIALIZATION_RANGE_OF;
-  case K::WEIGHT_LEVEL:
-    return K::WEIGHT_LEVEL_OF;
-  case K::WEIGHT_LEVEL_RANGE:
-    return K::WEIGHT_LEVEL_RANGE_OF;
   case K::WEIGHT:
     return K::WEIGHT_OF;
   case K::TEMPLATE:
@@ -2016,6 +2002,8 @@ getDescription(rq::Situation situation) {
     return K::RESOLVE_PROCEDURE_OF;
   case K::RESOLVE_ADAPTER:
     return K::RESOLVE_ADAPTER_OF;
+  case K::WHERE_IS:
+    return K::WHERE_IS_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:
@@ -2105,6 +2093,11 @@ getDescription(rq::Situation situation) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRoute(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::ROUTE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportSpecifier(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::IMPORT_SPECIFIER);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2285,6 +2278,8 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBePath(keyword);
   case S::ROUTE:
     return rq::getCanBeRoute(keyword);
+  case S::IMPORT_SPECIFIER:
+    return rq::getCanBeImportSpecifier(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
@@ -2350,6 +2345,9 @@ enum class Modifier : std::uint_fast8_t {
   MUTABLE,
   PARTIALLY_MUTABLE,
   CONSTANT,
+  // evaluation_time
+  EAGER,
+  LAZY,
   // generation_time
   DYNAMIC,
   STATIC,
@@ -2357,9 +2355,6 @@ enum class Modifier : std::uint_fast8_t {
   RUNTIME,
   COMPILE_TIME,
   HYBRID,
-  // evaluation_time
-  EAGER,
-  LAZY,
   // initialization_time
   PRESET,
   SINGLETON,
@@ -2442,6 +2437,10 @@ enum class Modifier : std::uint_fast8_t {
     return "PARTIALLY_MUTABLE";
   case M::CONSTANT:
     return "CONSTANT";
+  case M::EAGER:
+    return "EAGER";
+  case M::LAZY:
+    return "LAZY";
   case M::DYNAMIC:
     return "DYNAMIC";
   case M::STATIC:
@@ -2452,10 +2451,6 @@ enum class Modifier : std::uint_fast8_t {
     return "COMPILE_TIME";
   case M::HYBRID:
     return "hybrid";
-  case M::EAGER:
-    return "EAGER";
-  case M::LAZY:
-    return "LAZY";
   case M::PRESET:
     return "PRESET";
   case M::SINGLETON:
@@ -2557,6 +2552,10 @@ enum class Modifier : std::uint_fast8_t {
     return M::PARTIALLY_MUTABLE;
   case K::CONSTANT:
     return M::CONSTANT;
+  case K::EAGER:
+    return M::EAGER;
+  case K::LAZY:
+    return M::LAZY;
   case K::DYNAMIC:
     return M::DYNAMIC;
   case K::STATIC:
@@ -2567,10 +2566,6 @@ enum class Modifier : std::uint_fast8_t {
     return M::COMPILE_TIME;
   case K::HYBRID:
     return M::HYBRID;
-  case K::EAGER:
-    return M::EAGER;
-  case K::LAZY:
-    return M::LAZY;
   case K::PRESET:
     return M::PRESET;
   case K::SINGLETON:
@@ -2669,86 +2664,86 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   CONSTANT = rq::getBit(10),
   MUTATE_MODIFIER_MASK = MUTABLE | PARTIALLY_MUTABLE | CONSTANT,
 
-  DYNAMIC = rq::getBit(11),
-  STATIC = rq::getBit(12),
-  GENERATION_TIME_MASK = DYNAMIC | STATIC,
-
-  RUNTIME = rq::getBit(13),
-  COMPILE_TIME = rq::getBit(14),
-  HYBRID = rq::getBit(15),
-  EXECUTION_TIME_MASK = RUNTIME | COMPILE_TIME | HYBRID,
-
-  EAGER = rq::getBit(15),
-  LAZY = rq::getBit(16),
+  EAGER = rq::getBit(11),
+  LAZY = rq::getBit(12),
   EVALUATION_TIME_MASK = EAGER | LAZY,
 
-  PRESET = rq::getBit(17),
-  SINGLETON = rq::getBit(18),
+  DYNAMIC = rq::getBit(13),
+  STATIC = rq::getBit(14),
+  GENERATION_TIME_MASK = DYNAMIC | STATIC,
+
+  RUNTIME = rq::getBit(15),
+  COMPILE_TIME = rq::getBit(16),
+  HYBRID = rq::getBit(17),
+  EXECUTION_TIME_MASK = RUNTIME | COMPILE_TIME | HYBRID,
+
+  PRESET = rq::getBit(18),
+  SINGLETON = rq::getBit(19),
   INITIALIZATION_TIME_MASK = PRESET | SINGLETON,
 
-  CAPTURE = rq::getBit(19),
+  CAPTURE = rq::getBit(20),
   CAPTURE_MODIFIER_MASK = CAPTURE,
 
-  LINKED = rq::getBit(20),
-  INLINE = rq::getBit(21),
+  LINKED = rq::getBit(21),
+  INLINE = rq::getBit(22),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  STANDARD_MANGLE = rq::getBit(22),
-  MANGLE = rq::getBit(23),
+  STANDARD_MANGLE = rq::getBit(23),
+  MANGLE = rq::getBit(24),
   MANGLE_MODIFIER_MASK = STANDARD_MANGLE | MANGLE,
 
-  PAD = rq::getBit(24),
-  PACK = rq::getBit(25),
+  PAD = rq::getBit(25),
+  PACK = rq::getBit(26),
   PACK_MODIFIER_MASK = PAD | PACK,
 
-  EQUIVOCAL = rq::getBit(26),
-  LIKELY = rq::getBit(27),
-  UNLIKELY = rq::getBit(28),
+  EQUIVOCAL = rq::getBit(27),
+  LIKELY = rq::getBit(28),
+  UNLIKELY = rq::getBit(29),
   BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  SUPPORTED = rq::getBit(29),
-  DEPRECIATED = rq::getBit(30),
-  EXPERIMENTAL = rq::getBit(31),
+  SUPPORTED = rq::getBit(30),
+  DEPRECIATED = rq::getBit(31),
+  EXPERIMENTAL = rq::getBit(32),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  UNSTABLE_ADDRESS = rq::getBit(32),
-  STABLE_ADDRESS = rq::getBit(33),
+  UNSTABLE_ADDRESS = rq::getBit(33),
+  STABLE_ADDRESS = rq::getBit(34),
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
-  INVARIADIC = rq::getBit(34),
-  DYNAMIC_VARIADIC = rq::getBit(35),
+  INVARIADIC = rq::getBit(35),
+  DYNAMIC_VARIADIC = rq::getBit(36),
   DYNAMIC_VARIADIC_MODIFIER_MASK,
 
-  BEST_LOCATION = rq::getBit(36),
-  LOCATION = rq::getBit(37),
+  BEST_LOCATION = rq::getBit(37),
+  LOCATION = rq::getBit(38),
   OFFSET_MODIFIER_MASK = BEST_LOCATION | LOCATION,
 
-  TEMPLATE = rq::getBit(38),
-  OVERLOAD = rq::getBit(39),
+  TEMPLATE = rq::getBit(39),
+  OVERLOAD = rq::getBit(40),
   LAZY_DECLARATION_KIND_MODIFIER_MASK = TEMPLATE | OVERLOAD,
 
-  CONSTRAINT = rq::getBit(40),
+  CONSTRAINT = rq::getBit(41),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  DEFAULT_WEIGHT = rq::getBit(41),
-  WEIGHT = rq::getBit(42),
+  DEFAULT_WEIGHT = rq::getBit(42),
+  WEIGHT = rq::getBit(43),
   WEIGHT_MODIFIER_MASK = DEFAULT_WEIGHT | WEIGHT,
 
-  MANUAL = rq::getBit(43),
-  AUTO = rq::getBit(44),
+  MANUAL = rq::getBit(44),
+  AUTO = rq::getBit(45),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(45),
-  VIRTUAL = rq::getBit(46),
+  DIRECT = rq::getBit(46),
+  VIRTUAL = rq::getBit(47),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(47),
+  RANGER = rq::getBit(48),
   RANGER_MODIFIER_MASK = RANGER,
 
-  REQUIRE = rq::getBit(48),
+  REQUIRE = rq::getBit(49),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(49),
+  ENSURE = rq::getBit(50),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -3961,6 +3956,9 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRoute() const {
     return rq::getCanBePath(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportSpecifier() const {
+    return rq::getCanBeImportSpecifier(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

@@ -824,7 +824,7 @@ bool Situator::situateTree(rq::Situation situation,
 
   // TABLE GRAPH
   case K::IMPORT:
-    is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
+    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1, S::RVALUE, S::IMPORT_SPECIFIER);
     break;
   case K::NODE: {
     is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
@@ -872,6 +872,9 @@ bool Situator::situateTree(rq::Situation situation,
     default:
       is_ok = this->situateNullary(situation, expression);
     }
+    break;
+  case K::ALIAS:
+    is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::ROUTE);
     break;
 
   // HINTS
@@ -1197,16 +1200,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNDERLYING_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::VARIABLE:
+  case K::REFLECT:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::VARIABLE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::POLYMORPH:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::POLYMORPH_OF:
+  case K::REFLECT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::OVERLOAD_OF:
@@ -1222,18 +1219,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::SPECIALIZATION_RANGE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::WEIGHT_LEVEL:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::WEIGHT_LEVEL_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::WEIGHT_LEVEL_RANGE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::WEIGHT_LEVEL_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::WEIGHT_OF:
@@ -1270,6 +1255,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::RESOLVE_ADAPTER_OF:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::WHERE_IS:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::WHERE_IS_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::IS_TYPE:
