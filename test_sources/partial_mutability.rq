@@ -7,11 +7,11 @@
      public[layout_constructor];
 ];
 
-[main ()SInt, result,
-    // compile_time variables must have variables of no_mut type becauese
-    // they are constant:
-    compile_time never_mut : no_mut\ = Partialable();
+// compile_time variables must have variables of no_mut type becauese
+// they are constant:
+compile_time never_mut : no_mut\ = Partialable();
 
+[main ()SInt, result,
     // all properties are mut for fully mut values:
     fully_mut : mut\ = Partialiable();
 
