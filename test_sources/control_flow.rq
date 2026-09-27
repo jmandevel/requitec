@@ -31,12 +31,12 @@
 
     anchor::F
     [fold folded:SInt,
-            mut := 0;
+            var := 0;
             [if true,
                 return; // if folded not set, must break from outer scope too.
             ];
-            folded <: mut\ = mut + 1;
-            folded = 2; // note that within the fold, folded is mut, but outside the fold its [no_mut].
+            folded <: mut\ = var + 1;
+            folded = 2; // note that within the fold, folded is mut, but outside the fold its no_mut.
             // (folded cannot be mutated after the fold ends)
             [if true,
                 F.[break]; // since folded is set, its ok to break outer scope.

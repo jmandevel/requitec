@@ -12,7 +12,7 @@ compile_time VAR := 0;
 
     result :mut\= 0; 
 
-    [if mut0 == mut1,
+    [if var0 == var1,
         result = 1;
     ][else_if false, 
     

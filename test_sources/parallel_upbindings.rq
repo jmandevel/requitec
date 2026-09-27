@@ -21,15 +21,15 @@
     // upbinding to variable in loops is not allowed because this counts as multiple paths.
     // (maybe can allow variables without destructors to be upbound in loops somehow...)
 
-    [fold mut:SInt,
+    [fold var:SInt,
         [if int < 7,
-            mut <:= 7;
+            var <:= 7;
         ][else_if int > 9,
             result <:= 0; // result must be set before return
-            return; // dont need to set mut because function returns before the fold ends
+            return; // dont need to set var because function returns before the fold ends
         ][else
-            mut <:= 1;
+            var <:= 1;
         ];
     ];
-    result <:= mut; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
+    result <:= var; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
 ];
