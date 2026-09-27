@@ -1,0 +1,7 @@
+[class MyClass, {}];
+compile_time VAR := MyClass;
+
+// use .[reflect] to reflect on the variable itself
+compile_time the_variable := VAR.[reflect];
+// use the variable alone to retrieve the reflected symbol stored in it (MyClass).
+compile_time the_class := VAR;
