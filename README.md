@@ -29,8 +29,8 @@ The requitec front-end compiles source files in 6 stages.
 2. Tokenization - In the tokenization stage, raw source file text is seperated into a list of tokens that correlate to different lexemes.
 3. Parsing - In the parsing stage, the list of tokens emitted by the tokenizer are parsed into an Abstract-Syntax Tree (AST) structure that represents Requite code in a format that is efficient for the compiler to manipulate.
 4. Situation - In the situation stage, the compiler performs a pre-order traversal in order to do error checking and modification of the AST. This stage is important because it greatly simplifies later stages.
-5. Generation - In the generation stage, the compiler traverses the outermost scopes of Requite source files and generates global symbols while also executing eager code to do code generation.  All global symbols in the source file are fully generated, and symbols from imported files lazily evaluated.
-6. IR Building - In the building stage, the symbol tables and RQIR are used to build LLVM Intermediate Representation (IR).
+5. Generation - In the generation stage, the compiler traverses the outermost scopes of Requite source files and generates global symbols while also executing eager code to do code generation of Requite Intermediate Representation (RQIR) instructions. First, all symbols in source and imported files are lazily evaluated. After this is done, all remaining unevaluated global symbols in the source file are evaluated.
+6. IR Building - In the building stage, the symbol tables and RQIR are used to build LLVM Intermediate Representation (IR) for all global symbols in the source file (not import files).
 
 ## How to Use
 
