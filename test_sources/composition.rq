@@ -71,16 +71,16 @@
     rat := Rat();
 
     // use adapt to get interface of value.
-    speak_adpater :mut\= dog.[adapt A-->ISpeak].[borrow];
+    speak_adpater :mut\= dog.[adapt A-->ISpeak].[ref];
     speak_adpater.speak();
     // can reassign a different interface of same type
-    speak_adapter = cat.[adapt A-->ISpeak].[borrow];
+    speak_adapter = cat.[adapt A-->ISpeak].[ref];
     speak_adapter.speak();
 
     // use compose to create composition of 1 or more interfaces
-    dog_composition :mut\= dog.[compose A-->IGreet, A-->ISpeak].[borrow];
+    dog_composition :mut\= dog.[compose A-->IGreet, A-->ISpeak].[ref];
     // decompose a composition to get one of its interfaces
-    dog_greet_adapter :mut\= dog_composition.[decompose IGreet].[borrow];
+    dog_greet_adapter :mut\= dog_composition.[decompose IGreet].[ref];
     dog_greet_adapter.greet();
 
     speakAndGreet(animal=dog.[compose A-->ISpeak, A-->IGreet]);

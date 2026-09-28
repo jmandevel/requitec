@@ -18,11 +18,11 @@ opaque mangle::getSized
 [procedure getSized, ()MyClass];
 
 [main ()SInt, result,
-    ref := getInstanceRef().[borrow];
+    ref := getInstanceRef().[ref];
     sized := getSized(); 
     // Sized uses 64 bits of memory in the stack.
     // However, the class layout is unknown.
     // Its not possible to access members directly.
-    sized.mut\[borrow].doSomething();
+    sized.mut\[ref].doSomething();
     result <:= ref.[address].[cast];
 ];

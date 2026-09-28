@@ -21,12 +21,12 @@ stable_address
 [main ()SInt, result,
   class :mut\= MyClass();
   copy := class;
-  reference := class.[borrow];
-  reference_to_mut := class.mut\[borrow];
+  reference := class.[ref];
+  reference_to_mut := class.mut\[ref];
   pointer := class.[address];
   pointer_to_mut := class.mut\[address];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.mut\[borrow]->std.extract();
+  non_destructive_move := class.mut\[ref]->std.extract();
   destructive_move := class.[move];
   // class was forgetped because it was moved out of
   class := destructive_move.[move]; /// move it back!
@@ -37,7 +37,7 @@ stable_address
   // .[take] is like a .[move] but passed as an arg or extended by a function. memory address is not garunteed to change (but it might).
   // .[move] is only for assigning directly to a variable, where memory address is garunteed to change.
   takeArg(MyPinned().[take]); // can also take into arg
-  // when a function takes something not borrowed, it can be copied or taken.
+  // when a function takes something not refed, it can be copied or taken.
   takeOrCopyArg(class); // this performs a shallow copy. class still exists.
   takeOrCopyArg(class.[take]); // after this, class variable is invalidated.
   // when something is taken into a call, it is assumed thing is destroyed/forgetped within it, so its gone after.

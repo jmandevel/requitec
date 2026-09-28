@@ -445,10 +445,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::PROCEDURE_ADDRESS_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::BORROW:
+  case K::REF:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::BORROW_OF:
+  case K::REF_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::DATA_ADDRESS:

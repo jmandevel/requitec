@@ -43,7 +43,7 @@ struct Generator final {
   [[nodiscard]] rq::RValue generateAddressOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateSliceOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateProcedureAddressOf(rq::SymbolTable& host, rq::Expression& ex);
-  [[nodiscard]] rq::RValue generateBorrowOf(rq::SymbolTable& host, rq::Expression& ex);
+  [[nodiscard]] rq::RValue generateRefOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateDataAddressOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateMoveOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateTakeOf(rq::SymbolTable& host, rq::Expression& ex);

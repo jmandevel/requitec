@@ -194,10 +194,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "procedure_address";
   case K::PROCEDURE_ADDRESS_OF:
     return "_procedure_address_of";
-  case K::BORROW:
-    return "borrow";
-  case K::BORROW_OF:
-    return "_borrow_of";
+  case K::REF:
+    return "ref";
+  case K::REF_OF:
+    return "_ref_of";
   case K::DATA_ADDRESS:
     return "data_address";
   case K::DATA_ADDRESS_OF:
@@ -1049,9 +1049,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::PROCEDURE_ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::BORROW:
+  case K::REF:
     return KIF::RAILCAR;
-  case K::BORROW_OF:
+  case K::REF_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DATA_ADDRESS:
     return KIF::RAILCAR;

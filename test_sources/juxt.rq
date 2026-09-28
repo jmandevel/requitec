@@ -10,7 +10,7 @@ template::{> auto List:Symbol <}
         ][weave value.[type].[is_float_type], float:=value,
             std.print(line="found float: " +> float);
         ][weave [true], any:=value,
-            std.print(line="found something else: " +> any.[borrow]);
+            std.print(line="found something else: " +> any.[ref]);
         ];
     std.print(line="end!");
 ];
