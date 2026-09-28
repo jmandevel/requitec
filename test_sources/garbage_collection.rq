@@ -1,0 +1,27 @@
+// Optionally, requite can be compiled with garbage collection enabled.
+// If enabled, a runtime library will be linked to that enables garbage collections.
+// With garbage collection, values are heap allocated and are not destroyed until
+// there are no references left to them anywhere in your program. They help with
+// memory safety.
+
+[class MyClass, 
+    {> 
+        public x:SInt, 
+        public y:SInt 
+    <},
+    public [layout_constructor];
+];
+
+[main ()SInt, result,
+    // create a garbage collected object
+    gc := MyClass(1, 2).mut\[gc];
+    // create a reference to the garbage collected object.
+    gc_ref := gc.[gc_ref];
+    // pass another ref into a function call
+    printData(gc_ref.[gc_ref]);
+    result <:= 0;
+];
+
+[procedure printData, ( my_class:Gc@MyClass <)Void,
+    std.print(line="x is " +> my_class.x +. " and y is " +> my_class.y);
+];
