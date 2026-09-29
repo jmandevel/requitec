@@ -271,7 +271,6 @@ enum class Keyword : rq::EntityId {
   NODE,
   C,
   TOP,
-  ALIAS,
 
   // HINTS
   DEBUG_BREAK,
@@ -298,6 +297,10 @@ enum class Keyword : rq::EntityId {
   MUTABLE,
   PARTIALLY_MUTABLE,
   CONSTANT,
+  // assignment_kind
+  VARIABLE,
+  ENUMERATOR,
+  ALIAS,
   // evaluation_time
   EAGER,
   LAZY,
@@ -311,8 +314,9 @@ enum class Keyword : rq::EntityId {
   // initialization_time
   PRESET,
   SINGLETON,
-  // capture
+  // static_closure
   CAPTURE,
+  STATELESS,
   // linkage
   LINKED,
   INLINE,

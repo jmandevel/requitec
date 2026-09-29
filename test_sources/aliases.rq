@@ -1,6 +1,6 @@
 [import "std", std];
 
-[alias print, std.print];
+alias print = std.print;
 
 [main ()SInt, result,
     print(line="Hello, world!");

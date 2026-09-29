@@ -873,9 +873,6 @@ bool Situator::situateTree(rq::Situation situation,
       is_ok = this->situateNullary(situation, expression);
     }
     break;
-  case K::ALIAS:
-    is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::ROUTE);
-    break;
 
   // HINTS
   case K::DEBUG_BREAK:
@@ -918,6 +915,12 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::CONSTANT:
     [[fallthrough]];
+  case K::VARIABLE:
+    [[fallthrough]];
+  case K::ENUMERATOR:
+    [[fallthrough]];
+  case K::ALIAS:
+    [[fallthrough]];
   case K::DYNAMIC:
     [[fallthrough]];
   case K::STATIC:
@@ -937,6 +940,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SINGLETON:
     [[fallthrough]];
   case K::CAPTURE:
+    [[fallthrough]];
+  case K::STATELESS:
     [[fallthrough]];
   case K::LINKED:
     [[fallthrough]];
