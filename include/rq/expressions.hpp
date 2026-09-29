@@ -827,33 +827,31 @@ enum class KeywordInfoFlags : std::uint32_t {
   NONE = 0,
   CONVERGING = rq::getBit(0),
   LITERAL = rq::getBit(1),
-  UNQUOTED_LEFT = rq::getBit(2),
-  UNQUOTED_RIGHT = rq::getBit(3),
-  INTERNAL = rq::getBit(4),
-  STARTING_CHAINLINK = rq::getBit(5),
-  CONTINUING_CHAINLINK = rq::getBit(6),
-  FINISHING_CHAINLINK = rq::getBit(7),
-  IF_CHAINLINK = rq::getBit(8),
-  SWITCH_CHAINLINK = rq::getBit(9),
-  SPIN_CHAINLINK = rq::getBit(10),
+  INTERNAL = rq::getBit(2),
+  STARTING_CHAINLINK = rq::getBit(3),
+  CONTINUING_CHAINLINK = rq::getBit(4),
+  FINISHING_CHAINLINK = rq::getBit(5),
+  IF_CHAINLINK = rq::getBit(6),
+  SWITCH_CHAINLINK = rq::getBit(7),
+  SPIN_CHAINLINK = rq::getBit(8),
   // TOP
-  STATEMENT = rq::getBit(11),
-  RVALUE = rq::getBit(12),
-  LVALUE = rq::getBit(13),
-  RAILCAR = rq::getBit(14),
-  ARGUMENT = rq::getBit(15),
-  PARAMETER = rq::getBit(16),
-  TUPLE_ELEMENT = rq::getBit(17),
-  BINDING = rq::getBit(18),
-  NAME = rq::getBit(19),
-  PATH = rq::getBit(20),
-  ROUTE = rq::getBit(21),
-  IMPORT_SPECIFIER = rq::getBit(22),
-  ASCRIPTION = rq::getBit(23),
-  MODIFIER = rq::getBit(24),
-  QUALIFIER = rq::getBit(25),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
+  STATEMENT = rq::getBit(9),
+  RVALUE = rq::getBit(10),
+  LVALUE = rq::getBit(11),
+  RAILCAR = rq::getBit(12),
+  ARGUMENT = rq::getBit(13),
+  PARAMETER = rq::getBit(14),
+  TUPLE_ELEMENT = rq::getBit(15),
+  BINDING = rq::getBit(16),
+  NAME = rq::getBit(17),
+  PATH = rq::getBit(18),
+  ROUTE = rq::getBit(19),
+  IMPORT_SPECIFIER = rq::getBit(20),
+  ASCRIPTION = rq::getBit(21),
+  MODIFIER = rq::getBit(22),
+  QUALIFIER = rq::getBit(23),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
       PARAMETER | BINDING | NAME | PATH | ROUTE | IMPORT_SPECIFIER |
       ASCRIPTION | MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
@@ -1713,16 +1711,6 @@ getSituatedAscribeKeyword(rq::Keyword keyword) {
     break;
   }
   RQ_UNREACHABLE();
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedLeft(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::UNQUOTED_LEFT);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedRight(rq::Keyword keyword) {
-  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::UNQUOTED_RIGHT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConverging(rq::Keyword keyword) {
@@ -3939,12 +3927,6 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteral() const {
     return rq::getIsLiteralKeyword(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedLeft() const {
-    return rq::getHasUnquotedLeft(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasUnquotedRight() const {
-    return rq::getHasUnquotedRight(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsConverging() const {
     return rq::getIsConverging(this->getKeyword());

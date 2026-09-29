@@ -158,7 +158,7 @@ bool Context::loadSourceModule() {
   }
   llvm::StringRef final_path = this->saveString(input_path);
   rq::ModuleDetail detail(rq::ModuleKind::SOURCE, final_path,
-                            buffer_eo.get().getBuffer());
+                          buffer_eo.get().getBuffer());
   if (!this->validateSourceText(detail)) {
     return false;
   }
@@ -237,7 +237,7 @@ rq::Module *Context::loadImportModule(const rq::Expression &expression,
   }
   llvm::StringRef final_path = this->saveString(found_path);
   rq::ModuleDetail detail(rq::ModuleKind::IMPORT, final_path,
-                            buffer_eo.get().getBuffer());
+                          buffer_eo.get().getBuffer());
   if (!this->validateSourceText(detail)) {
     return nullptr;
   }
@@ -297,10 +297,10 @@ bool Context::run() {
   }
   if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
     RQ_TODO_IMPLEMENTATION();
-    //if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
-    //  return false;
-    //}
-    //return true;
+    // if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
+    //   return false;
+    // }
+    // return true;
   }
   if (!this->buildLlvmIr()) {
     return false;
@@ -339,13 +339,9 @@ bool Context::situateModule(rq::ModuleDetail &detail) {
   return is_ok;
 }
 
-bool Context::generateSourceModule() {
-  RQ_TODO_IMPLEMENTATION();
-}
+bool Context::generateSourceModule() { RQ_TODO_IMPLEMENTATION(); }
 
-bool Context::buildLlvmIr() {
-  RQ_TODO_IMPLEMENTATION();
-}
+bool Context::buildLlvmIr() { RQ_TODO_IMPLEMENTATION(); }
 
 bool Context::emitTokens(llvm::StringRef path,
                          llvm::ArrayRef<rq::Token> tokens) {
@@ -417,13 +413,9 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   }
   rq::emitIndent(fout, indent);
   if (top.getIsLiteral()) {
-    if (top.getHasUnquotedLeft()) {
-      fout << "\"";
-    }
+    fout << "\"";
     fout << top.getSourceText();
-    if (top.getHasUnquotedRight()) {
-      fout << "\"";
-    }
+    fout << "\"";
     return;
   }
   fout << "[" << top.getName();
@@ -965,9 +957,9 @@ void Context::logErrorNotDeterminateStaticValue(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorInvalidModifier(
-    const rq::Expression &unascribed, const rq::Expression &instantiation_ex,
-    rq::Modifier modifier) {
+void Context::logErrorInvalidModifier(const rq::Expression &unascribed,
+                                      const rq::Expression &instantiation_ex,
+                                      rq::Modifier modifier) {
   this->logMessage(instantiation_ex.getLlvmSourceBegin(), rq::LogType::ERROR,
                    rq::getName(modifier) +
                        " is is not a valid modifier for expression " +
