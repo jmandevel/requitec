@@ -70,18 +70,28 @@
     cat := Cat();
     rat := Rat();
 
-    // use adapt to get interface of value.
-    speak_adpater :mut\= dog.[adapt A-->ISpeak].[ref];
-    speak_adpater.speak();
-    // can reassign a different interface of same type
-    speak_adapter = cat.[adapt A-->ISpeak].[ref];
-    speak_adapter.speak();
+    // use adapt to get adaption between value, an interface, and an adapter
+    // this is aware of reciever type, adapter, and interface at compile time
+    // does not have to do virtual function lookup
+    speak_adaption :mut\[adaption Dog, A-->ISpeak]= dog.[adapt A-->ISpeak].[ref];
+    speak_adaption.speak();
 
     // use compose to create composition of 1 or more interfaces
-    dog_composition :mut\= dog.[compose A-->IGreet, A-->ISpeak].[ref];
+    // this allows for dynamic polymorphism
+    // with one specified, it becomse the interface composed
+    dog_interface :IGreet= dog.[compose IGreet];
+    dog_interface.greet();
+    // with more than one specified, it becomes a composition
+    dog_composition :[composition IGreet, ISpeak]= dog.[compose greet=A-->IGreet, speak=A-->ISpeak].[ref];
     // decompose a composition to get one of its interfaces
-    dog_greet_adapter :mut\= dog_composition.[decompose IGreet].[ref];
+    dog_greet_adapter :IGreet= dog_composition.[decompose IGreet].[ref];
     dog_greet_adapter.greet();
+
+    // can name interfaces of composition if there is more than one
+    // this allows for having multiple instances of same interface
+    dog_composition2 :[composition a:IGreet, b:IGreet]= dog.[compose a=A-->IGreet, b=B-->IGreet];
+    dog_composition2.[decompose a].greet();
+    dog_composition2.[decompose b].greet();
 
     speakAndGreet(animal=dog.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=cat.[compose A-->ISpeak, A-->IGreet]);
