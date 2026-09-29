@@ -78,7 +78,7 @@
 
     // use compose to create composition of 1 or more interfaces
     // this allows for dynamic polymorphism
-    // with one specified, it becomse the interface composed
+    // with one specified, it becomes the interface composed
     dog_interface :IGreet= dog.[compose IGreet];
     dog_interface.greet();
     // with more than one specified, it becomes a composition
