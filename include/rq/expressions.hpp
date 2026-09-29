@@ -764,10 +764,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "resolve_adapter";
   case K::RESOLVE_ADAPTER_OF:
     return "_resolve_adapter_of";
-  case K::WHERE_IS:
-    return "where_is";
-  case K::WHERE_IS_OF:
-    return "_where_is_of";
   case K::IS_TYPE:
     return "is_type";
   case K::IS_TYPE_OF:
@@ -1627,10 +1623,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::RESOLVE_ADAPTER_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WHERE_IS:
-    return KIF::RAILCAR;
-  case K::WHERE_IS_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::IS_TYPE:
     return KIF::RAILCAR;
   case K::IS_TYPE_OF:
@@ -2002,8 +1994,6 @@ getDescription(rq::Situation situation) {
     return K::RESOLVE_PROCEDURE_OF;
   case K::RESOLVE_ADAPTER:
     return K::RESOLVE_ADAPTER_OF;
-  case K::WHERE_IS:
-    return K::WHERE_IS_OF;
   case K::IS_TYPE:
     return K::IS_TYPE_OF;
   case K::IS_RANGE_TYPE:

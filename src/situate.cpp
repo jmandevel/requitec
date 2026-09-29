@@ -1257,12 +1257,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RESOLVE_ADAPTER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::WHERE_IS:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::WHERE_IS_OF:
-    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
-    break;
   case K::IS_TYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
