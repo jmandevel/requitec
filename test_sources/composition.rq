@@ -87,12 +87,6 @@
     dog_greet_adapter :IGreet= dog_composition.[decompose IGreet].[ref];
     dog_greet_adapter.greet();
 
-    // can name interfaces of composition if there is more than one
-    // this allows for having multiple instances of same interface
-    dog_composition2 :[composition a:IGreet, b:IGreet]= dog.[compose a=A-->IGreet, b=B-->IGreet];
-    dog_composition2.[decompose a].greet();
-    dog_composition2.[decompose b].greet();
-
     speakAndGreet(animal=dog.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=cat.[compose A-->ISpeak, A-->IGreet]);
     speakAndGreet(animal=rat.[compose A-->ISpeak, A-->IGreet]);
