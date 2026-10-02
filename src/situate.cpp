@@ -538,7 +538,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::REFERENCE_SUBTYPE:
     [[fallthrough]];
-  case K::POINTER_SUBTYPE:
+  case K::PTR_SUBTYPE:
     [[fallthrough]];
   case K::SLICE_SUBTYPE:
     [[fallthrough]];
@@ -628,7 +628,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ADAPTER:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
-  
+
   // VALUES
   case K::ARRAY:
     is_ok = this->situateNaryTag(situation, expression, 0, S::RVALUE);
@@ -781,16 +781,16 @@ bool Situator::situateTree(rq::Situation situation,
                                                     expression);
     break;
   case K::BREAK:
-      is_ok = this->situateNullary(situation, expression);
-      break;
+    is_ok = this->situateNullary(situation, expression);
+    break;
   case K::BREAK_OF:
-      is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
   case K::CONTINUE:
-      is_ok = this->situateNullary(situation, expression);
-      break;
+    is_ok = this->situateNullary(situation, expression);
+    break;
   case K::CONTINUE_OF:
-      is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-      break;
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
 
   // RANGES
   case K::ARITHMETIC_SEQUENCE:
@@ -824,7 +824,8 @@ bool Situator::situateTree(rq::Situation situation,
 
   // TABLE GRAPH
   case K::IMPORT:
-    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1, S::RVALUE, S::IMPORT_SPECIFIER);
+    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
+                                               S::RVALUE, S::PORTAL);
     break;
   case K::NODE: {
     is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
@@ -920,6 +921,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ENUMERATOR:
     [[fallthrough]];
   case K::ALIAS:
+    [[fallthrough]];
+  case K::PARAMETER:
+    [[fallthrough]];
+  case K::PORTAL:
     [[fallthrough]];
   case K::DYNAMIC:
     [[fallthrough]];
@@ -1023,7 +1028,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_NULL_TERMINATE:
     [[fallthrough]];
-  case K::NULL_TERMINATE: 
+  case K::NULL_TERMINATE:
     [[fallthrough]];
   case K::NO_MARGIN:
     [[fallthrough]];

@@ -252,7 +252,7 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "Array";
   case K::REFERENCE_SUBTYPE:
     return "Ref";
-  case K::POINTER_SUBTYPE:
+  case K::PTR_SUBTYPE:
     return "Ptr";
   case K::SLICE_SUBTYPE:
     return "Slice";
@@ -520,6 +520,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "enumerator";
   case K::ALIAS:
     return "alias";
+  case K::PARAMETER:
+    return "parameter";
+  case K::PORTAL:
+    return "portal";
   case K::EAGER:
     return "eager";
   case K::LAZY:
@@ -846,15 +850,15 @@ enum class KeywordInfoFlags : std::uint32_t {
   NAME = rq::getBit(17),
   PATH = rq::getBit(18),
   ROUTE = rq::getBit(19),
-  IMPORT_SPECIFIER = rq::getBit(20),
+  PORTAL = rq::getBit(20),
   ASCRIPTION = rq::getBit(21),
   MODIFIER = rq::getBit(22),
   QUALIFIER = rq::getBit(23),
   ARITHMETIC_SEQUENCE_STEP = rq::getBit(24),
   ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(25),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
-      PARAMETER | BINDING | NAME | PATH | ROUTE | IMPORT_SPECIFIER |
-      ASCRIPTION | MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
+      PARAMETER | BINDING | NAME | PATH | ROUTE | PORTAL | ASCRIPTION |
+      MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
       ARITHMETIC_SEQUENCE_CONDITION,
 
 };
@@ -885,7 +889,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
+           KIF::PATH | KIF::ROUTE | KIF::PORTAL;
 
   // ERRORS
   case K::ERROR:
@@ -900,7 +904,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER |
-           KIF::TUPLE_ELEMENT | KIF::IMPORT_SPECIFIER;
+           KIF::TUPLE_ELEMENT | KIF::PORTAL;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE;
@@ -913,7 +917,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
+           KIF::PATH | KIF::ROUTE | KIF::PORTAL;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -970,7 +974,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
     return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE | KIF::IMPORT_SPECIFIER;
+           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE | KIF::PORTAL;
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
@@ -1110,7 +1114,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REFERENCE_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::POINTER_SUBTYPE:
+  case K::PTR_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SLICE_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1382,6 +1386,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ALIAS:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PARAMETER:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PORTAL:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EAGER:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LAZY:
@@ -1504,7 +1512,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::WITHOUT:
     return KIF::RAILCAR;
   case K::WITHOUT_OF:
-    return KIF::ROUTE | KIF::IMPORT_SPECIFIER;
+    return KIF::ROUTE | KIF::PORTAL;
   case K::BAKE:
     return KIF::RAILCAR;
   case K::BAKE_OF:
@@ -1777,7 +1785,7 @@ enum class Situation : std::uint_fast8_t {
   NAME,
   PATH,
   ROUTE,
-  IMPORT_SPECIFIER,
+  PORTAL,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
   QUALIFIER_INSTANTIATION,
@@ -1830,7 +1838,7 @@ getDescription(rq::Situation situation) {
     return "path expression";
   case S::ROUTE:
     return "route expression";
-  case S::IMPORT_SPECIFIER:
+  case S::PORTAL:
     return "import specifier expression";
   case S::ASCRIPTION:
     return "ascription expression";
@@ -2087,10 +2095,9 @@ getDescription(rq::Situation situation) {
   return rq::getHasAll(flags, rq::KeywordInfoFlags::ROUTE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeImportSpecifier(rq::Keyword keyword) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePortal(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
-  return rq::getHasAll(flags, rq::KeywordInfoFlags::IMPORT_SPECIFIER);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::PORTAL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription(rq::Keyword keyword) {
@@ -2271,8 +2278,8 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBePath(keyword);
   case S::ROUTE:
     return rq::getCanBeRoute(keyword);
-  case S::IMPORT_SPECIFIER:
-    return rq::getCanBeImportSpecifier(keyword);
+  case S::PORTAL:
+    return rq::getCanBePortal(keyword);
   case S::ASCRIPTION:
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
@@ -2342,6 +2349,8 @@ enum class Modifier : std::uint_fast8_t {
   VARIABLE,
   ENUMERATOR,
   ALIAS,
+  PARAMETER,
+  PORTAL,
   // evaluation_time
   EAGER,
   LAZY,
@@ -2412,117 +2421,121 @@ enum class Modifier : std::uint_fast8_t {
   using M = Modifier;
   switch (modifier) {
   case M::NO_MODIFIER:
-    return "NO_MODIFIER";
+    return "no_modifier";
   case M::ANCHOR:
-    return "ANCHOR";
+    return "anchor";
   case M::RESIDENT:
-    return "RESIDENT";
+    return "resident";
   case M::FLANK:
-    return "FLANK";
+    return "flank";
   case M::TRANSPARENT:
-    return "TRANSPARENT";
+    return "transparent";
   case M::OPAQUE:
-    return "OPAQUE";
+    return "opaque";
   case M::PRIVATE:
-    return "PRIVATE";
+    return "private";
   case M::PUBLIC:
-    return "PUBLIC";
+    return "public";
   case M::EXPORT:
-    return "EXPORT";
+    return "export";
   case M::MUTABLE:
-    return "MUTABLE";
+    return "mutable";
   case M::PARTIALLY_MUTABLE:
-    return "PARTIALLY_MUTABLE";
+    return "partially_mutable";
   case M::CONSTANT:
-    return "CONSTANT";
+    return "constant";
   case M::VARIABLE:
-    return "VARIABLE";
+    return "variable";
   case M::ENUMERATOR:
-    return "ENUMERATOR";
+    return "enumerator";
   case M::ALIAS:
-    return "ALIAS";
+    return "alias";
+  case M::PARAMETER:
+    return "parameter";
+  case M::PORTAL:
+    return "portal";
   case M::EAGER:
-    return "EAGER";
+    return "eager";
   case M::LAZY:
-    return "LAZY";
+    return "lazy";
   case M::DYNAMIC:
-    return "DYNAMIC";
+    return "dynamic";
   case M::STATIC:
-    return "STATIC";
+    return "static";
   case M::RUNTIME:
-    return "RUNTIME";
+    return "runtime";
   case M::COMPILE_TIME:
-    return "COMPILE_TIME";
+    return "compile_time";
   case M::HYBRID:
     return "hybrid";
   case M::PRESET:
-    return "PRESET";
+    return "preset";
   case M::SINGLETON:
-    return "SINGLETON";
+    return "singleton";
   case M::CAPTURE:
-    return "CAPTURE";
+    return "capture";
   case M::STATELESS:
-    return "STATELESS";
+    return "stateless";
   case M::LINKED:
-    return "LINKED";
+    return "linked";
   case M::INLINE:
-    return "INLINE";
+    return "inline";
   case M::STANDARD_MANGLE:
-    return "STANDARD_MANGLE";
+    return "standard_mangle";
   case M::MANGLE:
-    return "MANGLE";
+    return "mangle";
   case M::PAD:
-    return "PAD";
+    return "pad";
   case M::PACK:
-    return "PACK";
+    return "pack";
   case M::EQUIVOCAL:
-    return "EQUIVOCAL";
+    return "equivocal";
   case M::LIKELY:
-    return "LIKELY";
+    return "likely";
   case M::UNLIKELY:
-    return "UNLIKELY";
+    return "unlikely";
   case M::SUPPORTED:
-    return "SUPPORTED";
+    return "supported";
   case M::DEPRECIATED:
-    return "DEPRECIATED";
+    return "depreciated";
   case M::EXPERIMENTAL:
-    return "EXPERIMENTAL";
+    return "experimental";
   case M::UNSTABLE_ADDRESS:
-    return "UNSTABLE_ADDRESS";
+    return "unstable_address";
   case M::STABLE_ADDRESS:
-    return "STABLE_ADDRESS";
+    return "stable_address";
   case M::INVARIADIC:
-    return "INVARIADIC";
+    return "invariadic";
   case M::DYNAMIC_VARIADIC:
-    return "DYNAMIC_VARIADIC";
+    return "dynamic_variadic";
   case M::BEST_LOCATION:
-    return "BEST_LOCATION";
+    return "best_location";
   case M::LOCATION:
-    return "LOCATION";
+    return "location";
   case M::TEMPLATE:
-    return "TEMPLATE";
+    return "template";
   case M::OVERLOAD:
-    return "OVERLOAD";
+    return "overload";
   case M::CONSTRAINT:
-    return "CONSTRAINT";
+    return "constraint";
   case M::DEFAULT_WEIGHT:
-    return "DEFAULT_WEIGHT";
+    return "default_weight";
   case M::WEIGHT:
-    return "WEIGHT";
+    return "weight";
   case M::MANUAL:
-    return "MANUAL";
+    return "manual";
   case M::AUTO:
-    return "AUTO";
+    return "auto";
   case M::DIRECT:
-    return "DIRECT";
+    return "direct";
   case M::VIRTUAL:
-    return "VIRTUAL";
+    return "virtual";
   case M::RANGER:
-    return "RANGER";
+    return "ranger";
   case M::REQUIRE:
-    return "REQUIRE";
+    return "require";
   case M::ENSURE:
-    return "ENSURE";
+    return "ensure";
   case M::LAST:
     break;
   }
@@ -2564,6 +2577,10 @@ enum class Modifier : std::uint_fast8_t {
     return M::ENUMERATOR;
   case K::ALIAS:
     return M::ALIAS;
+  case K::PARAMETER:
+    return M::PARAMETER;
+  case K::PORTAL:
+    return M::PORTAL;
   case K::EAGER:
     return M::EAGER;
   case K::LAZY:
@@ -2681,89 +2698,91 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   VARIABLE = rq::getBit(11),
   ENUMERATOR = rq::getBit(12),
   ALIAS = rq::getBit(13),
-  ASSIGNMENT_KIND_MASK = VARIABLE | ENUMERATOR | ALIAS,
+  PARAMETER = rq::getBit(14),
+  PORTAL = rq::getBit(15),
+  ASSIGNMENT_KIND_MASK = VARIABLE | ENUMERATOR | ALIAS | PARAMETER | PORTAL,
 
-  EAGER = rq::getBit(14),
-  LAZY = rq::getBit(15),
+  EAGER = rq::getBit(16),
+  LAZY = rq::getBit(17),
   EVALUATION_TIME_MASK = EAGER | LAZY,
 
-  DYNAMIC = rq::getBit(16),
-  STATIC = rq::getBit(17),
+  DYNAMIC = rq::getBit(18),
+  STATIC = rq::getBit(19),
   GENERATION_TIME_MASK = DYNAMIC | STATIC,
 
-  RUNTIME = rq::getBit(18),
-  COMPILE_TIME = rq::getBit(19),
-  HYBRID = rq::getBit(20),
+  RUNTIME = rq::getBit(20),
+  COMPILE_TIME = rq::getBit(21),
+  HYBRID = rq::getBit(22),
   EXECUTION_TIME_MASK = RUNTIME | COMPILE_TIME | HYBRID,
 
-  PRESET = rq::getBit(21),
-  SINGLETON = rq::getBit(22),
+  PRESET = rq::getBit(23),
+  SINGLETON = rq::getBit(24),
   INITIALIZATION_TIME_MASK = PRESET | SINGLETON,
 
-  CAPTURE = rq::getBit(23),
-  STATELESS = rq::getBit(24),
+  CAPTURE = rq::getBit(25),
+  STATELESS = rq::getBit(26),
   STATIC_CLOSURE_MASK = CAPTURE | STATELESS,
 
-  LINKED = rq::getBit(24),
-  INLINE = rq::getBit(25),
+  LINKED = rq::getBit(27),
+  INLINE = rq::getBit(28),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  STANDARD_MANGLE = rq::getBit(26),
-  MANGLE = rq::getBit(27),
+  STANDARD_MANGLE = rq::getBit(29),
+  MANGLE = rq::getBit(30),
   MANGLE_MODIFIER_MASK = STANDARD_MANGLE | MANGLE,
 
-  PAD = rq::getBit(28),
-  PACK = rq::getBit(29),
+  PAD = rq::getBit(31),
+  PACK = rq::getBit(32),
   PACK_MODIFIER_MASK = PAD | PACK,
 
-  EQUIVOCAL = rq::getBit(30),
-  LIKELY = rq::getBit(31),
-  UNLIKELY = rq::getBit(32),
+  EQUIVOCAL = rq::getBit(33),
+  LIKELY = rq::getBit(34),
+  UNLIKELY = rq::getBit(35),
   BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  SUPPORTED = rq::getBit(33),
-  DEPRECIATED = rq::getBit(34),
-  EXPERIMENTAL = rq::getBit(35),
+  SUPPORTED = rq::getBit(36),
+  DEPRECIATED = rq::getBit(37),
+  EXPERIMENTAL = rq::getBit(38),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  UNSTABLE_ADDRESS = rq::getBit(36),
-  STABLE_ADDRESS = rq::getBit(37),
+  UNSTABLE_ADDRESS = rq::getBit(39),
+  STABLE_ADDRESS = rq::getBit(40),
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
-  INVARIADIC = rq::getBit(38),
-  DYNAMIC_VARIADIC = rq::getBit(39),
+  INVARIADIC = rq::getBit(41),
+  DYNAMIC_VARIADIC = rq::getBit(42),
   DYNAMIC_VARIADIC_MODIFIER_MASK,
 
-  BEST_LOCATION = rq::getBit(40),
-  LOCATION = rq::getBit(41),
+  BEST_LOCATION = rq::getBit(43),
+  LOCATION = rq::getBit(44),
   OFFSET_MODIFIER_MASK = BEST_LOCATION | LOCATION,
 
-  TEMPLATE = rq::getBit(42),
-  OVERLOAD = rq::getBit(43),
+  TEMPLATE = rq::getBit(45),
+  OVERLOAD = rq::getBit(46),
   LAZY_DECLARATION_KIND_MODIFIER_MASK = TEMPLATE | OVERLOAD,
 
-  CONSTRAINT = rq::getBit(45),
+  CONSTRAINT = rq::getBit(47),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  DEFAULT_WEIGHT = rq::getBit(46),
-  WEIGHT = rq::getBit(47),
+  DEFAULT_WEIGHT = rq::getBit(48),
+  WEIGHT = rq::getBit(49),
   WEIGHT_MODIFIER_MASK = DEFAULT_WEIGHT | WEIGHT,
 
-  MANUAL = rq::getBit(48),
-  AUTO = rq::getBit(49),
+  MANUAL = rq::getBit(50),
+  AUTO = rq::getBit(51),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(50),
-  VIRTUAL = rq::getBit(51),
+  DIRECT = rq::getBit(52),
+  VIRTUAL = rq::getBit(53),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(52),
+  RANGER = rq::getBit(54),
   RANGER_MODIFIER_MASK = RANGER,
 
-  REQUIRE = rq::getBit(53),
+  REQUIRE = rq::getBit(55),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(54),
+  ENSURE = rq::getBit(56),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -2804,6 +2823,10 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::ENUMERATOR;
   case M::ALIAS:
     return MFF::ALIAS;
+  case M::PARAMETER:
+    return MFF::PARAMETER;
+  case M::PORTAL:
+    return MFF::PORTAL;
   case M::DYNAMIC:
     return MFF::DYNAMIC;
   case M::STATIC:
@@ -2935,6 +2958,10 @@ getInfoFlags(rq::Modifier modifier) {
   case M::ENUMERATOR:
     return MIF::NO_ATTACHMENT;
   case M::ALIAS:
+    return MIF::NO_ATTACHMENT;
+  case M::PARAMETER:
+    return MIF::NO_ATTACHMENT;
+  case M::PORTAL:
     return MIF::NO_ATTACHMENT;
   case M::DYNAMIC:
     return MIF::NO_ATTACHMENT;
@@ -3239,6 +3266,10 @@ enum class ModifierKind : std::uint_fast8_t {
   case M::ENUMERATOR:
     [[fallthrough]];
   case M::ALIAS:
+    [[fallthrough]];
+  case M::PARAMETER:
+    [[fallthrough]];
+  case M::PORTAL:
     return MK::ASSIGNMENT_KIND;
   case M::DYNAMIC:
     [[fallthrough]];
@@ -4000,8 +4031,8 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeRoute() const {
     return rq::getCanBePath(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeImportSpecifier() const {
-    return rq::getCanBeImportSpecifier(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBePortal() const {
+    return rq::getCanBePortal(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeAscription() const {
     return rq::getCanBeAscription(this->getKeyword());

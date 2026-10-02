@@ -144,7 +144,7 @@ enum class Keyword : rq::EntityId {
   INSTANTIATE_SUBTYPE,
   ARRAY_SUBTYPE,
   REFERENCE_SUBTYPE,
-  POINTER_SUBTYPE,
+  PTR_SUBTYPE,
   SLICE_SUBTYPE,
   SPLIT_SUBTYPE,
 
@@ -301,6 +301,8 @@ enum class Keyword : rq::EntityId {
   VARIABLE,
   ENUMERATOR,
   ALIAS,
+  PARAMETER,
+  PORTAL,
   // evaluation_time
   EAGER,
   LAZY,
@@ -492,11 +494,7 @@ enum class SymbolKind : rq::EntityId {
   STRING_LITERAL_TYPE,
   CODEUNIT_LITERAL_TYPE,
 
-  // CONTEXTUAL VALUE
-  VALUE_VALUE,
-  INDEX_VALUE,
-
-  // CONTEXTUAL TYPE
+  // FIGURATIVE
   UNKNOWN_TYPE,
   INFERENCE_TYPE,
   VOID_TYPE,
@@ -532,14 +530,6 @@ enum class SymbolKind : rq::EntityId {
   UINDEX,
   CHAR_TYPE,
 
-  // SCALED PRIMITIVE TYPES
-  SCALED_SINT,
-  SCALED_UINT,
-  SCALED_FSINT,
-  SCALED_FUINT,
-  SCALED_LSINT,
-  SCALED_LUINT,
-
   // STANDARD PRIMITIVE TYPE
   BINARY16_TYPE,
   BINARY32_TYPE,
@@ -549,14 +539,23 @@ enum class SymbolKind : rq::EntityId {
   ASCII_TYPE,
   UTF8_TYPE,
 
+  // SCALED PRIMITIVE TYPES
+  SCALED_SINT,
+  SCALED_UINT,
+  SCALED_FSINT,
+  SCALED_FUINT,
+  SCALED_LSINT,
+  SCALED_LUINT,
+
   // DYNAMIC_VARIADIC ARGUMENTS
   DYNAMIC_VARIADIC_ARGUMENTS_TYPE,
 
   // SUBTYPES
   ARRAY_SUBTYPE,
-  REFERENCE_SUBTYPE,
-  POINTER_SUBTYPE,
+  REF_SUBTYPE,
+  PTR_SUBTYPE,
   SLICE_SUBTYPE,
+  SPLIT_SUBTYPE,
   INFERENCE_COUNT_ARRAY_SUBTYPE,
 
   // MODULES
@@ -564,6 +563,9 @@ enum class SymbolKind : rq::EntityId {
 
   // IMPORTS
   IMPORT,
+
+  // REALIZATION
+  REALIZATION,
 
   // CONFORMITY
   CONFORMITY,
@@ -612,7 +614,7 @@ enum class SymbolKind : rq::EntityId {
 
   // ROUTES
   ALIAS,
-  IMPORT_SPECIFIER,
+  PORTAL,
 
   // SYMBOL TABLES
   C_TABLE,
@@ -805,6 +807,7 @@ struct DottedInstructionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
+
 struct ConstDottedInstructionIterator final {
   using Self = rq::ConstDottedInstructionIterator;
   using value_type = const rq::Entity;
@@ -832,6 +835,807 @@ struct ConstDottedInstructionIterator final {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
+
+enum class SymbolInfoFlags : std::uint64_t {
+  NONE = 0,
+
+  // SYMBOL CLASSIFICATION
+  SIMPLE_SYMBOL = rq::getBit(0),
+  LITERAL = rq::getBit(1),
+  FIGURATIVE = rq::getBit(2),
+  ATTRIBUTE_TYPE = rq::getBit(3),
+  REFLECTION_TYPE = rq::getBit(4),
+  FITTING_PRIMITIVE_TYPE = rq::getBit(5),
+  PLATFORM_PRIMITIVE_TYPE = rq::getBit(6),
+  STANDARD_PRIMITIVE_TYPE = rq::getBit(7),
+  SCALED_PRIMITIVE_TYPE = rq::getBit(8),
+  SUBTYPE = rq::getBit(9),
+  SIMPLE_SUBTYPE = rq::getBit(10),
+  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(11),
+  SPECIALIZATION_SET = rq::getBit(12),
+  PARAMETER_LIST = rq::getBit(13),
+  TABLE_MEMBER = rq::getBit(14),
+  EAGER_DECLARATION = rq::getBit(15),
+  ROUTE = rq::getBit(16),
+  POLYMORPH = rq::getBit(17),
+  WEIGHT_LEVEL = rq::getBit(18),
+  TEMPLATE = rq::getBit(19),
+  SYMBOL_TABLE = rq::getBit(20),
+  EAGER_SCOPE = rq::getBit(21),
+  NAMED_TABLE = rq::getBit(22),
+  LAZY_DECLARATION = rq::getBit(23),
+  CLASS_IMPLEMENTATION = rq::getBit(24),
+  ENUM_IMPLEMENTATION = rq::getBit(25),
+  INTERFACE_IMPLEMENTATION = rq::getBit(26),
+  ADAPTER_IMPLEMENTATION = rq::getBit(27),
+  PROCEDURE_IMPLEMENTATION = rq::getBit(28),
+  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(29),
+
+  // SYMBOL DETAIL
+  IS_RUNTIME_TYPE = rq::getBit(48),
+  IS_COMPILE_TIME_TYPE = rq::getBit(49),
+  IS_CONTEXTUAL = rq::getBit(50),
+  IS_INTEGER = rq::getBit(51),
+  IS_FAST = rq::getBit(52),
+  IS_LEAST = rq::getBit(53),
+  IS_SIZE = rq::getBit(54),
+  IS_INDEX = rq::getBit(55),
+  IS_FLOAT = rq::getBit(56),
+  IS_BINARY = rq::getBit(57),
+  IS_BFLOAT = rq::getBit(58),
+  IS_CODEUNIT = rq::getBit(59),
+  IS_SIGNED = rq::getBit(60),
+  IS_UNSIGNED = rq::getBit(61),
+  IS_FRAME_SCOPE = rq::getBit(62),
+  IS_OBJECT_SCOPE = rq::getBit(63)
+};
+
+RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
+
+[[nodiscard]] inline rq::SymbolInfoFlags getInfoFlags(rq::SymbolKind kind) {
+  using S = rq::SymbolKind;
+  using SIF = rq::SymbolInfoFlags;
+  switch (kind) {
+  case S::NONE:
+    return SIF::NONE;
+
+  // LITERALS
+  case S::INTEGER_LITERAL_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_COMPILE_TIME_TYPE;
+  case S::FLOAT_LITERAL_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_COMPILE_TIME_TYPE;
+  case S::STRING_LITERAL_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_COMPILE_TIME_TYPE;
+  case S::CODEUNIT_LITERAL_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::LITERAL | SIF::IS_COMPILE_TIME_TYPE;
+
+  // FIGURATIVE TYPE
+  case S::UNKNOWN_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::FIGURATIVE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_CONTEXTUAL;
+  case S::INFERENCE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::FIGURATIVE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_CONTEXTUAL;
+  case S::VOID_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::FIGURATIVE | SIF::IS_RUNTIME_TYPE;
+  case S::NO_RETURN_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::FIGURATIVE | SIF::IS_RUNTIME_TYPE;
+
+  // ATTRIBUTE TYPES
+  case S::MODIFIER_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::IS_COMPILE_TIME_TYPE;
+  case S::QUALIFIER_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::IS_COMPILE_TIME_TYPE;
+
+  // REFLECTION TYPES
+  case S::SYMBOL_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::SYMBOL_RANGE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::EXPRESSION_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::EXPRESSION_RANGE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::REFLECTION_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+
+  // PLATFORM FITTING TYPES
+  case S::FSINT:
+    return SIF::SIMPLE_SYMBOL | SIF::FITTING_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_CONTEXTUAL | SIF::IS_INTEGER | SIF::IS_FAST | SIF::IS_SIGNED;
+  case S::FUINT:
+    return SIF::SIMPLE_SYMBOL | SIF::FITTING_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_CONTEXTUAL | SIF::IS_INTEGER | SIF::IS_FAST |
+           SIF::IS_UNSIGNED;
+  case S::LSINT:
+    return SIF::SIMPLE_SYMBOL | SIF::FITTING_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_CONTEXTUAL | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_SIGNED;
+  case S::LUINT:
+    return SIF::SIMPLE_SYMBOL | SIF::FITTING_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_CONTEXTUAL | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_UNSIGNED;
+
+  // PLATFORM PRIMITIVE TYPES
+  case S::BOOLEAN_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE;
+  case S::HALF_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_SIGNED;
+  case S::SINGLE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_SIGNED;
+  case S::DOUBLE_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_SIGNED;
+  case S::QUADRUPLE_TYPE:
+    return SIF::SIMPLE_SUBTYPE | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_SIGNED;
+  case S::SINT:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_SIGNED;
+  case S::UINT:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_UNSIGNED;
+  case S::SSIZE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_SIZE | SIF::IS_SIGNED;
+  case S::USIZE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_SIZE | SIF::IS_UNSIGNED;
+  case S::SINDEX:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_INDEX | SIF::IS_SIGNED;
+  case S::UINDEX:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER |
+           SIF::IS_INDEX | SIF::IS_UNSIGNED;
+  case S::CHAR_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::PLATFORM_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_CODEUNIT;
+
+  // STANDARD PRIMITIVE TYPE
+  case S::BINARY16_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_BINARY | SIF::IS_SIGNED;
+  case S::BINARY32_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_BINARY | SIF::IS_SIGNED;
+  case S::BINARY64_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_BINARY | SIF::IS_SIGNED;
+  case S::BINARY128_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_BINARY | SIF::IS_SIGNED;
+  case S::BFLOAT16_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_BFLOAT | SIF::IS_SIGNED;
+  case S::ASCII_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_CODEUNIT;
+  case S::UTF8_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::STANDARD_PRIMITIVE_TYPE |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE | SIF::IS_CODEUNIT;
+
+  // SCALED PRIMITIVE TYPES
+  case S::SCALED_SINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
+  case S::SCALED_UINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_UNSIGNED;
+  case S::SCALED_FSINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
+           SIF::IS_SIGNED;
+  case S::SCALED_FUINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
+           SIF::IS_UNSIGNED;
+  case S::SCALED_LSINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_SIGNED;
+  case S::SCALED_LUINT:
+    return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_UNSIGNED;
+
+  // DYNAMIC_VARIADIC ARGUMENTS
+  case S::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+    return SIF::SIMPLE_SYMBOL | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+
+  // SUBTYPES
+  case S::ARRAY_SUBTYPE:
+    return SIF::SUBTYPE | SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE;
+  case S::REF_SUBTYPE:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::PTR_SUBTYPE:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::SLICE_SUBTYPE:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::SPLIT_SUBTYPE:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+
+  // MODULES
+  case S::MODULE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
+
+  // IMPORTS
+  case S::IMPORT:
+    return SIF::NONE;
+
+  // REALIZATION
+  case S::REALIZATION:
+    return SIF::NONE;
+
+  // CONFORMITY
+  case S::CONFORMITY:
+    return SIF::NONE;
+
+  // ADAPTION
+  case S::ADAPTION:
+    return SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE;
+
+  // JUXT LIST
+  case S::JUXT_LIST_TYPE:
+    return SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE;
+  case S::JUXT_LIST_ITEM:
+    return SIF::NONE;
+
+  // SPECIALIZATION SET ARGUMENT
+  case S::SPECIALIZATION_SET_ARGUMENT:
+    return SIF::NONE;
+
+  // SPECIALIZATION SET
+  case S::SPECIALIATION_SET:
+    return SIF::NONE;
+  case S::ADAPTER_SPECIALIZATION_SET:
+    return SIF::NONE;
+  case S::PROCEDURE_SPECIALIZATION_SET:
+    return SIF::NONE;
+
+  // ARITHMETIC SEQUENCES
+  case S::ARITHMETIC_INTERVAL_TYPE:
+    return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+  case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE;
+
+  // EAGER DECLARATIONS
+  case S::ANCHOR:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
+  case S::ENUMERATOR:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
+  case S::EAGER_VARIABLE:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
+
+  // PARAMETERS
+  case S::PARAMETER:
+    return SIF::NONE;
+
+  // PARAMETER LISTS
+  case S::SIGNATURE_TYPE:
+    return SIF::PARAMETER_LIST;
+  case S::LAYOUT_TYPE:
+    return SIF::PARAMETER_LIST;
+
+  // PLACEMENTS
+  case S::PLACEMENT_TYPE:
+    return SIF::NONE;
+
+  // COMPOSITIONS
+  case S::COMPOSITION_COMPONENT:
+    return SIF::NONE;
+  case S::COMPOSITION_TYPE:
+    return SIF::NONE;
+
+  // SYNONYMS
+  case S::SYNONYM_TYPE:
+    return SIF::NONE;
+
+  // ROUTES
+  case S::ALIAS:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::ROUTE;
+  case S::PORTAL:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::ROUTE;
+
+  // SYMBOL TABLES
+  case S::C_TABLE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
+  case S::NODE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
+
+  // EAGER STATEMENTS
+  case S::IF_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::ELSE_IF_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::ELSE_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::SWITCH_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::CASE_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::DEFAULT_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::FOR_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::WHILE_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::SPIN_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::WEAVE_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+  case S::SCOPE_STATEMENT:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+
+  // OVERLOADS
+  case S::CLASS_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::CLASS_IMPLEMENTATION |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_OBJECT_SCOPE;
+  case S::ENUM_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::ENUM_IMPLEMENTATION |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_OBJECT_SCOPE;
+  case S::INTERFACE_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::INTERFACE_IMPLEMENTATION |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_OBJECT_SCOPE;
+  case S::ADAPTER_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::ADAPTER_IMPLEMENTATION |
+           SIF::IS_OBJECT_SCOPE;
+  case S::PROCEDURE_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::PROCEDURE_IMPLEMENTATION |
+           SIF::IS_FRAME_SCOPE;
+  case S::LAZY_VARIABLE_OVERLOAD:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::LAZY_VARIABLE_IMPLEMENTATION;
+
+  // SPECIALIZATIONS
+  case S::CLASS_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::CLASS_IMPLEMENTATION |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_OBJECT_SCOPE;
+  case S::ENUM_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::ENUM_IMPLEMENTATION |
+           SIF::ENUM_IMPLEMENTATION | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMPILE_TIME_TYPE | SIF::IS_OBJECT_SCOPE;
+  case S::INTERFACE_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::INTERFACE_IMPLEMENTATION |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE |
+           SIF::IS_OBJECT_SCOPE;
+  case S::ADAPTER_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::ADAPTER_IMPLEMENTATION |
+           SIF::IS_OBJECT_SCOPE;
+  case S::PROCEDURE_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::PROCEDURE_IMPLEMENTATION |
+           SIF::IS_FRAME_SCOPE;
+  case S::LAZY_VARIABLE_SPECIALIZATION:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::LAZY_VARIABLE_IMPLEMENTATION;
+
+  // TEMPLATES
+  case S::CLASS_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+  case S::ENUM_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+  case S::INTERFACE_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+  case S::ADAPTER_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+  case S::PROCEDURE_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+  case S::LAZY_VARIABLE_TEMPLATE:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::TEMPLATE;
+
+  // POLYMORPHS
+  case S::CLASS_POLYMORPH:
+    return SIF::NONE;
+  case S::ENUM_POLYMORPH:
+    return SIF::NONE;
+  case S::INTERFACE_POLYMORPH:
+    return SIF::NONE;
+  case S::ADAPTER_POLYMORPH:
+    return SIF::NONE;
+  case S::PROCEDURE_POLYMORPH:
+    return SIF::NONE;
+  case S::LAZY_VARIABLE_POLYMORPH:
+    return SIF::NONE;
+
+  // WEIGHT LEVELS
+  case S::CLASS_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::ENUM_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::INTERFACE_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::ADAPTER_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::PROCEDURE_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::LAZY_VARIABLE_WEIGHT_LEVEL:
+    return SIF::NONE;
+  case S::LAST:
+    break;
+
+    // do not add default case so there is compiler warning if a case is
+    // missing.
+  }
+  return SIF::NONE;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SIMPLE_SYMBOL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::LITERAL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::REFLECTION_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, SIF::FIGURATIVE_TYPE | SIF::FIGURATIVE_VALUE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::FIGURATIVE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::FIGURATIVE_VALUE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ATTRIBUTE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(
+      flags, SIF::FITTING_PRIMITIVE_TYPE | SIF::PLATFORM_PRIMITIVE_TYPE |
+                 SIF::STANDARD_PRIMITIVE_TYPE | SIF::SCALED_PRIMITIVE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsStandardPrimitiveType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::STANDARD_PRIMITIVE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsPlatformPrimitiveType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::PLATFORM_PRIMITIVE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SIMPLE_SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsArithmeticSequenceType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ARITHMETIC_SEQUENCE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsSpecializationSet(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SPECIALIZATION_SET);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::PARAMETER_LIST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::TABLE_MEMBER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::EAGER_DECLARATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ROUTE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::POLYMORPH);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::WEIGHT_LEVEL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::TEMPLATE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SYMBOL_TABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::EAGER_SCOPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::NAMED_TABLE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::LAZY_DECLARATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(
+      flags, SIF::CLASS_IMPLEMENTATION | SIF::ENUM_IMPLEMENTATION |
+                 SIF::INTERFACE_IMPLEMENTATION | SIF::ADAPTER_IMPLEMENTATION |
+                 SIF::PROCEDURE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsClassImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::CLASS_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsEnumImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ENUM_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsInterfaceImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::INTERFACE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsAdapterImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ADAPTER_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsProcedureImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::PROCEDURE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsLazyVariableImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::LAZY_VARIABLE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags,
+                        SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRuntimeType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_RUNTIME_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompileTimeType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_COMPILE_TIME_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsHybridType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_RUNTIME_TYPE | SIF::IS_COMPILE_TIME_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_CONTEXTUAL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasSome(flags, SIF::IS_INTEGER | SIF::IS_FLOAT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_INTEGER);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastInt(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_FAST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeastInt(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_LEAST);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSizeInt(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_SIZE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndexInt(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_INDEX);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_FLOAT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_BINARY);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsBFloat(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_BFLOAT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_CODEUNIT);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_SIGNED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_UNSIGNED);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_FRAME_SCOPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::IS_OBJECT_SCOPE);
+}
 
 struct Entity {
   using Self = rq::Entity;
@@ -902,6 +1706,215 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCfgBlock() const {
     return this->_id == rq::CFG_BLOCK_ID;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags
+  getSymbolInfoFlags() const {
+    return rq::getInfoFlags(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSymbol() const {
+    return rq::getIsSimpleSymbol(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const {
+    return rq::getIsLiteralType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType() const {
+    return rq::getIsReflectionType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative() const {
+    return rq::getIsFigurative(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType() const {
+    return rq::getIsFigurativeType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue() const {
+    return rq::getIsFigurativeValue(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType() const {
+    return rq::getIsAttributeType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType() const {
+    return rq::getIsPrimitiveType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType() const {
+    return rq::getIsStandardPrimitiveType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType() const {
+    return rq::getIsPlatformPrimitiveType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
+    return rq::getIsSubtype(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype() const {
+    return rq::getIsSimpleSubtype(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType() const {
+    return rq::getIsArithmeticSequenceType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet() const {
+    return rq::getIsSpecializationSet(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList() const {
+    return rq::getIsParameterList(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember() const {
+    return rq::getIsTableMember(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration() const {
+    return rq::getIsEagerDeclaration(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute() const {
+    return rq::getIsRoute(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph() const {
+    return rq::getIsPolymorph(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel() const {
+    return rq::getIsWeightLevel(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {
+    return rq::getIsTemplate(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
+    return rq::getIsSymbolTable(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope() const {
+    return rq::getIsEagerScope(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable() const {
+    return rq::getIsNamedTable(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion() const {
+    return rq::getIsLazyDeclarataion(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation() const {
+    return rq::getIsImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassImplementation() const {
+    return rq::getIsClassImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumImplementation() const {
+    return rq::getIsEnumImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceImplementation() const {
+    return rq::getIsInterfaceImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterImplementation() const {
+    return rq::getIsAdapterImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureImplementation() const {
+    return rq::getIsProcedureImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyVariableImplementation() const {
+    return rq::getIsLazyVariableImplementation(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {
+    return rq::getIsType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRuntimeType() const {
+    return rq::getIsRuntimeType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompileTimeType() const {
+    return rq::getIsCompileTimeType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsHybridType() const {
+    return rq::getIsHybridType(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual() const {
+    return rq::getIsContextual(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNumeric() const {
+    return rq::getIsNumeric(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInteger() const {
+    return rq::getIsInteger(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFastInt() const {
+    return rq::getIsFastInt(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLeastInt() const {
+    return rq::getIsLeastInt(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSizeInt() const {
+    return rq::getIsSizeInt(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsIndexInt() const {
+    return rq::getIsIndexInt(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFloat() const {
+    return rq::getIsFloat(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBinary() const {
+    return rq::getIsBinary(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsBFloat() const {
+    return rq::getIsBFloat(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCodeunit() const {
+    return rq::getIsCodeunit(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSigned() const {
+    return rq::getIsSigned(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsUnsigned() const {
+    return rq::getIsUnsigned(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFrameScope() const {
+    return rq::getIsFrameScope(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope() const {
+    return rq::getIsObjectScope(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::DottedInstructionIterator>

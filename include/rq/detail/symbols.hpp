@@ -2,5 +2,1056 @@
 
 namespace rq {
 
-    
+[[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind) {
+  using S = rq::SymbolKind;
+  switch (kind) {
+  case S::NONE:
+    return "None";
+  case S::INTEGER_LITERAL_TYPE:
+    return "IntegerLiteral";
+  case S::FLOAT_LITERAL_TYPE:
+    return "FloatLiteral";
+  case S::STRING_LITERAL_TYPE:
+    return "StringLiteral";
+  case S::CODEUNIT_LITERAL_TYPE:
+    return "CodeunitLiteral";
+  case S::UNKNOWN_TYPE:
+    return "Unknown";
+  case S::INFERENCE_TYPE:
+    return "Inference";
+  case S::VOID_TYPE:
+    return "Void";
+  case S::NO_RETURN_TYPE:
+    return "NoReturn";
+  case S::MODIFIER_TYPE:
+    return "Modifier";
+  case S::QUALIFIER_TYPE:
+    return "Qualifier";
+  case S::SYMBOL_TYPE:
+    return "Symbol";
+  case S::SYMBOL_RANGE_TYPE:
+    return "SymbolRange";
+  case S::EXPRESSION_TYPE:
+    return "Expression";
+  case S::EXPRESSION_RANGE_TYPE:
+    return "ExpressionRange";
+  case S::FSINT:
+    return "FSInt";
+  case S::FUINT:
+    return "FUInt";
+  case S::LSINT:
+    return "LSInt";
+  case S::LUINT:
+    return "LUInt";
+  case S::BOOLEAN_TYPE:
+    return "Bool";
+  case S::HALF_TYPE:
+    return "Half";
+  case S::SINGLE_TYPE:
+    return "Single";
+  case S::DOUBLE_TYPE:
+    return "Double";
+  case S::QUADRUPLE_TYPE:
+    return "Quadruple";
+  case S::SINT:
+    return "SInt";
+  case S::UINT:
+    return "UInt";
+  case S::SSIZE:
+    return "SSize";
+  case S::USIZE:
+    return "USize";
+  case S::SINDEX:
+    return "SIndex";
+  case S::UINDEX:
+    return "UIndex";
+  case S::CHAR_TYPE:
+    return "Char";
+  case S::BINARY16_TYPE:
+    return "Binary16";
+  case S::BINARY32_TYPE:
+    return "Binary32";
+  case S::BINARY64_TYPE:
+    return "Binary64";
+  case S::BINARY128_TYPE:
+    return "Binary128";
+  case S::BFLOAT16_TYPE:
+    return "BFloat16";
+  case S::ASCII_TYPE:
+    return "Ascii";
+  case S::UTF8_TYPE:
+    return "Utf8";
+  case S::SCALED_SINT:
+    return "ScaledSInt";
+  case S::SCALED_UINT:
+    return "ScaledUInt";
+  case S::SCALED_FSINT:
+    return "ScaledFSInt";
+  case S::SCALED_FUINT:
+    return "ScaledFUInt";
+  case S::SCALED_LSINT:
+    return "ScaledLSInt";
+  case S::SCALED_LUINT:
+    return "ScaledLUInt";
+  case S::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+    return "DynamicVariadicArguments";
+  case S::ARRAY_SUBTYPE:
+    return "Array";
+  case S::REF_SUBTYPE:
+    return "Ref";
+  case S::PTR_SUBTYPE:
+    return "Ptr";
+  case S::SLICE_SUBTYPE:
+    return "Slice";
+  case S::SPLIT_SUBTYPE:
+    return "Split";
+  case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
+    return "InferenceCountArray";
+  case S::MODULE:
+    return "Module";
+  case S::IMPORT:
+    return "Import";
+  case S::REALIZATION:
+    return "Realization";
+  case S::CONFORMITY:
+    return "Conformity";
+  case S::ADAPTION:
+    return "Adaption";
+  case S::JUXT_LIST_TYPE:
+    return "JuxtListType";
+  case S::JUXT_LIST_ITEM:
+    return "JuxtListItem";
+  case S::SPECIALIZATION_SET_ARGUMENT:
+    return "SpecializationSetArgument";
+  case S::SPECIALIATION_SET:
+    return "SpecializationSet";
+  case S::ADAPTER_SPECIALIZATION_SET:
+    return "AdapterSpecializationSet";
+  case S::PROCEDURE_SPECIALIZATION_SET:
+    return "ProcedureSpecializationSet";
+  case S::ARITHMETIC_INTERVAL_TYPE:
+    return "ArithmeticInterval";
+  case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return "InfiniteArithmeticSequence";
+  case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
+    return "InfiniteArithmeticSequence";
+  case S::ANCHOR:
+    return "Anchor";
+  case S::ENUMERATOR:
+    return "Enumerator";
+  case S::EAGER_VARIABLE:
+    return "EagerVariable";
+  case S::PARAMETER:
+    return "Parameter";
+  case S::SIGNATURE_TYPE:
+    return "SignatureType";
+  case S::LAYOUT_TYPE:
+    return "LayoutType";
+  case S::PLACEMENT_TYPE:
+    return "PlacementType";
+  case S::COMPOSITION_COMPONENT:
+    return "CompositionComponent";
+  case S::COMPOSITION_TYPE:
+    return "CompositionType";
+  case S::SYNONYM_TYPE:
+    return "SynonymnType";
+  case S::ALIAS:
+    return "Alias";
+  case S::PORTAL:
+    return "Portal";
+  case S::C_TABLE:
+    return "CTable";
+  case S::NODE:
+    return "Node";
+  case S::IF_STATEMENT:
+    return "IfStatement";
+  case S::ELSE_IF_STATEMENT:
+    return "ElseIfStatement";
+  case S::ELSE_STATEMENT:
+    return "ElseStatement";
+  case S::SWITCH_STATEMENT:
+    return "SwitchStatement";
+  case S::CASE_STATEMENT:
+    return "CaseStatement";
+  case S::DEFAULT_STATEMENT:
+    return "DefaultStatement";
+  case S::FOR_STATEMENT:
+    return "ForStatement";
+  case S::WHILE_STATEMENT:
+    return "WhileStatement";
+  case S::SPIN_STATEMENT:
+    return "SpinStatement";
+  case S::WEAVE_STATEMENT:
+    return "WeaveStatement";
+  case S::SCOPE_STATEMENT:
+    return "ScopeStatement";
+  case S::CLASS_OVERLOAD:
+    return "ClassOverload";
+  case S::ENUM_OVERLOAD:
+    return "EnumOverload";
+  case S::INTERFACE_OVERLOAD:
+    return "InterfaceOverload";
+  case S::ADAPTER_OVERLOAD:
+    return "AdapterOverload";
+  case S::PROCEDURE_OVERLOAD:
+    return "ProcedureOverload";
+  case S::LAZY_VARIABLE_OVERLOAD:
+    return "LazyVariableOverload";
+  case S::CLASS_TEMPLATE:
+    return "ClassTemplate";
+  case S::ENUM_TEMPLATE:
+    return "EnumTemplate";
+  case S::INTERFACE_TEMPLATE:
+    return "InterfaceTemplate";
+  case S::ADAPTER_TEMPLATE:
+    return "AdapterTemplate";
+  case S::PROCEDURE_TEMPLATE:
+    return "ProcedureTemplate";
+  case S::LAZY_VARIABLE_TEMPLATE:
+    return "LazyVariableTemplate";
+  case S::CLASS_SPECIALIZATION:
+    return "ClassSpecialization";
+  case S::ENUM_SPECIALIZATION:
+    return "EnumSpecialization";
+  case S::INTERFACE_SPECIALIZATION:
+    return "InterfaceSpecialization";
+  case S::ADAPTER_SPECIALIZATION:
+    return "AdapterSpecialization";
+  case S::PROCEDURE_SPECIALIZATION:
+    return "ProcedureSpecialization";
+  case S::LAZY_VARIABLE_SPECIALIZATION:
+    return "LazyVariableSpecialization";
+  case S::CLASS_POLYMORPH:
+    return "ClassPolymorph";
+  case S::ENUM_POLYMORPH:
+    return "EnumPolymorph";
+  case S::INTERFACE_POLYMORPH:
+    return "InterfacePolymorph";
+  case S::ADAPTER_POLYMORPH:
+    return "AdapterPolymorph";
+  case S::PROCEDURE_POLYMORPH:
+    return "ProcedurePolymorph";
+  case S::LAZY_VARIABLE_POLYMORPH:
+    return "LazyVariablePolymorph";
+  case S::CLASS_WEIGHT_LEVEL:
+    return "ClassWeightLevel";
+  case S::ENUM_WEIGHT_LEVEL:
+    return "EnumWeightLevel";
+  case S::INTERFACE_WEIGHT_LEVEL:
+    return "InterfaceWeightLevel";
+  case S::ADAPTER_WEIGHT_LEVEL:
+    return "AdapterWeightLevel";
+  case S::PROCEDURE_WEIGHT_LEVEL:
+    return "ProcedureWeightLevel";
+  case S::LAZY_VARIABLE_WEIGHT_LEVEL:
+    return "LazyVariableWeightLevel";
+  case S::LAST:
+    break;
+  }
+  RQ_UNREACHABLE();
 }
+
+[[nodiscard]] inline llvm::StringRef getName(rq::EvaluationState state) {
+  using ES = rq::EvaluationState;
+  switch (state) {
+  case ES::NONE:
+    break;
+  case ES::SURVEYED:
+    return "surveyed";
+  case ES::DECLARING:
+    return "declaring";
+  case ES::DECLARED:
+    return "declared";
+  case ES::IMPLEMENTING:
+    return "implementing";
+  case ES::IMPLEMENTED:
+    return "implemented";
+  case ES::ERROR:
+    return "error";
+  }
+  RQ_UNREACHABLE();
+}
+
+RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind)
+    : Entity(static_cast<EntityId>(kind)) {
+  RQ_ASSERT(kind > rq::SymbolKind::NONE && kind < rq::SymbolKind::LAST,
+            "not symbol kind");
+}
+
+RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
+    : Symbol(kind) {
+  RQ_ASSERT(rq::getIsSimpleSymbol(kind), "not simple symbol");
+}
+
+[[nodiscard]] inline bool SimpleSymbol::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsSimpleSymbol();
+}
+
+RQ_ALWAYS_INLINE Literal::Literal(rq::SymbolKind kind) : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsLiteralType(kind), "not literal");
+}
+
+[[nodiscard]] inline bool Literal::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsLiteralType();
+}
+
+RQ_ALWAYS_INLINE IntegerLiteral::IntegerLiteral()
+    : Literal(rq::SymbolKind::INTEGER_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool
+IntegerLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::INTEGER_LITERAL_TYPE;
+}
+
+RQ_ALWAYS_INLINE FloatLiteral::FloatLiteral()
+    : Literal(rq::SymbolKind::FLOAT_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool FloatLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::FLOAT_LITERAL_TYPE;
+}
+
+RQ_ALWAYS_INLINE StringLiteral::StringLiteral()
+    : Literal(rq::SymbolKind::STRING_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool StringLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::STRING_LITERAL_TYPE;
+}
+
+RQ_ALWAYS_INLINE CodeunitLiteral::CodeunitLiteral()
+    : Literal(rq::SymbolKind::CODEUNIT_LITERAL_TYPE) {}
+
+[[nodiscard]] inline bool
+CodeunitLiteral::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::CODEUNIT_LITERAL_TYPE;
+}
+
+RQ_ALWAYS_INLINE Figurative::Figurative(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsFigurative(kind), "not figurative");
+}
+
+[[nodiscard]] inline bool Figurative::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsFigurative();
+}
+
+RQ_ALWAYS_INLINE InferenceType::InferenceType()
+    : Figurative(rq::SymbolKind::INFERENCE_TYPE) {}
+
+[[nodiscard]] inline bool InferenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::INFERENCE_TYPE;
+}
+
+RQ_ALWAYS_INLINE VoidType::VoidType() : Figurative(rq::SymbolKind::VOID_TYPE) {}
+
+[[nodiscard]] inline bool VoidType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::VOID_TYPE;
+}
+
+RQ_ALWAYS_INLINE NoReturnType::NoReturnType()
+    : Figurative(rq::SymbolKind::NO_RETURN_TYPE) {}
+
+[[nodiscard]] inline bool NoReturnType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::NO_RETURN_TYPE;
+}
+
+RQ_ALWAYS_INLINE UnknownType::UnknownType()
+    : Figurative(rq::SymbolKind::UNKNOWN_TYPE) {}
+
+[[nodiscard]] inline bool UnknownType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::UNKNOWN_TYPE;
+}
+
+RQ_ALWAYS_INLINE ReflectionType::ReflectionType(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsReflectionType(kind), "not reflection");
+}
+
+[[nodiscard]] inline bool
+ReflectionType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsReflectionType();
+}
+
+RQ_ALWAYS_INLINE SymbolType::SymbolType()
+    : ReflectionType(rq::SymbolKind::SYMBOL_TYPE) {}
+
+[[nodiscard]] inline bool SymbolType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SYMBOL_TYPE;
+}
+
+RQ_ALWAYS_INLINE ExpressionType::ExpressionType()
+    : ReflectionType(rq::SymbolKind::EXPRESSION_TYPE) {}
+
+[[nodiscard]] inline bool
+ExpressionType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::EXPRESSION_TYPE;
+}
+
+RQ_ALWAYS_INLINE SymbolRangeType::SymbolRangeType()
+    : ReflectionType(rq::SymbolKind::SYMBOL_RANGE_TYPE) {}
+
+[[nodiscard]] inline bool
+SymbolRangeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SYMBOL_RANGE_TYPE;
+}
+
+RQ_ALWAYS_INLINE ExpressionRangeType::ExpressionRangeType()
+    : ReflectionType(rq::SymbolKind::EXPRESSION_RANGE_TYPE) {}
+
+[[nodiscard]] inline bool
+ExpressionRangeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::EXPRESSION_RANGE_TYPE;
+}
+
+RQ_ALWAYS_INLINE PrimitiveType::PrimitiveType(rq::SymbolKind kind)
+    : SimpleSymbol(kind) {
+  RQ_ASSERT(rq::getIsPrimitiveType(kind), "not primitive type");
+}
+
+[[nodiscard]] inline bool PrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsPrimitiveType();
+}
+
+RQ_ALWAYS_INLINE
+StandardPrimitiveType::StandardPrimitiveType(rq::SymbolKind kind)
+    : PrimitiveType(kind) {
+  RQ_ASSERT(rq::getIsStandardPrimitiveType(kind),
+            "not standard primitive type");
+}
+
+[[nodiscard]] inline bool
+StandardPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsStandardPrimitiveType();
+}
+
+RQ_ALWAYS_INLINE Binary16Type::Binary16Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY16_TYPE) {}
+
+[[nodiscard]] inline bool Binary16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BINARY16_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary32Type::Binary32Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY32_TYPE) {}
+
+[[nodiscard]] inline bool Binary32Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BINARY32_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary64Type::Binary64Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY64_TYPE) {}
+
+[[nodiscard]] inline bool Binary64Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BINARY64_TYPE;
+}
+
+RQ_ALWAYS_INLINE Binary128Type::Binary128Type()
+    : StandardPrimitiveType(rq::SymbolKind::BINARY128_TYPE) {}
+
+[[nodiscard]] inline bool Binary128Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BINARY128_TYPE;
+}
+
+RQ_ALWAYS_INLINE BFloat16Type::BFloat16Type()
+    : StandardPrimitiveType(rq::SymbolKind::BFLOAT16_TYPE) {}
+
+[[nodiscard]] inline bool BFloat16Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BFLOAT16_TYPE;
+}
+
+RQ_ALWAYS_INLINE AsciiType::AsciiType()
+    : StandardPrimitiveType(rq::SymbolKind::ASCII_TYPE) {}
+
+[[nodiscard]] inline bool AsciiType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::ASCII_TYPE;
+}
+
+RQ_ALWAYS_INLINE Utf8Type::Utf8Type()
+    : StandardPrimitiveType(rq::SymbolKind::UTF8_TYPE) {}
+
+[[nodiscard]] inline bool Utf8Type::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::UTF8_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+PlatformPrimitiveType::PlatformPrimitiveType(rq::SymbolKind kind)
+    : PrimitiveType(kind) {
+  RQ_ASSERT(rq::getIsPlatformPrimitiveType(kind),
+            "not platform primitive type");
+}
+
+[[nodiscard]] inline bool
+PlatformPrimitiveType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsPlatformPrimitiveType();
+}
+
+RQ_ALWAYS_INLINE HalfType::HalfType()
+    : PlatformPrimitiveType(rq::SymbolKind::HALF_TYPE) {}
+
+[[nodiscard]] inline bool HalfType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::HALF_TYPE;
+}
+
+RQ_ALWAYS_INLINE SingleType::SingleType()
+    : PlatformPrimitiveType(rq::SymbolKind::SINGLE_TYPE) {}
+
+[[nodiscard]] inline bool SingleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SINGLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE DoubleType::DoubleType()
+    : PlatformPrimitiveType(rq::SymbolKind::DOUBLE_TYPE) {}
+
+[[nodiscard]] inline bool DoubleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::DOUBLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE QuadrupleType::QuadrupleType()
+    : PlatformPrimitiveType(rq::SymbolKind::QUADRUPLE_TYPE) {}
+
+[[nodiscard]] inline bool QuadrupleType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::QUADRUPLE_TYPE;
+}
+
+RQ_ALWAYS_INLINE BooleanType::BooleanType()
+    : PlatformPrimitiveType(rq::SymbolKind::BOOLEAN_TYPE) {}
+
+[[nodiscard]] inline bool BooleanType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::BOOLEAN_TYPE;
+}
+
+RQ_ALWAYS_INLINE CharType::CharType()
+    : PlatformPrimitiveType(rq::SymbolKind::CHAR_TYPE) {}
+
+[[nodiscard]] inline bool CharType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::CHAR_TYPE;
+}
+
+RQ_ALWAYS_INLINE USizeType::USizeType()
+    : PlatformPrimitiveType(rq::SymbolKind::USIZE) {}
+
+[[nodiscard]] inline bool USizeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::USIZE;
+}
+
+RQ_ALWAYS_INLINE SSizeType::SSizeType()
+    : PlatformPrimitiveType(rq::SymbolKind::SSIZE) {}
+
+[[nodiscard]] inline bool SSizeType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SSIZE;
+}
+
+RQ_ALWAYS_INLINE UIndexType::UIndexType()
+    : PlatformPrimitiveType(rq::SymbolKind::UINDEX) {}
+
+[[nodiscard]] inline bool UIndexType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::UINDEX;
+}
+
+RQ_ALWAYS_INLINE SIndexType::SIndexType()
+    : PlatformPrimitiveType(rq::SymbolKind::SINDEX) {}
+
+[[nodiscard]] inline bool SIndexType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SINDEX;
+}
+
+RQ_ALWAYS_INLINE QualifierType::QualifierType()
+    : AttributeType(rq::SymbolKind::QUALIFIER_TYPE) {}
+
+[[nodiscard]] inline bool QualifierType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::QUALIFIER_TYPE;
+}
+
+RQ_ALWAYS_INLINE ModifierType::ModifierType()
+    : AttributeType(rq::SymbolKind::MODIFIER_TYPE) {}
+
+[[nodiscard]] inline bool ModifierType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::MODIFIER_TYPE;
+}
+
+RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
+                                  rq::ConstantSymbol &child)
+    : Symbol(kind), _child_ptr(&child) {
+  RQ_ASSERT(rq::getIsSubtype(kind), "not subtype");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+Subtype::getChild() const {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &Subtype::getChild() {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] inline bool Subtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsSubtype();
+}
+
+RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(std::size_t count,
+                                            rq::ConstantSymbol &child)
+    : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(count) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::size_t ArraySubtype::getCount() const {
+  return this->_count;
+}
+
+[[nodiscard]] inline bool ArraySubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::ARRAY_SUBTYPE;
+}
+
+inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileArraySubtype(inout_id, this->getChild(), this->getCount());
+}
+
+RQ_ALWAYS_INLINE void profileArraySubtype(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::ConstantSymbol &child,
+                                          std::size_t count) {
+  inout_id.AddPointer(&child);
+  inout_id.AddInteger(count);
+}
+
+RQ_ALWAYS_INLINE SimpleSubtype::SimpleSubtype(rq::SymbolKind kind,
+                                              rq::ConstantSymbol &child)
+    : Subtype(kind, child) {
+  RQ_ASSERT(rq::getIsSimpleSubtype(kind), "not simple subtype");
+}
+
+[[nodiscard]] inline bool SimpleSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsSimpleSubtype();
+}
+
+inline void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileSimpleSubtype(inout_id, this->getKind(), this->getChild());
+}
+
+RQ_ALWAYS_INLINE void profileSimpleSubtype(llvm::FoldingSetNodeID &inout_id,
+                                           rq::SymbolKind kind,
+                                           const rq::ConstantSymbol &child) {
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
+  inout_id.AddPointer(&child);
+}
+
+RQ_ALWAYS_INLINE RefSubtype::RefSubtype(rq::ConstantSymbol &child)
+    : SimpleSubtype(rq::SymbolKind::REF_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool RefSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::REF_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE PtrSubtype::PtrSubtype(rq::ConstantSymbol &child)
+    : SimpleSubtype(rq::SymbolKind::PTR_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool PtrSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::PTR_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE InferenceCountArraySubtype::InferenceCountArraySubtype(
+    rq::ConstantSymbol &child)
+    : SimpleSubtype(rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool
+InferenceCountArraySubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() ==
+         rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE SliceSubtype::SliceSubtype(rq::ConstantSymbol &child)
+    : SimpleSubtype(rq::SymbolKind::SLICE_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool SliceSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SLICE_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE SplitSubtype::SplitSubtype(rq::ConstantSymbol &child)
+    : SimpleSubtype(rq::SymbolKind::SPLIT_SUBTYPE, child) {}
+
+[[nodiscard]] inline bool SplitSubtype::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SPLIT_SUBTYPE;
+}
+
+RQ_ALWAYS_INLINE Adaption::Adaption(rq::ConstantSymbol &reciever,
+                                    rq::InterfaceImplementation &interface,
+                                    rq::AdapterImplementation &adapter)
+    : Symbol(rq::SymbolKind::ADAPTION), _reciever_ptr(&reciever),
+      _interface_ptr(&interface), _adapter_ptr(&adapter) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+Adaption::getReciever() const {
+  return rq::dereferencePtr(this->_reciever_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &Adaption::getReciever() {
+  return rq::dereferencePtr(this->_reciever_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+Adaption::getInterface() const {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
+Adaption::getInterface() {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
+Adaption::getAdapter() const {
+  return rq::dereferencePtr(this->_adapter_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &
+Adaption::getAdapter() {
+  return rq::dereferencePtr(this->_adapter_ptr);
+}
+
+[[nodiscard]] inline bool Adaption::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::ADAPTION;
+}
+
+inline void Adaption::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileAdaption(inout_id, this->getInterface(), this->getAdapter());
+}
+
+RQ_ALWAYS_INLINE void
+profileAdaption(llvm::FoldingSetNodeID &inout_id,
+                const rq::InterfaceImplementation &interface,
+                const rq::AdapterImplementation &adapter) {
+  inout_id.AddPointer(&interface);
+  inout_id.AddPointer(&adapter);
+}
+
+RQ_ALWAYS_INLINE
+Realization::Realization(rq::ConstantSymbol &reciever,
+                         rq::InterfaceImplementation &interface)
+    : Symbol(rq::SymbolKind::REALIZATION), _reciever_ptr(&reciever),
+      _interface_ptr(&interface) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+Realization::getReciever() const {
+  return rq::dereferencePtr(this->_reciever_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &Realization::getReciever() {
+  return rq::dereferencePtr(this->_reciever_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+Realization::getInterface() const {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
+Realization::getInterface() {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] inline bool Realization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::REALIZATION;
+}
+
+inline void Realization::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileRealization(inout_id, this->getReciever(), this->getInterface());
+}
+
+RQ_ALWAYS_INLINE void
+profileRealization(llvm::FoldingSetNodeID &inout_id,
+                   const rq::ConstantSymbol &reciever,
+                   const rq::InterfaceImplementation &interface) {
+  inout_id.AddPointer(&reciever);
+  inout_id.AddPointer(&interface);
+}
+
+RQ_ALWAYS_INLINE Conformity::Conformity(rq::InterfaceImplementation &interface,
+                                        rq::AdapterImplementation &adapter)
+    : Symbol(rq::SymbolKind::CONFORMITY), _interface_ptr(&interface),
+      _adapter_ptr(&adapter) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+Conformity::getInterface() const {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
+Conformity::getInterface() {
+  return rq::dereferencePtr(this->_interface_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
+Conformity::getAdapter() const {
+  return rq::dereferencePtr(this->_adapter_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &
+Conformity::getAdapter() {
+  return rq::dereferencePtr(this->_adapter_ptr);
+}
+
+[[nodiscard]] inline bool Conformity::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::CONFORMITY;
+}
+
+inline void Conformity::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileConformity(inout_id, this->getInterface(), this->getAdapter());
+}
+
+RQ_ALWAYS_INLINE void
+profileConformity(llvm::FoldingSetNodeID &inout_id,
+                  const rq::InterfaceImplementation &interface,
+                  const rq::AdapterImplementation &adapter) {
+  inout_id.AddPointer(&interface);
+  inout_id.AddPointer(&adapter);
+}
+
+RQ_ALWAYS_INLINE JuxtListItem::JuxtListItem(rq::JuxtListItem &next,
+                                            rq::ConstantSymbol &type)
+    : Symbol(rq::SymbolKind::JUXT_LIST_ITEM), _next_ptr(&next),
+      _type_ptr(&type) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+JuxtListItem::getType() const {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &JuxtListItem::getType() {
+  return rq::dereferencePtr(this->_type_ptr);
+}
+
+[[nodiscard]] inline bool JuxtListItem::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::JUXT_LIST_ITEM;
+}
+
+inline void JuxtListItem::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileJuxtListItem(inout_id, this->_next_ptr, this->getType());
+}
+
+RQ_ALWAYS_INLINE void profileJuxtListItem(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::JuxtListItem *next_ptr,
+                                          const rq::ConstantSymbol &type) {
+  inout_id.AddPointer(next_ptr);
+  inout_id.AddPointer(&type);
+}
+
+RQ_ALWAYS_INLINE JuxtListType::JuxtListType(rq::JuxtListItem &first)
+    : Symbol(rq::SymbolKind::JUXT_LIST_TYPE), _first_ptr(&first) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::JuxtListItem>
+JuxtListType::getItemSubrange() {
+  return rq::NextSubrange<rq::JuxtListItem>(
+      rq::NextIterator<rq::JuxtListItem>(this->_first_ptr),
+      rq::NextIterator<rq::JuxtListItem>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::JuxtListItem>
+JuxtListType::getItemSubrange() const {
+  return rq::ConstNextSubrange<rq::JuxtListItem>(
+      rq::ConstNextIterator<rq::JuxtListItem>(this->_first_ptr),
+      rq::ConstNextIterator<rq::JuxtListItem>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::JuxtListItem>
+JuxtListType::getConstItemSubrange() const {
+  return rq::ConstNextSubrange<rq::JuxtListItem>(
+      rq::ConstNextIterator<rq::JuxtListItem>(this->_first_ptr),
+      rq::ConstNextIterator<rq::JuxtListItem>());
+}
+
+[[nodiscard]] inline bool JuxtListType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::JUXT_LIST_TYPE;
+}
+
+inline void JuxtListType::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileJuxtListType(inout_id, this->_first_ptr);
+}
+
+RQ_ALWAYS_INLINE void profileJuxtListType(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::JuxtListItem *first_ptr) {
+  inout_id.AddPointer(first_ptr);
+}
+
+RQ_ALWAYS_INLINE SynonymType::SynonymType(rq::Symbol &original)
+    : Symbol(rq::SymbolKind::SYNONYM_TYPE), _original_ptr(&original) {}
+
+[[nodiscard]] const rq::Symbol &SynonymType::getOriginal() const {
+  return rq::dereferencePtr(this->_original_ptr);
+}
+
+[[nodiscard]] rq::Symbol &SynonymType::getOriginal() {
+  return rq::dereferencePtr(this->_original_ptr);
+}
+
+[[nodiscard]] inline bool SynonymType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() == rq::SymbolKind::SYNONYM_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+ArithmeticSequenceType::ArithmeticSequenceType(
+    rq::SymbolKind kind, rq::ConstantSymbol &child,
+    rq::ArithmeticCondition condition, rq::ArithmeticStep step)
+    : Symbol(kind), _child_ptr(&child), _condition(condition), _step(step) {
+  using S = rq::SymbolKind;
+  RQ_ASSERT(rq::getIsArithmeticSequenceType(kind), "not arithmetic sequence");
+  RQ_ASSERT(kind != S::ARITHMETIC_INTERVAL_TYPE ||
+                step != rq::ArithmeticStep::NONE,
+            "interval must have no step");
+  RQ_ASSERT(kind != S::INFINITE_ARITHMETIC_SEQUENCE_TYPE ||
+                condition != rq::ArithmeticCondition::NONE,
+            "inifinite must have no condition");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol &
+ArithmeticSequenceType::getChild() const {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol &
+ArithmeticSequenceType::getChild() {
+  return rq::dereferencePtr(this->_child_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticCondition
+ArithmeticSequenceType::getCondition() const {
+  return this->_condition;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticStep
+ArithmeticSequenceType::getStep() const {
+  return this->_step;
+}
+
+[[nodiscard]] inline bool
+ArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsArithmeticSequenceType();
+}
+
+inline void
+ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileArithmeticSequenceType(inout_id, this->getChild(),
+                                    this->getCondition(), this->getStep());
+}
+
+RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
+    llvm::FoldingSetNodeID &inout_id, const rq::ConstantSymbol &child,
+    rq::ArithmeticCondition condition, rq::ArithmeticStep step) {
+  inout_id.AddPointer(&child);
+  inout_id.AddInteger(rq::getUnderlyingValue(condition));
+  inout_id.AddInteger(rq::getUnderlyingValue(step));
+}
+
+[[nodiscard]] inline bool
+ArithmeticIntervalType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() ==
+         rq::SymbolKind::ARITHMETIC_INTERVAL_TYPE;
+}
+
+[[nodiscard]] inline bool
+InfiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() ==
+         rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE;
+}
+
+[[nodiscard]] inline bool
+FiniteArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() ==
+         rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE;
+}
+
+RQ_ALWAYS_INLINE
+SpecializationSetArgument::SpecializationSetArgument(
+    rq::Name name, rq::Entity &value, rq::SpecializationSetArgument *next_ptr)
+    : Symbol(rq::SymbolKind::SPECIALIZATION_SET_ARGUMENT), _name(name),
+      _value_ptr(&value), _next_ptr(next_ptr) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name
+SpecializationSetArgument::getName() const {
+  return this->_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
+SpecializationSetArgument::getValue() const {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
+SpecializationSetArgument::getValue() {
+  return rq::dereferencePtr(this->_value_ptr);
+}
+
+[[nodiscard]] inline bool
+SpecializationSetArgument::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getUnsafeSymbolKind() ==
+         rq::SymbolKind::SPECIALIZATION_SET_ARGUMENT;
+}
+
+inline void
+SpecializationSetArgument::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  rq::profileSpecializationSetArgument(inout_id, this->getName(),
+                                       this->getValue(), this->_next_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+profileSpecializationSetArgument(llvm::FoldingSetNodeID &inout_id,
+                                 rq::Name name, const rq::Entity &value,
+                                 rq::SpecializationSetArgument *next_ptr) {
+  inout_id.Add(name);
+  inout_id.AddPointer(&value);
+  inout_id.AddPointer(next_ptr);
+}
+
+} // namespace rq
