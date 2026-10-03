@@ -1,5 +1,5 @@
 
-[node example,
+[namespace example,
     template::{> Type:type, LENGTH:USize <}
     [procedure getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
         result <:= LENGTH;

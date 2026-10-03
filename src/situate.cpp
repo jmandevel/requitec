@@ -827,7 +827,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
                                                S::RVALUE, S::PORTAL);
     break;
-  case K::NODE: {
+  case K::NAMESPACE: {
     is_ok = this->stiuateNameStatement(situation, expression, S::PATH);
     if (!is_ok) {
       break;
@@ -841,7 +841,7 @@ bool Situator::situateTree(rq::Situation situation,
       rq::Expression &nested_table = this->getContext().acquireExpression();
       nested_table.setIsInserted();
       nested_table.setSource(expression);
-      nested_table.setKeyword(K::NODE);
+      nested_table.setKeyword(K::NAMESPACE);
       nested_table.setBranch(branch_next);
       rq::Expression *previous_path_ptr = &branch_next;
       while (previous_path_ptr != nullptr) {
@@ -854,7 +854,7 @@ bool Situator::situateTree(rq::Situation situation,
         rq::Expression &next_table = this->getContext().acquireExpression();
         next_table.setIsInserted();
         next_table.setSource(expression);
-        next_table.setKeyword(K::NODE);
+        next_table.setKeyword(K::NAMESPACE);
         next_table.setBranch(path_next);
         previous_path_ptr = &path_next;
       }

@@ -268,7 +268,7 @@ enum class Keyword : rq::EntityId {
 
   // TABLE GRAPH
   IMPORT,
-  NODE,
+  NAMESPACE,
   C,
   TOP,
 
@@ -618,7 +618,7 @@ enum class SymbolKind : rq::EntityId {
 
   // SYMBOL TABLES
   C_TABLE,
-  NODE,
+  NAMESPACE,
 
   // EAGER STATEMENTS
   IF_STATEMENT,
@@ -776,6 +776,25 @@ constexpr rq::EntityId OPCODE_OFFSET =
 
 constexpr rq::EntityId CFG_BLOCK_ID =
     OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
+getId(rq::Keyword keyword) {
+  return static_cast<rq::EntityId>(keyword) + rq::KEYWORD_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
+getId(rq::SymbolKind kind) {
+  return static_cast<rq::EntityId>(kind) + rq::SYMBOL_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
+getId(rq::ConstantKind kind) {
+  return static_cast<rq::EntityId>(kind) + rq::CONSTANT_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId getId(rq::Opcode kind) {
+  return static_cast<rq::EntityId>(kind) + rq::OPCODE_OFFSET;
+}
 
 struct Entity;
 
@@ -1176,7 +1195,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   // SYMBOL TABLES
   case S::C_TABLE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
-  case S::NODE:
+  case S::NAMESPACE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
 
   // EAGER STATEMENTS
@@ -1336,19 +1355,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasSome(flags, SIF::FIGURATIVE_TYPE | SIF::FIGURATIVE_VALUE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::FIGURATIVE_TYPE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::FIGURATIVE_VALUE);
+  return rq::getHasAll(flags, SIF::FIGURATIVE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType(rq::SymbolKind kind) {
@@ -1727,14 +1734,6 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative() const {
     return rq::getIsFigurative(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeType() const {
-    return rq::getIsFigurativeType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurativeValue() const {
-    return rq::getIsFigurativeValue(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAttributeType() const {

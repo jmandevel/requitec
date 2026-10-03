@@ -11,7 +11,7 @@
     result <:= 0;
 ];
 
-[node A,
+[namespace A,
     [procedure getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 

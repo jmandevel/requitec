@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rq/allocated_list.hpp>
+#include <rq/node_list.hpp>
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
 #include <rq/iterators.hpp>
@@ -822,14 +822,23 @@ profileSpecializationSetArgument(llvm::FoldingSetNodeID &inout_id,
                                  rq::Name name, const rq::Entity &value,
                                  rq::SpecializationSetArgument *next_ptr);
 
-struct SpecializationSet : public rq::SimpleSymbol,
+struct SpecializationSet : public rq::Symbol,
                            public llvm::FoldingSetNode {
   using Self = rq::SpecializationSet;
 
   rq::SpecializationSetArgument *_first_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
-  SpecializationSet(rq::SpecializationSetArgument *first_ptr);
+  SpecializationSet(rq::SymbolKind kind, rq::SpecializationSetArgument *first_ptr);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::SpecializationSetArgument>
+  getArgumentSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::SpecializationSetArgument>
+      getArgumentSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::SpecializationSetArgument>
+      getConstArgumentSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -838,7 +847,7 @@ struct SpecializationSet : public rq::SimpleSymbol,
 
 RQ_ALWAYS_INLINE void
 profileSpecializationSet(llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
-                         rq::SpecializationSetArgument *first_ptr);
+                         const rq::SpecializationSetArgument *first_ptr);
 
 struct ProcedureSpecializationSet final : public rq::SpecializationSet {
   using Self = rq::ProcedureSpecializationSet;
@@ -920,7 +929,7 @@ struct Parameter final : public rq::Symbol, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileParameter(
-    llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
+    llvm::FoldingSetNodeID &inout_id,
     const rq::Parameter *next_ptr, rq::Name name,
     const rq::ConstantSymbol &type, rq::ModifierFuseFlags modifier_fuse_flags,
     rq::ParameterInfoFlags param_flags, const rq::Entity *default_ptr);
@@ -931,9 +940,13 @@ struct CompositionComponent final : public rq::Symbol,
 
   rq::CompositionComponent *_next_ptr;
   rq::InterfaceImplementation *_interface_ptr;
+
   explicit RQ_ALWAYS_INLINE
   CompositionComponent(rq::CompositionComponent *next_ptr,
                        rq::InterfaceImplementation &interface);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &getInterface();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &getInterface() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -942,8 +955,8 @@ struct CompositionComponent final : public rq::Symbol,
 
 RQ_ALWAYS_INLINE void
 profileCompositionComponent(llvm::FoldingSetNodeID &inout_id,
-                            rq::CompositionComponent *next_ptr,
-                            rq::InterfaceImplementation &interface);
+                            const rq::CompositionComponent *next_ptr,
+                            const rq::InterfaceImplementation &interface);
 
 struct CompositionType final : public rq::Symbol {
   using Self = rq::CompositionType;
@@ -972,7 +985,6 @@ struct ParameterListDetail final {
   explicit RQ_ALWAYS_INLINE ParameterListDetail() = default;
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundPositionalParametersEnd() const;
-  RQ_ALWAYS_INLINE void appendPositionalParametersEnd();
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getFoundNonpositionalParametersBegin() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getFoundLockedParametersBegin() const;
@@ -1653,7 +1665,7 @@ struct ConstSymbolTableIterator final {
 struct SymbolTable : public rq::TableMember {
   using Self = rq::SymbolTable;
 
-  llvm::DenseMap<rq::Name, rq::AllocatedList<rq::TableMember>> _member_map{};
+  llvm::DenseMap<rq::Name, rq::NodeList<rq::TableMember>> _member_map{};
   rq::SymbolTable *_conatiner_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE SymbolTable();
@@ -1664,9 +1676,9 @@ struct SymbolTable : public rq::TableMember {
   inline void addMember(rq::BumpPtrAllocator &allocator, rq::Name name,
                         rq::TableMember &member);
   [[nodiscard]] RQ_ALWAYS_INLINE const
-      rq::ConstAllocatedListRef<rq::TableMember>
+      rq::ConstNodeListRef<rq::TableMember>
       lookupList(rq::Name name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::TableMember>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::TableMember>
   lookupList(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>
   getInclusiveAscendingSubrange();
@@ -1868,10 +1880,10 @@ struct NamedTable : public rq::SymbolTable {
   [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
 };
 
-struct Node final : public rq::NamedTable {
-  using Self = rq::Node;
+struct Namespace final : public rq::NamedTable {
+  using Self = rq::Namespace;
 
-  explicit RQ_ALWAYS_INLINE Node();
+  explicit RQ_ALWAYS_INLINE Namespace();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
 };
@@ -1936,7 +1948,7 @@ struct EnumImplementation : public rq::Implementation {
 struct EnumOverload final : public rq::EnumImplementation {
   using Self = rq::EnumOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE EnumOverload();
 
@@ -1944,9 +1956,9 @@ struct EnumOverload final : public rq::EnumImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *getParentEnumPolymorphPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
   getParentEnumPolymorphPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
@@ -1988,7 +2000,7 @@ struct LazyVariableImplementation : public rq::Implementation {
 struct LazyVariableOverload : public rq::LazyVariableImplementation {
   using Self = rq::LazyVariableOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE LazyVariableOverload();
 
@@ -1997,9 +2009,9 @@ struct LazyVariableOverload : public rq::LazyVariableImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariablePolymorph *getParentPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LazyVariablePolymorph *
   getParentPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedList<rq::Expression *> &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
@@ -2044,13 +2056,13 @@ struct AdapterImplementation : public rq::Implementation {
 struct AdapterOverload final : public rq::AdapterImplementation {
   using Self = rq::AdapterOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE AdapterOverload();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedList<rq::Expression *> &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
@@ -2082,13 +2094,13 @@ struct InterfaceImplementation : public rq::Implementation {
 struct InterfaceOverload final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE InterfaceOverload();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedList<rq::Expression *> &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
@@ -2124,14 +2136,14 @@ struct ClassImplementation : public rq::Implementation {
 struct ClassOverload final : public rq::ClassImplementation {
   using Self = rq::ClassOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
   rq::Symbol *_best_layout_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ClassOverload();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedList<rq::Expression *> &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
   RQ_ALWAYS_INLINE void setOrChangeBestLayout(rq::Symbol &symbol);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getBestLayoutPtr();
@@ -2177,13 +2189,13 @@ struct ProcedureImplementation : public rq::Implementation {
 struct ProcedureOverload final : public rq::ProcedureImplementation {
   using Self = rq::ProcedureOverload;
 
-  rq::AllocatedList<rq::Expression *> _prototype_expression_ptr_list{};
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
 
   explicit RQ_ALWAYS_INLINE ProcedureOverload();
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::AllocatedList<rq::Expression *> &
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
   getPrototypeExpressionPtrList();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstAllocatedListRef<rq::Expression *>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);

@@ -11,45 +11,45 @@
 
 namespace rq {
 
-template <typename ItemParam> struct AllocatedList;
-template <typename ItemParam> struct AllocatedListItem;
-template <typename ItemParam> struct AllocatedListRef;
-template <typename ItemParam> struct ConstAllocatedListRef;
-template <typename ItemParam> struct AllocatedListIterator;
-template <typename ItemParam> struct ConstAllocatedListIterator;
+template <typename ItemParam> struct NodeList;
+template <typename ItemParam> struct NodeListItem;
+template <typename ItemParam> struct NodeListRef;
+template <typename ItemParam> struct ConstNodeListRef;
+template <typename ItemParam> struct NodeListIterator;
+template <typename ItemParam> struct ConstNodeListIterator;
 
-template <typename ItemParam> struct AllocatedListItem final {
+template <typename ItemParam> struct NodeListItem final {
   using Item = ItemParam;
-  using List = rq::AllocatedList<Item>;
-  using Self = rq::AllocatedListItem<Item>;
+  using List = rq::NodeList<Item>;
+  using Self = rq::NodeListItem<Item>;
 
   Item *item_ptr{nullptr};
   List next{};
 
-  RQ_ALWAYS_INLINE AllocatedListItem() = default;
-  AllocatedListItem(const Self &) = delete;
-  AllocatedListItem(Self &&) = delete;
-  RQ_ALWAYS_INLINE ~AllocatedListItem() = default;
+  RQ_ALWAYS_INLINE NodeListItem() = default;
+  NodeListItem(const Self &) = delete;
+  NodeListItem(Self &&) = delete;
+  RQ_ALWAYS_INLINE ~NodeListItem() = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = delete;
 };
 
-template <typename ItemParam> struct AllocatedList final {
+template <typename ItemParam> struct NodeList final {
   using Item = ItemParam;
-  using Allocated = rq::AllocatedListItem<Item>;
-  using Iterator = rq::AllocatedListIterator<Item>;
-  using ConstIterator = rq::ConstAllocatedListIterator<Item>;
-  using Self = rq::AllocatedList<Item>;
-  using Ref = rq::AllocatedListRef<Item>;
-  using ConstRef = rq::ConstAllocatedListRef<Item>;
+  using Allocated = rq::NodeListItem<Item>;
+  using Iterator = rq::NodeListIterator<Item>;
+  using ConstIterator = rq::ConstNodeListIterator<Item>;
+  using Self = rq::NodeList<Item>;
+  using Ref = rq::NodeListRef<Item>;
+  using ConstRef = rq::ConstNodeListRef<Item>;
 
   llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
 
-  AllocatedList() = default;
-  AllocatedList(Item& item) : _ptr_union(&item) {}
-  ~AllocatedList() = default;
-  AllocatedList(const Self &) = delete;
-  AllocatedList(Self &&) = default;
+  NodeList() = default;
+  NodeList(Item& item) : _ptr_union(&item) {}
+  ~NodeList() = default;
+  NodeList(const Self &) = delete;
+  NodeList(Self &&) = default;
   Self &operator=(const Self &) = delete;
   Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasHead() const {
@@ -99,10 +99,10 @@ template <typename ItemParam> struct AllocatedList final {
 
 template <typename ItemParam>
 RQ_ALWAYS_INLINE void
-AllocatedList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
+NodeList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
                                     ItemParam &item) {
   using Item = ItemParam;
-  using Allocated = rq::AllocatedListItem<Item>;
+  using Allocated = rq::NodeListItem<Item>;
   if (this->getIsEmpty()) {
     this->_ptr_union = &item;
     return;
@@ -120,23 +120,23 @@ AllocatedList<ItemParam>::insertFront(rq::BumpPtrAllocator &allocator,
   this->_ptr_union = &node;
 }
 
-template <typename ItemParam> struct AllocatedListRef final {
+template <typename ItemParam> struct NodeListRef final {
   using Item = ItemParam;
-  using Allocated = rq::AllocatedListItem<Item>;
-  using Iterator = rq::AllocatedListIterator<Item>;
-  using ConstIterator = rq::ConstAllocatedListIterator<Item>;
-  using List = rq::AllocatedList<Item>;
-  using Self = rq::AllocatedListRef<Item>;
-  using Ref = rq::AllocatedListRef<Item>;
-  using ConstRef = rq::ConstAllocatedListRef<Item>;
+  using Allocated = rq::NodeListItem<Item>;
+  using Iterator = rq::NodeListIterator<Item>;
+  using ConstIterator = rq::ConstNodeListIterator<Item>;
+  using List = rq::NodeList<Item>;
+  using Self = rq::NodeListRef<Item>;
+  using Ref = rq::NodeListRef<Item>;
+  using ConstRef = rq::ConstNodeListRef<Item>;
 
   llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
 
-  AllocatedListRef() = default;
-  AllocatedListRef(List &list) : _ptr_union(list._ptr_union) {}
-  ~AllocatedListRef() = default;
-  AllocatedListRef(const Self &) = default;
-  AllocatedListRef(Self &&) = default;
+  NodeListRef() = default;
+  NodeListRef(List &list) : _ptr_union(list._ptr_union) {}
+  ~NodeListRef() = default;
+  NodeListRef(const Self &) = default;
+  NodeListRef(Self &&) = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasHead() const {
@@ -182,26 +182,26 @@ template <typename ItemParam> struct AllocatedListRef final {
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const;
 };
 
-template <typename ItemParam> struct ConstAllocatedListRef final {
+template <typename ItemParam> struct ConstNodeListRef final {
   using Item = ItemParam;
-  using Allocated = rq::AllocatedListItem<Item>;
-  using Iterator = rq::AllocatedListIterator<Item>;
-  using ConstIterator = rq::ConstAllocatedListIterator<Item>;
-  using List = rq::AllocatedList<Item>;
-  using Self = rq::ConstAllocatedListRef<Item>;
-  using Ref = rq::AllocatedListRef<Item>;
-  using ConstRef = rq::ConstAllocatedListRef<Item>;
+  using Allocated = rq::NodeListItem<Item>;
+  using Iterator = rq::NodeListIterator<Item>;
+  using ConstIterator = rq::ConstNodeListIterator<Item>;
+  using List = rq::NodeList<Item>;
+  using Self = rq::ConstNodeListRef<Item>;
+  using Ref = rq::NodeListRef<Item>;
+  using ConstRef = rq::ConstNodeListRef<Item>;
 
   llvm::PointerUnion<const Item *, const Allocated *> _ptr_union{nullptr};
 
-  ConstAllocatedListRef() = default;
-  ConstAllocatedListRef(const List &list)
+  ConstNodeListRef() = default;
+  ConstNodeListRef(const List &list)
       : _ptr_union(
             llvm::PointerUnion<const Item *, const Allocated *>::getFromOpaqueValue(
                 list._ptr_union.getOpaqueValue())) {}
-  ~ConstAllocatedListRef() = default;
-  ConstAllocatedListRef(const Self &) = default;
-  ConstAllocatedListRef(Self &&) = default;
+  ~ConstNodeListRef() = default;
+  ConstNodeListRef(const Self &) = default;
+  ConstNodeListRef(Self &&) = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasHead() const {
@@ -236,11 +236,11 @@ template <typename ItemParam> struct ConstAllocatedListRef final {
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const;
 };
 
-template <typename ItemParam> struct AllocatedListIterator final {
+template <typename ItemParam> struct NodeListIterator final {
   using Item = ItemParam;
-  using Ref = rq::AllocatedListRef<Item>;
-  using Allocated = rq::AllocatedListItem<Item>;
-  using Self = rq::AllocatedListIterator<Item>;
+  using Ref = rq::NodeListRef<Item>;
+  using Allocated = rq::NodeListItem<Item>;
+  using Self = rq::NodeListIterator<Item>;
   using value_type = Item;
   using reference = Item &;
   using pointer = Item *;
@@ -249,8 +249,8 @@ template <typename ItemParam> struct AllocatedListIterator final {
 
   Ref _list;
 
-  RQ_ALWAYS_INLINE AllocatedListIterator() = default;
-  RQ_ALWAYS_INLINE explicit AllocatedListIterator(const Ref &list) : _list(list) {}
+  RQ_ALWAYS_INLINE NodeListIterator() = default;
+  RQ_ALWAYS_INLINE explicit NodeListIterator(const Ref &list) : _list(list) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (llvm::isa<Item *>(this->_list._ptr_union)) {
       this->_list._ptr_union = nullptr;
@@ -317,11 +317,11 @@ template <typename ItemParam> struct AllocatedListIterator final {
   }
 };
 
-template <typename ItemParam> struct ConstAllocatedListIterator final {
+template <typename ItemParam> struct ConstNodeListIterator final {
   using Item = ItemParam;
-  using Ref = rq::ConstAllocatedListRef<Item>;
-  using Allocated = rq::AllocatedListItem<Item>;
-  using Self = rq::ConstAllocatedListIterator<Item>;
+  using Ref = rq::ConstNodeListRef<Item>;
+  using Allocated = rq::NodeListItem<Item>;
+  using Self = rq::ConstNodeListIterator<Item>;
   using value_type = Item;
   using reference = const Item &;
   using pointer = const Item *;
@@ -330,8 +330,8 @@ template <typename ItemParam> struct ConstAllocatedListIterator final {
 
   Ref _list;
 
-  RQ_ALWAYS_INLINE ConstAllocatedListIterator() = default;
-  RQ_ALWAYS_INLINE explicit ConstAllocatedListIterator(const Ref &list)
+  RQ_ALWAYS_INLINE ConstNodeListIterator() = default;
+  RQ_ALWAYS_INLINE explicit ConstNodeListIterator(const Ref &list)
       : _list(list) {}
   RQ_ALWAYS_INLINE Self &operator++() {
     if (llvm::isa<const Item *>(this->_list._ptr_union)) {
@@ -385,96 +385,96 @@ template <typename ItemParam> struct ConstAllocatedListIterator final {
 };
 
 template <typename ItemParam>
-inline rq::AllocatedListIterator<ItemParam> AllocatedList<ItemParam>::begin() {
-  return rq::AllocatedListIterator<ItemParam>(*this);
+inline rq::NodeListIterator<ItemParam> NodeList<ItemParam>::begin() {
+  return rq::NodeListIterator<ItemParam>(*this);
 }
 
 template <typename ItemParam>
-inline rq::AllocatedListIterator<ItemParam> AllocatedList<ItemParam>::end() {
-  return rq::AllocatedListIterator<ItemParam>();
+inline rq::NodeListIterator<ItemParam> NodeList<ItemParam>::end() {
+  return rq::NodeListIterator<ItemParam>();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedList<ItemParam>::begin() const {
-  return rq::ConstAllocatedListIterator<ItemParam>(
-      rq::ConstAllocatedListRef<ItemParam>(*this));
+inline rq::ConstNodeListIterator<ItemParam>
+NodeList<ItemParam>::begin() const {
+  return rq::ConstNodeListIterator<ItemParam>(
+      rq::ConstNodeListRef<ItemParam>(*this));
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedList<ItemParam>::end() const {
-  return rq::ConstAllocatedListIterator<ItemParam>();
+inline rq::ConstNodeListIterator<ItemParam>
+NodeList<ItemParam>::end() const {
+  return rq::ConstNodeListIterator<ItemParam>();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedList<ItemParam>::cbegin() const {
+inline rq::ConstNodeListIterator<ItemParam>
+NodeList<ItemParam>::cbegin() const {
   return begin();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedList<ItemParam>::cend() const {
+inline rq::ConstNodeListIterator<ItemParam>
+NodeList<ItemParam>::cend() const {
   return end();
 }
 
 template <typename ItemParam>
-inline rq::AllocatedListIterator<ItemParam> AllocatedListRef<ItemParam>::begin() {
-  return rq::AllocatedListIterator<ItemParam>(*this);
+inline rq::NodeListIterator<ItemParam> NodeListRef<ItemParam>::begin() {
+  return rq::NodeListIterator<ItemParam>(*this);
 }
 
 template <typename ItemParam>
-inline rq::AllocatedListIterator<ItemParam> AllocatedListRef<ItemParam>::end() {
-  return rq::AllocatedListIterator<ItemParam>();
+inline rq::NodeListIterator<ItemParam> NodeListRef<ItemParam>::end() {
+  return rq::NodeListIterator<ItemParam>();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedListRef<ItemParam>::begin() const {
-  return rq::ConstAllocatedListIterator<ItemParam>(
-      rq::ConstAllocatedListRef<ItemParam>(*this));
+inline rq::ConstNodeListIterator<ItemParam>
+NodeListRef<ItemParam>::begin() const {
+  return rq::ConstNodeListIterator<ItemParam>(
+      rq::ConstNodeListRef<ItemParam>(*this));
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedListRef<ItemParam>::end() const {
-  return rq::ConstAllocatedListIterator<ItemParam>();
+inline rq::ConstNodeListIterator<ItemParam>
+NodeListRef<ItemParam>::end() const {
+  return rq::ConstNodeListIterator<ItemParam>();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedListRef<ItemParam>::cbegin() const {
+inline rq::ConstNodeListIterator<ItemParam>
+NodeListRef<ItemParam>::cbegin() const {
   return begin();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-AllocatedListRef<ItemParam>::cend() const {
+inline rq::ConstNodeListIterator<ItemParam>
+NodeListRef<ItemParam>::cend() const {
   return end();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-ConstAllocatedListRef<ItemParam>::begin() const {
-  return rq::ConstAllocatedListIterator<ItemParam>(*this);
+inline rq::ConstNodeListIterator<ItemParam>
+ConstNodeListRef<ItemParam>::begin() const {
+  return rq::ConstNodeListIterator<ItemParam>(*this);
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-ConstAllocatedListRef<ItemParam>::end() const {
-  return rq::ConstAllocatedListIterator<ItemParam>();
+inline rq::ConstNodeListIterator<ItemParam>
+ConstNodeListRef<ItemParam>::end() const {
+  return rq::ConstNodeListIterator<ItemParam>();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-ConstAllocatedListRef<ItemParam>::cbegin() const {
+inline rq::ConstNodeListIterator<ItemParam>
+ConstNodeListRef<ItemParam>::cbegin() const {
   return begin();
 }
 
 template <typename ItemParam>
-inline rq::ConstAllocatedListIterator<ItemParam>
-ConstAllocatedListRef<ItemParam>::cend() const {
+inline rq::ConstNodeListIterator<ItemParam>
+ConstNodeListRef<ItemParam>::cend() const {
   return end();
 }
 

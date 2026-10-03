@@ -1,11 +1,11 @@
 // see this stuff imported in importing.rq
 
-[node my_stuff,
+[namespace my_stuff,
     export
     [procedure printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
-    [node detail,
+    [namespace detail,
         export compile_time NO_EXPORT_VAR := 0;    
     ]
 ];

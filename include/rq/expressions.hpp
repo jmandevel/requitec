@@ -470,8 +470,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // TABLE GRAPH
   case K::IMPORT:
     return "import";
-  case K::NODE:
-    return "node";
+  case K::NAMESPACE:
+    return "namespace";
   case K::C:
     return "c";
   case K::TOP:
@@ -1336,7 +1336,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // TABLE GRAPH
   case K::IMPORT:
     return KIF::STATEMENT;
-  case K::NODE:
+  case K::NAMESPACE:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::C:
     return KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
