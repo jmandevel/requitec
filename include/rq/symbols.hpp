@@ -1,10 +1,10 @@
 #pragma once
 
-#include <rq/node_list.hpp>
 #include <rq/entity.hpp>
 #include <rq/expressions.hpp>
 #include <rq/iterators.hpp>
 #include <rq/name.hpp>
+#include <rq/node_list.hpp>
 #include <rq/static_value.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
@@ -33,6 +33,7 @@ namespace rq {
 struct ConstantSymbol;
 struct CfgBlock;
 struct Instruction;
+struct BumpPtrAllocator;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind);
 
@@ -822,14 +823,14 @@ profileSpecializationSetArgument(llvm::FoldingSetNodeID &inout_id,
                                  rq::Name name, const rq::Entity &value,
                                  rq::SpecializationSetArgument *next_ptr);
 
-struct SpecializationSet : public rq::Symbol,
-                           public llvm::FoldingSetNode {
+struct SpecializationSet : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::SpecializationSet;
 
   rq::SpecializationSetArgument *_first_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE
-  SpecializationSet(rq::SymbolKind kind, rq::SpecializationSetArgument *first_ptr);
+  SpecializationSet(rq::SymbolKind kind,
+                    rq::SpecializationSetArgument *first_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::SpecializationSetArgument>
   getArgumentSubrange();
@@ -929,9 +930,9 @@ struct Parameter final : public rq::Symbol, public llvm::FoldingSetNode {
 };
 
 RQ_ALWAYS_INLINE void profileParameter(
-    llvm::FoldingSetNodeID &inout_id,
-    const rq::Parameter *next_ptr, rq::Name name,
-    const rq::ConstantSymbol &type, rq::ModifierFuseFlags modifier_fuse_flags,
+    llvm::FoldingSetNodeID &inout_id, const rq::Parameter *next_ptr,
+    rq::Name name, const rq::ConstantSymbol &type,
+    rq::ModifierFuseFlags modifier_fuse_flags,
     rq::ParameterInfoFlags param_flags, const rq::Entity *default_ptr);
 
 struct CompositionComponent final : public rq::Symbol,
@@ -946,7 +947,8 @@ struct CompositionComponent final : public rq::Symbol,
                        rq::InterfaceImplementation &interface);
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &getInterface();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &getInterface() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+  getInterface() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
@@ -1153,7 +1155,7 @@ struct AdapterWeightLevel final : public rq::WeightLevel {
 
   explicit RQ_ALWAYS_INLINE AdapterWeightLevel(unsigned weight);
 
-  RQ_ALWAYS_INLINE void setAdapterPolylmorph(rq::AdapterPolymorph &polymorph);
+  RQ_ALWAYS_INLINE void setAdapterPolymorph(rq::AdapterPolymorph &polymorph);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *getAdapterPolymorphPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
   getAdapterPolymorphPtr() const;
@@ -1189,7 +1191,7 @@ struct EnumWeightLevel final : public rq::WeightLevel {
       getEnumTemplateSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
-      getEnumTemplateConstSubrange() const;
+      getConstEnumTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1238,9 +1240,9 @@ struct LazyVariableWeightLevel final : public rq::WeightLevel {
       getLazyVariableTemplateSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getLazyVariableTemplateConstSubrange() const;
+      getConstLazyVariableTemplateSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Polymorph : public rq::Symbol {
@@ -1267,10 +1269,15 @@ struct Polymorph : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+template <typename WeightLevel, typename Polymorph>
+[[nodiscard]] RQ_ALWAYS_INLINE WeightLevel &
+addWeightLevel(rq::BumpPtrAllocator &allocator, Polymorph &polymorph,
+               unsigned weight);
+
 struct ClassPolymorph final : public rq::Polymorph {
   using Self = rq::ClassPolymorph;
 
-  explicit RQ_ALWAYS_INLINE ClassPolymorph(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE ClassPolymorph();
 
   RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &class_);
   [[nodiscard]] RQ_ALWAYS_INLINE
@@ -1282,7 +1289,8 @@ struct ClassPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
       getConstClassOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addClassWeightLevel(rq::ClassWeightLevel &weight_level);
+  [[nodiscard]] inline rq::ClassWeightLevel &
+  getClassWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
       getClassWeightLevelSubrange();
@@ -1299,7 +1307,7 @@ struct ClassPolymorph final : public rq::Polymorph {
 struct EnumPolymorph final : public rq::Polymorph {
   using Self = rq::EnumPolymorph;
 
-  explicit RQ_ALWAYS_INLINE EnumPolymorph(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE EnumPolymorph();
 
   RQ_ALWAYS_INLINE void addEnumOverload(rq::EnumOverload &class_);
   [[nodiscard]] RQ_ALWAYS_INLINE
@@ -1310,8 +1318,9 @@ struct EnumPolymorph final : public rq::Polymorph {
       getEnumOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
-      getEnumOverloadConstSubrange() const;
-  RQ_ALWAYS_INLINE void addEnumWeightLevel(rq::EnumWeightLevel &weight_level);
+      getConstEnumOverloadSubrange() const;
+  [[nodiscard]] inline rq::EnumWeightLevel &
+  getEnumWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
       getEnumWeightLevelSubrange();
@@ -1320,7 +1329,7 @@ struct EnumPolymorph final : public rq::Polymorph {
       getEnumWeightLevelSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
-      getEnumWeightLevelConstSubrange() const;
+      getConstEnumWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -1328,7 +1337,7 @@ struct EnumPolymorph final : public rq::Polymorph {
 struct InterfacePolymorph final : public rq::Polymorph {
   using Self = rq::InterfacePolymorph;
 
-  explicit RQ_ALWAYS_INLINE InterfacePolymorph(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
 
   RQ_ALWAYS_INLINE void addInterfaceOverload(rq::InterfaceOverload &interface);
   [[nodiscard]] RQ_ALWAYS_INLINE
@@ -1340,8 +1349,8 @@ struct InterfacePolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
       getConstInterfaceOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addInterfaceWeightLevel(rq::InterfaceWeightLevel &weight_level);
+  [[nodiscard]] inline rq::InterfaceWeightLevel &
+  getInterfaceWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
       getInterfaceWeightLevelSubrange();
@@ -1370,9 +1379,9 @@ struct LazyVariablePolymorph final : public rq::Polymorph {
       getLazyVariableOverloadSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getLazyVariableOverloadConstSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addLazyVariableWeightLevel(rq::LazyVariableWeightLevel &weight_level);
+      getConstLazyVariableOverloadSubrange() const;
+  [[nodiscard]] inline rq::LazyVariableWeightLevel &
+  getLazyVariableWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
       getLazyVariableWeightLevelSubrange();
@@ -1381,7 +1390,7 @@ struct LazyVariablePolymorph final : public rq::Polymorph {
       getLazyVariableWeightLevelSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
-      getLazyVariableWeightLevelConstSubrange() const;
+      getConstLazyVariableWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
 };
@@ -1401,8 +1410,8 @@ struct AdapterPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
       getConstAdapterOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addAdapterWeightLevel(rq::AdapterWeightLevel &weight_level);
+  [[nodiscard]] inline rq::AdapterWeightLevel &
+  getAdapterWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
       getAdapterWeightLevelSubrange();
@@ -1420,6 +1429,7 @@ struct ProcedurePolymorph final : public rq::Polymorph {
   using Self = rq::ProcedurePolymorph;
 
   explicit RQ_ALWAYS_INLINE ProcedurePolymorph();
+
   RQ_ALWAYS_INLINE void addProcedureOverload(rq::ProcedureOverload &function);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::Implementation, rq::ProcedureOverload>
@@ -1430,8 +1440,8 @@ struct ProcedurePolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>
       getConstProcedureOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addProcedureWeightLevel(rq::ProcedureWeightLevel &weight_level);
+  [[nodiscard]] inline rq::ProcedureWeightLevel &
+  getProcedureWeightLevel(rq::BumpPtrAllocator &allocator, unsigned weight);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
       getProcedureWeightLevelSubrange();
@@ -1675,9 +1685,8 @@ struct SymbolTable : public rq::TableMember {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
   inline void addMember(rq::BumpPtrAllocator &allocator, rq::Name name,
                         rq::TableMember &member);
-  [[nodiscard]] RQ_ALWAYS_INLINE const
-      rq::ConstNodeListRef<rq::TableMember>
-      lookupList(rq::Name name) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
+  lookupList(rq::Name name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::TableMember>
   lookupList(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>

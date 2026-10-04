@@ -1,5 +1,7 @@
 #pragma once
 
+#include <rq/bump_ptr_allocator.hpp>
+
 namespace rq {
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind) {
@@ -1419,7 +1421,7 @@ WeightLevel::getPolymorphPtr() const {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Polymorph *WeightLevel::getPolymorphPtr() {
-  this->_polymorph_ptr;
+  return this->_polymorph_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE unsigned WeightLevel::getWeight() const {
@@ -1451,5 +1453,870 @@ WeightLevel::getConstTemplateSubrange() const {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getIsWeightLevel();
 }
+
+RQ_ALWAYS_INLINE InterfaceWeightLevel::InterfaceWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void
+InterfaceWeightLevel::setInterfacePolymorph(rq::InterfacePolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfacePolymorph *
+InterfaceWeightLevel::getInterfacePolymorphPtr() const {
+  return llvm::cast<rq::InterfacePolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfacePolymorph *
+InterfaceWeightLevel::getInterfacePolymorphPtr() {
+  return llvm::cast<rq::InterfacePolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+InterfaceWeightLevel::addInterfaceTemplate(rq::InterfaceTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Template, rq::InterfaceTemplate>
+    InterfaceWeightLevel::getInterfaceTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::InterfaceTemplate>(
+      rq::NextIterator<rq::Template, rq::InterfaceTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::InterfaceTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+    InterfaceWeightLevel::getInterfaceTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+    InterfaceWeightLevel::getConstInterfaceTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::InterfaceTemplate>());
+}
+
+[[nodiscard]] inline bool
+InterfaceWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE ProcedureWeightLevel::ProcedureWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::PROCEDURE_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void
+ProcedureWeightLevel::setProcedurePolymorph(rq::ProcedurePolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedurePolymorph *
+ProcedureWeightLevel::getProcedurePolymorphPtr() const {
+  return llvm::cast<rq::ProcedurePolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedurePolymorph *
+ProcedureWeightLevel::getProcedurePolymorphPtr() {
+  return llvm::cast<rq::ProcedurePolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+ProcedureWeightLevel::addProcedureTemplate(rq::ProcedureTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Template, rq::ProcedureTemplate>
+    ProcedureWeightLevel::getProcedureTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::ProcedureTemplate>(
+      rq::NextIterator<rq::Template, rq::ProcedureTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::ProcedureTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>
+    ProcedureWeightLevel::getProcedureTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>
+    ProcedureWeightLevel::getConstProcedureTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>());
+}
+
+[[nodiscard]] inline bool
+ProcedureWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE AdapterWeightLevel::AdapterWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::ADAPTER_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void
+AdapterWeightLevel::setAdapterPolymorph(rq::AdapterPolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterPolymorph *
+AdapterWeightLevel::getAdapterPolymorphPtr() const {
+  return llvm::cast<rq::AdapterPolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterPolymorph *
+AdapterWeightLevel::getAdapterPolymorphPtr() {
+  return llvm::cast<rq::AdapterPolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+AdapterWeightLevel::addAdapterTemplate(rq::AdapterTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Template, rq::AdapterTemplate>
+    AdapterWeightLevel::getAdapterTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::AdapterTemplate>(
+      rq::NextIterator<rq::Template, rq::AdapterTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::AdapterTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+    AdapterWeightLevel::getAdapterTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+    AdapterWeightLevel::getConstAdapterTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::AdapterTemplate>());
+}
+
+[[nodiscard]] inline bool
+AdapterWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE EnumWeightLevel::EnumWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::ENUM_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void
+EnumWeightLevel::setEnumPolymorph(rq::EnumPolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
+EnumWeightLevel::getEnumPolymorphPtr() const {
+  return llvm::cast<rq::EnumPolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *
+EnumWeightLevel::getEnumPolymorphPtr() {
+  return llvm::cast<rq::EnumPolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+EnumWeightLevel::addEnumTemplate(rq::EnumTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Template, rq::EnumTemplate>
+EnumWeightLevel::getEnumTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::EnumTemplate>(
+      rq::NextIterator<rq::Template, rq::EnumTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::EnumTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+    EnumWeightLevel::getEnumTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>(this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+    EnumWeightLevel::getConstEnumTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>(this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::EnumTemplate>());
+}
+
+[[nodiscard]] inline bool
+EnumWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ENUM_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE ClassWeightLevel::ClassWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::CLASS_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void
+ClassWeightLevel::setClassPolymorph(rq::ClassPolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ClassPolymorph *
+ClassWeightLevel::getClassPolymorphPtr() const {
+  return llvm::cast<rq::ClassPolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ClassPolymorph *
+ClassWeightLevel::getClassPolymorphPtr() {
+  return llvm::cast<rq::ClassPolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+ClassWeightLevel::addClassTemplate(rq::ClassTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Template, rq::ClassTemplate>
+ClassWeightLevel::getClassTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::ClassTemplate>(
+      rq::NextIterator<rq::Template, rq::ClassTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::ClassTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+    ClassWeightLevel::getClassTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>(this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+    ClassWeightLevel::getConstClassTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>(this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::ClassTemplate>());
+}
+
+[[nodiscard]] inline bool
+ClassWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CLASS_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE
+LazyVariableWeightLevel::LazyVariableWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::LAZY_VARIABLE_WEIGHT_LEVEL, weight) {}
+
+RQ_ALWAYS_INLINE void LazyVariableWeightLevel::setLazyVariablePolymorph(
+    rq::LazyVariablePolymorph &polymorph) {
+  rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariablePolymorph *
+LazyVariableWeightLevel::getLazyVariablePolymorphPtr() {
+  return llvm::cast<rq::LazyVariablePolymorph>(this->_polymorph_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LazyVariablePolymorph *
+LazyVariableWeightLevel::getLazyVariablePolymorphPtr() const {
+  return llvm::cast<rq::LazyVariablePolymorph>(this->_polymorph_ptr);
+}
+
+RQ_ALWAYS_INLINE void LazyVariableWeightLevel::addLazyVariableTemplate(
+    rq::LazyVariableTemplate &template_) {
+  template_._next_ptr = this->_first_ptr;
+  this->_first_ptr = &template_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>
+    LazyVariableWeightLevel::getLazyVariableTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>(
+      rq::NextIterator<rq::Template, rq::LazyVariableTemplate>(
+          this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::LazyVariableTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+    LazyVariableWeightLevel::getLazyVariableTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::LazyVariableTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::LazyVariableTemplate>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+    LazyVariableWeightLevel::getConstLazyVariableTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::LazyVariableTemplate>(
+          this->_first_ptr),
+      rq::ConstNextIterator<rq::Template, rq::LazyVariableTemplate>());
+}
+
+[[nodiscard]] inline bool
+LazyVariableWeightLevel::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getId(rq::SymbolKind::LAZY_VARIABLE_WEIGHT_LEVEL);
+}
+
+RQ_ALWAYS_INLINE Polymorph::Polymorph(rq::SymbolKind kind) : Symbol(kind) {
+  RQ_ASSERT(rq::getIsPolymorph(kind), "not polymorph");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Implementation>
+Polymorph::getOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation>(
+      rq::NextIterator<rq::Implementation>(this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+Polymorph::getOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation>(
+      rq::ConstNextIterator<rq::Implementation>(this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+Polymorph::getConstOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation>(
+      rq::ConstNextIterator<rq::Implementation>(this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::WeightLevel>
+Polymorph::getWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel>(
+      rq::NextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::WeightLevel>
+Polymorph::getWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::WeightLevel>
+Polymorph::getConstWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] inline bool Polymorph::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsPolymorph();
+}
+
+template <typename WeightLevel, typename Polymorph>
+[[nodiscard]] RQ_ALWAYS_INLINE WeightLevel &
+addWeightLevel(rq::BumpPtrAllocator &allocator, Polymorph &polymorph,
+               unsigned weight) {
+  if (polymorph._first_weight_level_ptr == nullptr) {
+    WeightLevel &level = allocator.allocateValue<WeightLevel>(weight);
+    polymorph._first_weight_level_ptr = &level;
+    return level;
+  }
+  WeightLevel &first = llvm::cast<WeightLevel>(
+      rq::dereferencePtr(polymorph._first_weight_level_ptr));
+  if (first.getWeight() < weight) {
+    WeightLevel &level = allocator.allocateValue<WeightLevel>(weight);
+    level._next_ptr = &first;
+    polymorph._first_weight_level_ptr = &level;
+    return level;
+  }
+  for (rq::WeightLevel &next_base : polymorph.getWeightLevelSubrange()) {
+    WeightLevel &next = llvm::cast<WeightLevel>(next_base);
+    if (next._next_ptr == nullptr) {
+      WeightLevel &level = allocator.allocateValue<WeightLevel>(weight);
+      next._next_ptr = &level;
+      return level;
+    }
+    WeightLevel &after =
+        llvm::cast<WeightLevel>(rq::dereferencePtr(next._next_ptr));
+    if (after.getWeight() < weight) {
+      WeightLevel &level = allocator.allocateValue<WeightLevel>(weight);
+      level._next_ptr = &after;
+      next._next_ptr = &level;
+      return level;
+    }
+  }
+  RQ_UNREACHABLE();
+}
+
+RQ_ALWAYS_INLINE ClassPolymorph::ClassPolymorph()
+    : Polymorph(rq::SymbolKind::CLASS_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+ClassPolymorph::addClassOverload(rq::ClassOverload &class_) {
+  rq::assignSingleValue(class_._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &class_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::ClassOverload>
+    ClassPolymorph::getClassOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::ClassOverload>(
+      rq::NextIterator<rq::Implementation, rq::ClassOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::ClassOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
+    ClassPolymorph::getClassOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ClassOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::ClassOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
+    ClassPolymorph::getConstClassOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ClassOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::ClassOverload>());
+}
+
+[[nodiscard]] inline rq::ClassWeightLevel &
+ClassPolymorph::getClassWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::ClassWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+    ClassPolymorph::getClassWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+    ClassPolymorph::getClassWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+    ClassPolymorph::getConstClassWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] inline bool ClassPolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CLASS_POLYMORPH);
+}
+
+RQ_ALWAYS_INLINE EnumPolymorph::EnumPolymorph()
+    : Polymorph(rq::SymbolKind::ENUM_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+EnumPolymorph::addEnumOverload(rq::EnumOverload &enum_) {
+  rq::assignSingleValue(enum_._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &enum_;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::EnumOverload>
+    EnumPolymorph::getEnumOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::EnumOverload>(
+      rq::NextIterator<rq::Implementation, rq::EnumOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::EnumOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
+    EnumPolymorph::getEnumOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::EnumOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::EnumOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
+    EnumPolymorph::getConstEnumOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::EnumOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::EnumOverload>());
+}
+
+[[nodiscard]] inline rq::EnumWeightLevel &
+EnumPolymorph::getEnumWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::EnumWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
+    EnumPolymorph::getEnumWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::EnumWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::EnumWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
+    EnumPolymorph::getEnumWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
+    EnumPolymorph::getConstEnumWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>());
+}
+
+[[nodiscard]] inline bool EnumPolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ENUM_POLYMORPH);
+}
+
+RQ_ALWAYS_INLINE InterfacePolymorph::InterfacePolymorph()
+    : Polymorph(rq::SymbolKind::INTERFACE_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+InterfacePolymorph::addInterfaceOverload(rq::InterfaceOverload &interface) {
+  rq::assignSingleValue(interface._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &interface;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::InterfaceOverload>
+    InterfacePolymorph::getInterfaceOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::InterfaceOverload>(
+      rq::NextIterator<rq::Implementation, rq::InterfaceOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::InterfaceOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
+    InterfacePolymorph::getInterfaceOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::InterfaceOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::InterfaceOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
+    InterfacePolymorph::getConstInterfaceOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::InterfaceOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::InterfaceOverload>());
+}
+
+[[nodiscard]] inline rq::InterfaceWeightLevel &
+InterfacePolymorph::getInterfaceWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::InterfaceWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+    InterfacePolymorph::getInterfaceWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+    InterfacePolymorph::getInterfaceWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+    InterfacePolymorph::getConstInterfaceWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] inline bool InterfacePolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_POLYMORPH);
+}
+
+RQ_ALWAYS_INLINE LazyVariablePolymorph::LazyVariablePolymorph()
+    : Polymorph(rq::SymbolKind::LAZY_VARIABLE_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+LazyVariablePolymorph::addLazyVariableOverload(rq::LazyVariableOverload &lazyvariable) {
+  rq::assignSingleValue(lazyvariable._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &lazyvariable;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getLazyVariableOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>(
+      rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::LazyVariableOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getLazyVariableOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+    LazyVariablePolymorph::getConstLazyVariableOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::LazyVariableOverload>());
+}
+
+[[nodiscard]] inline rq::LazyVariableWeightLevel &
+LazyVariablePolymorph::getLazyVariableWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::LazyVariableWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getLazyVariableWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getLazyVariableWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+    LazyVariablePolymorph::getConstLazyVariableWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] inline bool LazyVariablePolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::LAZY_VARIABLE_POLYMORPH);
+}
+
+RQ_ALWAYS_INLINE AdapterPolymorph::AdapterPolymorph()
+    : Polymorph(rq::SymbolKind::ADAPTER_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+AdapterPolymorph::addAdapterOverload(rq::AdapterOverload &adapter) {
+  rq::assignSingleValue(adapter._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &adapter;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::AdapterOverload>
+    AdapterPolymorph::getAdapterOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::AdapterOverload>(
+      rq::NextIterator<rq::Implementation, rq::AdapterOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::AdapterOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
+    AdapterPolymorph::getAdapterOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::AdapterOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::AdapterOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
+    AdapterPolymorph::getConstAdapterOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::AdapterOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::AdapterOverload>());
+}
+
+[[nodiscard]] inline rq::AdapterWeightLevel &
+AdapterPolymorph::getAdapterWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::AdapterWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+    AdapterPolymorph::getAdapterWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+    AdapterPolymorph::getAdapterWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+    AdapterPolymorph::getConstAdapterWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] inline bool AdapterPolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_POLYMORPH);
+}
+
+RQ_ALWAYS_INLINE ProcedurePolymorph::ProcedurePolymorph()
+    : Polymorph(rq::SymbolKind::PROCEDURE_POLYMORPH) {}
+
+RQ_ALWAYS_INLINE void
+ProcedurePolymorph::addProcedureOverload(rq::ProcedureOverload &procedure) {
+  rq::assignSingleValue(procedure._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &procedure;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::Implementation, rq::ProcedureOverload>
+    ProcedurePolymorph::getProcedureOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::ProcedureOverload>(
+      rq::NextIterator<rq::Implementation, rq::ProcedureOverload>(
+          this->_first_overload_ptr),
+      rq::NextIterator<rq::Implementation, rq::ProcedureOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>
+    ProcedurePolymorph::getProcedureOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>
+    ProcedurePolymorph::getConstProcedureOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>(
+          this->_first_overload_ptr),
+      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>());
+}
+
+[[nodiscard]] inline rq::ProcedureWeightLevel &
+ProcedurePolymorph::getProcedureWeightLevel(rq::BumpPtrAllocator &allocator,
+                                    unsigned weight) {
+  return rq::addWeightLevel<rq::ProcedureWeightLevel>(allocator, *this, weight);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+    ProcedurePolymorph::getProcedureWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+    ProcedurePolymorph::getProcedureWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+    ProcedurePolymorph::getConstProcedureWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] inline bool ProcedurePolymorph::classof(rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_POLYMORPH);
+}
+
 
 } // namespace rq
