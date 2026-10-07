@@ -593,7 +593,8 @@ enum class SymbolKind : rq::EntityId {
   // EAGER DECLARATIONS
   ANCHOR,
   ENUMERATOR,
-  EAGER_VARIABLE,
+  DYNAMIC_EAGER_VARIABLE,
+  STATIC_EAGER_VARIABLE,
 
   // PARAMETERS
   PARAMETER,
@@ -875,20 +876,21 @@ enum class SymbolInfoFlags : std::uint64_t {
   PARAMETER_LIST = rq::getBit(13),
   TABLE_MEMBER = rq::getBit(14),
   EAGER_DECLARATION = rq::getBit(15),
-  ROUTE = rq::getBit(16),
-  POLYMORPH = rq::getBit(17),
-  WEIGHT_LEVEL = rq::getBit(18),
-  TEMPLATE = rq::getBit(19),
-  SYMBOL_TABLE = rq::getBit(20),
-  EAGER_SCOPE = rq::getBit(21),
-  NAMED_TABLE = rq::getBit(22),
-  LAZY_DECLARATION = rq::getBit(23),
-  CLASS_IMPLEMENTATION = rq::getBit(24),
-  ENUM_IMPLEMENTATION = rq::getBit(25),
-  INTERFACE_IMPLEMENTATION = rq::getBit(26),
-  ADAPTER_IMPLEMENTATION = rq::getBit(27),
-  PROCEDURE_IMPLEMENTATION = rq::getBit(28),
-  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(29),
+  EAGER_VARIABLE = rq::getBit(16),
+  ROUTE = rq::getBit(17),
+  POLYMORPH = rq::getBit(18),
+  WEIGHT_LEVEL = rq::getBit(19),
+  TEMPLATE = rq::getBit(20),
+  SYMBOL_TABLE = rq::getBit(21),
+  EAGER_SCOPE = rq::getBit(22),
+  NAMED_TABLE = rq::getBit(23),
+  LAZY_DECLARATION = rq::getBit(24),
+  CLASS_IMPLEMENTATION = rq::getBit(25),
+  ENUM_IMPLEMENTATION = rq::getBit(26),
+  INTERFACE_IMPLEMENTATION = rq::getBit(27),
+  ADAPTER_IMPLEMENTATION = rq::getBit(28),
+  PROCEDURE_IMPLEMENTATION = rq::getBit(29),
+  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(30),
 
   // SYMBOL DETAIL
   IS_RUNTIME_TYPE = rq::getBit(48),
@@ -1159,8 +1161,10 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
   case S::ENUMERATOR:
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
-  case S::EAGER_VARIABLE:
-    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
+  case S::DYNAMIC_EAGER_VARIABLE:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::EAGER_VARIABLE;
+  case S::STATIC_EAGER_VARIABLE:
+    return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::EAGER_VARIABLE;
 
   // PARAMETERS
   case S::PARAMETER:
@@ -1428,6 +1432,12 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::EAGER_DECLARATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerVariable(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::EAGER_VARIABLE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute(rq::SymbolKind kind) {
@@ -1778,6 +1788,10 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration() const {
     return rq::getIsEagerDeclaration(this->getUnsafeSymbolKind());
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerVariable() const {
+    return rq::getIsEagerVariable(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute() const {

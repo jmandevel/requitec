@@ -141,8 +141,10 @@ namespace rq {
     return "Anchor";
   case S::ENUMERATOR:
     return "Enumerator";
-  case S::EAGER_VARIABLE:
-    return "EagerVariable";
+  case S::DYNAMIC_EAGER_VARIABLE:
+    return "DynamicEagerVariable";
+  case S::STATIC_EAGER_VARIABLE:
+    return "StaticEagerVariable";
   case S::PARAMETER:
     return "Parameter";
   case S::SIGNATURE_TYPE:
@@ -1943,7 +1945,8 @@ ClassPolymorph::getClassWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
 }
 
-[[nodiscard]] inline bool ClassPolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool
+ClassPolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::CLASS_POLYMORPH);
 }
@@ -1951,8 +1954,7 @@ ClassPolymorph::getClassWeightLevel(rq::BumpPtrAllocator &allocator,
 RQ_ALWAYS_INLINE EnumPolymorph::EnumPolymorph()
     : Polymorph(rq::SymbolKind::ENUM_POLYMORPH) {}
 
-RQ_ALWAYS_INLINE void
-EnumPolymorph::addEnumOverload(rq::EnumOverload &enum_) {
+RQ_ALWAYS_INLINE void EnumPolymorph::addEnumOverload(rq::EnumOverload &enum_) {
   rq::assignSingleValue(enum_._next_ptr, this->_first_overload_ptr);
   this->_first_overload_ptr = &enum_;
 }
@@ -1986,7 +1988,7 @@ EnumPolymorph::addEnumOverload(rq::EnumOverload &enum_) {
 
 [[nodiscard]] inline rq::EnumWeightLevel &
 EnumPolymorph::getEnumWeightLevel(rq::BumpPtrAllocator &allocator,
-                                    unsigned weight) {
+                                  unsigned weight) {
   return rq::addWeightLevel<rq::EnumWeightLevel>(allocator, *this, weight);
 }
 
@@ -2017,7 +2019,7 @@ EnumPolymorph::getEnumWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>());
 }
 
-[[nodiscard]] inline bool EnumPolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool EnumPolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::ENUM_POLYMORPH);
 }
@@ -2060,7 +2062,7 @@ InterfacePolymorph::addInterfaceOverload(rq::InterfaceOverload &interface) {
 
 [[nodiscard]] inline rq::InterfaceWeightLevel &
 InterfacePolymorph::getInterfaceWeightLevel(rq::BumpPtrAllocator &allocator,
-                                    unsigned weight) {
+                                            unsigned weight) {
   return rq::addWeightLevel<rq::InterfaceWeightLevel>(allocator, *this, weight);
 }
 
@@ -2091,7 +2093,8 @@ InterfacePolymorph::getInterfaceWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
 }
 
-[[nodiscard]] inline bool InterfacePolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool
+InterfacePolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_POLYMORPH);
 }
@@ -2099,8 +2102,8 @@ InterfacePolymorph::getInterfaceWeightLevel(rq::BumpPtrAllocator &allocator,
 RQ_ALWAYS_INLINE LazyVariablePolymorph::LazyVariablePolymorph()
     : Polymorph(rq::SymbolKind::LAZY_VARIABLE_POLYMORPH) {}
 
-RQ_ALWAYS_INLINE void
-LazyVariablePolymorph::addLazyVariableOverload(rq::LazyVariableOverload &lazyvariable) {
+RQ_ALWAYS_INLINE void LazyVariablePolymorph::addLazyVariableOverload(
+    rq::LazyVariableOverload &lazyvariable) {
   rq::assignSingleValue(lazyvariable._next_ptr, this->_first_overload_ptr);
   this->_first_overload_ptr = &lazyvariable;
 }
@@ -2133,9 +2136,10 @@ LazyVariablePolymorph::addLazyVariableOverload(rq::LazyVariableOverload &lazyvar
 }
 
 [[nodiscard]] inline rq::LazyVariableWeightLevel &
-LazyVariablePolymorph::getLazyVariableWeightLevel(rq::BumpPtrAllocator &allocator,
-                                    unsigned weight) {
-  return rq::addWeightLevel<rq::LazyVariableWeightLevel>(allocator, *this, weight);
+LazyVariablePolymorph::getLazyVariableWeightLevel(
+    rq::BumpPtrAllocator &allocator, unsigned weight) {
+  return rq::addWeightLevel<rq::LazyVariableWeightLevel>(allocator, *this,
+                                                         weight);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
@@ -2165,7 +2169,8 @@ LazyVariablePolymorph::getLazyVariableWeightLevel(rq::BumpPtrAllocator &allocato
       rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
 }
 
-[[nodiscard]] inline bool LazyVariablePolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool
+LazyVariablePolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::LAZY_VARIABLE_POLYMORPH);
 }
@@ -2208,7 +2213,7 @@ AdapterPolymorph::addAdapterOverload(rq::AdapterOverload &adapter) {
 
 [[nodiscard]] inline rq::AdapterWeightLevel &
 AdapterPolymorph::getAdapterWeightLevel(rq::BumpPtrAllocator &allocator,
-                                    unsigned weight) {
+                                        unsigned weight) {
   return rq::addWeightLevel<rq::AdapterWeightLevel>(allocator, *this, weight);
 }
 
@@ -2239,7 +2244,8 @@ AdapterPolymorph::getAdapterWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
 }
 
-[[nodiscard]] inline bool AdapterPolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool
+AdapterPolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_POLYMORPH);
 }
@@ -2282,7 +2288,7 @@ ProcedurePolymorph::addProcedureOverload(rq::ProcedureOverload &procedure) {
 
 [[nodiscard]] inline rq::ProcedureWeightLevel &
 ProcedurePolymorph::getProcedureWeightLevel(rq::BumpPtrAllocator &allocator,
-                                    unsigned weight) {
+                                            unsigned weight) {
   return rq::addWeightLevel<rq::ProcedureWeightLevel>(allocator, *this, weight);
 }
 
@@ -2313,10 +2319,576 @@ ProcedurePolymorph::getProcedureWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
 }
 
-[[nodiscard]] inline bool ProcedurePolymorph::classof(rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool
+ProcedurePolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_POLYMORPH);
 }
 
+RQ_ALWAYS_INLINE TableMember::TableMember(rq::SymbolKind kind) : Symbol(kind) {
+  RQ_ASSERT(rq::getIsTableMember(kind), "not table member");
+}
+
+RQ_ALWAYS_INLINE void TableMember::setContainer(rq::SymbolTable &container) {
+  rq::assignSingleValue(this->_container_ptr, &container);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *TableMember::getContainerPtr() {
+  return this->_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+TableMember::getContainerPtr() const {
+  return this->_container_ptr;
+}
+
+[[nodiscard]] inline bool TableMember::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsTableMember();
+}
+
+RQ_ALWAYS_INLINE Import::Import() : Symbol(rq::SymbolKind::IMPORT) {}
+
+RQ_ALWAYS_INLINE void
+Import::setModifierFuseFlags(rq::ModifierFuseFlags flags) {
+  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
+            "already set");
+  this->_modifier_fuse_flags = flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+Import::getModifierFuseFlags() const {
+  return this->_modifier_fuse_flags;
+}
+
+RQ_ALWAYS_INLINE void Import::setExpression(rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Import::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *Import::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
+RQ_ALWAYS_INLINE void Import::setImported(rq::Module &imported) {
+  rq::assignSingleValue(this->_imported_ptr, &imported);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *
+Import::getImportedPtr() const {
+  return this->_imported_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module *Import::getImportedPtr() {
+  return this->_imported_ptr;
+}
+
+RQ_ALWAYS_INLINE void Import::setModule(rq::Module &module) {
+  rq::assignSingleValue(this->_module_ptr, &module);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *Import::getModulePtr() const {
+  return this->_module_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module *Import::getModulePtr() {
+  return this->_module_ptr;
+}
+
+RQ_ALWAYS_INLINE void Import::addPortal(rq::Portal &portal) {
+  rq::assignSingleValue(portal._next_ptr, this->_first_portal_ptr);
+  this->_first_portal_ptr = &portal;
+}
+
+[[nodiscard]] rq::NextSubrange<rq::Portal> Import::getPortalSubrange() {
+  return rq::NextSubrange<rq::Portal>(
+      rq::NextIterator<rq::Portal>(this->_first_portal_ptr),
+      rq::NextIterator<rq::Portal>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::Portal>
+Import::getPortalSubrange() const {
+  return rq::ConstNextSubrange<rq::Portal>(
+      rq::ConstNextIterator<rq::Portal>(this->_first_portal_ptr),
+      rq::ConstNextIterator<rq::Portal>(this->_first_portal_ptr));
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::Portal>
+Import::getConstPortalSubrange() const {
+  return rq::ConstNextSubrange<rq::Portal>(
+      rq::ConstNextIterator<rq::Portal>(this->_first_portal_ptr),
+      rq::ConstNextIterator<rq::Portal>(this->_first_portal_ptr));
+}
+
+[[nodiscard]] inline bool Import::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::IMPORT);
+}
+
+RQ_ALWAYS_INLINE EagerDeclaration::EagerDeclaration(rq::SymbolKind kind)
+    : TableMember(kind) {}
+
+RQ_ALWAYS_INLINE void EagerDeclaration::setName(rq::Name name) {
+  RQ_ASSERT(name.getIsEmpty(), "already set");
+  this->_name = name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name EagerDeclaration::getName() const {
+  return this->_name;
+}
+
+RQ_ALWAYS_INLINE void EagerDeclaration::setHost(rq::SymbolTable &host) {
+  rq::assignSingleValue(this->_host_ptr, &host);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *EagerDeclaration::getHostPtr() {
+  return this->_host_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+EagerDeclaration::getHostPtr() const {
+  return this->_host_ptr;
+}
+
+[[nodiscard]] inline bool
+EagerDeclaration::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsEagerDeclaration();
+}
+
+RQ_ALWAYS_INLINE Route::Route(rq::SymbolKind kind) : EagerDeclaration(kind) {
+  RQ_ASSERT(rq::getIsRoute(kind), "not route");
+}
+
+RQ_ALWAYS_INLINE void Route::setPath(rq::Expression &path) {
+  rq::assignSingleValue(this->_path_ptr, &path);
+}
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *Route::getPathPtr() const {
+  return this->_path_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *Route::getPathPtr() {
+  return this->_path_ptr;
+}
+
+RQ_ALWAYS_INLINE void Route::setExpression(rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Route::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *Route::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] inline bool Route::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsRoute();
+}
+
+RQ_ALWAYS_INLINE Alias::Alias() : Route(rq::SymbolKind::ALIAS) {}
+
+[[nodiscard]] inline bool Alias::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ALIAS);
+}
+
+RQ_ALWAYS_INLINE Portal::Portal() : Route(rq::SymbolKind::PORTAL) {}
+
+[[nodiscard]] inline bool Portal::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PORTAL);
+}
+
+RQ_ALWAYS_INLINE Anchor::Anchor() : EagerDeclaration(rq::SymbolKind::ANCHOR) {}
+
+RQ_ALWAYS_INLINE void Anchor::setVessel(rq::EagerScope &scope) {
+  rq::assignSingleValue(this->_vessel_ptr, &scope);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EagerScope *Anchor::getVesselPtr() {
+  return this->_vessel_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EagerScope *
+Anchor::getVesselPtr() const {
+  return this->_vessel_ptr;
+}
+
+[[nodiscard]] inline bool Anchor::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ANCHOR);
+}
+
+RQ_ALWAYS_INLINE Enumerator::Enumerator()
+    : EagerDeclaration(rq::SymbolKind::ENUMERATOR) {}
+
+RQ_ALWAYS_INLINE void Enumerator::setWord(rq::ConstantWord &word) {
+  rq::assignSingleValue(this->_word_ptr, &word);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantWord *Enumerator::getWordPtr() {
+  return this->_word_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantWord *
+Enumerator::getWordPtr() const {
+  return this->_word_ptr;
+}
+
+[[nodiscard]] inline bool Enumerator::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ENUMERATOR);
+}
+
+RQ_ALWAYS_INLINE EagerVariable::EagerVariable(rq::SymbolKind kind)
+    : EagerDeclaration(kind) {
+  RQ_ASSERT(rq::getIsEagerVariable(kind), "not eager variable");
+}
+
+RQ_ALWAYS_INLINE void
+EagerVariable::setLowFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags) {
+  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
+            "already set");
+  this->_modifier_fuse_flags = modifier_fuse_flags;
+}
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+EagerVariable::getModifierFuseFlags() const {
+  return this->_modifier_fuse_flags;
+}
+
+RQ_ALWAYS_INLINE void EagerVariable::setType(rq::ConstantSymbol &type) {
+  rq::assignSingleValue(this->_type_ptr, &type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *EagerVariable::getTypePtr() {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+EagerVariable::getTypePtr() const {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] inline bool EagerVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsEagerVariable();
+}
+
+RQ_ALWAYS_INLINE EagerDynamicVariable::EagerDynamicVariable()
+    : EagerVariable(rq::SymbolKind::DYNAMIC_EAGER_VARIABLE) {}
+
+RQ_ALWAYS_INLINE void
+EagerDynamicVariable::setLlvmValue(llvm::Value &llvm_value) {
+  rq::assignSingleValue(this->_llvm_value_ptr, &llvm_value);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *
+EagerDynamicVariable::getLlvmValuePtr() {
+  return this->_llvm_value_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *
+EagerDynamicVariable::getLlvmValuePtr() const {
+  return this->_llvm_value_ptr;
+}
+
+[[nodiscard]] inline bool
+EagerDynamicVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::DYNAMIC_EAGER_VARIABLE);
+}
+
+RQ_ALWAYS_INLINE EagerStaticVariable::EagerStaticVariable()
+    : EagerVariable(rq::SymbolKind::STATIC_EAGER_VARIABLE) {}
+
+RQ_ALWAYS_INLINE void
+EagerStaticVariable::setStaticValue(rq::Gendex<rq::StaticValue> static_value) {
+  RQ_ASSERT(!this->_static_value.getHasData(), "already set");
+  this->_static_value = static_value;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *
+EagerStaticVariable::getStaticValuePtr() {
+  return &this->_static_value.getData();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *
+EagerStaticVariable::getStaticValuePtr() const {
+  return &this->_static_value.getData();
+}
+
+[[nodiscard]] inline bool
+EagerStaticVariable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::STATIC_EAGER_VARIABLE);
+}
+
+RQ_ALWAYS_INLINE
+SymbolTableIterator::SymbolTableIterator(rq::SymbolTable *symbol_table_ptr)
+    : _symbol_table_ptr(symbol_table_ptr) {}
+
+RQ_ALWAYS_INLINE rq::SymbolTableIterator &SymbolTableIterator::operator++() {
+  this->_symbol_table_ptr =
+      rq::dereferencePtr(this->_symbol_table_ptr)._container_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::SymbolTableIterator SymbolTableIterator::operator++(int) {
+  return ++*this;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+SymbolTableIterator::operator==(const Self &it) const {
+  return this->_symbol_table_ptr == it._symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+SymbolTableIterator::operator!=(const Self &it) const {
+  return this->_symbol_table_ptr != it._symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &
+SymbolTableIterator::operator*() {
+  return rq::dereferencePtr(this->_symbol_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+SymbolTableIterator::operator*() const {
+  return rq::dereferencePtr(this->_symbol_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *
+SymbolTableIterator::operator->() {
+  return this->_symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+SymbolTableIterator::operator->() const {
+  return this->_symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool SymbolTableIterator::getIsDone() const {
+  return this->_symbol_table_ptr == nullptr;
+}
+
+RQ_ALWAYS_INLINE
+ConstSymbolTableIterator::ConstSymbolTableIterator(
+    const rq::SymbolTable *symbol_table_ptr)
+    : _symbol_table_ptr(symbol_table_ptr) {}
+
+RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator &
+ConstSymbolTableIterator::operator++() {
+  this->_symbol_table_ptr =
+      rq::dereferencePtr(this->_symbol_table_ptr)._conatiner_ptr;
+  return *this;
+}
+
+RQ_ALWAYS_INLINE rq::ConstSymbolTableIterator
+ConstSymbolTableIterator::operator++(int) {
+  return ++*this;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstSymbolTableIterator::operator==(const Self &it) const {
+  return this->_symbol_table_ptr == it._symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstSymbolTableIterator::operator!=(const Self &it) const {
+  return this->_symbol_table_ptr != it._symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &
+ConstSymbolTableIterator::operator*() const {
+  return rq::dereferencePtr(this->_symbol_table_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+ConstSymbolTableIterator::operator->() const {
+  return this->_symbol_table_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstSymbolTableIterator::getIsDone() const {
+  return this->_symbol_table_ptr == nullptr;
+}
+
+RQ_ALWAYS_INLINE SymbolTable::SymbolTable(rq::SymbolKind kind)
+    : TableMember(kind) {
+  RQ_ASSERT(rq::getIsSymbolTable(kind), "not symbol table");
+}
+
+RQ_ALWAYS_INLINE void SymbolTable::setContainer(rq::SymbolTable &container) {
+  rq::assignSingleValue(this->_conatiner_ptr, &container);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *SymbolTable::getContainerPtr() {
+  return this->_container_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+SymbolTable::getContainerPtr() const {
+  return this->_container_ptr;
+}
+
+inline void SymbolTable::addMember(rq::BumpPtrAllocator &allocator,
+                                   rq::Name name, rq::TableMember &member) {
+  auto [it, _] = this->_member_map.try_emplace(name);
+  auto &list = it->getSecond();
+  list.insertFront(allocator, member);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
+SymbolTable::lookupList(rq::Name name) const {
+  auto found = this->_member_map.find(name);
+  if (found == this->_member_map.end()) {
+    return {};
+  }
+  return found->getSecond();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>
+SymbolTable::getInclusiveAscendingSubrange() {
+  return rq::Subrange<rq::SymbolTableIterator>(rq::SymbolTableIterator(this),
+                                               rq::SymbolTableIterator());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+SymbolTable::getInclusiveAscendingSubrange() const {
+  return rq::Subrange<rq::ConstSymbolTableIterator>(
+      rq::ConstSymbolTableIterator(this), rq::ConstSymbolTableIterator());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+SymbolTable::getConstInclusiveAscendingSubrange() const {
+  return rq::Subrange<rq::ConstSymbolTableIterator>(
+      rq::ConstSymbolTableIterator(this), rq::ConstSymbolTableIterator());
+}
+
+[[nodiscard]] inline bool SymbolTable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsSymbolTable();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
+  using MK = rq::ModuleKind;
+  switch (kind) {
+  case MK::NONE:
+    return "none";
+  case MK::SOURCE:
+    return "source";
+  case MK::IMPORT:
+    return "import";
+  }
+  RQ_UNREACHABLE();
+}
+
+RQ_ALWAYS_INLINE ModuleDetail::ModuleDetail(rq::ModuleKind kind,
+                                                     llvm::StringRef path,
+                                                     llvm::StringRef buffer)
+    : _module_kind(kind), _path(path), _buffer(buffer) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind
+ModuleDetail::getModuleKind() const {
+  return this->_module_kind;
+}
+
+RQ_ALWAYS_INLINE void
+ModuleDetail::setOrChangeExpression(rq::Expression *expression_ptr) {
+  this->_expression_ptr = expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+ModuleDetail::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+ModuleDetail::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef ModuleDetail::getPath() const {
+  return this->_path;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef ModuleDetail::getBuffer() const {
+  return this->_buffer;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Token> &
+ModuleDetail::getTokens() {
+  return this->_tokens;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const std::vector<rq::Token> &
+ModuleDetail::getTokens() const {
+  return this->_tokens;
+}
+
+RQ_ALWAYS_INLINE Module::Module(rq::ModuleDetail &&detail)
+    : SymbolTable(rq::SymbolKind::MODULE), _module_kind(detail.getModuleKind()),
+      _expression_ptr(detail.getExpressionPtr()), _path(detail.getPath()),
+      _buffer(detail.getBuffer()) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind Module::getModuleKind() const {
+  return this->_module_kind;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getPath() const {
+  return this->_path;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef Module::getBuffer() const {
+  return this->_buffer;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+Module::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &Module::getExpression() {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+RQ_ALWAYS_INLINE void Module::addImport(rq::Import &import) {
+  rq::assignSingleValue(import._next_ptr, this->_first_import_ptr);
+  this->_first_import_ptr = &import;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Import>
+Module::getImportSubrange() {
+  return rq::NextSubrange<rq::Import>(
+      rq::NextIterator<rq::Import>(this->_first_import_ptr),
+      rq::NextIterator<rq::Import>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Import>
+Module::getImportSubrange() const {
+  return rq::ConstNextSubrange<rq::Import>(
+      rq::ConstNextIterator<rq::Import>(this->_first_import_ptr),
+      rq::ConstNextIterator<rq::Import>());
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Import>
+Module::getConstImportSubrange() const {
+  return rq::ConstNextSubrange<rq::Import>(
+      rq::ConstNextIterator<rq::Import>(this->_first_import_ptr),
+      rq::ConstNextIterator<rq::Import>());
+}
+
+[[nodiscard]] inline bool Module::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::MODULE);
+}
 
 } // namespace rq

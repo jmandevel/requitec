@@ -1301,7 +1301,7 @@ struct ClassPolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
       getConstClassWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EnumPolymorph final : public rq::Polymorph {
@@ -1331,7 +1331,7 @@ struct EnumPolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
       getConstEnumWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct InterfacePolymorph final : public rq::Polymorph {
@@ -1361,7 +1361,7 @@ struct InterfacePolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
       getConstInterfaceWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyVariablePolymorph final : public rq::Polymorph {
@@ -1392,7 +1392,7 @@ struct LazyVariablePolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
       getConstLazyVariableWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterPolymorph final : public rq::Polymorph {
@@ -1422,7 +1422,7 @@ struct AdapterPolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
       getConstAdapterWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ProcedurePolymorph final : public rq::Polymorph {
@@ -1452,7 +1452,7 @@ struct ProcedurePolymorph final : public rq::Polymorph {
       rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
       getConstProcedureWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct TableMember : public rq::Symbol {
@@ -1467,7 +1467,7 @@ struct TableMember : public rq::Symbol {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Import final : public rq::Symbol {
@@ -1478,6 +1478,7 @@ struct Import final : public rq::Symbol {
   rq::Expression *_expression_ptr{nullptr};
   rq::Module *_imported_ptr{nullptr};
   rq::Module *_module_ptr{nullptr};
+  rq::Portal *_first_portal_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Import();
 
@@ -1516,18 +1517,33 @@ struct EagerDeclaration : public rq::TableMember {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Route : public rq::EagerDeclaration {
   using Self = rq::Route;
 
-  rq::Expression *_path{};
+  rq::Expression *_path_ptr{nullptr};
   rq::Expression *_expression_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Route(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setPath(rq::Expression &path);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getPathPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getPathPtr();
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Alias final : public rq::Route {
   using Self = rq::Alias;
+
+  explicit RQ_ALWAYS_INLINE Alias();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Portal final : public rq::Route {
@@ -1535,6 +1551,10 @@ struct Portal final : public rq::Route {
 
   rq::Portal *_next_ptr{nullptr};
   rq::Import *_import_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Portal();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Anchor final : public rq::EagerDeclaration {
@@ -1544,11 +1564,11 @@ struct Anchor final : public rq::EagerDeclaration {
 
   explicit RQ_ALWAYS_INLINE Anchor();
 
-  RQ_ALWAYS_INLINE void setEagerScope(rq::EagerScope &scope);
+  RQ_ALWAYS_INLINE void setVessel(rq::EagerScope &scope);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EagerScope *getVesselPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EagerScope *getVesselPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Enumerator final : public rq::EagerDeclaration {
@@ -1562,7 +1582,7 @@ struct Enumerator final : public rq::EagerDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantWord *getWordPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantWord *getWordPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EagerVariable : public rq::EagerDeclaration {
@@ -1581,7 +1601,7 @@ struct EagerVariable : public rq::EagerDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EagerDynamicVariable : public rq::EagerVariable {
@@ -1589,13 +1609,13 @@ struct EagerDynamicVariable : public rq::EagerVariable {
 
   llvm::Value *_llvm_value_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE EagerDynamicVariable(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE EagerDynamicVariable();
 
   RQ_ALWAYS_INLINE void setLlvmValue(llvm::Value &llvm_value);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *getLlvmValuePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *getLlvmValuePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EagerStaticVariable : public rq::EagerVariable {
@@ -1603,7 +1623,7 @@ struct EagerStaticVariable : public rq::EagerVariable {
 
   rq::Gendex<rq::StaticValue> _static_value{};
 
-  explicit RQ_ALWAYS_INLINE EagerStaticVariable(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE EagerStaticVariable();
 
   RQ_ALWAYS_INLINE void
   setStaticValue(rq::Gendex<rq::StaticValue> static_value);
@@ -1611,7 +1631,7 @@ struct EagerStaticVariable : public rq::EagerVariable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *
   getStaticValuePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct SymbolTableIterator final {
@@ -1627,8 +1647,8 @@ struct SymbolTableIterator final {
   explicit SymbolTableIterator() = default;
   explicit RQ_ALWAYS_INLINE
   SymbolTableIterator(rq::SymbolTable *symbol_table_ptr);
-  explicit SymbolTableIterator(const Self &) = default;
-  explicit SymbolTableIterator(Self &&) = default;
+  SymbolTableIterator(const Self &) = default;
+  SymbolTableIterator(Self &&) = default;
   ~SymbolTableIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
@@ -1656,8 +1676,8 @@ struct ConstSymbolTableIterator final {
   explicit ConstSymbolTableIterator() = default;
   explicit RQ_ALWAYS_INLINE
   ConstSymbolTableIterator(const rq::SymbolTable *symbol_table_ptr);
-  explicit ConstSymbolTableIterator(const Self &) = default;
-  explicit ConstSymbolTableIterator(Self &&) = default;
+  ConstSymbolTableIterator(const Self &) = default;
+  ConstSymbolTableIterator(Self &&) = default;
   ~ConstSymbolTableIterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
@@ -1665,10 +1685,8 @@ struct ConstSymbolTableIterator final {
   RQ_ALWAYS_INLINE Self operator++(int);
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstSymbolTableIterator &
-  operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstSymbolTableIterator *
-  operator->() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
 };
 
@@ -1678,7 +1696,7 @@ struct SymbolTable : public rq::TableMember {
   llvm::DenseMap<rq::Name, rq::NodeList<rq::TableMember>> _member_map{};
   rq::SymbolTable *_conatiner_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE SymbolTable();
+  explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
@@ -1687,18 +1705,14 @@ struct SymbolTable : public rq::TableMember {
                         rq::TableMember &member);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
   lookupList(rq::Name name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::TableMember>
-  lookupList(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>
   getInclusiveAscendingSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::ConstSymbolTableIterator>
-      getInclusiveAscendingSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::ConstSymbolTableIterator>
-      getConstInclusiveAscendingSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+  getInclusiveAscendingSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+  getConstInclusiveAscendingSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
@@ -1763,7 +1777,7 @@ struct CTable final : public rq::SymbolTable {
 
   explicit RQ_ALWAYS_INLINE CTable();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EagerScope : public rq::SymbolTable {
@@ -1785,7 +1799,7 @@ struct EagerScope : public rq::SymbolTable {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ScopeStatement final : public rq::EagerScope {
@@ -1793,7 +1807,7 @@ struct ScopeStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE ScopeStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct WeaveStatement final : public rq::EagerScope {
@@ -1801,7 +1815,7 @@ struct WeaveStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE WeaveStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct SpinStatement final : public rq::EagerScope {
@@ -1809,7 +1823,7 @@ struct SpinStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE SpinStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct WhileStatement final : public rq::EagerScope {
@@ -1817,7 +1831,7 @@ struct WhileStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE WhileStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ForStatement final : public rq::EagerScope {
@@ -1825,7 +1839,7 @@ struct ForStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE ForStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct DefaultStatement final : public rq::EagerScope {
@@ -1833,7 +1847,7 @@ struct DefaultStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE DefaultStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct CaseStatement final : public rq::EagerScope {
@@ -1841,7 +1855,7 @@ struct CaseStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE CaseStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct SwitchStatement final : public rq::EagerScope {
@@ -1849,7 +1863,7 @@ struct SwitchStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE SwitchStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct IfStatement final : public rq::EagerScope {
@@ -1857,7 +1871,7 @@ struct IfStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE IfStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ElseIfStatement final : public rq::EagerScope {
@@ -1865,7 +1879,7 @@ struct ElseIfStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE ElseIfStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ElseStatement final : public rq::EagerScope {
@@ -1873,7 +1887,7 @@ struct ElseStatement final : public rq::EagerScope {
 
   explicit RQ_ALWAYS_INLINE ElseStatement();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct NamedTable : public rq::SymbolTable {
@@ -1886,7 +1900,8 @@ struct NamedTable : public rq::SymbolTable {
   RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
 };
 
 struct Namespace final : public rq::NamedTable {
@@ -1894,7 +1909,8 @@ struct Namespace final : public rq::NamedTable {
 
   explicit RQ_ALWAYS_INLINE Namespace();
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyDeclaration : public rq::NamedTable {
@@ -1922,7 +1938,7 @@ struct LazyDeclaration : public rq::NamedTable {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Implementation : public rq::LazyDeclaration {
@@ -1936,7 +1952,7 @@ struct Implementation : public rq::LazyDeclaration {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getParentPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getParentPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EnumImplementation : public rq::Implementation {
@@ -1951,7 +1967,7 @@ struct EnumImplementation : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
   getUnderlyingTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EnumOverload final : public rq::EnumImplementation {
@@ -1970,7 +1986,7 @@ struct EnumOverload final : public rq::EnumImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EnumSpecialization final : public rq::EnumImplementation {
@@ -1989,7 +2005,7 @@ struct EnumSpecialization final : public rq::EnumImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyVariableImplementation : public rq::Implementation {
@@ -2003,7 +2019,7 @@ struct LazyVariableImplementation : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *getTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyVariableOverload : public rq::LazyVariableImplementation {
@@ -2023,7 +2039,7 @@ struct LazyVariableOverload : public rq::LazyVariableImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
@@ -2044,7 +2060,7 @@ struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterImplementation : public rq::Implementation {
@@ -2059,7 +2075,7 @@ struct AdapterImplementation : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Realization *
   getRealizationPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterOverload final : public rq::AdapterImplementation {
@@ -2074,7 +2090,7 @@ struct AdapterOverload final : public rq::AdapterImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterSpecialization final : public rq::AdapterImplementation {
@@ -2089,7 +2105,7 @@ struct AdapterSpecialization final : public rq::AdapterImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct InterfaceImplementation : public rq::Implementation {
@@ -2097,7 +2113,7 @@ struct InterfaceImplementation : public rq::Implementation {
 
   explicit RQ_ALWAYS_INLINE InterfaceImplementation();
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct InterfaceOverload final : public rq::InterfaceImplementation {
@@ -2112,7 +2128,7 @@ struct InterfaceOverload final : public rq::InterfaceImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct InterfaceSpecialization final : public rq::InterfaceImplementation {
@@ -2127,7 +2143,7 @@ struct InterfaceSpecialization final : public rq::InterfaceImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ClassImplementation : public rq::Implementation {
@@ -2139,7 +2155,7 @@ struct ClassImplementation : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *
   getDerivedLayoutTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ClassOverload final : public rq::ClassImplementation {
@@ -2158,7 +2174,7 @@ struct ClassOverload final : public rq::ClassImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getBestLayoutPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getBestLayoutPtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ClassSpecialization final : public rq::ClassImplementation {
@@ -2177,7 +2193,7 @@ struct ClassSpecialization final : public rq::ClassImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ProcedureImplementation : public rq::Implementation {
@@ -2192,7 +2208,7 @@ struct ProcedureImplementation : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
   getSignatureTypePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ProcedureOverload final : public rq::ProcedureImplementation {
@@ -2207,7 +2223,7 @@ struct ProcedureOverload final : public rq::ProcedureImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ProcedureSpecialization final : public rq::ProcedureImplementation {
@@ -2222,7 +2238,7 @@ struct ProcedureSpecialization final : public rq::ProcedureImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
   getTemplateTuplePtr() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Template : public rq::LazyDeclaration {
@@ -2243,7 +2259,7 @@ struct Template : public rq::LazyDeclaration {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel>
   getConstWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct EnumTemplate final : public rq::Template {
@@ -2258,7 +2274,7 @@ struct EnumTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>
   getConstEnumWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ClassTemplate final : public rq::Template {
@@ -2273,7 +2289,7 @@ struct ClassTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>
   getConstClassWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct InterfaceTemplate final : public rq::Template {
@@ -2288,7 +2304,7 @@ struct InterfaceTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>
   getConstInterfaceWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyVariableTemplate final : public rq::Template {
@@ -2305,7 +2321,7 @@ struct LazyVariableTemplate final : public rq::Template {
                                       rq::LazyVariableWeightLevel>
   getConstLazyVariableWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterTemplate final : public rq::Template {
@@ -2320,7 +2336,7 @@ struct AdapterTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>
   getConstAdapterWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ProcedureTemplate final : public rq::Template {
@@ -2335,7 +2351,7 @@ struct ProcedureTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>
   getConstProcedureWeightLevelSubrange() const;
 
-  [[nodiscard]] static inline bool classof(rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 } // namespace rq
