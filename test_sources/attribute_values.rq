@@ -1,7 +1,7 @@
 [main ()SInt, result,
     // high and modifiers are compile time values
 
-    static modifier := static;
+    pre modifier := pre;
 
     // the modifier stored in modifier is ascribed to the variable qualifier
     modifier qualifier := mut;

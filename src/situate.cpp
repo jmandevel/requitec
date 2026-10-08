@@ -926,15 +926,15 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::PORTAL:
     [[fallthrough]];
-  case K::DYNAMIC:
+  case K::PRE:
     [[fallthrough]];
-  case K::STATIC:
+  case K::POST:
     [[fallthrough]];
   case K::RUNTIME:
     [[fallthrough]];
-  case K::COMPILE_TIME:
+  case K::GENTIME:
     [[fallthrough]];
-  case K::HYBRID:
+  case K::ANYTIME:
     [[fallthrough]];
   case K::EAGER:
     [[fallthrough]];

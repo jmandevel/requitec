@@ -6,7 +6,7 @@
         std.print(line = "Hello, world!");
     ];
     [namespace detail,
-        export compile_time NO_EXPORT_VAR := 0;    
+        export gentime NO_EXPORT_VAR := 0;    
     ]
 ];
 

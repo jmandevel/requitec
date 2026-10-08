@@ -1,13 +1,13 @@
 [class MyObject, 
-    static size := 0;
-    static Element := Int;
+    pre size := 0;
+    pre Element := Int;
     {>public arr : [array size]@Element <}, 
 ];
 
-compile_time VAR := 0;
+gentime VAR := 0;
 
 [main 
-    static Return := SInt;
+    pre Return := SInt;
     ()Return, result,
 
     result :mut\= 0; 

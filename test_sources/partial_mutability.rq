@@ -7,9 +7,9 @@
      public[layout_constructor];
 ];
 
-// compile_time variables must have variables of no_mut type becauese
+// gentime variables must have variables of no_mut type becauese
 // they are constant:
-compile_time never_mut : no_mut\ = Partialable();
+gentime never_mut : no_mut\ = Partialable();
 
 [main ()SInt, result,
     // all properties are mut for fully mut values:

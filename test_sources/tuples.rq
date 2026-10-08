@@ -8,8 +8,8 @@
     // the binding is required when tuple type is inferenced to specify type modifiers per element.
     inferenced := { named:mut\="I'm name-keyed", noname:mut\="I'm type-keyed" };
 
-    // can determine if tuple has type-keyed value at compile time with .[has] ailcar
-    static
+    // can determine if tuple has type-keyed value at interpret time with .[has] ailcar
+    pre
     [if inferenced.[variable].[type].[has Slice@Utf8],
         // can get the value with .[get] railcar
         // errors with .[get] are caught at compile time, so this is very safe.
@@ -21,7 +21,7 @@
 
     // explicitly typed tuples must not be created with bindings per element using colon.
     // this is unlike how they are written when the type is inferenced.
-    static Layout := {> x:mut\Single, y:mut\Single, z:mut\Single <};
+    pre Layout := {> x:mut\Single, y:mut\Single, z:mut\Single <};
     explicit :Layout= { 0, 1, w=2, z=3 };
 
     result <:= 0;    

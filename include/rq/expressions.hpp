@@ -528,16 +528,16 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "eager";
   case K::LAZY:
     return "lazy";
-  case K::DYNAMIC:
-    return "dynamic";
-  case K::STATIC:
-    return "static";
+  case K::PRE:
+    return "pre";
+  case K::POST:
+    return "post";
   case K::RUNTIME:
     return "runtime";
-  case K::COMPILE_TIME:
-    return "compile_time";
-  case K::HYBRID:
-    return "hybrid";
+  case K::GENTIME:
+    return "gentime";
+  case K::ANYTIME:
+    return "anytime";
   case K::PRESET:
     return "preset";
   case K::SINGLETON:
@@ -1394,15 +1394,15 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LAZY:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DYNAMIC:
+  case K::PRE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::STATIC:
+  case K::POST:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RUNTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::COMPILE_TIME:
+  case K::GENTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::HYBRID:
+  case K::ANYTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PRESET:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2354,13 +2354,13 @@ enum class Modifier : std::uint_fast8_t {
   // evaluation_time
   EAGER,
   LAZY,
-  // generation_time
-  DYNAMIC,
-  STATIC,
   // execution_time
+  PRE,
+  POST,
+  // tenure
   RUNTIME,
-  COMPILE_TIME,
-  HYBRID,
+  GENTIME,
+  ANYTIME,
   // initialization_time
   PRESET,
   SINGLETON,
@@ -2458,16 +2458,16 @@ enum class Modifier : std::uint_fast8_t {
     return "eager";
   case M::LAZY:
     return "lazy";
-  case M::DYNAMIC:
-    return "dynamic";
-  case M::STATIC:
-    return "static";
+  case M::PRE:
+    return "pre";
+  case M::POST:
+    return "post";
   case M::RUNTIME:
     return "runtime";
-  case M::COMPILE_TIME:
-    return "compile_time";
-  case M::HYBRID:
-    return "hybrid";
+  case M::GENTIME:
+    return "gentime";
+  case M::ANYTIME:
+    return "anytime";
   case M::PRESET:
     return "preset";
   case M::SINGLETON:
@@ -2585,16 +2585,16 @@ enum class Modifier : std::uint_fast8_t {
     return M::EAGER;
   case K::LAZY:
     return M::LAZY;
-  case K::DYNAMIC:
-    return M::DYNAMIC;
-  case K::STATIC:
-    return M::STATIC;
+  case K::PRE:
+    return M::PRE;
+  case K::POST:
+    return M::POST;
   case K::RUNTIME:
     return M::RUNTIME;
-  case K::COMPILE_TIME:
-    return M::COMPILE_TIME;
-  case K::HYBRID:
-    return M::HYBRID;
+  case K::GENTIME:
+    return M::GENTIME;
+  case K::ANYTIME:
+    return M::ANYTIME;
   case K::PRESET:
     return M::PRESET;
   case K::SINGLETON:
@@ -2706,14 +2706,14 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   LAZY = rq::getBit(17),
   EVALUATION_TIME_MASK = EAGER | LAZY,
 
-  DYNAMIC = rq::getBit(18),
-  STATIC = rq::getBit(19),
-  GENERATION_TIME_MASK = DYNAMIC | STATIC,
+  PRE = rq::getBit(18),
+  POST = rq::getBit(19),
+  EXECUTION_TIME_MASK = PRE | POST,
 
   RUNTIME = rq::getBit(20),
-  COMPILE_TIME = rq::getBit(21),
-  HYBRID = rq::getBit(22),
-  EXECUTION_TIME_MASK = RUNTIME | COMPILE_TIME | HYBRID,
+  GENTIME = rq::getBit(21),
+  ANYTIME = rq::getBit(22),
+  TENURE_MASK = RUNTIME | GENTIME | ANYTIME,
 
   PRESET = rq::getBit(23),
   SINGLETON = rq::getBit(24),
@@ -2827,16 +2827,16 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::PARAMETER;
   case M::PORTAL:
     return MFF::PORTAL;
-  case M::DYNAMIC:
-    return MFF::DYNAMIC;
-  case M::STATIC:
-    return MFF::STATIC;
+  case M::PRE:
+    return MFF::PRE;
+  case M::POST:
+    return MFF::POST;
   case M::RUNTIME:
     return MFF::RUNTIME;
-  case M::COMPILE_TIME:
-    return MFF::COMPILE_TIME;
-  case M::HYBRID:
-    return MFF::HYBRID;
+  case M::GENTIME:
+    return MFF::GENTIME;
+  case M::ANYTIME:
+    return MFF::ANYTIME;
   case M::EAGER:
     return MFF::EAGER;
   case M::LAZY:
@@ -2963,15 +2963,15 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::PORTAL:
     return MIF::NO_ATTACHMENT;
-  case M::DYNAMIC:
+  case M::PRE:
     return MIF::NO_ATTACHMENT;
-  case M::STATIC:
+  case M::POST:
     return MIF::NO_ATTACHMENT;
   case M::RUNTIME:
     return MIF::NO_ATTACHMENT;
-  case M::COMPILE_TIME:
+  case M::GENTIME:
     return MIF::NO_ATTACHMENT;
-  case M::HYBRID:
+  case M::ANYTIME:
     return MIF::NO_ATTACHMENT;
   case M::EAGER:
     return MIF::NO_ATTACHMENT;
@@ -3078,8 +3078,8 @@ enum class ModifierKind : std::uint_fast8_t {
   ACCESS,
   MUTABILITY,
   ASSIGNMENT_KIND,
-  GENERATION_TIME,
   EXECUTION_TIME,
+  TENURE,
   EVALUATION_TIME,
   INITIALIZATION_TIME,
   STATIC_CLOSURE,
@@ -3119,9 +3119,9 @@ enum class ModifierKind : std::uint_fast8_t {
     return "mutability modifier";
   case MK::ASSIGNMENT_KIND:
     return "assignment kind modifier";
-  case MK::GENERATION_TIME:
-    return "generation time modifier";
   case MK::EXECUTION_TIME:
+    return "generation time modifier";
+  case MK::TENURE:
     return "execution time modifier";
   case MK::EVALUATION_TIME:
     return "evaluation time modifier";
@@ -3185,10 +3185,10 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::MUTATE_MODIFIER_MASK;
   case MK::ASSIGNMENT_KIND:
     return MFF::ASSIGNMENT_KIND_MASK;
-  case MK::GENERATION_TIME:
-    return MFF::GENERATION_TIME_MASK;
   case MK::EXECUTION_TIME:
     return MFF::EXECUTION_TIME_MASK;
+  case MK::TENURE:
+    return MFF::TENURE_MASK;
   case MK::EVALUATION_TIME:
     return MFF::EVALUATION_TIME_MASK;
   case MK::INITIALIZATION_TIME:
@@ -3271,16 +3271,16 @@ enum class ModifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case M::PORTAL:
     return MK::ASSIGNMENT_KIND;
-  case M::DYNAMIC:
+  case M::PRE:
     [[fallthrough]];
-  case M::STATIC:
-    return MK::GENERATION_TIME;
+  case M::POST:
+    return MK::EXECUTION_TIME;
   case M::RUNTIME:
     [[fallthrough]];
-  case M::COMPILE_TIME:
+  case M::GENTIME:
     [[fallthrough]];
-  case M::HYBRID:
-    return MK::EXECUTION_TIME;
+  case M::ANYTIME:
+    return MK::TENURE;
   case M::EAGER:
     [[fallthrough]];
   case M::LAZY:

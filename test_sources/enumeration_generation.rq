@@ -1,10 +1,11 @@
 [import "std", std];
 
 [enum Fruit, FUInt32,
+	// pre statements in enum need to be explicitly marked as pre
 	anchor::A
-	static [for 0.<100, num:=value,
-		static name := std.format(text= "MY_FRUIT" +> num);
-		flank::A name.getSlice().[identify];
+	pre [for 0.<100, pre num:=value,
+		pre name := std.format(text= "MY_FRUIT" +> num);
+		flank::A name.getSlice().[identify]; // this statement is not marked as pre and its in the neum scope, so its an enumerator.
 	];
 ];
 

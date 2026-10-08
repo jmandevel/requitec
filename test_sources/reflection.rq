@@ -19,21 +19,19 @@ weight::3
 ];
 
 // get overload with no args.
-compile_time noArgs := getNum.[resolve_procedure ()SInt];
+gentime noArgs := getNum.[resolve_procedure ()SInt];
 
 // get specialization with signature and given template args
-compile_time templateNoArgs := getNum{ NUM=0 }.[resolve_procedure ()SInt];
+gentime templateNoArgs := getNum{ NUM=0 }.[resolve_procedure ()SInt];
 
 // loop over all template specializations of polymorphs found through alias
-static
-[for getNum.[template_range], static template := value,
-    static
-    [for template.[specialization_range], static specialization := value,
+[for getNum.[template_range], template := value,
+    [for template.[specialization_range], specialization := value,
         // etc
     ];
 ];
 
 // loop over all overloads of all polymorphs of alias
-[for getNum.[overload_range], static overload := value,
+[for getNum.[overload_range], overload := value,
     // etc
 ];

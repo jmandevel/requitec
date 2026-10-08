@@ -1,12 +1,12 @@
 // this variable named false shadows false _SneakyMacro from stellarscope.rq!
 // luckily, you cannot export things in top table!
 // export // compile error if you uncomment this!
-compile_time false := true; 
+gentime false := true; 
 
 [namespace A,
     // same issue, but its in a namespace...
-    export compile_time true := false;
-    export compile_time false := true;
+    export gentime true := false;
+    export gentime false := true;
 ];
 
 // look at safe_import.rq to see how issues with this are avoided

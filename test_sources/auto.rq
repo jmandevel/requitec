@@ -4,7 +4,7 @@ template::{> auto Type:Symbol <}
 constraint::Type.[is_type]
 [procedure add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
-    // everything before signature must be static.
+    // everything before signature must be pre (if eager) or gentime (if lazy).
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
     (> a:Type, b:Type <)Split@{ c:Type <}, result,
     // statements after signature are evaluated at specialization implementation time
