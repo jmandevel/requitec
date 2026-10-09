@@ -13,10 +13,14 @@ separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 llvm_map_components_to_libnames(LLVM_LIBS support core irreader mc mca mcdisassembler mcjit mcparser X86CodeGen X86Info X86Desc TargetParser X86)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(BDWGC REQUIRED IMPORTED_TARGET bdw-gc)
+
 target_link_libraries(
     requite
     PUBLIC
         ${LLVM_LIBS}
+        PkgConfig::BDWGC
 )   
 
 target_compile_options(requite PRIVATE    
