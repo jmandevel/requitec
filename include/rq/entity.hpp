@@ -116,8 +116,6 @@ enum class Keyword : rq::EntityId {
   PROCEDURE_ADDRESS_OF,
   REF,
   REF_OF,
-  SHARE,
-  SHARE_OF,
   DATA_ADDRESS,
   DATA_ADDRESS_OF,
   MOVE,
