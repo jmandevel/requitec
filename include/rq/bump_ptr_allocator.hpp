@@ -36,6 +36,14 @@ class GcSlabAllocator : public llvm::AllocatorBase<rq::GcSlabAllocator> {
   using AllocatorBase<GCSlabAllocator>::Deallocate;
 };
 
+template <typename FlagsParam> struct is_gc_atomic final : std::false_type {};
+
+template <typename FlagsParam>
+constexpr bool is_gc_atomic_v = rq::is_flags<FlagsParam>::value;
+
+template <typename FlagsParam>
+concept gc_atomic = rq::is_gc_atomic<FlagsParam>::value;
+
 struct BumpPtrAllocator {
   using Self = rq::BumpPtrAllocator;
 
@@ -61,7 +69,34 @@ struct BumpPtrAllocator {
     std::memset(static_cast<void *>(ptr), 0, sizeof(TypeParam) * count);
     return std::span<TypeParam>(ptr, count);
   }
-  inline llvm::StringRef saveString(llvm::Twine twine) {
+  template <typename TypeParam, typename... ArgNParam>
+  inline TypeParam &allocateGcValue(ArgNParam &&...arg_n) {
+    TypeParam* ptr = nullptr;
+    if constexpr (rq::gc_atomic<TypeParam>) {
+      ptr = GC_MALLOC_ATOMIC(sizeof(TypeParam));
+    } else {
+      ptr = GC_MALLOC(sizeof(TypeParam));
+    }
+    if (ptr == nullptr) {
+      llvm::report_bad_alloc_error("gc allocation failure");
+    }
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);    
+  }
+  inline llvm::StringRef saveString(llvm::Twine t  template <typename TypeParam, typename... ArgNParam>
+  inline TypeParam &allocateGcValue(ArgNParam &&...arg_n) {
+    TypeParam* ptr = nullptr;
+    if constexpr (rq::IS_GC_ATOMIC<TypeParam>) {
+      ptr = GC_MALLOC_ATOMIC(sizeof(TypeParam));
+    } else {
+      ptr = GC_MALLOC(sizeof(TypeParam));
+    }
+    if (ptr == nullptr) {
+      llvm::report_bad_alloc_error("gc allocation failure");
+    }
+    ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
+    return rq::dereferencePtr(ptr);    
+  }wine) {
     return this->_llvm_string_saver.save(twine);
   }
 };
