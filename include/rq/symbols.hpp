@@ -5,7 +5,6 @@
 #include <rq/iterators.hpp>
 #include <rq/name.hpp>
 #include <rq/node_list.hpp>
-#include <rq/static_value.hpp>
 #include <rq/tokens.hpp>
 #include <rq/utility.hpp>
 
@@ -34,6 +33,7 @@ struct ConstantSymbol;
 struct CfgBlock;
 struct Instruction;
 struct BumpPtrAllocator;
+struct Value;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind);
 
@@ -1621,15 +1621,15 @@ struct EagerDynamicVariable : public rq::EagerVariable {
 struct EagerStaticVariable : public rq::EagerVariable {
   using Self = rq::EagerDynamicVariable;
 
-  rq::Gendex<rq::StaticValue> _static_value{};
+  rq::Value* _value_ptr{};
 
   explicit RQ_ALWAYS_INLINE EagerStaticVariable();
 
   RQ_ALWAYS_INLINE void
-  setStaticValue(rq::Gendex<rq::StaticValue> static_value);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *getStaticValuePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *
-  getStaticValuePtr() const;
+  setStaticValue(rq::Value& value);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Value *getValuePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *
+  getValuePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

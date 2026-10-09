@@ -1,7 +1,5 @@
 #pragma once
 #include <rq/entity.hpp>
-#include <rq/generational_arena.hpp>
-#include <rq/static_value.hpp>
 #include <rq/utility.hpp>
 #include <rq/symbols.hpp>
 

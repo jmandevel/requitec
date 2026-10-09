@@ -3,7 +3,6 @@
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/constants.hpp>
 #include <rq/instructions.hpp>
-#include <rq/static_value.hpp>
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
 
