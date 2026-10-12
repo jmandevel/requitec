@@ -95,8 +95,8 @@ namespace rq {
     return "ScaledLSInt";
   case S::SCALED_LUINT:
     return "ScaledLUInt";
-  case S::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
-    return "DynamicVariadicArguments";
+  case S::VARIADIC_ARGUMENTS_TYPE:
+    return "VariadicArguments";
   case S::ARRAY_SUBTYPE:
     return "Array";
   case S::REF_SUBTYPE:
@@ -141,10 +141,10 @@ namespace rq {
     return "Anchor";
   case S::ENUMERATOR:
     return "Enumerator";
-  case S::DYNAMIC_EAGER_VARIABLE:
-    return "DynamicEagerVariable";
-  case S::STATIC_EAGER_VARIABLE:
-    return "StaticEagerVariable";
+  case S::POST_EAGER_VARIABLE:
+    return "PostEagerVariable";
+  case S::PRE_EAGER_VARIABLE:
+    return "PreEagerVariable";
   case S::PARAMETER:
     return "Parameter";
   case S::SIGNATURE_TYPE:
@@ -2582,53 +2582,49 @@ EagerVariable::getTypePtr() const {
   return entity.getIsEagerVariable();
 }
 
-RQ_ALWAYS_INLINE EagerDynamicVariable::EagerDynamicVariable()
-    : EagerVariable(rq::SymbolKind::DYNAMIC_EAGER_VARIABLE) {}
+RQ_ALWAYS_INLINE PostEagerVariable::PostEagerVariable()
+    : EagerVariable(rq::SymbolKind::POST_EAGER_VARIABLE) {}
 
-RQ_ALWAYS_INLINE void
-EagerDynamicVariable::setLlvmValue(llvm::Value &llvm_value) {
+RQ_ALWAYS_INLINE void PostEagerVariable::setLlvmValue(llvm::Value &llvm_value) {
   rq::assignSingleValue(this->_llvm_value_ptr, &llvm_value);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *
-EagerDynamicVariable::getLlvmValuePtr() {
+PostEagerVariable::getLlvmValuePtr() {
   return this->_llvm_value_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const llvm::Value *
-EagerDynamicVariable::getLlvmValuePtr() const {
+PostEagerVariable::getLlvmValuePtr() const {
   return this->_llvm_value_ptr;
 }
 
 [[nodiscard]] inline bool
-EagerDynamicVariable::classof(const rq::Entity *entity_ptr) {
+PostEagerVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::DYNAMIC_EAGER_VARIABLE);
+  return entity.getId() == rq::getId(rq::SymbolKind::POST_EAGER_VARIABLE);
 }
 
-RQ_ALWAYS_INLINE EagerStaticVariable::EagerStaticVariable()
-    : EagerVariable(rq::SymbolKind::STATIC_EAGER_VARIABLE) {}
+RQ_ALWAYS_INLINE PreEagerVariable::PreEagerVariable()
+    : EagerVariable(rq::SymbolKind::PRE_EAGER_VARIABLE) {}
 
-RQ_ALWAYS_INLINE void
-EagerStaticVariable::setStaticValue(rq::Gendex<rq::StaticValue> static_value) {
-  RQ_ASSERT(!this->_static_value.getHasData(), "already set");
-  this->_static_value = static_value;
+RQ_ALWAYS_INLINE void PreEagerVariable::setValue(rq::Value &value) {
+  rq::assignSingleValue(this->_value_ptr, &value);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::StaticValue *
-EagerStaticVariable::getStaticValuePtr() {
-  return &this->_static_value.getData();
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Value *PreEagerVariable::getValuePtr() {
+  return this->_value_ptr;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::StaticValue *
-EagerStaticVariable::getStaticValuePtr() const {
-  return &this->_static_value.getData();
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *
+PreEagerVariable::getValuePtr() const {
+  return this->_value_ptr;
 }
 
 [[nodiscard]] inline bool
-EagerStaticVariable::classof(const rq::Entity *entity_ptr) {
+PreEagerVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::STATIC_EAGER_VARIABLE);
+  return entity.getId() == rq::getId(rq::SymbolKind::PRE_EAGER_VARIABLE);
 }
 
 RQ_ALWAYS_INLINE
@@ -2792,8 +2788,8 @@ SymbolTable::getConstInclusiveAscendingSubrange() const {
 }
 
 RQ_ALWAYS_INLINE ModuleDetail::ModuleDetail(rq::ModuleKind kind,
-                                                     llvm::StringRef path,
-                                                     llvm::StringRef buffer)
+                                            llvm::StringRef path,
+                                            llvm::StringRef buffer)
     : _module_kind(kind), _path(path), _buffer(buffer) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleKind

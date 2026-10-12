@@ -154,6 +154,8 @@ struct Symbol;
       struct Anchor;
       struct Enumerator;
       struct EagerVariable;
+        struct PostEagerVariable;
+        struct PreEagerVariable;
     struct SymbolTable;
       struct CTable;
       struct Module;
@@ -1604,12 +1606,12 @@ struct EagerVariable : public rq::EagerDeclaration {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct EagerDynamicVariable : public rq::EagerVariable {
-  using Self = rq::EagerDynamicVariable;
+struct PostEagerVariable : public rq::EagerVariable {
+  using Self = rq::PostEagerVariable;
 
   llvm::Value *_llvm_value_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE EagerDynamicVariable();
+  explicit RQ_ALWAYS_INLINE PostEagerVariable();
 
   RQ_ALWAYS_INLINE void setLlvmValue(llvm::Value &llvm_value);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::Value *getLlvmValuePtr();
@@ -1618,18 +1620,16 @@ struct EagerDynamicVariable : public rq::EagerVariable {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct EagerStaticVariable : public rq::EagerVariable {
-  using Self = rq::EagerDynamicVariable;
+struct PreEagerVariable : public rq::EagerVariable {
+  using Self = rq::PreEagerVariable;
 
-  rq::Value* _value_ptr{};
+  rq::Value *_value_ptr{};
 
-  explicit RQ_ALWAYS_INLINE EagerStaticVariable();
+  explicit RQ_ALWAYS_INLINE PreEagerVariable();
 
-  RQ_ALWAYS_INLINE void
-  setStaticValue(rq::Value& value);
+  RQ_ALWAYS_INLINE void setValue(rq::Value &value);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Value *getValuePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *
-  getValuePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Value *getValuePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1900,8 +1900,7 @@ struct NamedTable : public rq::SymbolTable {
   RQ_ALWAYS_INLINE void setName(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Namespace final : public rq::NamedTable {
@@ -1909,8 +1908,7 @@ struct Namespace final : public rq::NamedTable {
 
   explicit RQ_ALWAYS_INLINE Namespace();
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct LazyDeclaration : public rq::NamedTable {

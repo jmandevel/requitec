@@ -387,19 +387,19 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::UTF8:
     return "Utf8";
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
-    return "DynamicVariadicArguments";
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
-    return "first_dynamic_variadic_argument";
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
-    return "_first_dynamic_variadic_argument_of";
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
-    return "next_dynamic_variadic_argument";
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
-    return "_next_dynamic_variadic_argument_of";
-  case K::DYNAMIC_VARIADIC_ARGUMENTS:
-    return "dynamic_variadic_arguments";
+  // VARIADIC ARGUMENTS
+  case K::VARIADIC_ARGUMENTS_TYPE:
+    return "VariadicArguments";
+  case K::FIRST_VARIADIC_ARGUMENT:
+    return "first_variadic_argument";
+  case K::FIRST_VARIADIC_ARGUMENT_OF:
+    return "_first_variadic_argument_of";
+  case K::NEXT_VARIADIC_ARGUMENT:
+    return "next_variadic_argument";
+  case K::NEXT_VARIADIC_ARGUMENT_OF:
+    return "_next_variadic_argument_of";
+  case K::VARIADIC_ARGUMENTS:
+    return "variadic_arguments";
 
   // SCOPES
   case K::IF_CHAIN:
@@ -576,8 +576,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "stable_address";
   case K::INVARIADIC:
     return "invariadic";
-  case K::DYNAMIC_VARIADIC:
-    return "dynamic_variadic";
+  case K::VARIADIC:
+    return "variadic";
   case K::BEST_LOCATION:
     return "best_location";
   case K::LOCATION:
@@ -1249,18 +1249,18 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::UTF8:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  case K::DYNAMIC_VARIADIC_ARGUMENTS:
+  // VARIADIC ARGUMENTS
+  case K::VARIADIC_ARGUMENTS:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
+  case K::FIRST_VARIADIC_ARGUMENT:
     return KIF::RAILCAR;
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
+  case K::FIRST_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
+  case K::NEXT_VARIADIC_ARGUMENT:
     return KIF::RAILCAR;
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
+  case K::NEXT_VARIADIC_ARGUMENT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+  case K::VARIADIC_ARGUMENTS_TYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // SCOPES
@@ -1442,7 +1442,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INVARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DYNAMIC_VARIADIC:
+  case K::VARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BEST_LOCATION:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1926,10 +1926,10 @@ getDescription(rq::Situation situation) {
     return K::INPLACE_DESTROY_OF;
   case K::INPLACE_INIT:
     return K::INPLACE_INIT_OF;
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
-    return K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF;
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
-    return K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF;
+  case K::FIRST_VARIADIC_ARGUMENT:
+    return K::FIRST_VARIADIC_ARGUMENT_OF;
+  case K::NEXT_VARIADIC_ARGUMENT:
+    return K::NEXT_VARIADIC_ARGUMENT_OF;
   case K::BREAK:
     return K::BREAK_OF;
   case K::CONTINUE:
@@ -2364,7 +2364,7 @@ enum class Modifier : std::uint_fast8_t {
   // initialization_time
   PRESET,
   SINGLETON,
-  // static_closure
+  // closure
   CAPTURE,
   STATELESS,
   // linkage
@@ -2387,9 +2387,9 @@ enum class Modifier : std::uint_fast8_t {
   // address_stability
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // dynamic_variadic
+  // variadic
   INVARIADIC,
-  DYNAMIC_VARIADIC,
+  VARIADIC,
   // offset
   BEST_LOCATION,
   LOCATION,
@@ -2506,8 +2506,8 @@ enum class Modifier : std::uint_fast8_t {
     return "stable_address";
   case M::INVARIADIC:
     return "invariadic";
-  case M::DYNAMIC_VARIADIC:
-    return "dynamic_variadic";
+  case M::VARIADIC:
+    return "variadic";
   case M::BEST_LOCATION:
     return "best_location";
   case M::LOCATION:
@@ -2633,8 +2633,8 @@ enum class Modifier : std::uint_fast8_t {
     return M::STABLE_ADDRESS;
   case K::INVARIADIC:
     return M::INVARIADIC;
-  case K::DYNAMIC_VARIADIC:
-    return M::DYNAMIC_VARIADIC;
+  case K::VARIADIC:
+    return M::VARIADIC;
   case K::BEST_LOCATION:
     return M::BEST_LOCATION;
   case K::LOCATION:
@@ -2721,7 +2721,7 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
 
   CAPTURE = rq::getBit(25),
   STATELESS = rq::getBit(26),
-  STATIC_CLOSURE_MASK = CAPTURE | STATELESS,
+  CLOSURE_MASK = CAPTURE | STATELESS,
 
   LINKED = rq::getBit(27),
   INLINE = rq::getBit(28),
@@ -2750,8 +2750,8 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
   INVARIADIC = rq::getBit(41),
-  DYNAMIC_VARIADIC = rq::getBit(42),
-  DYNAMIC_VARIADIC_MODIFIER_MASK,
+  VARIADIC = rq::getBit(42),
+  VARIADIC_MODIFIER_MASK,
 
   BEST_LOCATION = rq::getBit(43),
   LOCATION = rq::getBit(44),
@@ -2879,8 +2879,8 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::STABLE_ADDRESS;
   case M::INVARIADIC:
     return MFF::INVARIADIC;
-  case M::DYNAMIC_VARIADIC:
-    return MFF::DYNAMIC_VARIADIC;
+  case M::VARIADIC:
+    return MFF::VARIADIC;
   case M::BEST_LOCATION:
     return MFF::BEST_LOCATION;
   case M::LOCATION:
@@ -3015,7 +3015,7 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::INVARIADIC:
     return MIF::NO_ATTACHMENT;
-  case M::DYNAMIC_VARIADIC:
+  case M::VARIADIC:
     return MIF::NO_ATTACHMENT;
   case M::BEST_LOCATION:
     return MIF::NO_ATTACHMENT;
@@ -3082,14 +3082,14 @@ enum class ModifierKind : std::uint_fast8_t {
   TENURE,
   EVALUATION_TIME,
   INITIALIZATION_TIME,
-  STATIC_CLOSURE,
+  CLOSURE,
   LINKAGE,
   MANGLE,
   PACK,
   BRANCH_TREND,
   SUPPORT_NOTICE,
   ADDRESS_STABILITY,
-  DYNAMIC_VARIADIC,
+  VARIADIC,
   OFFSET,
   LAZY_DECLARATION_KIND,
   CONSTRAINT,
@@ -3127,7 +3127,7 @@ enum class ModifierKind : std::uint_fast8_t {
     return "evaluation time modifier";
   case MK::INITIALIZATION_TIME:
     return "initialization time modifier";
-  case MK::STATIC_CLOSURE:
+  case MK::CLOSURE:
     return "static closure modifier";
   case MK::LINKAGE:
     return "linkage modifier";
@@ -3141,8 +3141,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "support modifier";
   case MK::ADDRESS_STABILITY:
     return "address stability modifier";
-  case MK::DYNAMIC_VARIADIC:
-    return "dynamic variadic modifier";
+  case MK::VARIADIC:
+    return "variadic modifier";
   case MK::OFFSET:
     return "offset modifier";
   case MK::LAZY_DECLARATION_KIND:
@@ -3193,8 +3193,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::EVALUATION_TIME_MASK;
   case MK::INITIALIZATION_TIME:
     return MFF::INITIALIZATION_TIME_MASK;
-  case MK::STATIC_CLOSURE:
-    return MFF::STATIC_CLOSURE_MASK;
+  case MK::CLOSURE:
+    return MFF::CLOSURE_MASK;
   case MK::LINKAGE:
     return MFF::LINKAGE_MODIFIER_MASK;
   case MK::MANGLE:
@@ -3207,8 +3207,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::SUPPORT_NOTICE_MODIFIER_MASK;
   case MK::ADDRESS_STABILITY:
     return MFF::ADDRESS_STABILITY_MODIFIER_MASK;
-  case MK::DYNAMIC_VARIADIC:
-    return MFF::DYNAMIC_VARIADIC_MODIFIER_MASK;
+  case MK::VARIADIC:
+    return MFF::VARIADIC_MODIFIER_MASK;
   case MK::OFFSET:
     return MFF::OFFSET_MODIFIER_MASK;
   case MK::LAZY_DECLARATION_KIND:
@@ -3292,7 +3292,7 @@ enum class ModifierKind : std::uint_fast8_t {
   case M::CAPTURE:
     [[fallthrough]];
   case M::STATELESS:
-    return MK::STATIC_CLOSURE;
+    return MK::CLOSURE;
   case M::LINKED:
     [[fallthrough]];
   case M::INLINE:
@@ -3323,8 +3323,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::ADDRESS_STABILITY;
   case M::INVARIADIC:
     [[fallthrough]];
-  case M::DYNAMIC_VARIADIC:
-    return MK::DYNAMIC_VARIADIC;
+  case M::VARIADIC:
+    return MK::VARIADIC;
   case M::BEST_LOCATION:
     [[fallthrough]];
   case M::LOCATION:

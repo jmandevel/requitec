@@ -27,23 +27,23 @@ static llvm::cl::list<std::string>
     IMPORT_DIRECTORIES("I", llvm::cl::desc("import directories"),
                        llvm::cl::ZeroOrMore, llvm::cl::value_desc("dir"));
 
-static llvm::cl::opt<Emit> EMIT(
-    "emit", llvm::cl::desc("Choose the type of target to build."),
-    llvm::cl::values(
-        clEnumValN(EMIT_TOKENS, "tokens", "Output csv token data."),
-        clEnumValN(EMIT_PARSED, "parsed",
-                   "Output intermediate requite source code of "
-                   "the ast immediatly after parsing."),
-        clEnumValN(EMIT_SITUATED, "situated",
-                   "Output intermediate requite source code of "
-                   "the ast immediatly after situating."),
-        clEnumValN(EMIT_SYMBOLS, "symbols",
-                   "Output a markup language file listing user symbols."),
-        clEnumValN(EMIT_IR, "ir", "Output an llvm ir source file."),
-        clEnumValN(EMIT_ASSEMBLY, "assembly",
-                   "Output an assembly source file."),
-        clEnumValN(EMIT_OBJECT, "object", "Output an object file.")),
-    llvm::cl::init(EMIT_OBJECT));
+static llvm::cl::opt<Emit>
+    EMIT("emit", llvm::cl::desc("Choose the type of target to build."),
+         llvm::cl::values(
+             clEnumValN(EMIT_TOKENS, "tokens", "Output csv token data."),
+             clEnumValN(EMIT_PARSED, "parsed",
+                        "Output intermediate requite source code of "
+                        "the ast immediatly after parsing."),
+             clEnumValN(EMIT_SITUATED, "situated",
+                        "Output intermediate requite source code of "
+                        "the ast immediatly after situating."),
+             clEnumValN(EMIT_SYMBOLS, "symbols",
+                        "Output a markup language file listing user symbols."),
+             clEnumValN(EMIT_IR, "ir", "Output an llvm ir source file."),
+             clEnumValN(EMIT_ASSEMBLY, "assembly",
+                        "Output an assembly source file."),
+             clEnumValN(EMIT_OBJECT, "object", "Output an object file.")),
+         llvm::cl::init(EMIT_OBJECT));
 
 bool parseCommandLineOptions(int argc, const char **argv) {
   llvm::cl::ParseCommandLineOptions(argc, argv);

@@ -707,23 +707,23 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  case K::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+  // VARIADIC ARGUMENTS
+  case K::VARIADIC_ARGUMENTS_TYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT:
+  case K::FIRST_VARIADIC_ARGUMENT:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF:
+  case K::FIRST_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT:
+  case K::NEXT_VARIADIC_ARGUMENT:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF:
+  case K::NEXT_VARIADIC_ARGUMENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::DYNAMIC_VARIADIC_ARGUMENTS:
+  case K::VARIADIC_ARGUMENTS:
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
 
@@ -978,7 +978,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INVARIADIC:
     [[fallthrough]];
-  case K::DYNAMIC_VARIADIC:
+  case K::VARIADIC:
     [[fallthrough]];
   case K::BEST_LOCATION:
     [[fallthrough]];

@@ -223,13 +223,13 @@ enum class Keyword : rq::EntityId {
   ASCII,
   UTF8,
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  DYNAMIC_VARIADIC_ARGUMENTS_TYPE,
-  FIRST_DYNAMIC_VARIADIC_ARGUMENT,
-  FIRST_DYNAMIC_VARIADIC_ARGUMENT_OF,
-  NEXT_DYNAMIC_VARIADIC_ARGUMENT,
-  NEXT_DYNAMIC_VARIADIC_ARGUMENT_OF,
-  DYNAMIC_VARIADIC_ARGUMENTS,
+  // VARIADIC ARGUMENTS
+  VARIADIC_ARGUMENTS_TYPE,
+  FIRST_VARIADIC_ARGUMENT,
+  FIRST_VARIADIC_ARGUMENT_OF,
+  NEXT_VARIADIC_ARGUMENT,
+  NEXT_VARIADIC_ARGUMENT_OF,
+  VARIADIC_ARGUMENTS,
 
   // SCOPES
   IF_CHAIN,
@@ -316,7 +316,7 @@ enum class Keyword : rq::EntityId {
   // initialization_time
   PRESET,
   SINGLETON,
-  // static_closure
+  // closure
   CAPTURE,
   STATELESS,
   // linkage
@@ -339,9 +339,9 @@ enum class Keyword : rq::EntityId {
   // address_stability
   UNSTABLE_ADDRESS,
   STABLE_ADDRESS,
-  // dynamic_variadic
+  // variadic
   INVARIADIC,
-  DYNAMIC_VARIADIC,
+  VARIADIC,
   // offset
   BEST_LOCATION,
   LOCATION,
@@ -547,8 +547,8 @@ enum class SymbolKind : rq::EntityId {
   SCALED_LSINT,
   SCALED_LUINT,
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  DYNAMIC_VARIADIC_ARGUMENTS_TYPE,
+  // VARIADIC ARGUMENTS
+  VARIADIC_ARGUMENTS_TYPE,
 
   // SUBTYPES
   ARRAY_SUBTYPE,
@@ -593,8 +593,8 @@ enum class SymbolKind : rq::EntityId {
   // EAGER DECLARATIONS
   ANCHOR,
   ENUMERATOR,
-  DYNAMIC_EAGER_VARIABLE,
-  STATIC_EAGER_VARIABLE,
+  POST_EAGER_VARIABLE,
+  PRE_EAGER_VARIABLE,
 
   // PARAMETERS
   PARAMETER,
@@ -690,6 +690,14 @@ enum class ConstantKind : rq::EntityId {
   LAST
 };
 
+enum class ValueKind : rq::EntityId {
+  NONE,
+
+  // TODO
+
+  LAST
+};
+
 enum class Opcode : rq::EntityId {
   NONE,
 
@@ -764,16 +772,14 @@ constexpr rq::EntityId KEYWORD_OFFSET = 0;
 constexpr rq::EntityId SYMBOL_OFFSET =
     rq::getUnderlyingValue(rq::Keyword::LAST);
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
-getSymbolId(rq::SymbolKind kind) {
-  return rq::SYMBOL_OFFSET + rq::getUnderlyingValue(kind);
-}
-
 constexpr rq::EntityId CONSTANT_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
-constexpr rq::EntityId OPCODE_OFFSET =
+constexpr rq::EntityId VALUE_OFFSET =
     rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::LAST);
+
+constexpr rq::EntityId OPCODE_OFFSET =
+    rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
 
 constexpr rq::EntityId CFG_BLOCK_ID =
     OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
@@ -795,6 +801,75 @@ getId(rq::ConstantKind kind) {
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId getId(rq::Opcode kind) {
   return static_cast<rq::EntityId>(kind) + rq::OPCODE_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword getUnsafeKeyword(rq::EntityId id) {
+  return static_cast<rq::Keyword>(id);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::SymbolKind getUnsafeSymbolKind(rq::EntityId id) {
+  return static_cast<rq::SymbolKind>(id + rq::SYMBOL_OFFSET);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ConstantKind getUnsafeConstantKind(rq::EntityId id) {
+  return static_cast<rq::ConstantKind>(id + rq::CONSTANT_OFFSET);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ValueKind getUnsafeValueKind(rq::EntityId id) {
+  return static_cast<rq::ValueKind>(id + rq::VALUE_OFFSET);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Opcode getUnsafeOpcode(rq::EntityId id) {
+  return static_cast<rq::Opcode>(id + rq::OPCODE_OFFSET);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsKeyword(rq::EntityId id) {
+  return id < rq::SYMBOL_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsSymbolKind(rq::EntityId id) {
+  return id >= rq::SYMBOL_OFFSET && id < rq::CONSTANT_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsConstantKind(rq::EntityId id) {
+  return id >= rq::CONSTANT_OFFSET && id < rq::VALUE_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
+  return id >= rq::VALUE_OFFSET && id < rq::OPCODE_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsOpcodeKind(rq::EntityId id) {
+  return id >= rq::OPCODE_OFFSET && id < rq::CFG_BLOCK_ID;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsCfgBlock(rq::EntityId id) {
+  return id == rq::CFG_BLOCK_ID;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword getKeyword(rq::EntityId id) {
+  RQ_ASSERT(rq::getIsKeyword(id), "not keyword");
+  return rq::getUnsafeKeyword(id);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::SymbolKind getSymbolKind(rq::EntityId id) {
+  RQ_ASSERT(rq::getIsSymbolKind(id), "not symbol kind");
+  return rq::getUnsafeSymbolKind(id);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ConstantKind getConstantKind(rq::EntityId id) {
+  RQ_ASSERT(rq::getIsConstantKind(id), "not constant kind");
+  return rq::getUnsafeConstantKind(id);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ValueKind getValueKind(rq::EntityId id) {
+  RQ_ASSERT(rq::getIsValueKind(id), "not value kind");
+  return rq::getUnsafeValueKind(id);
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Opcode getOpcode(rq::EntityId id) {
+  RQ_ASSERT(rq::getIsOpcodeKind(id), "not opcode kind");
+  return rq::getUnsafeOpcode(id);
 }
 
 struct Entity;
@@ -1083,8 +1158,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
            SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
            SIF::IS_UNSIGNED;
 
-  // DYNAMIC_VARIADIC ARGUMENTS
-  case S::DYNAMIC_VARIADIC_ARGUMENTS_TYPE:
+  // VARIADIC ARGUMENTS
+  case S::VARIADIC_ARGUMENTS_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::IS_RUNTIME_TYPE |
            SIF::IS_GENTIME_TYPE;
 
@@ -1161,9 +1236,9 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
   case S::ENUMERATOR:
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION;
-  case S::DYNAMIC_EAGER_VARIABLE:
+  case S::POST_EAGER_VARIABLE:
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::EAGER_VARIABLE;
-  case S::STATIC_EAGER_VARIABLE:
+  case S::PRE_EAGER_VARIABLE:
     return SIF::TABLE_MEMBER | SIF::EAGER_DECLARATION | SIF::EAGER_VARIABLE;
 
   // PARAMETERS
@@ -1662,6 +1737,7 @@ struct Entity {
   rq::Keyword _debug_keyword{rq::Keyword::NONE};
   rq::SymbolKind _debug_symbol_kind{rq::SymbolKind::NONE};
   rq::ConstantKind _debug_constant_kind{rq::ConstantKind::NONE};
+  rq::ValueKind _debug_value_kind{rq::ValueKind::NONE};
   rq::Opcode _debug_opcode{rq::Opcode::NONE};
 #endif
 
@@ -1672,9 +1748,12 @@ struct Entity {
     } else if (id < rq::CONSTANT_OFFSET) {
       this->_debug_symbol_kind =
           static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET);
-    } else if (id < rq::OPCODE_OFFSET) {
+    } else if (id < rq::VALUE_OFFSET) {
       this->_debug_constant_kind =
           static_cast<rq::ConstantKind>(id - rq::CONSTANT_OFFSET);
+    } else if (id < rq::OPCODE_OFFSET) {
+      this->_debug_value_kind =
+          static_cast<rq::ValueKind>(id - rq::VALUE_OFFSET);
     } else {
       this->_debug_opcode = static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET);
     }
@@ -1698,15 +1777,23 @@ struct Entity {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getUnsafeKeyword() const {
-    return static_cast<rq::Keyword>(this->_id);
+    return rq::getUnsafeKeyword(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getUnsafeSymbolKind() const {
-    return static_cast<rq::SymbolKind>(this->_id + rq::SYMBOL_OFFSET);
+    return rq::getUnsafeSymbolKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind getUnsafeConstantKind() const {
+    return rq::getUnsafeConstantKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getUnsafeValueKind() const {
+    return rq::getUnsafeValueKind(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getUnsafeOpcode() const {
-    return static_cast<rq::Opcode>(this->_id + rq::OPCODE_OFFSET);
+    return rq::getUnsafeOpcode(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
@@ -1723,6 +1810,26 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCfgBlock() const {
     return this->_id == rq::CFG_BLOCK_ID;
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
+    return rq::getKeyword(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getSymbolKind() const {
+    return rq::getSymbolKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind getConstantKind() const {
+    return rq::getConstantKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getValueKind() const {
+    return rq::getValueKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
+    return rq::getOpcode(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags
