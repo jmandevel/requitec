@@ -2887,4 +2887,242 @@ Module::getConstImportSubrange() const {
   return entity.getId() == rq::getId(rq::SymbolKind::MODULE);
 }
 
+RQ_ALWAYS_INLINE CTable::CTable() : SymbolTable(rq::SymbolKind::C_TABLE) {}
+
+[[nodiscard]] inline bool CTable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::C_TABLE);
+}
+
+RQ_ALWAYS_INLINE EagerScope::EagerScope(rq::SymbolKind kind)
+    : SymbolTable(kind) {
+  RQ_ASSERT(rq::getIsEagerScope(kind), "not eager scope");
+}
+
+RQ_ALWAYS_INLINE void EagerScope::setExpression(rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *EagerScope::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+EagerScope::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+RQ_ALWAYS_INLINE void
+EagerScope::setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags) {
+  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
+            "flags already set");
+  this->_modifier_fuse_flags = modifier_fuse_flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+EagerScope::getModifierFuseFlags() const {
+  return this->_modifier_fuse_flags;
+}
+
+[[nodiscard]] inline bool EagerScope::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsEagerScope();
+}
+
+RQ_ALWAYS_INLINE ScopeStatement::ScopeStatement()
+    : EagerScope(rq::SymbolKind::SCOPE_STATEMENT) {}
+
+[[nodiscard]] inline bool
+ScopeStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::SCOPE_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE WeaveStatement::WeaveStatement()
+    : EagerScope(rq::SymbolKind::WEAVE_STATEMENT) {}
+
+[[nodiscard]] inline bool
+WeaveStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::WEAVE_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE SpinStatement::SpinStatement()
+    : EagerScope(rq::SymbolKind::SPIN_STATEMENT) {}
+
+[[nodiscard]] inline bool SpinStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::SPIN_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE WhileStatement::WhileStatement()
+    : EagerScope(rq::SymbolKind::WHILE_STATEMENT) {}
+
+[[nodiscard]] inline bool
+WhileStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::WHILE_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE ForStatement::ForStatement()
+    : EagerScope(rq::SymbolKind::FOR_STATEMENT) {}
+
+[[nodiscard]] inline bool ForStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::FOR_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE DefaultStatement::DefaultStatement()
+    : EagerScope(rq::SymbolKind::DEFAULT_STATEMENT) {}
+
+[[nodiscard]] inline bool
+DefaultStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::DEFAULT_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE CaseStatement::CaseStatement()
+    : EagerScope(rq::SymbolKind::CASE_STATEMENT) {}
+
+[[nodiscard]] inline bool CaseStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CASE_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE SwitchStatement::SwitchStatement()
+    : EagerScope(rq::SymbolKind::SWITCH_STATEMENT) {}
+
+[[nodiscard]] inline bool
+SwitchStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::SWITCH_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE IfStatement::IfStatement()
+    : EagerScope(rq::SymbolKind::IF_STATEMENT) {}
+
+[[nodiscard]] inline bool IfStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::IF_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE ElseIfStatement::ElseIfStatement()
+    : EagerScope(rq::SymbolKind::ELSE_IF_STATEMENT) {}
+
+[[nodiscard]] bool ElseIfStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ELSE_IF_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE ElseStatement::ElseStatement()
+    : EagerScope(rq::SymbolKind::ELSE_STATEMENT) {}
+
+[[nodiscard]] inline bool ElseStatement::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ELSE_STATEMENT);
+}
+
+RQ_ALWAYS_INLINE NamedTable::NamedTable(rq::SymbolKind kind)
+    : SymbolTable(kind) {
+  RQ_ASSERT(rq::getIsNamedTable(kind), "not named table");
+}
+
+RQ_ALWAYS_INLINE void NamedTable::setName(rq::Name name) {
+  RQ_ASSERT(this->_name.getIsEmpty(), "name already set");
+  this->_name = name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name NamedTable::getName() const {
+  return this->_name;
+}
+
+[[nodiscard]] inline bool NamedTable::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsNamedTable();
+}
+
+RQ_ALWAYS_INLINE Namespace::Namespace()
+    : NamedTable(rq::SymbolKind::NAMESPACE) {}
+
+[[nodiscard]] inline bool Namespace::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::NAMESPACE);
+}
+
+RQ_ALWAYS_INLINE LazyDeclaration::LazyDeclaration(rq::SymbolKind kind)
+    : NamedTable(kind) {
+  RQ_ASSERT(rq::getIsLazyDeclarataion(kind), "not lazy declaration");
+}
+
+RQ_ALWAYS_INLINE void
+LazyDeclaration::setExpression(rq::Expression &expression) {
+  rq::assignSingleValue(this->_expression_ptr, &expression);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
+LazyDeclaration::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+LazyDeclaration::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+RQ_ALWAYS_INLINE void LazyDeclaration::setModifierFuseFlags(
+    rq::ModifierFuseFlags modifier_fuse_flags) {
+  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
+            "flags already set");
+  this->_modifier_fuse_flags = modifier_fuse_flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+LazyDeclaration::getModifierFuseFlags() const {
+  return this->_modifier_fuse_flags;
+}
+
+RQ_ALWAYS_INLINE void LazyDeclaration::setHostTable(rq::SymbolTable &host) {
+  rq::assignSingleValue(this->_host_ptr, &host);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *
+LazyDeclaration::getHostTablePtr() {
+  return this->_host_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *
+LazyDeclaration::getHostTablePtr() const {
+  return this->_host_ptr;
+}
+
+void LazyDeclaration::setMangledName(llvm::StringRef mangled_name) {
+  RQ_ASSERT(this->_mangled_name.empty(), "mangled name already set");
+  RQ_ASSERT(!mangled_name.empty(), "empty mangled name");
+  this->_mangled_name = mangled_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+LazyDeclaration::getMangledName() const {
+  return this->_mangled_name;
+}
+
+RQ_ALWAYS_INLINE void LazyDeclaration::setModule(rq::Module &module) {
+  rq::assignSingleValue(this->_module_ptr, &module);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *
+LazyDeclaration::getModulePtr() const {
+  return this->_module_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module *LazyDeclaration::getModulePtr() {
+  return this->_module_ptr;
+}
+
+[[nodiscard]] inline bool
+LazyDeclaration::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsLazyDeclarataion();
+}
+
 } // namespace rq

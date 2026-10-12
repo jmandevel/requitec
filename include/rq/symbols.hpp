@@ -1795,9 +1795,6 @@ struct EagerScope : public rq::SymbolTable {
   setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
   getModifierFuseFlags() const;
-  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1920,6 +1917,8 @@ struct LazyDeclaration : public rq::NamedTable {
   llvm::StringRef _mangled_name{};
   rq::Module *_module_ptr{nullptr};
 
+  explicit RQ_ALWAYS_INLINE LazyDeclaration(rq::SymbolKind kind);
+
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
@@ -1933,8 +1932,8 @@ struct LazyDeclaration : public rq::NamedTable {
   void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
   RQ_ALWAYS_INLINE void setModule(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module &getModule() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module &getModule();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
