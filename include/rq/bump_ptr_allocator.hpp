@@ -43,6 +43,8 @@ constexpr bool is_gc_atomic_v = rq::is_flags<FlagsParam>::value;
 template <typename FlagsParam>
 concept gc_atomic = rq::is_gc_atomic<FlagsParam>::value;
 
+#define RQ_DEFINE_GC_ATOMIC(FLAGS) template<> struct is_gc_atomic<typename FLAGS> final : std::true_type {}
+
 struct BumpPtrAllocator {
   using Self = rq::BumpPtrAllocator;
 
