@@ -2108,7 +2108,7 @@ struct AdapterSpecialization final : public rq::AdapterImplementation {
 struct InterfaceImplementation : public rq::Implementation {
   using Self = rq::InterfaceImplementation;
 
-  explicit RQ_ALWAYS_INLINE InterfaceImplementation();
+  explicit RQ_ALWAYS_INLINE InterfaceImplementation(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2146,11 +2146,14 @@ struct InterfaceSpecialization final : public rq::InterfaceImplementation {
 struct ClassImplementation : public rq::Implementation {
   using Self = rq::ClassImplementation;
 
-  explicit RQ_ALWAYS_INLINE ClassImplementation();
+  rq::ConstantSymbol *_best_layout_ptr{nullptr};
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getDerivedLayoutTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *
-  getDerivedLayoutTypePtr() const;
+  explicit RQ_ALWAYS_INLINE ClassImplementation(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setBestLayout(rq::ConstantSymbol &best);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *getBestLayoutPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+  getBestLayoutPtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2159,7 +2162,6 @@ struct ClassOverload final : public rq::ClassImplementation {
   using Self = rq::ClassOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
-  rq::Symbol *_best_layout_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ClassOverload();
 
@@ -2167,9 +2169,7 @@ struct ClassOverload final : public rq::ClassImplementation {
   getPrototypeExpressionPtrList();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
   getPrototypeExpressionPtrList() const;
-  RQ_ALWAYS_INLINE void setOrChangeBestLayout(rq::Symbol &symbol);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *getBestLayoutPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *getBestLayoutPtr() const;
+  RQ_ALWAYS_INLINE void changeBestLayout(rq::ConstantSymbol &best);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2177,14 +2177,10 @@ struct ClassOverload final : public rq::ClassImplementation {
 struct ClassSpecialization final : public rq::ClassImplementation {
   using Self = rq::ClassSpecialization;
 
-  rq::LayoutType *_layout_type_ptr{nullptr};
   rq::ConstantArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ClassSpecialization();
 
-  RQ_ALWAYS_INLINE void setLayoutType(rq::LayoutType &layout);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutTypePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutTypePtr() const;
   RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *

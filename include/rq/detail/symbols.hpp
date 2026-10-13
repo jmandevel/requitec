@@ -3125,4 +3125,432 @@ LazyDeclaration::classof(const rq::Entity *entity_ptr) {
   return entity.getIsLazyDeclarataion();
 }
 
+RQ_ALWAYS_INLINE Implementation::Implementation(rq::SymbolKind kind)
+    : LazyDeclaration(kind) {
+  RQ_ASSERT(rq::getIsImplementation(kind), "not implementation");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol *Implementation::getParentPtr() {
+  return this->_parent_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol *
+Implementation::getParentPtr() const {
+  return this->_parent_ptr;
+}
+
+[[nodiscard]] inline bool
+Implementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsImplementation();
+}
+
+RQ_ALWAYS_INLINE EnumImplementation::EnumImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsEnumImplementation(kind), "not enum implementation");
+}
+
+RQ_ALWAYS_INLINE void
+EnumImplementation::setUnderlyingType(rq::ConstantSymbol *underlying_type) {
+  rq::assignSingleValue(this->_underlying_type_ptr, &underlying_type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
+EnumImplementation::getUnderlyingTypePtr() {
+  return this->_underlying_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+EnumImplementation::getUnderlyingTypePtr() const {
+  return this->_underlying_type_ptr;
+}
+
+[[nodiscard]] inline bool
+EnumImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsEnumImplementation();
+}
+
+RQ_ALWAYS_INLINE EnumOverload::EnumOverload()
+    : EnumImplementation(rq::SymbolKind::ENUM_OVERLOAD) {}
+
+RQ_ALWAYS_INLINE void
+EnumOverload::setParentEnumPolymorph(rq::EnumPolymorph &parent) {
+  rq::assignSingleValue(this->_parent_ptr, &parent);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumPolymorph *
+EnumOverload::getParentEnumPolymorphPtr() {
+  return llvm::cast<rq::EnumPolymorph>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumPolymorph *
+EnumOverload::getParentEnumPolymorphPtr() const {
+  return llvm::cast<rq::EnumPolymorph>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::Expression *>
+EnumOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+EnumOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] inline bool EnumOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ENUM_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE EnumSpecialization::EnumSpecialization()
+    : EnumImplementation(rq::SymbolKind::ENUM_SPECIALIZATION) {}
+
+RQ_ALWAYS_INLINE void
+EnumSpecialization::setParentEnumTemplate(rq::EnumTemplate &template_) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *
+EnumSpecialization::getParentEnumTemplatePtr() {
+  return llvm::cast<rq::EnumTemplate>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
+EnumSpecialization::getParentEnumTemplatePtr() const {
+  return llvm::cast<rq::EnumTemplate>(this->_parent_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+EnumSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+EnumSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+EnumSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+EnumSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ENUM_SPECIALIZATION);
+}
+
+RQ_ALWAYS_INLINE
+LazyVariableImplementation::LazyVariableImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsLazyVariableImplementation(kind),
+            "not lazy variable implementation");
+}
+
+RQ_ALWAYS_INLINE void
+LazyVariableImplementation::setType(rq::ConstantSymbol &type) {
+  rq::assignSingleValue(this->_type_ptr, &type);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
+LazyVariableImplementation::getTypePtr() {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+LazyVariableImplementation::getTypePtr() const {
+  return this->_type_ptr;
+}
+
+[[nodiscard]] inline bool
+LazyVariableImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsLazyVariableImplementation();
+}
+
+RQ_ALWAYS_INLINE LazyVariableOverload::LazyVariableOverload()
+    : LazyVariableImplementation(rq::SymbolKind::LAZY_VARIABLE_OVERLOAD) {}
+
+RQ_ALWAYS_INLINE void LazyVariableOverload::setParentLazyVariablePolymorph(
+    rq::LazyVariablePolymorph &parent) {
+  rq::assignSingleValue(this->_parent_ptr, &parent);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariablePolymorph *
+LazyVariableOverload::getParentPtr() {
+  return llvm::cast<rq::LazyVariablePolymorph>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LazyVariablePolymorph *
+LazyVariableOverload::getParentPtr() const {
+  return llvm::cast<rq::LazyVariablePolymorph>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+LazyVariableOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+LazyVariableOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] inline bool
+LazyVariableOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::LAZY_VARIABLE_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE LazyVariableSpecialization::LazyVariableSpecialization()
+    : LazyVariableImplementation(rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION) {
+}
+
+RQ_ALWAYS_INLINE void LazyVariableSpecialization::setParentLazyVariableTemplate(
+    rq::LazyVariableTemplate &parent) {
+  rq::assignSingleValue(this->_parent_ptr, &parent);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariableTemplate *
+LazyVariableSpecialization::getParentLazyVariableTemplatePtr() {
+  return llvm::cast<rq::LazyVariableTemplate>(this->_parent_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LazyVariableTemplate *
+LazyVariableSpecialization::getParentLazyVariableTemplatePtr() const {
+  return llvm::cast<rq::LazyVariableTemplate>(this->_parent_ptr);
+}
+
+RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+LazyVariableSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+LazyVariableSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+LazyVariableSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getId(rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION);
+}
+
+RQ_ALWAYS_INLINE
+AdapterImplementation::AdapterImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsAdapterImplementation(kind), "not adapter implementation");
+}
+
+RQ_ALWAYS_INLINE void
+AdapterImplementation::setRealization(rq::Realization &realization) {
+  rq::assignSingleValue(this->_realization_ptr, &realization);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Realization *
+AdapterImplementation::getRealizationPtr() {
+  return this->_realization_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Realization *
+AdapterImplementation::getRealizationPtr() const {
+  return this->_realization_ptr;
+}
+
+[[nodiscard]] inline bool
+AdapterImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsAdapterImplementation();
+}
+
+RQ_ALWAYS_INLINE AdapterOverload::AdapterOverload()
+    : AdapterImplementation(rq::SymbolKind::ADAPTER_OVERLOAD) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+AdapterOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+AdapterOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] inline bool
+AdapterOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE AdapterSpecialization::AdapterSpecialization()
+    : AdapterImplementation(rq::SymbolKind::ADAPTER_SPECIALIZATION) {}
+
+RQ_ALWAYS_INLINE void
+AdapterSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+AdapterSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+AdapterSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+AdapterSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_SPECIALIZATION);
+}
+
+RQ_ALWAYS_INLINE
+InterfaceImplementation::InterfaceImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsInterfaceImplementation(kind),
+            "not interface implementation");
+}
+
+[[nodiscard]] inline bool
+InterfaceImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsInterfaceImplementation();
+}
+
+RQ_ALWAYS_INLINE InterfaceOverload::InterfaceOverload()
+    : InterfaceImplementation(rq::SymbolKind::INTERFACE_OVERLOAD) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+InterfaceOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+InterfaceOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] inline bool
+InterfaceOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE InterfaceSpecialization::InterfaceSpecialization()
+    : InterfaceImplementation(rq::SymbolKind::INTERFACE_SPECIALIZATION) {}
+
+RQ_ALWAYS_INLINE void
+InterfaceSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+InterfaceSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+InterfaceSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+InterfaceSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_SPECIALIZATION);
+}
+
+RQ_ALWAYS_INLINE ClassImplementation::ClassImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsClassImplementation(kind), "not class implementation");
+}
+
+RQ_ALWAYS_INLINE void
+ClassImplementation::setBestLayout(rq::ConstantSymbol &best) {
+  RQ_ASSERT(best.getSymbol().getKind() == rq::SymbolKind::UNKNOWN_TYPE ||
+                best.getSymbol().getKind() == rq::SymbolKind::LAYOUT_TYPE,
+            "invalid symbol for layout");
+  rq::assignSingleValue(this->_best_layout_ptr, &best);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantSymbol *
+ClassImplementation::getBestLayoutPtr() {
+  return this->_best_layout_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantSymbol *
+ClassImplementation::getBestLayoutPtr() const {
+  return this->_best_layout_ptr;
+}
+
+[[nodiscard]] inline bool
+ClassImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsClassImplementation();
+}
+
+RQ_ALWAYS_INLINE ClassOverload::ClassOverload()
+    : ClassImplementation(rq::SymbolKind::CLASS_OVERLOAD) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+ClassOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+ClassOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+RQ_ALWAYS_INLINE void
+ClassOverload::changeBestLayout(rq::ConstantSymbol &best) {
+  RQ_ASSERT(best.getSymbol().getKind() == rq::SymbolKind::UNKNOWN_TYPE ||
+                best.getSymbol().getKind() == rq::SymbolKind::LAYOUT_TYPE,
+            "invalid symbol for layout");
+  rq::ConstantSymbol &prev_best = rq::dereferencePtr(this->_best_layout_ptr);
+  RQ_ASSERT(prev_best.getSymbol().getKind() == rq::SymbolKind::LAYOUT_TYPE,
+            "prev best is already a layout type");
+  RQ_ASSERT(best.getSymbol().getKind() == rq::SymbolKind::LAYOUT_TYPE ||
+                (prev_best.getMargin() <= best.getMargin()),
+            "updating best layout with larger margin");
+  rq::replaceValue(this->_best_layout_ptr, &best);
+}
+
+[[nodiscard]] inline bool ClassOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CLASS_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE ClassSpecialization::ClassSpecialization()
+    : ClassImplementation(rq::SymbolKind::CLASS_SPECIALIZATION) {}
+
+RQ_ALWAYS_INLINE void
+ClassSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+ClassSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+ClassSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+ClassSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CLASS_SPECIALIZATION);
+}
+
 } // namespace rq
