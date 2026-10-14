@@ -3553,4 +3553,75 @@ ClassSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::CLASS_SPECIALIZATION);
 }
 
+RQ_ALWAYS_INLINE
+ProcedureImplementation::ProcedureImplementation(rq::SymbolKind kind)
+    : Implementation(kind) {
+  RQ_ASSERT(rq::getIsProcedureImplementation(kind),
+            "not procedure implementation");
+}
+
+RQ_ALWAYS_INLINE void
+ProcedureImplementation::setSignatureType(rq::SignatureType &signature) {
+  rq::assignSingleValue(this->_signature_type_ptr, &signature);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *
+ProcedureImplementation::getSignatureTypePtr() {
+  return this->_signature_type_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
+ProcedureImplementation::getSignatureTypePtr() const {
+  return this->_signature_type_ptr;
+}
+
+[[nodiscard]] inline bool
+ProcedureImplementation::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsProcedureImplementation();
+}
+
+RQ_ALWAYS_INLINE ProcedureOverload::ProcedureOverload()
+    : ProcedureImplementation(rq::SymbolKind::PROCEDURE_OVERLOAD) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+ProcedureOverload::getPrototypeExpressionPtrList() {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+ProcedureOverload::getPrototypeExpressionPtrList() const {
+  return this->_prototype_expression_ptr_list;
+}
+
+[[nodiscard]] inline bool
+ProcedureOverload::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_OVERLOAD);
+}
+
+RQ_ALWAYS_INLINE ProcedureSpecialization::ProcedureSpecialization()
+    : ProcedureImplementation(rq::SymbolKind::PROCEDURE_SPECIALIZATION) {}
+
+RQ_ALWAYS_INLINE void
+ProcedureSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+  rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
+ProcedureSpecialization::getTemplateTuplePtr() {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+ProcedureSpecialization::getTemplateTuplePtr() const {
+  return this->_template_tuple_ptr;
+}
+
+[[nodiscard]] inline bool
+ProcedureSpecialization::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_SPECIALIZATION);
+}
+
 } // namespace rq

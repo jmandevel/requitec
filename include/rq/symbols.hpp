@@ -2194,9 +2194,9 @@ struct ProcedureImplementation : public rq::Implementation {
 
   rq::SignatureType *_signature_type_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE ProcedureImplementation();
+  explicit RQ_ALWAYS_INLINE ProcedureImplementation(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setSignatureType(rq::SignatureType &layout);
+  RQ_ALWAYS_INLINE void setSignatureType(rq::SignatureType &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *getSignatureTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
   getSignatureTypePtr() const;
