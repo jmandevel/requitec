@@ -68,10 +68,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_logical_or";
   case K::LOGICAL_COMPLEMENT:
     return "_logical_complement";
-  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
-    return "_logical_and_with_shortcircuit";
-  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
-    return "_logical_or_with_shortcircuit";
 
   // COMPARISON
   case K::GREATER:
@@ -929,10 +925,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::LOGICAL_OR:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LOGICAL_COMPLEMENT:
-    return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
-    return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // COMPARISON

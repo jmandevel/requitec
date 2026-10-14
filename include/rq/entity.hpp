@@ -43,8 +43,6 @@ enum class Keyword : rq::EntityId {
   LOGICAL_AND,
   LOGICAL_OR,
   LOGICAL_COMPLEMENT,
-  LOGICAL_AND_WITH_SHORTCIRCUIT,
-  LOGICAL_OR_WITH_SHORTCIRCUIT,
 
   // COMPARISON
   GREATER,
@@ -729,8 +727,6 @@ enum class Opcode : rq::EntityId {
   // address1 = tail
   LOGICAL_AND,
   LOGICAL_OR,
-  LOGICAL_AND_WITH_SHORTCIRCUIT,
-  LOGICAL_OR_WITH_SHORTCIRCUIT,
 
   // address0 = rvalue
   LOGICAL_COMPLEMENT,

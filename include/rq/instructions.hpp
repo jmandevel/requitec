@@ -49,10 +49,6 @@ getInfoFlags(rq::Opcode opcode) {
     return OIF::TWO_ADDRESS;
   case O::LOGICAL_OR:
     return OIF::TWO_ADDRESS;
-  case O::LOGICAL_AND_WITH_SHORTCIRCUIT:
-    return OIF::TWO_ADDRESS;
-  case O::LOGICAL_OR_WITH_SHORTCIRCUIT:
-    return OIF::TWO_ADDRESS;
   case O::LOGICAL_COMPLEMENT:
     return OIF::ONE_ADDRESS;
   case O::RVALUE_PAIR:

@@ -275,11 +275,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::LOGICAL_COMPLEMENT:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::LOGICAL_AND_WITH_SHORTCIRCUIT:
-    [[fallthrough]];
-  case K::LOGICAL_OR_WITH_SHORTCIRCUIT:
-    is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
-    break;
 
   // COMPARISON
   case K::GREATER:
