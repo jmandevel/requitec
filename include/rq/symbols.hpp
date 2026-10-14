@@ -2260,11 +2260,11 @@ struct EnumTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE EnumTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::EnumWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
   getEnumWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
   getEnumWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::EnumWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
   getConstEnumWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2275,11 +2275,11 @@ struct ClassTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE ClassTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::ClassWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
   getClassWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
   getClassWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
   getConstClassWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2290,11 +2290,11 @@ struct InterfaceTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE InterfaceTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
   getInterfaceWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
   getInterfaceWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
   getConstInterfaceWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2305,12 +2305,12 @@ struct LazyVariableTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE LazyVariableTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
   getLazyVariableWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel,
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
                                       rq::LazyVariableWeightLevel>
   getLazyVariableWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel,
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
                                       rq::LazyVariableWeightLevel>
   getConstLazyVariableWeightLevelSubrange() const;
 
@@ -2322,11 +2322,11 @@ struct AdapterTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE AdapterTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::AdapterWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
   getAdapterWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
   getAdapterWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
   getConstAdapterWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2337,11 +2337,11 @@ struct ProcedureTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE ProcedureTemplate();
 
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
   getProcedureWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
   getProcedureWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
   getConstProcedureWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
