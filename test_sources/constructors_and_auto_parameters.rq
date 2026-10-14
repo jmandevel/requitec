@@ -5,11 +5,11 @@ constraint::Element.[is_type]
     // constructors before signature can use auto template parameters.
 
     // layout constructor:
-    public
+    public computes
     [layout_constructor];
 
     // scalar constructor:
-    public
+    public computes
     [constructor {> scalar:Element <}, result,
         result <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
     ];

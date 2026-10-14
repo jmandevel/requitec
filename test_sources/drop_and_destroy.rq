@@ -1,6 +1,6 @@
 [import "std", std];
 
-[class WithoutDestroy, public[layout_constructor]; {}];
+[class WithoutDestroy, public computes[layout_constructor]; {}];
 
 [class WithDestroy, public[layout_constructor]; {},
     [destructor

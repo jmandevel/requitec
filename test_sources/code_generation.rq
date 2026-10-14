@@ -3,7 +3,7 @@
 anchor::A
 [for 0.<=10, num:=value,
     varname :std.String= std.format(text="VAR" +> num);
-    flank::A common capture::{num:=num}
+    flank::A gentime capture::{num:=num}
     varname.getSlice().[identify] : SInt = num.[bake];
 ];
 

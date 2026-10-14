@@ -1,19 +1,22 @@
 [import "std", std];
 
-[class MyClass, public [layout_constructor]; {}];
+[class MyClass, public computes [layout_constructor]; {}];
 
 // This class has stable_address modifier, so it cannnot be moved to a new memory address
 stable_address
-[class MyPinned, public [layout_constructor]; {}];
+[class MyPinned, public computes [layout_constructor]; {}];
 
+computes
 [procedure takeReciever, ()Void=>MyPinned,
 
 ];
 
+computes
 [procedure takeArg, (pinned:MyPinned<)Void,
 
 ];
 
+computes
 [procedure takeOrCopyArg, (pinned:MyClass<)Void,
 
 ];

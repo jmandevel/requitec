@@ -9,7 +9,7 @@
 
 namespace rq {
 
-using EntityId = std::uint32_t;
+using EntityId = std::uint16_t;
 
 enum class Keyword : rq::EntityId {
   // this is the initial keyword set for expressions. it must be overwritten
@@ -322,6 +322,9 @@ enum class Keyword : rq::EntityId {
   // linkage
   LINKED,
   INLINE,
+  // side effects
+  COMPUTES,
+  AFFECTS,
   // mangle
   STANDARD_MANGLE,
   MANGLE,

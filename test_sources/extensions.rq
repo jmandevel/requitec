@@ -1,12 +1,14 @@
 
 [namespace example,
     template::{> Type:type, LENGTH:USize <}
+    xomputes
     [procedure getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
         result <:= LENGTH;
     ];
 
-    [class Foo, public[layout_constructor]; {}];
+    [class Foo, public computes[layout_constructor]; {}];
 
+    computes
     [procedure bar, ()Void=>$example.Foo,
     
     ];

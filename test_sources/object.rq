@@ -7,19 +7,19 @@
         public z : FSInt32 = 0
     <},
 
-    public [layout_constructor];
+    public computes [layout_constructor];
 
-    public
+    public computes
     [procedure fromScalar, (> scalar:FSInt32 <)MyClass, result,
         result <:= MyClass(scalar, scalar, scalar);    
     ];
 
-    public
+    public computes
     [procedure getTotal, ()FSInt32=>Ref@, result,
         result <:= this.x + this.y + this.z;
     ];
 
-    public
+    public computes
     [procedure add, (>a:MyClass, b:MyClass<)MyClass, result,
         result <:=
             MyClass(

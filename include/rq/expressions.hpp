@@ -550,6 +550,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "linked";
   case K::INLINE:
     return "inline";
+  case K::COMPUTES:
+    return "computes";
+  case K::AFFECTS:
+    return "affects";
   case K::STANDARD_MANGLE:
     return "standard_mangle";
   case K::MANGLE:
@@ -1415,6 +1419,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::LINKED:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INLINE:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::COMPUTES:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::AFFECTS:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STANDARD_MANGLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2370,6 +2378,9 @@ enum class Modifier : std::uint_fast8_t {
   // linkage
   LINKED,
   INLINE,
+  // side effects
+  COMPUTES,
+  AFFECTS,
   // mangle
   STANDARD_MANGLE,
   MANGLE,
@@ -2480,6 +2491,10 @@ enum class Modifier : std::uint_fast8_t {
     return "linked";
   case M::INLINE:
     return "inline";
+  case M::COMPUTES:
+    return "computes";
+  case M::AFFECTS:
+    return "affects";
   case M::STANDARD_MANGLE:
     return "standard_mangle";
   case M::MANGLE:
@@ -2727,62 +2742,66 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   INLINE = rq::getBit(28),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  STANDARD_MANGLE = rq::getBit(29),
-  MANGLE = rq::getBit(30),
+  COMPUTES = rq::getBit(29),
+  AFFECTS = rq::getBit(30),
+  SIDE_EFFECTS_MODIFIER_MASK = COMPUTES | AFFECTS,
+
+  STANDARD_MANGLE = rq::getBit(31),
+  MANGLE = rq::getBit(32),
   MANGLE_MODIFIER_MASK = STANDARD_MANGLE | MANGLE,
 
-  PAD = rq::getBit(31),
-  PACK = rq::getBit(32),
+  PAD = rq::getBit(33),
+  PACK = rq::getBit(34),
   PACK_MODIFIER_MASK = PAD | PACK,
 
-  EQUIVOCAL = rq::getBit(33),
-  LIKELY = rq::getBit(34),
-  UNLIKELY = rq::getBit(35),
+  EQUIVOCAL = rq::getBit(35),
+  LIKELY = rq::getBit(36),
+  UNLIKELY = rq::getBit(37),
   BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  SUPPORTED = rq::getBit(36),
-  DEPRECIATED = rq::getBit(37),
-  EXPERIMENTAL = rq::getBit(38),
+  SUPPORTED = rq::getBit(38),
+  DEPRECIATED = rq::getBit(39),
+  EXPERIMENTAL = rq::getBit(40),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  UNSTABLE_ADDRESS = rq::getBit(39),
-  STABLE_ADDRESS = rq::getBit(40),
+  UNSTABLE_ADDRESS = rq::getBit(41),
+  STABLE_ADDRESS = rq::getBit(42),
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
-  INVARIADIC = rq::getBit(41),
-  VARIADIC = rq::getBit(42),
+  INVARIADIC = rq::getBit(43),
+  VARIADIC = rq::getBit(44),
   VARIADIC_MODIFIER_MASK,
 
-  BEST_LOCATION = rq::getBit(43),
-  LOCATION = rq::getBit(44),
+  BEST_LOCATION = rq::getBit(45),
+  LOCATION = rq::getBit(46),
   OFFSET_MODIFIER_MASK = BEST_LOCATION | LOCATION,
 
-  TEMPLATE = rq::getBit(45),
-  OVERLOAD = rq::getBit(46),
+  TEMPLATE = rq::getBit(47),
+  OVERLOAD = rq::getBit(48),
   LAZY_DECLARATION_KIND_MODIFIER_MASK = TEMPLATE | OVERLOAD,
 
-  CONSTRAINT = rq::getBit(47),
+  CONSTRAINT = rq::getBit(49),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  DEFAULT_WEIGHT = rq::getBit(48),
-  WEIGHT = rq::getBit(49),
+  DEFAULT_WEIGHT = rq::getBit(50),
+  WEIGHT = rq::getBit(51),
   WEIGHT_MODIFIER_MASK = DEFAULT_WEIGHT | WEIGHT,
 
-  MANUAL = rq::getBit(50),
-  AUTO = rq::getBit(51),
+  MANUAL = rq::getBit(52),
+  AUTO = rq::getBit(53),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(52),
-  VIRTUAL = rq::getBit(53),
+  DIRECT = rq::getBit(54),
+  VIRTUAL = rq::getBit(55),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(54),
+  RANGER = rq::getBit(56),
   RANGER_MODIFIER_MASK = RANGER,
 
-  REQUIRE = rq::getBit(55),
+  REQUIRE = rq::getBit(57),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(56),
+  ENSURE = rq::getBit(58),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -2853,6 +2872,10 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::LINKED;
   case M::INLINE:
     return MFF::INLINE;
+  case M::COMPUTES:
+    return MFF::COMPUTES;
+  case M::AFFECTS:
+    return MFF::AFFECTS;
   case M::STANDARD_MANGLE:
     return MFF::STANDARD_MANGLE;
   case M::MANGLE:
@@ -2989,6 +3012,10 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::INLINE:
     return MIF::NO_ATTACHMENT;
+  case M::COMPUTES:
+    return MIF::NO_ATTACHMENT;
+  case M::AFFECTS:
+    return MIF::NO_ATTACHMENT;
   case M::STANDARD_MANGLE:
     return MIF::NO_ATTACHMENT;
   case M::MANGLE:
@@ -3084,6 +3111,7 @@ enum class ModifierKind : std::uint_fast8_t {
   INITIALIZATION_TIME,
   CLOSURE,
   LINKAGE,
+  SIDE_EFFECTS,
   MANGLE,
   PACK,
   BRANCH_TREND,
@@ -3131,6 +3159,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "static closure modifier";
   case MK::LINKAGE:
     return "linkage modifier";
+  case MK::SIDE_EFFECTS:
+    return "side effects modifier";
   case MK::MANGLE:
     return "mangle modifier";
   case MK::PACK:
@@ -3197,6 +3227,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::CLOSURE_MASK;
   case MK::LINKAGE:
     return MFF::LINKAGE_MODIFIER_MASK;
+  case MK::SIDE_EFFECTS:
+    return MFF::SIDE_EFFECTS_MODIFIER_MASK;
   case MK::MANGLE:
     return MFF::MANGLE_MODIFIER_MASK;
   case MK::PACK:
@@ -3297,6 +3329,10 @@ enum class ModifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case M::INLINE:
     return MK::LINKAGE;
+  case M::COMPUTES:
+    [[fallthrough]];
+  case M::AFFECTS:
+    return MK::SIDE_EFFECTS;
   case M::STANDARD_MANGLE:
     [[fallthrough]];
   case M::MANGLE:

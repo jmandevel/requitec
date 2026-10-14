@@ -2,6 +2,7 @@
 
 template::{> auto Type:Symbol <}
 constraint::Type.[is_type]
+computes
 [procedure add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be pre (if eager) or gentime (if lazy).

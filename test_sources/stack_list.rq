@@ -2,7 +2,6 @@
 
 [class MyClass, 
 
-
     {> public mut:SInt },
 
     public [layout_constructor];

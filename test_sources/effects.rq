@@ -1,0 +1,49 @@
+[import "std", std];
+
+
+
+// computes and affects modifiers are applied to functions to notate if they have side effects.
+// this is used to do compile time optimizations.
+// also, you cannot have an affects function as an rvalue sub-expression.
+// this forces you to write requite in multiple statements, storing intermediate values in variables.
+// this makes control flow much more clear than other languages!
+
+// a computes function has no side effect.
+// if a computes function does something with a side effect, this causes a compiler error.
+// note that the act of referencing is not a side effect, but modifying the referenced value is.
+// notes that assigning to return value upbinding is not considered a side effect.
+computes
+[function myAdd, (> a:SInt, b:SInt <)SInt, result,
+    result <:= a + b;
+];
+
+// affects functions have side effects. in this case, calling print outputs text to stdout.
+// affects is default, so if no modifier is applied functions automatically have affects.
+// writing it explicitly here for this example.
+affects
+[function myPrint, (> val:SInt)SInt,
+    std.print(line="Hello, world!");
+];
+
+// global predefined variables need to have initial value with no side effects.
+// note that global variables are predefined by default. 
+// predefined is specified here explicitly for this example.
+runtime predefined MY_NUMBER := myAdd(1, 2);
+
+[main ()SInt, result,
+    // computes functions can be rvalue sub-expressions
+    added := myAdd(1, myAdd(2, 3));
+
+    // affects functions cannot be rvalue sub-expressions
+    printed := myPrint(3);
+
+    // if this is uncommented, its a compiler error
+    // added_printed := myAdd(myPrint(0), myPrint(1));
+    // write like this instead:
+
+    a := myPrint(0);
+    b := myPrint(1);
+    added_printed := myAdd(a, b);
+
+    result <:= 0;
+];

@@ -1,3 +1,4 @@
+computes
 [procedure myProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
@@ -8,6 +9,7 @@
     (positional + positional_and_named + named + locked);
 ];
 
+computes
 [procedure myOtherProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
@@ -17,6 +19,7 @@
     result <:= (positional + positional_and_named + named + locked);
 ];
 
+computes
 [procedure myThirdProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
@@ -34,7 +37,6 @@
     )Single, result,
     result <:= (positional + positional_and_named + named + locked);
 ];
-
 
 [main ()SInt, result,
     // calling directly from myProcedure
