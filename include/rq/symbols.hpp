@@ -2246,10 +2246,10 @@ struct Template : public rq::LazyDeclaration {
   RQ_ALWAYS_INLINE void setLayout(rq::LayoutType &layout);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutPtr() const;
-  [[nodiscard]] rq::NextIterator<rq::WeightLevel> getWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel>
+  [[nodiscard]] rq::NextSubrange<rq::WeightLevel> getWeightLevelSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel>
   getWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextIterator<rq::WeightLevel>
+  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel>
   getConstWeightLevelSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);

@@ -3624,4 +3624,48 @@ ProcedureSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_SPECIALIZATION);
 }
 
+RQ_ALWAYS_INLINE Template::Template(rq::SymbolKind kind)
+    : LazyDeclaration(kind) {
+  RQ_ASSERT(rq::getIsTemplate(kind), "not template");
+}
+
+RQ_ALWAYS_INLINE void Template::setLayout(rq::LayoutType &layout) {
+  rq::assignSingleValue(this->_layout_ptr, &layout);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *Template::getLayoutPtr() {
+  return this->_layout_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *
+Template::getLayoutPtr() const {
+  return this->_layout_ptr;
+}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel>
+Template::getWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel>(
+      rq::NextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel>
+Template::getWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel>
+Template::getConstWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel>(this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel>());
+}
+
+[[nodiscard]] inline bool Template::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getIsTemplate();
+}
+
 } // namespace rq
