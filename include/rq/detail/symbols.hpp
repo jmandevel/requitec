@@ -3700,4 +3700,36 @@ EnumTemplate::getConstEnumWeightLevelSubrange() const {
   return entity.getId() == rq::getId(rq::SymbolKind::ENUM_TEMPLATE);
 }
 
+RQ_ALWAYS_INLINE ClassTemplate::ClassTemplate()
+    : Template(rq::SymbolKind::CLASS_TEMPLATE) {}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+ClassTemplate::getClassWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+ClassTemplate::getClassWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
+ClassTemplate::getConstClassWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ClassWeightLevel>());
+}
+
+[[nodiscard]] inline bool ClassTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CLASS_TEMPLATE);
+}
+
 } // namespace rq
