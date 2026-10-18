@@ -28,7 +28,7 @@ template::{ ...Types:std.Type <}
 
 template::{ ...Types:std.Type <}
 [procedure printThird, ( ...values::Types <)Void,
-    pre [if values.[count] < 3,
+    pre [if values.[element_count] < 3,
         std.print(line="There are less than three!");
     ][else
         // third element is at 0 two because polyadic argments are 0 indexed.
