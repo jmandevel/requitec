@@ -8,7 +8,7 @@
     // the binding is required when tuple type is inferenced to specify type modifiers per element.
     inferenced := { named:mut\="I'm name-keyed", noname:mut\="I'm type-keyed" };
 
-    // can determine if tuple has type-keyed value at interpret time with .[has] ailcar
+    // can determine if tuple has type-keyed value at interpret time with .[has] railcar
     pre
     [if inferenced.[variable].[type].[has Slice@Utf8],
         // can get the value with .[get] railcar
