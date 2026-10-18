@@ -3732,4 +3732,37 @@ ClassTemplate::getConstClassWeightLevelSubrange() const {
   return entity.getId() == rq::getId(rq::SymbolKind::CLASS_TEMPLATE);
 }
 
+RQ_ALWAYS_INLINE InterfaceTemplate::InterfaceTemplate()
+    : Template(rq::SymbolKind::INTERFACE_TEMPLATE) {}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+InterfaceTemplate::getInterfaceWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+InterfaceTemplate::getInterfaceWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
+InterfaceTemplate::getConstInterfaceWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::InterfaceWeightLevel>());
+}
+
+[[nodiscard]] inline bool
+InterfaceTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_TEMPLATE);
+}
+
 } // namespace rq
