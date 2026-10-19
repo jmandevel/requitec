@@ -1,7 +1,7 @@
 
 [namespace example,
     template::{> Type:type, LENGTH:USize <}
-    xomputes
+    computes
     [procedure getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
         result <:= LENGTH;
     ];
