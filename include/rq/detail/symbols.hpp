@@ -609,6 +609,15 @@ RQ_ALWAYS_INLINE ModifierType::ModifierType()
   return entity.getId() == rq::getId(rq::SymbolKind::MODIFIER_TYPE);
 }
 
+RQ_ALWAYS_INLINE VariadicArgumentsType::VariadicArgumentsType()
+    : SimpleSymbol(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE) {}
+
+[[nodiscard]] inline bool
+VariadicArgumentsType::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE);
+}
+
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
                                   rq::ConstantSymbol &child)
     : Symbol(kind), _child_ptr(&child) {
