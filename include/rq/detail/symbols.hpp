@@ -97,6 +97,8 @@ namespace rq {
     return "ScaledLUInt";
   case S::VARIADIC_ARGUMENTS_TYPE:
     return "VariadicArguments";
+  case S::CHECK:
+    return "Check";
   case S::ARRAY_SUBTYPE:
     return "Array";
   case S::REF_SUBTYPE:
@@ -616,6 +618,13 @@ RQ_ALWAYS_INLINE VariadicArgumentsType::VariadicArgumentsType()
 VariadicArgumentsType::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE);
+}
+
+RQ_ALWAYS_INLINE Check::Check() : SimpleSymbol(rq::SymbolKind::CHECK) {}
+
+[[nodiscard]] inline bool Check::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::CHECK);
 }
 
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,

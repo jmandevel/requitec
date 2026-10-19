@@ -96,6 +96,7 @@ struct Symbol;
       struct ModifierType;
       struct QualifierType;
     struct VariadicArgumentsType;
+    struct Check;
   struct Subtype;
     struct ArraySubtype;
     struct SimpleSubtype;
@@ -533,6 +534,14 @@ struct VariadicArgumentsType final : public rq::SimpleSymbol {
   using Self = rq::VariadicArgumentsType;
 
   explicit RQ_ALWAYS_INLINE VariadicArgumentsType();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Check final : public rq::SimpleSymbol {
+  using Self = rq::Check;
+
+  explicit RQ_ALWAYS_INLINE Check();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
