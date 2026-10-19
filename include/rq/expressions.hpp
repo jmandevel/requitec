@@ -324,6 +324,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "this";
   case K::CALLSITE:
     return "callsite";
+  case K::CHECK:
+    return "check";
 
   // BUILTIN TYPES
   case K::SYMBOL:
@@ -1186,6 +1188,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CALLSITE:
     return KIF::RVALUE;
+  case K::CHECK:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // BUILTIN TYPES
   case K::SYMBOL:

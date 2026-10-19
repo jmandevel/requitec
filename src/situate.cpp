@@ -639,7 +639,11 @@ bool Situator::situateTree(rq::Situation situation,
   case K::THIS:
     [[fallthrough]];
   case K::CALLSITE:
-    [[fallthrough]];
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::CHECK:
+    is_ok = this->situateStatementTagStatement(situation, expression);
+    break;
 
   // BUILTIN TYPES
   case K::SYMBOL:

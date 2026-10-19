@@ -190,6 +190,8 @@ enum class Keyword : rq::EntityId {
   THIS,
   // get information about location of a procedure call
   CALLSITE,
+  // pre only value for modifier attachments
+  CHECK,
 
   // BUILTIN TYPES
   SYMBOL,
