@@ -1,4 +1,3 @@
-computes
 [main ()SInt, result,
   result <:= 0;
 ];
