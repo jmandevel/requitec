@@ -3765,4 +3765,39 @@ InterfaceTemplate::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_TEMPLATE);
 }
 
+RQ_ALWAYS_INLINE LazyVariableTemplate::LazyVariableTemplate()
+    : Template(rq::SymbolKind::LAZY_VARIABLE_TEMPLATE) {}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
+LazyVariableTemplate::getLazyVariableWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
+                                    rq::LazyVariableWeightLevel>
+LazyVariableTemplate::getLazyVariableWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
+                                    rq::LazyVariableWeightLevel>
+LazyVariableTemplate::getConstLazyVariableWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::LazyVariableWeightLevel>());
+}
+
+[[nodiscard]] inline bool
+LazyVariableTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::LAZY_VARIABLE_TEMPLATE);
+}
+
 } // namespace rq
