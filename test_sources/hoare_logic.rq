@@ -1,7 +1,13 @@
 template::{ Type:Symbol <}
-constraint::(Type.[is_type])
-require::(b != 0)
-ensure::(result >= 0)
+constraint::[check result,
+    result<:=Type.[is_type];
+]
+require::[check result, 
+    result<:=(b != 0);
+]
+ensure::[check result,
+    result<:=(result >= 0);
+]
 computes
 [procedure divideSquare, ( a:Type, b:Type <)Type, result,
     divide_result := a / b;

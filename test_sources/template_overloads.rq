@@ -1,5 +1,7 @@
 template::{ Type:Symbol <}
-constraint::(Type.[is_type])
+constraint::[check result,
+    result<:=Type.[is_type];
+]
 computes
 [procedure asSigned, 
     pre Signed : = [SInt Type.[byte_size]];

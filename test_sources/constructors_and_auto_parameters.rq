@@ -1,5 +1,7 @@
 template::{> auto Element:Symbol <}
-constraint::Element.[is_type]
+constraint::[check result,
+    result<:=Element.[is_type]
+]
 [class Vector4,
     // everything before layout is surveyed (not evaluated) at class survey time.
     // constructors before signature can use auto template parameters.

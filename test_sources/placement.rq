@@ -7,7 +7,9 @@ opaque mangle::free
 [procedure free, (ptr:Ptr@mut\Void<)Void];
 
 template::{ Type:symbol<}
-constraint::(Type.[is_type])
+constraint::[check result,
+    result<:=Type.[is_type];
+]
 [class UniquePtr,
     { ptr:Ptr@mut\Type <},
 
@@ -15,7 +17,9 @@ constraint::(Type.[is_type])
 
     public inline
     template::{Placement:symbol<}
-    constraint::Placement.[is_placement_type Type]
+    constraint::[check result,
+        result<:=Placement.[is_placement_type Type];
+    ]
     [procedure create, 
         (placement:Placement<)mut\UniquePtr{Type}, result,
 

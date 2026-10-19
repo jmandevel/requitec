@@ -4,7 +4,9 @@ u32 := UInt32;
 integer_value  : u32 = 0;
 
 template::{> Type:symbol <}
-constraint::(Type.[is_integer_type])
+constraint::[check result,
+    result<:=Type.[is_integer_type];
+]
 computes
 [procedure addA, (> a:Type, b:Type <)Type, result,
     result <:= a + b;

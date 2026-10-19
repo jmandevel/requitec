@@ -1,7 +1,5 @@
 [import "std", std];
 
-
-
 // computes and affects modifiers are applied to functions to notate if they have side effects.
 // this is used to do compile time optimizations.
 // also, you cannot have an affects function as an rvalue sub-expression.

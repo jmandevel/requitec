@@ -18,7 +18,15 @@
 
 [import "std", std];
 
-template::{ ...Types:TYPE <}
+template::{ ...Types:Symbol <}
+constraint::[check result,
+    [for Types, Type:=value.[ref],
+        [if !Type.[is_type],
+            result <:= false;
+        ];
+    ];
+    result <:= true;
+]
 [procedure printAll, ( ...values:Types <)Void,
     // note: must be pre so loop gets unrolled because types could be different.
     pre [for values, value:=value.[ref], 
@@ -26,7 +34,10 @@ template::{ ...Types:TYPE <}
     ];
 ];
 
-template::{ ...Types:TYPE <}
+template::{ ...Types:Symbol <}
+constraint::[check result,
+    result <:= true;
+]
 [procedure printThird, ( ...values::Types <)Void,
     pre [if values.[element_count] < 3,
         std.print(line="There are less than three!");

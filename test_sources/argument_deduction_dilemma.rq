@@ -1,5 +1,7 @@
 template::{> count_div_2:UIndex, auto Element:Symbol <}
-constraint::(count_div_2 >= 0 && Element.[is_type])
+constraint::[check result,
+    result<:=count_div_2 >= 0 && Element.[is_type];
+]
 [class DoubleArray,
 
     // the problem is this: 
