@@ -468,6 +468,16 @@ rq::Expression &RequiteParser::parsePrecedence5() {
       precedence_factory.parseNary(token, rq::Keyword::MODULUS);
       precedence_factory.setRecent(this->parsePrecedence4());
       continue;
+    case rq::TokenKind::STAR_PERCENT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::WRAPPING_MULTIPLY);
+      precedence_factory.setRecent(this->parsePrecedence4());
+      continue;
+    case rq::TokenKind::STAR_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::SATURATING_MULTIPLY);
+      precedence_factory.setRecent(this->parsePrecedence4());
+      continue;
     default:
       break;
     }
@@ -495,6 +505,26 @@ rq::Expression &RequiteParser::parsePrecedence4() {
     case rq::TokenKind::DASH_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::SUBTRACT);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
+    case rq::TokenKind::PLUS_PERCENT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::WRAPPING_ADD);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
+    case rq::TokenKind::DASH_PERCENT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::WRAPPING_SUBTRACT);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
+    case rq::TokenKind::PLUS_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::SATURATING_ADD);
+      precedence_factory.setRecent(this->parsePrecedence3());
+      continue;
+    case rq::TokenKind::DASH_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseNary(token, rq::Keyword::SATURATING_SUBTRACT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::APPEND_OPERATOR:

@@ -78,7 +78,14 @@ enum class Keyword : rq::EntityId {
   MULTIPLY,
   DIVIDE,
   MODULUS,
+  WRAPPING_ADD,
+  WRAPPING_SUBTRACT,
+  WRAPPING_MULTIPLY,
+  SATURATING_ADD,
+  SATURATING_SUBTRACT,
+  SATURATING_MULTIPLY,
   NEGATE,
+
 
   // CASTS
   AS,
@@ -195,6 +202,7 @@ enum class Keyword : rq::EntityId {
 
   // BUILTIN TYPES
   SYMBOL,
+  CHECK_TYPE,
   INFERENCE,
   EXPRESSION,
   VOID,

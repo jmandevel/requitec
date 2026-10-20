@@ -29,6 +29,12 @@ enum class TokenKind : std::uint_fast8_t {
   STAR_OPERATOR,               // *
   SLASH_OPERATOR,              // /
   PERCENT_OPERATOR,            // %
+  PLUS_PERCENT_OPERATOR,       // +%
+  DASH_PERCENT_OPERATOR,       // -%
+  STAR_PERCENT_OPERATOR,       // *%
+  PLUS_PIPE_OPERATOR,          // +|
+  DASH_PIPE_OPERATOR,          // -|
+  STAR_PIPE_OPERATOR,          // *|
   BACKSLASH_OPERATOR,          // \    .
   CAROT_OPERATOR,              // ^
   DOUBLE_CAROT_OPERATOR,       // ^^
@@ -154,6 +160,18 @@ getName(rq::TokenKind kind) {
     return "backslash_operator";
   case T::PERCENT_OPERATOR:
     return "percent_operator";
+  case T::PLUS_PERCENT_OPERATOR:
+    return "plust_percent_operator";
+  case T::DASH_PERCENT_OPERATOR:
+    return "dash_percent_operator";
+  case T::STAR_PERCENT_OPERATOR:
+    return "star_percent_operator";
+  case T::PLUS_PIPE_OPERATOR:
+    return "plus_pipe_operator";
+  case T::DASH_PIPE_OPERATOR:
+    return "dash_pipe_operator";
+  case T::STAR_PIPE_OPERATOR:
+    return "star_pipe_operator";
   case T::CAROT_OPERATOR:
     return "carot_operator";
   case T::DOUBLE_CAROT_OPERATOR:
@@ -320,6 +338,18 @@ getInfoFlags(rq::TokenKind kind) {
   case T::SLASH_OPERATOR:
     return TF::OPERATOR;
   case T::PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::PLUS_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DASH_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::STAR_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::PLUS_PIPE_OPERATOR:
+    return TF::OPERATOR;
+  case T::DASH_PIPE_OPERATOR:
+    return TF::OPERATOR;
+  case T::STAR_PIPE_OPERATOR:
     return TF::OPERATOR;
   case T::BACKSLASH_OPERATOR:
     return TF::OPERATOR;
