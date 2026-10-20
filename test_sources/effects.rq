@@ -1,24 +1,24 @@
 [import "std", std];
 
-// computes and affects modifiers are applied to functions to notate if they have side effects.
+// pure and impure modifiers are applied to functions to notate if they have side effects.
 // this is used to do compile time optimizations.
-// also, you cannot have an affects function as an rvalue sub-expression.
+// also, you cannot have an impure function as an rvalue sub-expression.
 // this forces you to write requite in multiple statements, storing intermediate values in variables.
 // this makes control flow much more clear than other languages!
 
-// a computes function has no side effect.
-// if a computes function does something with a side effect, this causes a compiler error.
+// a pure function has no side effect.
+// if a pure function does something with a side effect, this causes a compiler error.
 // note that the act of referencing is not a side effect, but modifying the referenced value is.
 // notes that assigning to return value upbinding is not considered a side effect.
-computes
+pure
 [function myAdd, (> a:SInt, b:SInt <)SInt, result,
     result <:= a + b;
 ];
 
-// affects functions have side effects. in this case, calling print outputs text to stdout.
-// affects is default, so if no modifier is applied functions automatically have affects.
+// impure functions have side effects. in this case, calling print outputs text to stdout.
+// impure is default, so if no modifier is applied functions automatically have impure.
 // writing it explicitly here for this example.
-affects
+impure
 [function myPrint, (> val:SInt)SInt,
     std.print(line="Hello, world!");
 ];
@@ -29,10 +29,10 @@ affects
 runtime predefined MY_NUMBER := myAdd(1, 2);
 
 [main ()SInt, result,
-    // computes functions can be rvalue sub-expressions
+    // pure functions can be rvalue sub-expressions
     added := myAdd(1, myAdd(2, 3));
 
-    // affects functions cannot be rvalue sub-expressions
+    // impure functions cannot be rvalue sub-expressions
     printed := myPrint(3);
 
     // if this is uncommented, its a compiler error

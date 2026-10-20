@@ -2,7 +2,7 @@ template::{ Type:Symbol <}
 constraint::[check result,
     result<:=Type.[is_type];
 ]
-computes
+pure
 [procedure asSigned, 
     pre Signed : = [SInt Type.[byte_size]];
     ( mut:Type <)Signed, result,

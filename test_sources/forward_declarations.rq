@@ -1,4 +1,4 @@
-opaque mangle::myForwardedAdd computes
+opaque mangle::myForwardedAdd pure
 [procedure myForwardedAdd, (> a:Single, b:Single <)Single];
 
 // you have to write the signature again, and it has to be identical

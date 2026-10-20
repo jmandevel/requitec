@@ -7,7 +7,7 @@ template::{> Type:symbol <}
 constraint::[check result,
     result<:=Type.[is_integer_type];
 ]
-computes
+pure
 [procedure addA, (> a:Type, b:Type <)Type, result,
     result <:= a + b;
 ];

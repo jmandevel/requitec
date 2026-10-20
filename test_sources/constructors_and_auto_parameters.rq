@@ -7,11 +7,11 @@ constraint::[check result,
     // constructors before signature can use auto template parameters.
 
     // layout constructor:
-    public computes
+    public pure
     [layout_constructor];
 
     // scalar constructor:
-    public computes
+    public pure
     [constructor {> scalar:Element <}, result,
         result <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
     ];

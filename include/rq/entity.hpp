@@ -323,8 +323,8 @@ enum class Keyword : rq::EntityId {
   LINKED,
   INLINE,
   // side effects
-  COMPUTES,
-  AFFECTS,
+  PURE,
+  IMPURE,
   // mangle
   STANDARD_MANGLE,
   MANGLE,

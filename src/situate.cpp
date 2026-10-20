@@ -951,9 +951,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::INLINE:
     [[fallthrough]];
-  case K::COMPUTES:
+  case K::PURE:
     [[fallthrough]];
-  case K::AFFECTS:
+  case K::IMPURE:
     [[fallthrough]];
   case K::STANDARD_MANGLE:
     [[fallthrough]];

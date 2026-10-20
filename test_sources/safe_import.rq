@@ -12,7 +12,7 @@
 ];
 
 [namespace A,
-    computes
+    pure
     [procedure getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 

@@ -1,4 +1,4 @@
-computes
+pure
 [procedure myProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
@@ -9,7 +9,7 @@ computes
     (positional + positional_and_named + named + locked);
 ];
 
-computes
+pure
 [procedure myOtherProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
@@ -19,7 +19,7 @@ computes
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-computes
+pure
 [procedure myThirdProcedure, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,

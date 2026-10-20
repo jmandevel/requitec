@@ -8,7 +8,7 @@ require::[check result,
 ensure::[check result,
     result<:=(result >= 0);
 ]
-computes
+pure
 [procedure divideSquare, ( a:Type, b:Type <)Type, result,
     divide_result := a / b;
     square := divide_result * divide_result;

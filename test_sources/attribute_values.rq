@@ -24,7 +24,7 @@
     constraint::[check result,
         result<:=mut0.[is_mut_qualifier];
     ]
-    computes
+    pure
     [procedure getNumRef, ()Ref@mut0\SInt=>Ref@mut0\, result,
         result <:= this.num.mut0\[ref]
     ];

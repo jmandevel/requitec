@@ -1,14 +1,14 @@
 
 [namespace example,
     template::{> Type:type, LENGTH:USize <}
-    computes
+    pure
     [procedure getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
         result <:= LENGTH;
     ];
 
-    [class Foo, public computes[layout_constructor]; {}];
+    [class Foo, public pure[layout_constructor]; {}];
 
-    computes
+    pure
     [procedure bar, ()Void=>$example.Foo,
     
     ];

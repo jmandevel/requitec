@@ -332,6 +332,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "Symbol";
   case K::INFERENCE:
     return "_Inference";
+  case K::CHECK_TYPE:
+    return "Check";
   case K::EXPRESSION:
     return "Expression";
   case K::VOID:
@@ -548,10 +550,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "linked";
   case K::INLINE:
     return "inline";
-  case K::COMPUTES:
-    return "computes";
-  case K::AFFECTS:
-    return "affects";
+  case K::PURE:
+    return "pure";
+  case K::IMPURE:
+    return "impure";
   case K::STANDARD_MANGLE:
     return "standard_mangle";
   case K::MANGLE:
@@ -1196,6 +1198,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::INFERENCE:
     return KIF::RVALUE | KIF::ARGUMENT;
+  case K::CHECK_TYPE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXPRESSION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VOID:
@@ -1416,9 +1420,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INLINE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::COMPUTES:
+  case K::PURE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::AFFECTS:
+  case K::IMPURE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::STANDARD_MANGLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2375,8 +2379,8 @@ enum class Modifier : std::uint_fast8_t {
   LINKED,
   INLINE,
   // side effects
-  COMPUTES,
-  AFFECTS,
+  PURE,
+  IMPURE,
   // mangle
   STANDARD_MANGLE,
   MANGLE,
@@ -2487,10 +2491,10 @@ enum class Modifier : std::uint_fast8_t {
     return "linked";
   case M::INLINE:
     return "inline";
-  case M::COMPUTES:
-    return "computes";
-  case M::AFFECTS:
-    return "affects";
+  case M::PURE:
+    return "pure";
+  case M::IMPURE:
+    return "impure";
   case M::STANDARD_MANGLE:
     return "standard_mangle";
   case M::MANGLE:
@@ -2738,9 +2742,9 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   INLINE = rq::getBit(28),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  COMPUTES = rq::getBit(29),
-  AFFECTS = rq::getBit(30),
-  SIDE_EFFECTS_MODIFIER_MASK = COMPUTES | AFFECTS,
+  PURE = rq::getBit(29),
+  IMPURE = rq::getBit(30),
+  SIDE_EFFECTS_MODIFIER_MASK = PURE | IMPURE,
 
   STANDARD_MANGLE = rq::getBit(31),
   MANGLE = rq::getBit(32),
@@ -2868,10 +2872,10 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::LINKED;
   case M::INLINE:
     return MFF::INLINE;
-  case M::COMPUTES:
-    return MFF::COMPUTES;
-  case M::AFFECTS:
-    return MFF::AFFECTS;
+  case M::PURE:
+    return MFF::PURE;
+  case M::IMPURE:
+    return MFF::IMPURE;
   case M::STANDARD_MANGLE:
     return MFF::STANDARD_MANGLE;
   case M::MANGLE:
@@ -3008,9 +3012,9 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::INLINE:
     return MIF::NO_ATTACHMENT;
-  case M::COMPUTES:
+  case M::PURE:
     return MIF::NO_ATTACHMENT;
-  case M::AFFECTS:
+  case M::IMPURE:
     return MIF::NO_ATTACHMENT;
   case M::STANDARD_MANGLE:
     return MIF::NO_ATTACHMENT;
@@ -3325,9 +3329,9 @@ enum class ModifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case M::INLINE:
     return MK::LINKAGE;
-  case M::COMPUTES:
+  case M::PURE:
     [[fallthrough]];
-  case M::AFFECTS:
+  case M::IMPURE:
     return MK::SIDE_EFFECTS;
   case M::STANDARD_MANGLE:
     [[fallthrough]];
