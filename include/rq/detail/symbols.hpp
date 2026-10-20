@@ -97,8 +97,6 @@ namespace rq {
     return "ScaledLUInt";
   case S::VARIADIC_ARGUMENTS_TYPE:
     return "VariadicArguments";
-  case S::CHECK:
-    return "Check";
   case S::ARRAY_SUBTYPE:
     return "Array";
   case S::REF_SUBTYPE:
