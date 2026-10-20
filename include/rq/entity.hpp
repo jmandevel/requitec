@@ -111,6 +111,7 @@ enum class Keyword : rq::EntityId {
 
   // MEMORY
   ASSIGN,
+  POLYADIC_PARAMETER,
   CONTENT,
   CONTENT_OF,
   ADDRESS,

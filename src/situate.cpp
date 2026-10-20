@@ -428,6 +428,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ASSIGN:
     is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
     break;
+  case K::POLYADIC_PARAMETER:
+    is_ok = this->situateUnaryTag(situation, expression, S::PARAMETER);
+    break;
   case K::CONTENT:
     is_ok = this->situateNullary(situation, expression);
     break;

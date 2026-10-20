@@ -56,6 +56,7 @@ enum class TokenKind : std::uint_fast8_t {
   CONCATENATE_OPERATOR,        // +>
   APPEND_OPERATOR,             // *>
   DOT_OPERATOR,                // .
+  ELIPSIS_OPERATOR,            // ...
   DOT_PLUS_OPERATOR,           // .+
   DOT_DASH_OPERATOR,           // .-
   DOT_STAR_OPERATOR,           // .*
@@ -218,6 +219,8 @@ getName(rq::TokenKind kind) {
     return "concatenate_operator";
   case T::DOT_OPERATOR:
     return "dot_operator";
+  case T::ELIPSIS_OPERATOR:
+    return "elipsis_operator";
   case T::DOT_PLUS_OPERATOR:
     return "dot_plus_operator";
   case T::DOT_DASH_OPERATOR:
@@ -410,6 +413,8 @@ getInfoFlags(rq::TokenKind kind) {
   case T::CONCATENATE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
+    return TF::OPERATOR;
+  case T::ELIPSIS_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_PLUS_OPERATOR:
     return TF::OPERATOR;

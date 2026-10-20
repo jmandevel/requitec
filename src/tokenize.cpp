@@ -184,6 +184,15 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '.':
       switch (this->getRanger().getChar(1)) {
+      case '.':
+        switch (this->getRanger().getChar(2)) {
+          case '.':
+            this->tokenizeLengthToken(T::ELIPSIS_OPERATOR, 3);
+            break;
+          default:
+            this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
+        }
+        break;
       case '+':
         switch (this->getRanger().getChar(2)) {
           case '%':

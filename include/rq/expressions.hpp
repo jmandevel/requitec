@@ -186,6 +186,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::ASSIGN:
     return "_assign";
+  case K::POLYADIC_PARAMETER:
+    return "_polyadic_parameter";
   case K::CONTENT:
     return "content";
   case K::CONTENT_OF:
@@ -1075,6 +1077,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // MEMORY
   case K::ASSIGN:
     return KIF::STATEMENT;
+  case K::POLYADIC_PARAMETER:
+    return KIF::PARAMETER;
   case K::CONTENT:
     return KIF::RAILCAR;
   case K::CONTENT_OF:

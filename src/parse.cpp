@@ -218,6 +218,11 @@ rq::Expression &RequiteParser::parsePrecedence10() {
                                      rq::Keyword::UNSITUATED_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
+    case rq::TokenKind::ELIPSIS_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::POLYADIC_PARAMETER);
+      precedence_factory.setRecent(this->parsePrecedence9());
+      continue;
     default:
       break;
     }
