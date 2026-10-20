@@ -540,16 +540,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "partially_mutable";
   case K::CONSTANT:
     return "constant";
-  case K::VARIABLE:
-    return "variable";
-  case K::ENUMERATOR:
-    return "enumerator";
-  case K::ALIAS:
-    return "alias";
-  case K::PARAMETER:
-    return "parameter";
-  case K::PORTAL:
-    return "portal";
   case K::EAGER:
     return "eager";
   case K::LAZY:
@@ -558,6 +548,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "pre";
   case K::POST:
     return "post";
+  case K::ALIAS:
+    return "alias";
+  case K::ENUMERATOR:
+    return "enumerator";
+  case K::CONCEPT:
+    return "concept";
   case K::RUNTIME:
     return "runtime";
   case K::GENTIME:
@@ -1436,16 +1432,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CONSTANT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VARIABLE:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ENUMERATOR:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ALIAS:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PARAMETER:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PORTAL:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EAGER:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LAZY:
@@ -1453,6 +1439,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::PRE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::POST:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ALIAS:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ENUMERATOR:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::CONCEPT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RUNTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2405,18 +2397,15 @@ enum class Modifier : std::uint_fast8_t {
   MUTABLE,
   PARTIALLY_MUTABLE,
   CONSTANT,
-  // assignment_kind
-  VARIABLE,
-  ENUMERATOR,
-  ALIAS,
-  PARAMETER,
-  PORTAL,
   // evaluation_time
   EAGER,
   LAZY,
-  // execution_time
+  // dialect
   PRE,
   POST,
+  ALIAS,
+  ENUMERATOR,
+  CONCEPT,
   // tenure
   RUNTIME,
   GENTIME,
@@ -2507,16 +2496,6 @@ enum class Modifier : std::uint_fast8_t {
     return "partially_mutable";
   case M::CONSTANT:
     return "constant";
-  case M::VARIABLE:
-    return "variable";
-  case M::ENUMERATOR:
-    return "enumerator";
-  case M::ALIAS:
-    return "alias";
-  case M::PARAMETER:
-    return "parameter";
-  case M::PORTAL:
-    return "portal";
   case M::EAGER:
     return "eager";
   case M::LAZY:
@@ -2525,6 +2504,12 @@ enum class Modifier : std::uint_fast8_t {
     return "pre";
   case M::POST:
     return "post";
+  case M::ALIAS:
+    return "alias";
+  case M::ENUMERATOR:
+    return "enumerator";
+  case M::CONCEPT:
+    return "concept";
   case M::RUNTIME:
     return "runtime";
   case M::GENTIME:
@@ -2638,16 +2623,6 @@ enum class Modifier : std::uint_fast8_t {
     return M::PARTIALLY_MUTABLE;
   case K::CONSTANT:
     return M::CONSTANT;
-  case K::VARIABLE:
-    return M::VARIABLE;
-  case K::ENUMERATOR:
-    return M::ENUMERATOR;
-  case K::ALIAS:
-    return M::ALIAS;
-  case K::PARAMETER:
-    return M::PARAMETER;
-  case K::PORTAL:
-    return M::PORTAL;
   case K::EAGER:
     return M::EAGER;
   case K::LAZY:
@@ -2656,6 +2631,12 @@ enum class Modifier : std::uint_fast8_t {
     return M::PRE;
   case K::POST:
     return M::POST;
+  case K::ALIAS:
+    return M::ALIAS;
+  case K::ENUMERATOR:
+    return M::ENUMERATOR;
+  case K::CONCEPT:
+    return M::CONCEPT;
   case K::RUNTIME:
     return M::RUNTIME;
   case K::GENTIME:
@@ -2762,25 +2743,21 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   CONSTANT = rq::getBit(10),
   MUTATE_MODIFIER_MASK = MUTABLE | PARTIALLY_MUTABLE | CONSTANT,
 
-  VARIABLE = rq::getBit(11),
-  ENUMERATOR = rq::getBit(12),
-  ALIAS = rq::getBit(13),
-  PARAMETER = rq::getBit(14),
-  PORTAL = rq::getBit(15),
-  ASSIGNMENT_KIND_MASK = VARIABLE | ENUMERATOR | ALIAS | PARAMETER | PORTAL,
-
   EAGER = rq::getBit(16),
   LAZY = rq::getBit(17),
   EVALUATION_TIME_MASK = EAGER | LAZY,
 
   PRE = rq::getBit(18),
   POST = rq::getBit(19),
-  EXECUTION_TIME_MASK = PRE | POST,
+  ALIAS = rq::getBit(20),
+  ENUMERATOR = rq::getBit(21),
+  CONCEPT = rq::getBit(22),
+  DIALECT_MODIFIER_MASK = PRE | POST | ALIAS | ENUMERATOR | CONCEPT,
 
   RUNTIME = rq::getBit(20),
   GENTIME = rq::getBit(21),
   ANYTIME = rq::getBit(22),
-  TENURE_MASK = RUNTIME | GENTIME | ANYTIME,
+  TENURE_MODIFIER_MASK = RUNTIME | GENTIME | ANYTIME,
 
   PRESET = rq::getBit(23),
   SINGLETON = rq::getBit(24),
@@ -2788,7 +2765,7 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
 
   CAPTURE = rq::getBit(25),
   STATELESS = rq::getBit(26),
-  CLOSURE_MASK = CAPTURE | STATELESS,
+  CLOSURE_MODIFIER_MASK = CAPTURE | STATELESS,
 
   LINKED = rq::getBit(27),
   INLINE = rq::getBit(28),
@@ -2888,20 +2865,16 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::PARTIALLY_MUTABLE;
   case M::CONSTANT:
     return MFF::CONSTANT;
-  case M::VARIABLE:
-    return MFF::VARIABLE;
-  case M::ENUMERATOR:
-    return MFF::ENUMERATOR;
-  case M::ALIAS:
-    return MFF::ALIAS;
-  case M::PARAMETER:
-    return MFF::PARAMETER;
-  case M::PORTAL:
-    return MFF::PORTAL;
   case M::PRE:
     return MFF::PRE;
   case M::POST:
     return MFF::POST;
+  case M::ALIAS:
+    return MFF::ALIAS;
+  case M::ENUMERATOR:
+    return MFF::ENUMERATOR;
+  case M::CONCEPT:
+    return MFF::CONCEPT;
   case M::RUNTIME:
     return MFF::RUNTIME;
   case M::GENTIME:
@@ -3028,19 +3001,15 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::CONSTANT:
     return MIF::NO_ATTACHMENT;
-  case M::VARIABLE:
-    return MIF ::NO_ATTACHMENT;
-  case M::ENUMERATOR:
-    return MIF::NO_ATTACHMENT;
-  case M::ALIAS:
-    return MIF::NO_ATTACHMENT;
-  case M::PARAMETER:
-    return MIF::NO_ATTACHMENT;
-  case M::PORTAL:
-    return MIF::NO_ATTACHMENT;
   case M::PRE:
     return MIF::NO_ATTACHMENT;
   case M::POST:
+    return MIF::NO_ATTACHMENT;
+  case M::ALIAS:
+    return MIF::NO_ATTACHMENT;
+  case M::ENUMERATOR:
+    return MIF::NO_ATTACHMENT;
+  case M::CONCEPT:
     return MIF::NO_ATTACHMENT;
   case M::RUNTIME:
     return MIF::NO_ATTACHMENT;
@@ -3156,10 +3125,9 @@ enum class ModifierKind : std::uint_fast8_t {
   VISIBIITY,
   ACCESS,
   MUTABILITY,
-  ASSIGNMENT_KIND,
-  EXECUTION_TIME,
-  TENURE,
   EVALUATION_TIME,
+  DIALECT,
+  TENURE,
   INITIALIZATION_TIME,
   CLOSURE,
   LINKAGE,
@@ -3197,14 +3165,12 @@ enum class ModifierKind : std::uint_fast8_t {
     return "access modifier";
   case MK::MUTABILITY:
     return "mutability modifier";
-  case MK::ASSIGNMENT_KIND:
-    return "assignment kind modifier";
-  case MK::EXECUTION_TIME:
-    return "generation time modifier";
-  case MK::TENURE:
-    return "execution time modifier";
   case MK::EVALUATION_TIME:
     return "evaluation time modifier";
+  case MK::DIALECT:
+    return "dialect modifier";
+  case MK::TENURE:
+    return "execution time modifier";
   case MK::INITIALIZATION_TIME:
     return "initialization time modifier";
   case MK::CLOSURE:
@@ -3265,18 +3231,16 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::ACCESS_MODIFIER_MASK;
   case MK::MUTABILITY:
     return MFF::MUTATE_MODIFIER_MASK;
-  case MK::ASSIGNMENT_KIND:
-    return MFF::ASSIGNMENT_KIND_MASK;
-  case MK::EXECUTION_TIME:
-    return MFF::EXECUTION_TIME_MASK;
-  case MK::TENURE:
-    return MFF::TENURE_MASK;
   case MK::EVALUATION_TIME:
     return MFF::EVALUATION_TIME_MASK;
+  case MK::DIALECT:
+    return MFF::DIALECT_MODIFIER_MASK;
+  case MK::TENURE:
+    return MFF::TENURE_MODIFIER_MASK;
   case MK::INITIALIZATION_TIME:
     return MFF::INITIALIZATION_TIME_MASK;
   case MK::CLOSURE:
-    return MFF::CLOSURE_MASK;
+    return MFF::CLOSURE_MODIFIER_MASK;
   case MK::LINKAGE:
     return MFF::LINKAGE_MODIFIER_MASK;
   case MK::SIDE_EFFECTS:
@@ -3345,20 +3309,16 @@ enum class ModifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case M::CONSTANT:
     return MK::MUTABILITY;
-  case M::VARIABLE:
-    [[fallthrough]];
-  case M::ENUMERATOR:
-    [[fallthrough]];
-  case M::ALIAS:
-    [[fallthrough]];
-  case M::PARAMETER:
-    [[fallthrough]];
-  case M::PORTAL:
-    return MK::ASSIGNMENT_KIND;
   case M::PRE:
     [[fallthrough]];
   case M::POST:
-    return MK::EXECUTION_TIME;
+    [[fallthrough]];
+  case M::ALIAS:
+    [[fallthrough]];
+  case M::ENUMERATOR:
+    [[fallthrough]];
+  case M::CONCEPT:
+    return MK::DIALECT;
   case M::RUNTIME:
     [[fallthrough]];
   case M::GENTIME:

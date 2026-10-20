@@ -311,18 +311,15 @@ enum class Keyword : rq::EntityId {
   MUTABLE,
   PARTIALLY_MUTABLE,
   CONSTANT,
-  // assignment_kind
-  VARIABLE,
-  ENUMERATOR,
-  ALIAS,
-  PARAMETER,
-  PORTAL,
   // evaluation_time
   EAGER,
   LAZY,
-  // execution_time (eager symbols and statements)
+  // dialect
   POST,
   PRE,
+  ALIAS,
+  ENUMERATOR,
+  CONCEPT,
   // tenure (lazy symbols)
   RUNTIME,
   GENTIME,
