@@ -1381,17 +1381,17 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // POLYMORPHS
   case S::CLASS_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
   case S::ENUM_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
   case S::INTERFACE_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
   case S::ADAPTER_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
   case S::PROCEDURE_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
   case S::LAZY_VARIABLE_POLYMORPH:
-    return SIF::NONE;
+    return SIF::POLYMORPH;
 
   // WEIGHT LEVELS
   case S::CLASS_WEIGHT_LEVEL:
@@ -1399,13 +1399,13 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::ENUM_WEIGHT_LEVEL:
     return SIF::NONE;
   case S::INTERFACE_WEIGHT_LEVEL:
-    return SIF::NONE;
+    return SIF::WEIGHT_LEVEL;
   case S::ADAPTER_WEIGHT_LEVEL:
-    return SIF::NONE;
+    return SIF::WEIGHT_LEVEL;
   case S::PROCEDURE_WEIGHT_LEVEL:
-    return SIF::NONE;
+    return SIF::WEIGHT_LEVEL;
   case S::LAZY_VARIABLE_WEIGHT_LEVEL:
-    return SIF::NONE;
+    return SIF::WEIGHT_LEVEL;
   case S::LAST:
     break;
 

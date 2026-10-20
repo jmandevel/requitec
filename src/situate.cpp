@@ -749,11 +749,6 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, S::STARTING_SWITCH_CHAINLINK,
         S::CONTINUING_SWITCH_CHAINLINK, S::FINISHING_SWITCH_CHAINLINK);
     break;
-  case K::SPIN_CHAIN:
-    is_ok = this->situateChainBranches(
-        situation, expression, S::STARTING_SPIN_CHAINLINK,
-        S::CONTINUING_SPIN_CHAINLINK, S::FINISHING_SPIN_CHAINLINK);
-    break;
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
@@ -777,12 +772,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::WHILE:
     is_ok = this->situateStatementTagStatement(situation, expression);
-    break;
-  case K::SPIN:
-    is_ok = this->situateStatementTagStatement(situation, expression);
-    break;
-  case K::WEAVE:
-    is_ok = this->situateStatementVignetteStatement(situation, expression);
     break;
   case K::SCOPE:
     is_ok = this->situateStatement(expression);
