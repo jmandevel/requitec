@@ -1,6 +1,6 @@
-// note: polyadic parameters can never be named.
+// note: polyadic parameters can never be nonpositional.
 
-// note:parameter marks must be placed appropriatly.
+// note: parameter marks must be placed appropriatly.
 
 // note: there can only ever be one polyadic parameter in a signature or layout.
 
