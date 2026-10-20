@@ -352,6 +352,18 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DIVIDE:
     [[fallthrough]];
   case K::MODULUS:
+    [[fallthrough]];
+  case K::WRAPPING_ADD:
+    [[fallthrough]];
+  case K::WRAPPING_SUBTRACT:
+    [[fallthrough]];
+  case K::WRAPPING_MULTIPLY:
+    [[fallthrough]];
+  case K::SATURATING_ADD:
+    [[fallthrough]];
+  case K::SATURATING_SUBTRACT:
+    [[fallthrough]];
+  case K::SATURATING_MULTIPLY:
     is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
     break;
   case K::NEGATE:

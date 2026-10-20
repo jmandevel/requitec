@@ -128,6 +128,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_divide";
   case K::MODULUS:
     return "_modulus";
+  case K::WRAPPING_ADD:
+    return "_wrapping_add";
+  case K::WRAPPING_SUBTRACT:
+    return "_wrapping_subtract";
+  case K::WRAPPING_MULTIPLY:
+    return "_wrapping_multiply";
+  case K::SATURATING_ADD:
+    return "_saturating_add";
+  case K::SATURATING_SUBTRACT:
+    return "_saturating_subtract";
+  case K::SATURATING_MULTIPLY:
+    return "_saturating_multiply";
   case K::NEGATE:
     return "_negate";
 
