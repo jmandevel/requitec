@@ -131,7 +131,7 @@ void PrecedenceFactory::appendBranch(rq::Expression &branch) {
 }
 
 void PrecedenceFactory::appendNullaryModifier(const rq::Token &token,
-                                               rq::Keyword keyword) {
+                                              rq::Keyword keyword) {
   rq::Expression &expression = this->getContext().acquireExpression();
   expression.setKeyword(keyword);
   expression.setSource(token);
@@ -353,14 +353,12 @@ rq::Expression &RequiteParser::parsePrecedence7() {
     switch (token.getKind()) {
     case rq::TokenKind::DOUBLE_PIPE_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token,
-                                   rq::Keyword::LOGICAL_OR);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_OR);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     case rq::TokenKind::DOUBLE_AMBERSAND_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token,
-                                   rq::Keyword::LOGICAL_AND);
+      precedence_factory.parseNary(token, rq::Keyword::LOGICAL_AND);
       precedence_factory.setRecent(this->parsePrecedence6());
       continue;
     default:
@@ -688,8 +686,9 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       continue;
     case rq::TokenKind::BACKSLASH_OPERATOR: {
       this->getRanger().incrementToken(1);
-      precedence_factory.parseAscribe(post_token.getSourceText(),
-                                      rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER);
+      precedence_factory.parseAscribe(
+          post_token.getSourceText(),
+          rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER);
       precedence_factory.appendRecent();
       continue;
     }
