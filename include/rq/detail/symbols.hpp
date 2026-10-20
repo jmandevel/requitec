@@ -3842,4 +3842,37 @@ AdapterTemplate::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_TEMPLATE);
 }
 
+RQ_ALWAYS_INLINE ProcedureTemplate::ProcedureTemplate()
+    : Template(rq::SymbolKind::PROCEDURE_TEMPLATE) {}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+ProcedureTemplate::getProcedureWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+ProcedureTemplate::getProcedureWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
+ProcedureTemplate::getConstProcedureWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+}
+
+[[nodiscard]] inline bool
+ProcedureTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_TEMPLATE);
+}
+
 } // namespace rq
