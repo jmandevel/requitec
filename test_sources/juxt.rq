@@ -1,6 +1,6 @@
 [import "std", std];
 
-template::{> auto List:ANY <}
+template::{> auto List:SYMBOL <}
 [procedure printList, (> list:List <)Void,
     std.print(line="begin!");
     pre [for list, item:=value.[ref],
