@@ -3809,4 +3809,37 @@ LazyVariableTemplate::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::LAZY_VARIABLE_TEMPLATE);
 }
 
+RQ_ALWAYS_INLINE AdapterTemplate::AdapterTemplate()
+    : Template(rq::SymbolKind::ADAPTER_TEMPLATE) {}
+
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+AdapterTemplate::getAdapterWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::NextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+AdapterTemplate::getAdapterWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
+AdapterTemplate::getConstAdapterWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>(
+          this->_first_weight_level_ptr),
+      rq::ConstNextIterator<rq::WeightLevel, rq::AdapterWeightLevel>());
+}
+
+[[nodiscard]] inline bool
+AdapterTemplate::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_TEMPLATE);
+}
+
 } // namespace rq
