@@ -198,12 +198,9 @@ enum class Keyword : rq::EntityId {
   THIS,
   // get information about location of a procedure call
   CALLSITE,
-  // pre only value for modifier attachments
-  CHECK,
 
   // BUILTIN TYPES
   SYMBOL,
-  CHECK_TYPE,
   INFERENCE,
   EXPRESSION,
   VOID,
@@ -256,6 +253,8 @@ enum class Keyword : rq::EntityId {
   WEAVE,
   SCOPE,
   FOLD,
+  CHECK,
+  VERIFY,
   BREAK,
   BREAK_OF,
   CONTINUE,
@@ -567,9 +566,6 @@ enum class SymbolKind : rq::EntityId {
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS_TYPE,
-
-  // CHECK
-  CHECK,
 
   // SUBTYPES
   ARRAY_SUBTYPE,
@@ -1181,10 +1177,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::VARIADIC_ARGUMENTS_TYPE:
     return SIF::SIMPLE_SYMBOL | SIF::IS_RUNTIME_TYPE |
            SIF::IS_GENTIME_TYPE;
-
-  // CHECK
-  case S::CHECK:
-    return SIF::SIMPLE_SUBTYPE | SIF::IS_GENTIME_TYPE;
 
   // SUBTYPES
   case S::ARRAY_SUBTYPE:

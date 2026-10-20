@@ -6,7 +6,7 @@ opaque mangle::malloc
 opaque mangle::free
 [procedure free, (ptr:Ptr@mut\Void<)Void];
 
-template::{ Type:TYPE<}
+template::{ Type:TYPE <}
 [class UniquePtr,
     { ptr:Ptr@mut\Type <},
 

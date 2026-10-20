@@ -656,14 +656,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::CALLSITE:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::CHECK:
-    is_ok = this->situateStatementTagStatement(situation, expression);
-    break;
 
   // BUILTIN TYPES
   case K::SYMBOL:
-    [[fallthrough]];
-  case K::CHECK_TYPE:
     [[fallthrough]];
   case K::INFERENCE:
     [[fallthrough]];
@@ -795,6 +790,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::FOLD:
     is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING,
                                                     expression);
+    break;
+  case K::CHECK:
+    is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING, expression);
+    break;
+  case K::VERIFY:
+    is_ok = this->situateStatementTagStatement(situation, expression);
     break;
   case K::BREAK:
     is_ok = this->situateNullary(situation, expression);

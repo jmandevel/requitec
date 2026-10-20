@@ -1,8 +1,8 @@
 template::{ Type:TYPE <}
-require::[check result, 
+require::[verify result, 
     result<:=(b != 0);
 ]
-ensure::[check result,
+ensure::[verify result,
     result<:=(result >= 0);
 ]
 pure

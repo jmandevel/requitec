@@ -96,7 +96,6 @@ struct Symbol;
       struct ModifierType;
       struct QualifierType;
     struct VariadicArgumentsType;
-    struct Check;
   struct Subtype;
     struct ArraySubtype;
     struct SimpleSubtype;

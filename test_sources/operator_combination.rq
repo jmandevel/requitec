@@ -10,7 +10,7 @@
     // [_assign
     //     [_binding
     //         variable,
-    //         [_ascribe_high
+    //         [_ascribe_qualifiers
     //             [_inference],
     //             [mut]
     //         ]

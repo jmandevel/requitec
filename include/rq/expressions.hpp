@@ -338,16 +338,12 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "this";
   case K::CALLSITE:
     return "callsite";
-  case K::CHECK:
-    return "check";
 
   // BUILTIN TYPES
   case K::SYMBOL:
     return "Symbol";
   case K::INFERENCE:
     return "_Inference";
-  case K::CHECK_TYPE:
-    return "Check";
   case K::EXPRESSION:
     return "Expression";
   case K::VOID:
@@ -446,6 +442,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "scope";
   case K::FOLD:
     return "fold";
+  case K::CHECK:
+    return "check";
+  case K::VERIFY:
+    return "verify";
   case K::BREAK:
     return "break";
   case K::BREAK_OF:
@@ -1230,16 +1230,12 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CALLSITE:
     return KIF::RVALUE;
-  case K::CHECK:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // BUILTIN TYPES
   case K::SYMBOL:
     return KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::INFERENCE:
     return KIF::RVALUE | KIF::ARGUMENT;
-  case K::CHECK_TYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXPRESSION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VOID:
@@ -1342,6 +1338,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::FOLD:
     return KIF::STATEMENT;
+  case K::CHECK:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::VERIFY:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BREAK:
     return KIF::RAILCAR;
   case K::BREAK_OF:

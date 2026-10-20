@@ -620,13 +620,6 @@ VariadicArgumentsType::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::VARIADIC_ARGUMENTS_TYPE);
 }
 
-RQ_ALWAYS_INLINE Check::Check() : SimpleSymbol(rq::SymbolKind::CHECK) {}
-
-[[nodiscard]] inline bool Check::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::CHECK);
-}
-
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
                                   rq::ConstantSymbol &child)
     : Symbol(kind), _child_ptr(&child) {
