@@ -1,0 +1,36 @@
+concept FLOAT_OR_SINT32 = subject.[is FLOAT] || subject.[is SInt32];
+
+pure template::{ Type:FLOAT_OR_SINT32 <}
+[procedure addOne, ( num:Type <)Type, result,
+    result <:= num + 1;
+];
+
+[main ()SInt, result,
+    float := addOne(3.14);
+    result <:= addOne(0);
+];
+
+concept TYPE_TUPLE = [verify result,
+        // bang operator in front of concept uses logical complement
+        // !TUPLE is like saying symbol must not be a tuple
+        [if Subject.[is !TUPLE], 
+            result <:= false;
+            done;
+        ];
+        [for Subject.[parameter_range], param:=value.[ref],
+            [if param.[type].[is !TYPE],
+                result <:= false;
+                done;
+            ];
+        ];
+        result <:= true;
+    ];
+
+opaque mangle:myFunc
+[procedure myFunc, ( in:SInt <)Void ];
+
+// with [check_frame] you can perform substitution checking as if in procedure frame scope
+concept MY_FUNC_ARG = [check_frame val:Subject, 
+        myFunc(val);
+    ];
+
