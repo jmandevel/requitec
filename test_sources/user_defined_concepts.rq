@@ -1,5 +1,13 @@
-concept FLOAT_OR_SINT32 = subject.[is FLOAT] || subject.[is SInt32];
 
+// concepts are a different dialect then other code.
+// in different dialects, the semantics for syntax are different
+// instead of binding a type to the variable, for concepts you bind the name to test the concept for.
+// the name is always going to be a symbol of some kind you want to test.
+
+// this concept only passes for float types of SInt32
+concept FLOAT_OR_SINT32 :Subject= Subject.[is FLOAT] || Subject.[is SInt32];
+
+// this template has constraints on the parameter, only accepting types that match the concept
 pure template::{ auto Type:FLOAT_OR_SINT32 <}
 [procedure addOne, ( num:Type <)Type, result,
     result <:= num + 1;
@@ -10,7 +18,7 @@ pure template::{ auto Type:FLOAT_OR_SINT32 <}
     result <:= addOne(0);
 ];
 
-concept TYPE_TUPLE = [verify result,
+concept TYPE_TUPLE :Subject= [verify result,
         // bang operator in front of concept uses logical complement
         // !TUPLE is like saying symbol must not be a tuple
         [if Subject.[is !TUPLE], 
@@ -26,11 +34,13 @@ concept TYPE_TUPLE = [verify result,
         result <:= true;
     ];
 
+// this is an opaque function. it exists nowhere, but we can still perform substitution checking against it.
+// however, actually calling it is a bad idea because it will cause a linking error.
 opaque mangle:myFunc
 [procedure myFunc, ( in:SInt <)Void ];
 
 // with [check_frame] you can perform substitution checking as if in procedure frame scope
-concept MY_FUNC_ARG = [check_frame val:Subject, 
+concept MY_FUNC_ARG :Subject= [check_frame val:Subject, 
         myFunc(val);
     ];
 
