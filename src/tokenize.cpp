@@ -253,7 +253,7 @@ void Tokenizer::_tokenizeSourceText() {
           this->tokenizeLengthToken(T::DOT_BANG_EQUAL_OPERATOR, 3);
           break;
         default:
-          this->tokenizeLengthToken(T::DOT_GREATER_OPERATOR, 2);
+          this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
         }
         continue;
       default:
