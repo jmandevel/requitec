@@ -1,6 +1,6 @@
 concept FLOAT_OR_SINT32 = subject.[is FLOAT] || subject.[is SInt32];
 
-pure template::{ Type:FLOAT_OR_SINT32 <}
+pure template::{ auto Type:FLOAT_OR_SINT32 <}
 [procedure addOne, ( num:Type <)Type, result,
     result <:= num + 1;
 ];
