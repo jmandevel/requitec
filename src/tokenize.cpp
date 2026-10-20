@@ -185,13 +185,34 @@ void Tokenizer::_tokenizeSourceText() {
     case '.':
       switch (this->getRanger().getChar(1)) {
       case '+':
-        this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
+        switch (this->getRanger().getChar(2)) {
+          case '%':
+            this->tokenizeLengthToken(T::DOT_PLUS_PERCENT_OPERATOR, 3);
+            break;
+          case '|':
+            this->tokenizeLengthToken(T::DOT_PLUS_PIPE_OPERATOR, 3);
+            break;
+          default:
+          this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
+        }
         break;
       case '-':
-        this->tokenizeLengthToken(T::DOT_DASH_OPERATOR, 2);
+        switch (this->getRanger().getChar(2)) {
+          case '%':
+            this->tokenizeLengthToken(T::DOT_DASH_PERCENT_OPERATOR, 3);
+            break;
+          default:
+          this->tokenizeLengthToken(T::DOT_DASH_OPERATOR, 2);
+        }
         break;
       case '*':
-        this->tokenizeLengthToken(T::DOT_STAR_OPERATOR, 2);
+        switch (this->getRanger().getChar(2)) {
+          case '%':
+            this->tokenizeLengthToken(T::DOT_STAR_PERCENT_OPERATOR, 3);
+            break;
+          default:
+          this->tokenizeLengthToken(T::DOT_STAR_OPERATOR, 2);
+        }
         break;
       case '/':
         this->tokenizeLengthToken(T::DOT_SLASH_OPERATOR, 2);

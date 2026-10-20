@@ -296,16 +296,40 @@ rq::Expression &RequiteParser::parsePrecedence8() {
           token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_MODULUS,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_LESS_OPERATOR:
+    case rq::TokenKind::DOT_PLUS_PERCENT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_LESS,
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_WRAPPING_ADD,
           this->parsePrecedence7());
       continue;
-    case rq::TokenKind::DOT_GREATER_OPERATOR:
+    case rq::TokenKind::DOT_DASH_PERCENT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
-          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_GREATER,
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_WRAPPING_SUBTRACT,
+          this->parsePrecedence7());
+      continue;
+    case rq::TokenKind::DOT_STAR_PERCENT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_WRAPPING_MULTIPLY,
+          this->parsePrecedence7());
+      continue;
+    case rq::TokenKind::DOT_PLUS_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_SATURATING_ADD,
+          this->parsePrecedence7());
+      continue;
+    case rq::TokenKind::DOT_DASH_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_SATURATING_SUBTRACT,
+          this->parsePrecedence7());
+      continue;
+    case rq::TokenKind::DOT_STAR_PIPE_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY,
           this->parsePrecedence7());
       continue;
     case rq::TokenKind::DOT_LESS_EQUAL_OPERATOR:

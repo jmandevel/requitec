@@ -61,6 +61,12 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_STAR_OPERATOR,           // .*
   DOT_SLASH_OPERATOR,          // ./
   DOT_PERCENT_OPERATOR,        // .%
+  DOT_PLUS_PERCENT_OPERATOR,   // .+%
+  DOT_DASH_PERCENT_OPERATOR,   // .-%
+  DOT_STAR_PERCENT_OPERATOR,   // .*%
+  DOT_PLUS_PIPE_OPERATOR,      // .*|
+  DOT_DASH_PIPE_OPERATOR,      // .-|
+  DOT_STAR_PIPE_OPERATOR,      // .*|
   DOT_LESS_OPERATOR,           // .<
   DOT_LESS_EQUAL_OPERATOR,     // .<=
   DOT_GREATER_OPERATOR,        // .>
@@ -222,6 +228,18 @@ getName(rq::TokenKind kind) {
     return "dot_slash_operator";
   case T::DOT_PERCENT_OPERATOR:
     return "dot_percent_operator";
+  case T::DOT_PLUS_PERCENT_OPERATOR:
+    return "dot_plus_percent_operator";
+  case T::DOT_DASH_PERCENT_OPERATOR:
+    return "dot_dash_percent_operator";
+  case T::DOT_STAR_PERCENT_OPERATOR:
+    return "dot_star_percent_operator";
+  case T::DOT_PLUS_PIPE_OPERATOR:
+    return "dot_plus_pipe_operator";
+  case T::DOT_DASH_PIPE_OPERATOR:
+    return "dot_dash_pipe_operator";
+  case T::DOT_STAR_PIPE_OPERATOR:
+    return "dot_star_pipe_operator";
   case T::DOT_LESS_OPERATOR:
     return "dot_less_operator";
   case T::DOT_LESS_EQUAL_OPERATOR:
@@ -402,6 +420,18 @@ getInfoFlags(rq::TokenKind kind) {
   case T::DOT_SLASH_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_PLUS_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_DASH_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_STAR_PERCENT_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_PLUS_PIPE_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_DASH_PIPE_OPERATOR:
+    return TF::OPERATOR;
+  case T::DOT_STAR_PIPE_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_LESS_OPERATOR:
     return TF::OPERATOR;

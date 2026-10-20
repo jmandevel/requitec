@@ -660,6 +660,8 @@ bool Situator::situateTree(rq::Situation situation,
   // BUILTIN TYPES
   case K::SYMBOL:
     [[fallthrough]];
+  case K::CHECK_TYPE:
+    [[fallthrough]];
   case K::INFERENCE:
     [[fallthrough]];
   case K::EXPRESSION:
@@ -830,6 +832,18 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ARITHMETIC_SEQUENCE_STEP_DIVIDE:
     [[fallthrough]];
   case K::ARITHMETIC_SEQUENCE_STEP_MODULUS:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_ADD:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_SUBTRACT:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_MULTIPLY:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_ADD:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_SUBTRACT:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
