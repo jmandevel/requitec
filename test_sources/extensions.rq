@@ -1,9 +1,9 @@
 
 [namespace example,
-    template::{> Type:type, LENGTH:USize <}
+    template::{> Type:TYPE, length:USize <}
     pure
-    [procedure getElementCount, ()USize=>Ref@[array LENGTH]@Type, result,
-        result <:= LENGTH;
+    [procedure getElementCount, ()USize=>Ref@[array length]@Type, result,
+        result <:= length;
     ];
 
     [class Foo, public pure[layout_constructor]; {}];

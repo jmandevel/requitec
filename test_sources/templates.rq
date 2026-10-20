@@ -1,27 +1,18 @@
 [import "std", std];
 
-template::{> Type:Symbol <}
-constraint::[check result,
-    result<:=Type.[is_float_type];
-]
+template::{> Type:FLOAT <}
 weight::1
 [procedure printType, ( val:Type <)Void,
     std.print(line="Its a float");
 ];
 
-template::{> Type:Symbol <}
-constraint::[check result,
-    result<:=Type.[is_integer_type];
-]
+template::{> Type:INT <}
 weight::1
 [procedure printType, ( val:Type <)Void,
     std.print(line="Its an integer");
 ];
 
-template::{> Type:Symbol <}
-constraint::[check result, 
-    result<:=Type.[is_type];
-]
+template::{> Type:TYPE <}
 [procedure printType, ( val:Type <)Void,
     std.print(line="Its something");
 ];

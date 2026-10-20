@@ -6,20 +6,14 @@ opaque mangle::malloc
 opaque mangle::free
 [procedure free, (ptr:Ptr@mut\Void<)Void];
 
-template::{ Type:symbol<}
-constraint::[check result,
-    result<:=Type.[is_type];
-]
+template::{ Type:TYPE<}
 [class UniquePtr,
     { ptr:Ptr@mut\Type <},
 
     public[layout_constructor];
 
     public inline
-    template::{Placement:symbol<}
-    constraint::[check result,
-        result<:=Placement.[is_placement_type Type];
-    ]
+    template::{Placement:PLACEMENT<}
     [procedure create, 
         (placement:Placement<)mut\UniquePtr{Type}, result,
 

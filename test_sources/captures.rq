@@ -13,9 +13,9 @@ val = 1;
 // this is runtime variable, which has a value captured from mut.
 // the value is then used to initialize the variables value when it is lazily evaluated later.
 runtime capture::{ num:=val }
-COMMON_NUMBER := [capture].num;
+common_number := [capture].num;
 
 [main ()SInt, result,
-    std.print(line=COMMON_NUMBER);
+    std.print(line=common_number);
     result <:= 0;
 ];

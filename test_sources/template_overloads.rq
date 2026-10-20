@@ -1,7 +1,4 @@
-template::{ Type:Symbol <}
-constraint::[check result,
-    result<:=Type.[is_type];
-]
+template::{ Type:TYPE <}
 pure
 [procedure asSigned, 
     pre Signed : = [SInt Type.[byte_size]];

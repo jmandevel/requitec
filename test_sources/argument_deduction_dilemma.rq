@@ -1,6 +1,6 @@
-template::{> count_div_2:UIndex, auto Element:Symbol <}
+template::{> count_div_2:UIndex, auto Element:TYPE <}
 constraint::[check result,
-    result<:=count_div_2 >= 0 && Element.[is_type];
+    result<:=count_div_2 >= 0
 ]
 [class DoubleArray,
 

@@ -1,13 +1,13 @@
 [import "std", std];
 
-template::{> auto List:Symbol <}
+template::{> auto List:SYMBOL <}
 [procedure printList, (> list:List <)Void,
     std.print(line="begin!");
     [spin list,
         std.print(line="weave!");
-        ][weave value.[type].[is_integer_type], int:=value,
+        ][weave int:INT=value,
             std.print(line="found integer: " +> int);    
-        ][weave value.[type].[is_float_type], float:=value,
+        ][weave float:FLOAT=value,
             std.print(line="found float: " +> float);
         ][weave [true], any:=value,
             std.print(line="found something else: " +> any.[ref]);

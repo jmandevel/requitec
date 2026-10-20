@@ -1,9 +1,6 @@
 // use auto modifier on template parameters to mark as auto deducing from arguments, reciever, or lvalue
 
-template::{> auto Type:Symbol <}
-constraint::[check result,
-    result<:=Type.[is_type];
-]
+template::{> auto Type:TYPE <}
 pure
 [procedure add, 
     // statements before signature are surveyed (not evaluated) at template survey time.

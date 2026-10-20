@@ -1,10 +1,10 @@
 [class MyObject, 
     pre size := 0;
-    pre Element := Int;
+    pre Element := SInt;
     {>public arr : [array size]@Element <}, 
 ];
 
-gentime VAR := 0;
+gentime var := 0;
 
 [main 
     pre Return := SInt;

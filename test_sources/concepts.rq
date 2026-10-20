@@ -1,0 +1,5 @@
+
+template::{> concept Symbol:SYMBOL <}
+gentime FLOAT_OR_BOOL := [check result,
+        result <:= Symbol.[is FLOAT] || Symbol.[is Bool];
+    ];

@@ -1,7 +1,4 @@
-template::{ Type:Symbol <}
-constraint::[check result,
-    result<:=Type.[is_type];
-]
+template::{ Type:TYPE <}
 require::[check result, 
     result<:=(b != 0);
 ]
