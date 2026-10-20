@@ -162,8 +162,6 @@ struct Symbol;
       struct Module;
       struct EagerScope;
         struct ScopeStatement;
-        struct WeaveStatement;
-        struct SpinStatement;
         struct WhileStatement;
         struct ForStatement;
         struct DefaultStatement;
@@ -1820,22 +1818,6 @@ struct ScopeStatement final : public rq::EagerScope {
   using Self = rq::ScopeStatement;
 
   explicit RQ_ALWAYS_INLINE ScopeStatement();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct WeaveStatement final : public rq::EagerScope {
-  using Self = rq::WeaveStatement;
-
-  explicit RQ_ALWAYS_INLINE WeaveStatement();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SpinStatement final : public rq::EagerScope {
-  using Self = rq::SpinStatement;
-
-  explicit RQ_ALWAYS_INLINE SpinStatement();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

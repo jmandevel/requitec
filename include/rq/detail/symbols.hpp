@@ -183,10 +183,6 @@ namespace rq {
     return "ForStatement";
   case S::WHILE_STATEMENT:
     return "WhileStatement";
-  case S::SPIN_STATEMENT:
-    return "SpinStatement";
-  case S::WEAVE_STATEMENT:
-    return "WeaveStatement";
   case S::SCOPE_STATEMENT:
     return "ScopeStatement";
   case S::CLASS_OVERLOAD:
@@ -2945,23 +2941,6 @@ RQ_ALWAYS_INLINE ScopeStatement::ScopeStatement()
 ScopeStatement::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::SCOPE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE WeaveStatement::WeaveStatement()
-    : EagerScope(rq::SymbolKind::WEAVE_STATEMENT) {}
-
-[[nodiscard]] inline bool
-WeaveStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::WEAVE_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE SpinStatement::SpinStatement()
-    : EagerScope(rq::SymbolKind::SPIN_STATEMENT) {}
-
-[[nodiscard]] inline bool SpinStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::SPIN_STATEMENT);
 }
 
 RQ_ALWAYS_INLINE WhileStatement::WhileStatement()

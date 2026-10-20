@@ -3,15 +3,18 @@
 template::{> auto List:SYMBOL <}
 [procedure printList, (> list:List <)Void,
     std.print(line="begin!");
-    [spin list,
-        std.print(line="weave!");
-        ][weave int:INT=value,
-            std.print(line="found integer: " +> int);    
-        ][weave float:FLOAT=value,
-            std.print(line="found float: " +> float);
-        ][weave [true], any:=value,
-            std.print(line="found something else: " +> any.[ref]);
+    pre [for list, item:=value.[ref],
+        [fold text:Slice@Utf8,
+            pre [if item.[is INT],
+                text <:= "found integer: ";
+            ] pre [else_if item.[is FLOAT],
+                text <:= "found float: ";
+            ][else
+                text <:= "found something else: ";
+            ];
         ];
+        std.print(line=text +> item);
+    ];
     std.print(line="end!");
 ];
 
@@ -23,10 +26,10 @@ template::{> auto List:SYMBOL <}
         true);
 
     printList(
-        "this" *> 
-        "is" *>
-        "one" *>
-        "string" *>
+        "this" $
+        "is" $
+        "one" $
+        "string" $
         "literal");
 
     result <:= 0;
