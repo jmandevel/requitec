@@ -8,8 +8,7 @@
 
 // a pure function has no side effect.
 // if a pure function does something with a side effect, this causes a compiler error.
-// note that the act of referencing is not a side effect, but modifying the referenced value is.
-// notes that assigning to return value upbinding is not considered a side effect.
+// returning a value, mutating referenced arguments, mutating reciver are ok in pure functions.
 pure
 [function myAdd, (> a:SInt, b:SInt <)SInt, result,
     result <:= a + b;
