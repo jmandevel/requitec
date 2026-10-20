@@ -1,5 +1,11 @@
+concept FLOAT_OR_SINT32 = value.[is FLOAT] || value.[is SInt32];
 
-template::{> concept Symbol:SYMBOL <}
-gentime FLOAT_OR_BOOL := [check result,
-        result <:= Symbol.[is FLOAT] || Symbol.[is Bool];
-    ];
+pure template::{ Type:FLOAT_OR_SINT32 <}
+[procedure addOne, ( num:Type <)Type, result,
+    result <:= num + 1;
+];
+
+[main ()SInt, result,
+    float := addOne(3.14);
+    result <:= addOne(0);
+];
