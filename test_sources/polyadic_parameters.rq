@@ -16,7 +16,7 @@
 
 [import "std", std];
 
-template::{ ...Types:Symbol <}
+template::{ auto ...Types:Symbol <}
 constraint::[check result,
     [for Types, Type:=value.[ref],
         [if !Type.[is_type],
@@ -32,7 +32,7 @@ constraint::[check result,
     ];
 ];
 
-template::{ ...Types:Symbol <}
+template::{ auto ...Types:Symbol <}
 constraint::[check result,
     result <:= true;
 ]
