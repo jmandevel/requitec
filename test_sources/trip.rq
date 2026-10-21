@@ -7,7 +7,7 @@ my_trip := (1, 2, 3);
     std.print(line=num);
 ];
 
-// trips cannot be nested inside of trips
+// trips cannot be nested inside of trips unless they contain a single value
 // my_compiler_error := (1, (2, 3), 4);
 
 // a single value is a trip of one
