@@ -1,7 +1,5 @@
 template::{> count_div_2:UIndex, auto Element:TYPE <}
-constraint::[verify result,
-    result<:=count_div_2 >= 0
-]
+constraint::count_div_2 >= 0
 [class DoubleArray,
 
     // the problem is this: 

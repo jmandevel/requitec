@@ -1,10 +1,6 @@
 template::{ Type:TYPE <}
-require::[verify result, 
-    result<:=(b != 0);
-]
-ensure::[verify result,
-    result<:=(result >= 0);
-]
+require::b != 0
+ensure::result >= 0
 pure
 [procedure divideSquare, ( a:Type, b:Type <)Type, result,
     divide_result := a / b;
