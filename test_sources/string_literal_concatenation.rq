@@ -1,0 +1,6 @@
+[import "std", std];
+
+[main ()SInt, result,
+    std.print(line="this" $ "is" $ "one" $ "string" $ "literal");
+    result <:= 0;
+];

@@ -25,12 +25,5 @@ template::{> auto List:ANY <}
         0.[as FSInt32] +>
         true);
 
-    printList(
-        "this" $
-        "is" $
-        "one" $
-        "string" $
-        "literal");
-
     result <:= 0;
 ];
