@@ -15,7 +15,7 @@ pure
 
 [main ()SInt, result,
     [try
-        result <:= divide(5, 0).[pass Slice@Utf8, SInt];
+        result <:= divide(5, 0).[pass (Slice@Utf8, SInt)];
     ][catch message:Slice@Utf8,
         std.print(line=message);
         result <:= 0;
