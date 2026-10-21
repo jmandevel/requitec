@@ -3,7 +3,7 @@
 template::{> auto List:ANY <}
 [procedure printList, (> list:List <)Void,
     std.print(line="begin!");
-    pre [for list, item:#TYPE=value.[ref],
+    pre [for list.[juxt_range], item:#TYPE=value.[ref],
         [fold text:Slice@Utf8,
             pre [if item.[is INT],
                 text <:= "found integer: ";
