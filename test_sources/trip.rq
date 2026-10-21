@@ -1,0 +1,23 @@
+// a trip is a list of values surroudned by parenthesis seperated by commas
+my_trip := (1, 2, 3);
+
+[import "std", std];
+
+[for my_trip.[trip_range], num:=value,
+    std.print(line=num);
+];
+
+// trips cannot be nested inside of trips
+// my_compiler_error := (1, (2, 3), 4);
+
+// a single value is a trip of one
+my_trip_of_one := 1;
+
+[for my_trip_of_one.[trip_range], num:=value,
+    std.print(line=num);
+];
+
+// trip are the same as juxt, but with a different syntax.
+// see juxt.rq
+
+// for the types of things trips are used for, look closely at exceptions.rq.

@@ -27,3 +27,6 @@ template::{> auto List:ANY <}
 
     result <:= 0;
 ];
+
+// juxt are the same as trip but are written differently.
+// sett trip.rq
