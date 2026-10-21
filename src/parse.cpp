@@ -554,12 +554,12 @@ rq::Expression &RequiteParser::parsePrecedence4() {
       precedence_factory.parseNary(token, rq::Keyword::SATURATING_SUBTRACT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
-    case rq::TokenKind::APPEND_OPERATOR:
+    case rq::TokenKind::PLUS_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::APPEND);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
-    case rq::TokenKind::CONCATENATE_OPERATOR:
+    case rq::TokenKind::DOLLAR_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::CONCATENATE);
       precedence_factory.setRecent(this->parsePrecedence3());

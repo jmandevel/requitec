@@ -129,7 +129,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '*':
       switch (this->getRanger().getChar(1)) {
       case '>':
-        this->tokenizeLengthToken(T::APPEND_OPERATOR, 2);
+        this->tokenizeLengthToken(T::STAR_GREATER_OPERATOR, 2);
         break;
       case '%':
         this->tokenizeLengthToken(T::STAR_PERCENT_OPERATOR, 2);
@@ -144,7 +144,7 @@ void Tokenizer::_tokenizeSourceText() {
     case '+':
       switch (this->getRanger().getChar(1)) {
       case '>':
-        this->tokenizeLengthToken(T::CONCATENATE_OPERATOR, 2);
+        this->tokenizeLengthToken(T::PLUS_GREATER_OPERATOR, 2);
         break;
       case '%':
         this->tokenizeLengthToken(T::PLUS_PERCENT_OPERATOR, 2);

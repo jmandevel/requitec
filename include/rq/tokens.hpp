@@ -53,8 +53,8 @@ enum class TokenKind : std::uint_fast8_t {
   DOUBLE_ARROW_OPERATOR,       // -->
   THICK_ARROW_OPERATOR,        // =>
   DOUBLE_THICK_ARROW_OPERATOR, // ==>
-  CONCATENATE_OPERATOR,        // +>
-  APPEND_OPERATOR,             // *>
+  PLUS_GREATER_OPERATOR,       // +>
+  STAR_GREATER_OPERATOR,       // *>
   DOT_OPERATOR,                // .
   ELIPSIS_OPERATOR,            // ...
   DOT_PLUS_OPERATOR,           // .+
@@ -213,10 +213,10 @@ getName(rq::TokenKind kind) {
     return "thick_arrow_operator";
   case T::DOUBLE_THICK_ARROW_OPERATOR:
     return "double_thick_arrow_operator";
-  case T::APPEND_OPERATOR:
-    return "append_operator";
-  case T::CONCATENATE_OPERATOR:
-    return "concatenate_operator";
+  case T::STAR_GREATER_OPERATOR:
+    return "star_greater_operator";
+  case T::PLUS_GREATER_OPERATOR:
+    return "plus_greater_operator";
   case T::DOT_OPERATOR:
     return "dot_operator";
   case T::ELIPSIS_OPERATOR:
@@ -408,9 +408,9 @@ getInfoFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::DOUBLE_THICK_ARROW_OPERATOR:
     return TF::OPERATOR;
-  case T::APPEND_OPERATOR:
+  case T::STAR_GREATER_OPERATOR:
     return TF::OPERATOR;
-  case T::CONCATENATE_OPERATOR:
+  case T::PLUS_GREATER_OPERATOR:
     return TF::OPERATOR;
   case T::DOT_OPERATOR:
     return TF::OPERATOR;
