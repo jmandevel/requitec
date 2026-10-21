@@ -277,7 +277,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::LOCKED_PARAMETERS_BEGIN:
     return "_locked_parameters_begin";
   case K::NONAME:
-    return "noname";
+    return "_noname";
 
   // BRACES
   case K::INSTANTIATE_TUPLE:

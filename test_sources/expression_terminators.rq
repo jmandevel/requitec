@@ -22,4 +22,4 @@ gentime var := 0;
 ];
 
 opaque mangle::puts
-[procedure noname, (>str:pointer@no_mut\Char<)Void];
+[procedure , (>str:pointer@no_mut\Char<)Void];
