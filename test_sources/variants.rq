@@ -14,11 +14,11 @@
 
     [fold str:Slice@mut\Utf8,
         [match num0
-            ][arm Number.integer, 
+            ][arm Number.integer, out:=value,
                 str <:= "its an integer";
-            ][arm Number.float,
+            ][arm Number.float, out:=value,
                 str <:= "its a float";
-            ][arm Number.double,
+            ][arm Number.double, out:=value,
                 str <:= "its a double";
             ][default
                 str <:= "its something else";
