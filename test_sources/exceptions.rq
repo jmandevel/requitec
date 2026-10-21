@@ -1,0 +1,24 @@
+[import "std", std];
+
+[function divide, 
+    throws::(Slice@Utf8,SInt)\
+    ( numerator:SInt, denominator:SInt <)SInt, result,
+    [if denominator==0,
+        "The denominator cannot be 0".[throw];
+    ];
+    [if numerator==0,
+        15.[throw];
+    ];
+    result <:= numerator / denominator;
+];
+
+[main ()SInt, result,
+    [try
+        result <:= divide(5, 0).[pass];
+    ][catch message:Slice@Utf8,
+        std.print(line=message);
+        result <:= 0;
+    ][catch number:SInt,
+        result <:= number;
+    ];
+];
