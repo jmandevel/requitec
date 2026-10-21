@@ -1,0 +1,31 @@
+[variant Number, SInt, 
+    integer : SInt32,
+    float : Binary32,
+    double : Binary64
+    quad : Binary128
+];
+
+[import "std", std];
+
+[main ()SInt, result,
+    num0 := Number.integer(4);
+    num1 := Number.float(3.14);
+    num2 := Number.double(2.18);
+
+    [fold str:Slice@mut\Utf8,
+        [match num0
+            ][arm Number.integer, 
+                str <:= "its an integer";
+            ][arm Number.float,
+                str <:= "its a float";
+            ][arm Number.double,
+                str <:= "its a double";
+            ][default
+                str <:= "its something else";
+            ];
+    ];
+
+    std.print(line=str);
+
+    result <:= 0;
+];
