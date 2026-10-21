@@ -783,7 +783,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::CHECK:
     is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING, expression);
     break;
-  case K::VERIFY:
+  case K::VALIDATE:
     is_ok = this->situateStatementTagStatement(situation, expression);
     break;
   case K::BREAK:

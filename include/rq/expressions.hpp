@@ -438,8 +438,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "fold";
   case K::CHECK:
     return "check";
-  case K::VERIFY:
-    return "verify";
+  case K::VALIDATE:
+    return "validate";
   case K::BREAK:
     return "break";
   case K::BREAK_OF:
@@ -1322,7 +1322,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::CHECK:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VERIFY:
+  case K::VALIDATE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BREAK:
     return KIF::RAILCAR;

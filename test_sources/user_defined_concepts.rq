@@ -18,7 +18,7 @@ pure template::{ auto Type:FLOAT_OR_SINT32 <}
     result <:= addOne(0);
 ];
 
-concept TYPE_TUPLE :Subject= [verify result,
+concept TYPE_TUPLE :Subject= [validate result,
         // bang operator in front of concept uses logical complement
         // !TUPLE is like saying symbol must not be a tuple
         [if Subject.[is !TUPLE], 
