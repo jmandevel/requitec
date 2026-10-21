@@ -6,6 +6,9 @@
 // this forces you to write requite in multiple statements, storing intermediate values in variables.
 // this makes control flow much more clear than other languages!
 
+// note: functions that throw also cannot be called as an rvalue sub-expression.
+// see exceptions.rq to see how this works.
+
 // a pure function has no side effect.
 // if a pure function does something with a side effect, this causes a compiler error.
 // returning a value, mutating referenced arguments, mutating reciver are ok in pure functions.
