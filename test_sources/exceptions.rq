@@ -1,5 +1,6 @@
 [import "std", std];
 
+pure
 [function divide, 
     throw::(Slice@Utf8,SInt)\
     ( numerator:SInt, denominator:SInt <)SInt, result,
