@@ -2,7 +2,7 @@
 
 pure
 [function divide, 
-    throw::(Slice@Utf8,SInt)\
+    throw::(Slice@Utf8, SInt)\
     ( numerator:SInt, denominator:SInt <)SInt, result,
     [if denominator==0,
         "The denominator cannot be 0".[throw];
