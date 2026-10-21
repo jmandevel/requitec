@@ -1,17 +1,24 @@
-// Any is a special type that is usable only in prequite or for postquite vignettes of unrolled prequite loops.
+// ANY is a concept that can fit any symbol
 
+pure template::{ Symbol:ANY <}
+[function isType, ()Bool, result,
+    results <:= Symbol.[is TYPE];
+];
+
+// putting # in front of a concept allows storing values of any type that fits the concept
+// # is only usable in prequite (not postquite) or vignettes of unrolled postquite loops
 // This variable can contain any type. set it to a SInt value first.
-my_any :Any=0;
+my_any :mut\#ANY=0;
 my_any = 3.14; // Now it contains a Single
 my_any = true; // now it contains a Bool
-is_boolean := my_any.[anytype].[is Bool]; 
+is_boolean := my_any.[type].[is Bool]; 
 
 [main ()SInt, result,
     my_tuple := { 1, 3.14, true, "Hello!" };
-    pre [for my_tuple, var:Any=value,
-        pre [if var.[anytype].[is INT],
+    pre [for my_tuple, var:#TYPE=value,
+        pre [if var.[type].[is INT],
             std.print(line="integer");
-        ] pre [else_if var.[anytype].[is FLOAT],
+        ] pre [else_if var.[type].[is FLOAT],
             std.print(line="float");
         ] pre [else
             std.print(line="something else");

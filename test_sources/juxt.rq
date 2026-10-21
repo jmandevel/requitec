@@ -1,15 +1,15 @@
 [import "std", std];
 
-template::{> auto List:SYMBOL <}
+template::{> auto List:ANY <}
 [procedure printList, (> list:List <)Void,
     std.print(line="begin!");
-    pre [for list, item:=value.[ref],
+    pre [for list, item:#TYPE=value.[ref],
         [fold text:Slice@Utf8,
             pre [if item.[is INT],
                 text <:= "found integer: ";
             ] pre [else_if item.[is FLOAT],
                 text <:= "found float: ";
-            ][else
+            ] pre [else
                 text <:= "found something else: ";
             ];
         ];
