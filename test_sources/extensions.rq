@@ -14,8 +14,9 @@
     ];
 ];
 
-[main ()SInt, result,
-    my_array :5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
+mangle::main
+[procedure , ()SInt, result,
+    my_array :Array::5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
     // call extension function
     my_array.[ref]->example.getElementCount().[ignore];

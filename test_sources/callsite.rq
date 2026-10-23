@@ -12,7 +12,8 @@
         " column: " +> column);
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();

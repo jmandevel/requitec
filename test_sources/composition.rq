@@ -65,7 +65,8 @@
     ];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     dog := Dog();
     cat := Cat();
     rat := Rat();

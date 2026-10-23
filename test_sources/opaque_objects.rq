@@ -17,7 +17,8 @@ opaque mangle::SizedClass
 opaque mangle::getSized
 [procedure getSized, ()MyClass];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     ref := getInstanceRef().[ref];
     sized := getSized(); 
     // Sized uses 64 bits of memory in the stack.

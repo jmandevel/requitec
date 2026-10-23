@@ -30,7 +30,8 @@
     ];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
 
     a := MyClass();
     b := MyClass(1, 2, 3);

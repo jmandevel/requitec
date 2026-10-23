@@ -11,7 +11,8 @@
     result <:= a + b;
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     std.print(line="the return value is " +> myFunc(1, 2));
 
     result <:= 0;

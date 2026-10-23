@@ -2,10 +2,11 @@ template::{ Type:TYPE <}
 pure
 [procedure asSigned, 
     pre Signed : = [SInt Type.[byte_size]];
-    ( mut:Type <)Signed, result,
-    result <:= mut.[bitwise_cast Signed];
+    ( var:Type <)Signed, result,
+    result <:= var.[bitwise_cast Signed];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     result <:= asSigned{Single}(3.14);
 ];

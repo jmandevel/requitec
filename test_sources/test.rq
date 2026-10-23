@@ -1,3 +1,4 @@
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
   result <:= 0;
 ];

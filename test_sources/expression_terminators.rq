@@ -6,7 +6,8 @@
 
 gentime var := 0;
 
-[main 
+mangle::main
+[procedure , 
     pre Return := SInt;
     ()Return, result,
 

@@ -1,4 +1,5 @@
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // high and modifiers are compile time values
 
     pre modifier := pre;

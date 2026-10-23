@@ -7,12 +7,13 @@
 
 [import "std", std];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     num0 := Number.integer(4);
     num1 := Number.float(3.14);
     num2 := Number.double(2.18);
 
-    [fold str:Slice@mut\Utf8,
+    [fold str:Slice@Utf8,
         [match num0
             ][arm Number.integer, out:=value,
                 str <:= "its an integer";

@@ -2,7 +2,7 @@
 
 [class MyClass, 
 
-    {> public mut:SInt },
+    {> public var:SInt=0 },
 
     public [layout_constructor];
 
@@ -11,7 +11,8 @@
     ];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // create stack
     my_stack :mut\= std.StackList{MyClass}();
     

@@ -30,7 +30,8 @@ impure
 // predefined is specified here explicitly for this example.
 runtime predefined MY_NUMBER := myAdd(1, 2);
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // pure functions can be rvalue sub-expressions
     added := myAdd(1, myAdd(2, 3));
 

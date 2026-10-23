@@ -4,7 +4,8 @@
 
 [import "safe_export", A];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;

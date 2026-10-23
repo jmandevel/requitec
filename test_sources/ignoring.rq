@@ -5,7 +5,8 @@ pure
     result <:= 0;
 ];
 
-[main ()SInt32, result,
+mangle::main
+[procedure , ()SInt32, result,
     // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     nodiscard().[ignore]; 
 

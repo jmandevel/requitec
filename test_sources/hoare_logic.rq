@@ -8,7 +8,8 @@ pure
     result <:= square;
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     a := divideSquare{SInt}(6, 2);
     
     result <:= 0;

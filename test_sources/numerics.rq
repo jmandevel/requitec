@@ -1,4 +1,5 @@
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // specify type in binding
     var0 : SInt32 =0;
 

@@ -21,7 +21,8 @@ pure
 
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
   class :mut\= MyClass();
   copy := class;
   reference := class.[ref];

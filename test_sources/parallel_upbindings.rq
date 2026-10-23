@@ -1,6 +1,7 @@
 [import "std", std];
 
-[main (>args:Ptr@Ptr@Char<)SInt, result,
+mangle::main
+[procedure , (>args:Ptr@Ptr@Char<)SInt, result,
     [if args.[element_count] == 0,
         result <:= 5;
     ][else 

@@ -13,7 +13,7 @@ pure
     result <:= numerator / denominator;
 ];
 
-[main ()SInt, result,
+[procedure , ()SInt, result,
     [try
         result <:= divide(5, 0).[pass (Slice@Utf8, SInt)];
     ][catch message:Slice@Utf8,

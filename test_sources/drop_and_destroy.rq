@@ -9,7 +9,8 @@
     ];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();

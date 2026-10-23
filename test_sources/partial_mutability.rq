@@ -11,7 +11,8 @@
 // they are constant:
 gentime never_mut : no_mut\ = Partialable();
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // all properties are mut for fully mut values:
     fully_mut : mut\ = Partialiable();
 

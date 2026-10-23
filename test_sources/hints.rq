@@ -1,4 +1,5 @@
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     // tell debugger to break here.
     debug_break;
 

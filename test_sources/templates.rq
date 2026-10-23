@@ -17,7 +17,8 @@ template::{> Type:TYPE <}
     std.print(line="Its something");
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     printType{SInt32}();
     printType{Single}();
     printType{Bool}();

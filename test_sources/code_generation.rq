@@ -7,7 +7,8 @@ anchor::A
     varname.getSlice().[identify] : SInt = num.[bake];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     pre [for 0.<=10, pre num:=value,
         pre varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  

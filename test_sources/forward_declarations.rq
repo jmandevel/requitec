@@ -6,7 +6,8 @@ opaque mangle::myForwardedAdd pure
     result <:= a + b;
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     std.print(
         "the result is " +>
         myForwardedAdd(

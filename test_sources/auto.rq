@@ -11,7 +11,8 @@ pure
     result.c <:= a + b;
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     mut0 :SInt = add(1, 2); // Type is SInt
 
     mut1 := add(1.[as Double], 2.[as Double]); // Type is Double

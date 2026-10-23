@@ -38,7 +38,8 @@ template::{ Type:TYPE <}
     public[layout_constructor];
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

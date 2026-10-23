@@ -2,7 +2,8 @@
 
 alias print = std.print;
 
-[main ()SInt, result,
+mangle::main
+[procdeure , ()SInt, result,
     print(line="Hello, world!");
     result <:= 0;
 ];

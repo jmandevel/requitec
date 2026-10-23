@@ -18,7 +18,8 @@ template::{> auto List:ANY <}
     std.print(line="end!");
 ];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     printList(
         "hello" +>
         3.14.[as Single] +>

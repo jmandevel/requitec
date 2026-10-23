@@ -1,6 +1,7 @@
 [import "std", std];
 
-[main ()SInt, result,
+mangle::main
+[procedure , ()SInt, result,
     my_array : mut\[array 4]@LSInt64 = [array 0, 1, 2, 3, 4].[of LSInt64];
     const_slice : mut\slice@LSInt64 = my_array.[slice];
     
