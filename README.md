@@ -20,6 +20,10 @@ mangle::main
 ];
 ```
 
+## AI Policy
+
+While working on this project, one of my principle objectives has been to learn more about compiler design. I experimented with using agents to help me at one point, and I was disatisfied with the results. As such, I have decided that I must write the entirety of this compiler's source code by hand. However, I maintain a minor exception to this policy. I sometimes use AI chat tools to help with research, but I prefeer to learn from documentation and human-written articles. My intention is that when I completley finish this project, I will have the required knowledge so that I can do it all over again entirely from memory.
+
 ## How it Works
 
 The requitec compiler is an LLVM front-end application written in C++. All source code for the front-end is contained within this repository. While language specific functionality is handled within this project, all back-end functionality related to generating machine code for specific target machines is handled by LLVM.
