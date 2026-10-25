@@ -178,11 +178,6 @@ bool Situator::situateTree(rq::Situation situation,
       continuing_situation = S::CONTINUING_SWITCH_CHAINLINK;
       finishing_situation = S::FINISHING_SWITCH_CHAINLINK;
     } break;
-    case K::SPIN: {
-      chain_keyword = K::SPIN_CHAIN;
-      continuing_situation = S::CONTINUING_SPIN_CHAINLINK;
-      finishing_situation = S::FINISHING_SPIN_CHAINLINK;
-    } break;
     default:
       RQ_UNREACHABLE();
     }
@@ -780,9 +775,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING,
                                                     expression);
     break;
-  case K::CHECK:
-    is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING, expression);
-    break;
   case K::VALIDATE:
     is_ok = this->situateStatementTagStatement(situation, expression);
     break;
@@ -1190,16 +1182,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::AT_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::MAIN:
-    if (situation == S::STATEMENT) {
-      is_ok = this->situateStatementTagStatement(situation, expression);
-    } else {
-      is_ok = this->situateNullary(situation, expression);
-    }
-    break;
-  case K::MAIN_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
   case K::DESTRUCTOR:
     if (situation == S::STATEMENT) {
       is_ok = this->situateStatement(expression);
@@ -1284,72 +1266,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::RESOLVE_ADAPTER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
-    break;
-  case K::IS_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_RANGE_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_RANGE_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_PLACEMENT_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_PLACEMENT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_SIGNED_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_SIGNED_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_UNSIGNED_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_UNSIGNED_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_INTEGER_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_INTEGER_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_FLOAT_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_FLOAT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_BINARY_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_BINARY_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_BFLOAT_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_BFLOAT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_STRING_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_STRING_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::IS_CODEUNIT_TYPE:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::IS_CODEUNIT_TYPE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
   case K::LAST:
