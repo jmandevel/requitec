@@ -275,7 +275,9 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::SPLIT_SUBTYPE:
     return "Split";
   case K::EXISTENTIAL_SUBTYPE:
-    return "ExistentialSubtype";
+    return "_Existential";
+  case K::COMPLEMENTARY_SUBTYPE:
+    return "_Complementary";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -1437,6 +1439,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPLIT_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXISTENTIAL_SUBTYPE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::COMPLEMENTARY_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // PARAMETER RULES
