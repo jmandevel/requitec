@@ -252,6 +252,11 @@ rq::Expression &RequiteParser::parsePrecedence9() {
       precedence_factory.parseBinary(token, rq::Keyword::UPBINDING);
       precedence_factory.setRecent(this->parsePrecedence8());
       continue;
+    case rq::TokenKind::DOUBLE_BACKSLASH_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::RVALUE_LABEL);
+      precedence_factory.setRecent(this->parsePrecedence8());
+      continue;
     default:
       break;
     }
