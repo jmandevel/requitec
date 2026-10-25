@@ -114,8 +114,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
     return "_concatenate";
-  case K::APPEND:
-    return "_append";
+  case K::JUXT:
+    return "_juxt";
+  case K::TRIP:
+    return "_trip";
 
   // ARITHMETIC
   case K::ADD:
@@ -186,6 +188,10 @@ static constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::ASSIGN:
     return "_assign";
+  case K::SPLIT:
+    return "split";
+  case K::RVALUE_LABEL:
+    return "_rvalue_label";
   case K::POLYADIC_PARAMETER:
     return "_polyadic_parameter";
   case K::CONTENT:
@@ -268,6 +274,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "Slice";
   case K::SPLIT_SUBTYPE:
     return "Split";
+  case K::EXISTENTIAL_SUBTYPE:
+    return "ExistentialSubtype";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -276,8 +284,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_nonpositional_parameters_begin";
   case K::LOCKED_PARAMETERS_BEGIN:
     return "_locked_parameters_begin";
-  case K::NONAME:
-    return "_noname";
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -322,6 +328,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "interface";
   case K::ADAPTER:
     return "adapter";
+  case K::VARIANT:
+    return "variant";
 
   // VALUES
   case K::ARRAY:
@@ -340,8 +348,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "callsite";
 
   // BUILTIN TYPES
-  case K::SYMBOL:
-    return "Symbol";
   case K::INFERENCE:
     return "_Inference";
   case K::EXPRESSION:
@@ -416,6 +422,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_if_chain";
   case K::SWITCH_CHAIN:
     return "_switch_chain";
+  case K::MATCH_CHAIN:
+    return "_match_chain";
+  case K::TRY_CHAIN:
+    return "_try_chain";
   case K::IF:
     return "if";
   case K::ELSE_IF:
@@ -426,8 +436,18 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "switch";
   case K::CASE:
     return "case";
+  case K::MATCH:
+    return "match";
+  case K::ARM:
+    return "arm";
   case K::DEFAULT:
     return "default";
+  case K::TRY:
+    return "try";
+  case K::CATCH:
+    return "catch";
+  case K::FINALLY:
+    return "finally";
   case K::FOR:
     return "for";
   case K::WHILE:
@@ -436,8 +456,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "scope";
   case K::FOLD:
     return "fold";
-  case K::CHECK:
-    return "check";
+  case K::CHECK_GLOBAL:
+    return "check_global";
+  case K::CHECK_FRAME:
+    return "check_frame";
   case K::VALIDATE:
     return "validate";
   case K::BREAK:
@@ -650,12 +672,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_margin";
   case K::MARGIN:
     return "margin";
-
-  // ATTRIBUTE TYPES
-  case K::MODIFIER:
-    return "Modifier";
-  case K::QUALIFIER:
-    return "Qualifier";
+  case K::NO_THROWS:
+    return "no_throws";
+  case K::THROWS:
+    return "throws";
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -736,10 +756,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "at";
   case K::AT_OF:
     return "_at_of";
-  case K::MAIN:
-    return "main";
-  case K::MAIN_OF:
-    return "main_of";
   case K::DESTRUCTOR:
     return "destructor";
   case K::DESTRUCTOR_OF:
@@ -756,6 +772,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "underlying_type";
   case K::UNDERLYING_TYPE_OF:
     return "_underlying_type_of";
+  case K::THROW:
+    return "throw";
+  case K::THROW_OF:
+    return "_throw_of";
+  case K::PASS:
+    return "pass";
+  case K::PASS_OF:
+    return "_pass_of";
   case K::REFLECT:
     return "reflect";
   case K::REFLECT_OF:
@@ -794,50 +818,306 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "resolve_adapter";
   case K::RESOLVE_ADAPTER_OF:
     return "_resolve_adapter_of";
-  case K::IS_TYPE:
-    return "is_type";
-  case K::IS_TYPE_OF:
-    return "_is_type_of";
-  case K::IS_RANGE_TYPE:
-    return "is_range_type";
-  case K::IS_RANGE_TYPE_OF:
-    return "_is_range_type_of";
-  case K::IS_PLACEMENT_TYPE:
-    return "is_placement_type";
-  case K::IS_PLACEMENT_TYPE_OF:
-    return "_is_placement_type_of";
-  case K::IS_SIGNED_TYPE:
-    return "is_signed_type";
-  case K::IS_SIGNED_TYPE_OF:
-    return "_is_signed_type_of";
-  case K::IS_UNSIGNED_TYPE:
-    return "is_unsigned_type";
-  case K::IS_UNSIGNED_TYPE_OF:
-    return "_is_unsigned_type_of";
-  case K::IS_INTEGER_TYPE:
-    return "is_integer_type";
-  case K::IS_INTEGER_TYPE_OF:
-    return "_is_integer_type_of";
-  case K::IS_FLOAT_TYPE:
-    return "is_float_type";
-  case K::IS_FLOAT_TYPE_OF:
-    return "_is_float_type_of";
-  case K::IS_BINARY_TYPE:
-    return "is_binary_type";
-  case K::IS_BINARY_TYPE_OF:
-    return "_is_binary_type_of";
-  case K::IS_BFLOAT_TYPE:
-    return "is_bfloat_type";
-  case K::IS_BFLOAT_TYPE_OF:
-    return "_is_bfloat_type_of";
-  case K::IS_STRING_TYPE:
-    return "is_string_type";
-  case K::IS_STRING_TYPE_OF:
-    return "_is_string_type_of";
-  case K::IS_CODEUNIT_TYPE:
-    return "is_codeunit_type";
-  case K::IS_CODEUNIT_TYPE_OF:
-    return "_is_codeunit_type_of";
+
+  // BUILTIN CONCEPTS
+  case K::ANY_CONCEPT:
+    return "ANY";
+  case K::TYPE_CONCEPT:
+    return "TYPE";
+  case K::GENTIME_CONCEPT:
+    return "GENTIME";
+  case K::RUNTIME_CONCEPT:
+    return "RUNTIME";
+  case K::ANYTIME_CONCEPT:
+    return "ANYTIME";
+  case K::RANGE_CONCEPT:
+    return "RANGE";
+  case K::ROUTE_CONCEPT:
+    return "ROUTE";
+  case K::FIGURATIVE_CONCEPT:
+    return "FIGURATIVE";
+  case K::REFLECTION_CONCEPT:
+    return "REFLECTION";
+  case K::PRIMITIVE_CONCEPT:
+    return "PRIMITIVE";
+  case K::FITTING_PRIMITIVE_CONCEPT:
+    return "FITTING_PRIMITIVE";
+  case K::PLATFORM_PRIMITIVE_CONCEPT:
+    return "PLATFORM_PRIMITIVE";
+  case K::STANDARD_PRIMITIVE_CONCEPT:
+    return "STANDARD_PRIMITIVE";
+  case K::SCALED_PRIMITIVE_CONCEPT:
+    return "SCALED_PRIMITIVE";
+  case K::SIGNED_CONCEPT:
+    return "SIGNED";
+  case K::UNSIGNED_CONCEPT:
+    return "UNSIGNED";
+  case K::INT_CONCEPT:
+    return "INT";
+  case K::EXACT_INT_CONCEPT:
+    return "EXACT_INT";
+  case K::FAST_INT_CONCEPT:
+    return "FAST_INT";
+  case K::LEAST_INT_CONCEPT:
+    return "LEAST_INT";
+  case K::FLOAT_CONCEPT:
+    return "FLOAT";
+  case K::BINARY_CONCEPT:
+    return "BINARY";
+  case K::BFLOAT_CONCEPT:
+    return "BFLOAT";
+  case K::CONCEPT_CONCEPT:
+    return "CONCEPT";
+  case K::SUBTYPE_CONCEPT:
+    return "SUBTYPE";
+  case K::ARRAY_CONCEPT:
+    return "ARRAY";
+  case K::REF_CONCEPT:
+    return "REF";
+  case K::PTR_CONCEPT:
+    return "PTR";
+  case K::SLICE_CONCEPT:
+    return "SLICE";
+  case K::SPLIT_CONCEPT:
+    return "SPLIT";
+  case K::MODULE_CONCEPT:
+    return "MODULE";
+  case K::IMPORT_CONCEPT:
+    return "IMPORT";
+  case K::PORTAL_CONCEPT:
+    return "PORTAL";
+  case K::REALIZATION_CONCEPT:
+    return "REALIZATION";
+  case K::CONFORMITY_CONCEPT:
+    return "CONFORMITY";
+  case K::ADAPTION_CONCEPT:
+    return "ADAPTION";
+  case K::TRIP_CONCEPT:
+    return "TRIP";
+  case K::JUXT_CONCEPT:
+    return "JUXT";
+  case K::SPECIALIZATION_SET_CONCEPT:
+    return "SPECIALIZATION_SET";
+  case K::ADAPTER_SPECIALIZATION_SET_CONCEPT:
+    return "ADAPTER_SPECIALIZATION_SET";
+  case K::PROCEDURE_SPECIALIZATION_SET_CONCEPT:
+    return "PROCEDURE_SPECIALIZATION_SET";
+  case K::ARITHMETIC_SEQUENCE_CONCEPT:
+    return "ARITHMETIC_SEQUENCE";
+  case K::ARITHMETIC_INTERVAL_CONCEPT:
+    return "ARITHMETIC_INTERVAL";
+  case K::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return "INFINITE_ARITHMETIC_SEQUENCE";
+  case K::FINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return "FINITE_ARITHMETIC_SEQUENCE";
+  case K::EAGER_DECLARATION_CONCEPT:
+    return "EAGER_DECLARATION";
+  case K::ANCHOR_CONCEPT:
+    return "ANCHOR";
+  case K::ENUMERATOR_CONCEPT:
+    return "ENUMERATOR";
+  case K::VARIABLE_CONCEPT:
+    return "VARIABLE";
+  case K::EAGER_VARIABLE_CONCEPT:
+    return "EAGER_VARIABLE";
+  case K::POST_EAGER_VARIABLE_CONCEPT:
+    return "POST_EAGER_VARIABLE";
+  case K::PRE_EAGER_VARIABLE_CONCEPT:
+    return "PRE_EAGER_VARIABLE";
+  case K::PARAMETER_CONCEPT:
+    return "PARAMETER";
+  case K::SIGNATURE_PARAMETER_CONCEPT:
+    return "SIGNATURE_PARAMETER";
+  case K::LAYOUT_PARAMETER_CONCEPT:
+    return "LAYOUT_PARAMETER";
+  case K::PARAMETER_LIST_CONCEPT:
+    return "PARAMETER_LIST";
+  case K::SIGNATURE_CONCEPT:
+    return "SIGNATURE";
+  case K::LAYOUT_CONCEPT:
+    return "LAYOUT_CONCEPT";
+  case K::PLACEMENT_CONCEPT:
+    return "PLACEMENT";
+  case K::COMPOSITION_CONCEPT:
+    return "COMPOSITION";
+  case K::SYNONYM_CONCEPT:
+    return "SYNONYM";
+  case K::SYMBOL_TABLE_CONCEPT:
+    return "SYMBOL_TABLE";
+  case K::NAMESPACE_CONCEPT:
+    return "NAMESPACE";
+  case K::EAGER_SCOPING_STATEMENT_CONCEPT:
+    return "EAGER_SCOPING_STATEMENT";
+  case K::IF_STATEMENT_CONCEPT:
+    return "IF_STATEMENT";
+  case K::ELSE_IF_STATEMENT_CONCEPT:
+    return "ELSE_IF_STATEMENT";
+  case K::ELSE_STATEMENT_CONCEPT:
+    return "ELSE_STATEMENT";
+  case K::SWITCH_STATEMENT_CONCEPT:
+    return "SWITCH_STATEMENT";
+  case K::CASE_STATEMENT_CONCEPT:
+    return "CASE_STATEMENT";
+  case K::DEFAULT_STATEMENT_CONCEPT:
+    return "DEFAULT_STATEMENT";
+  case K::FOR_STATEMENT_CONCEPT:
+    return "FOR_STATEMENT";
+  case K::WHILE_STATEMENT_CONCEPT:
+    return "WHILE_STATEMENT";
+  case K::SCOPE_STATEMENT_CONCEPT:
+    return "SCOPE_STATEMENT";
+  case K::IMPLEMENTATION_CONCEPT:
+    return "IMPLEMENTATION";
+  case K::OVERLOAD_CONCEPT:
+    return "OVERLOAD";
+  case K::SPECIALIZATION_CONCEPT:
+    return "SPECIALIZATION";
+  case K::TEMPLATE_CONCEPT:
+    return "TEMPLATE";
+  case K::CLASS_IMPLEMENTATION_CONCEPT:
+    return "CLASS_IMPLEMENTATION";
+  case K::CLASS_OVERLOAD_CONCEPT:
+    return "CLASS_OVERLOAD";
+  case K::CLASS_SPECIALIZATION_CONCEPT:
+    return "CLASS_SPECIALIZATION";
+  case K::CLASS_TEMPLATE_CONCEPT:
+    return "CLASS_TEMPLATE";
+  case K::ENUM_IMPLEMENTATION_CONCEPT:
+    return "ENUM_IMPLEMENTATION";
+  case K::ENUM_OVERLOAD_CONCEPT:
+    return "ENUM_OVERLOAD";
+  case K::ENUM_SPECIALIZATION_CONCEPT:
+    return "ENUM_SPECIALIZATION";
+  case K::ENUM_TEMPLATE_CONCEPT:
+    return "ENUM_TEMPLATE";
+  case K::INTERFACE_IMPLEMENTATION_CONCEPT:
+    return "INTERFACE_IMPLEMENTATION";
+  case K::INTERFACE_OVERLOAD_CONCEPT:
+    return "INTERFACE_OVERLOAD";
+  case K::INTERFACE_SPECIALIZATION_CONCEPT:
+    return "INTERFACE_SPECIALIZATION";
+  case K::INTERFACE_TEMPLATE_CONCEPT:
+    return "INTERFACE_TEMPLATE";
+  case K::ADAPTER_IMPLEMENTATION_CONCEPT:
+    return "ADAPTER_IMPLEMENTATION";
+  case K::ADAPTER_OVERLOAD_CONCEPT:
+    return "ADAPTER_OVERLOAD";
+  case K::ADAPTER_SPECIALIZATION_CONCEPT:
+    return "ADAPTER_SPECIALIZATION";
+  case K::ADAPTER_TEMPLATE_CONCEPT:
+    return "ADAPTER_TEMPLATE";
+  case K::PROCEDURE_IMPLEMENTATION_CONCEPT:
+    return "PROCEDURE_IMPLEMENTATION";
+  case K::PROCEDURE_OVERLOAD_CONCEPT:
+    return "PROCEDURE_OVERLOAD";
+  case K::PROCEDURE_SPECIALIZATION_CONCEPT:
+    return "PROCEDURE_SPECIALIZATION";
+  case K::PROCEDURE_TEMPLATE_CONCEPT:
+    return "PROCEDURE_TEMPLATE";
+  case K::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
+    return "LAZY_VARIABLE_IMPLEMENTATION";
+  case K::LAZY_VARIABLE_OVERLOAD_CONCEPT:
+    return "LAZY_VARIABLE_OVERLOAD";
+  case K::LAZY_VARIABLE_SPECIALIZATION_CONCEPT:
+    return "LAZY_VARIABLE_SPECIALIZATION";
+  case K::LAZY_VARIABLE_TEMPLATE_CONCEPT:
+    return "LAZY_VARIABLE_TEMPLATE";
+  case K::ALIAS_IMPLEMENTATION_CONCEPT:
+    return "ALIAS_IMPLEMENTATION";
+  case K::ALIAS_OVERLOAD_CONCEPT:
+    return "ALIAS_OVERLOAD";
+  case K::ALIAS_SPECIALIZATION_CONCEPT:
+    return "ALIAS_SPECIALIZATION";
+  case K::ALIAS_TEMPLATE_CONCEPT:
+    return "ALIAS_TEMPLATE";
+  case K::CONCEPT_IMPLEMENTATION_CONCEPT:
+    return "CONCEPT_IMPLEMENTATION";
+  case K::CONCEPT_OVERLOAD_CONCEPT:
+    return "CONCEPT_OVERLOAD";
+  case K::CONCEPT_SPECIALIZATION_CONCEPT:
+    return "CONCEPT_SPECIALIZATION";
+  case K::CONCEPT_TEMPLATE_CONCEPT:
+    return "CONCEPT_TEMPLATE";
+  case K::VARIANT_IMPLEMENTATION_CONCEPT:
+    return "VARIANT_IMPLEMENTATION";
+  case K::VARIANT_OVERLOAD_CONCEPT:
+    return "VARIANT_OVERLOAD";
+  case K::VARIANT_SPECIALIZATION_CONCEPT:
+    return "VARIANT_SPECIALIZATION";
+  case K::VARIANT_TEMPLATE_CONCEPT:
+    return "VARIANT_TEMPLATE";
+  case K::ATTRIBUTE_CONCEPT:
+    return "ATTRIBUTE";
+  case K::MODIFIER_CONCEPT:
+    return "MODIFIER";
+  case K::ANCHOR_MODIFIER_CONCEPT:
+    return "ANCHOR_MODIFIER";
+  case K::CONTAINER_MODIFIER_CONCEPT:
+    return "CONTAINER_MODIFIER";
+  case K::VISIBILITY_MODIFIER_CONCEPT:
+    return "VISIBILITY_MODIFIER";
+  case K::ACCESS_MODIFIER_CONCEPT:
+    return "ACCESS_MODIFIER";
+  case K::MUTABILITY_MODIFIER_CONCEPT:
+    return "MUTABILITY_MODIFIER";
+  case K::EVALUATION_TIME_MODIFIER_CONCEPT:
+    return "EVALUATION_TIME_MODIFIER";
+  case K::DIALECT_MODIFIER_CONCEPT:
+    return "DIALECT_MODIFIER";
+  case K::TENURE_MODIFIER_CONCEPT:
+    return "TENURE_MODIFIER";
+  case K::INITIALIZATION_TIME_MODIFIER_CONCEPT:
+    return "INITIALIZATION_TIME_MODIFIER";
+  case K::CLOSURE_MODIFIER_CONCEPT:
+    return "CLOSURE_MODIFIER";
+  case K::LINKAGE_MODIFIER_CONCEPT:
+    return "LINKAGE_MODIFIER";
+  case K::SIDE_EFFECTS_MODIFIER_CONCEPT:
+    return "SIDE_EFFECTS_MODIFIER";
+  case K::MANGLE_MODIFIER_CONCEPT:
+    return "MANGLE_MODIFIER";
+  case K::PACK_MODIFIER_CONCEPT:
+    return "PACK_MODIFIER";
+  case K::BRANCH_TREND_MODIFIER_CONCEPT:
+    return "BRANCH_TREND_MODIFIER";
+  case K::SUPPORT_NOTICE_MODIFIER_CONCEPT:
+    return "SUPPORT_NOTICE_MODIFIER";
+  case K::ADDRESS_STABILITY_MODIFIER_CONCEPT:
+    return "ADDRESS_STABILITY_MODIFIER";
+  case K::VARIADIC_MODIFIER_CONCEPT:
+    return "VARIADIC_MODIFIER";
+  case K::OFFSET_MODIFIER_CONCEPT:
+    return "OFFSET_MODIFIER";
+  case K::LAZY_DECLARATION_MODIFIER_CONCEPT:
+    return "LAZY_DECLARATION_MODIFIER";
+  case K::CONSTRAINT_MODIFIER_CONCEPT:
+    return "CONSTRAINT_MODIFIER";
+  case K::WEIGHT_MODIFIER_CONCEPT:
+    return "WEIGHT_MODIFIER";
+  case K::DEDUCTION_MODIFIER_CONCEPT:
+    return "DEDUCTION_MODIFIER";
+  case K::VIRTUALITY_MODIFIER_CONCEPT:
+    return "VIRTUALITY_MODIFIER";
+  case K::RANGER_MODIFIER_CONCEPT:
+    return "RANGER_MODIFIER";
+  case K::REQUIRE_MODIFIER_CONCEPT:
+    return "REQUIRE_MODIFIER";
+  case K::ENSURE_MODIFIER_CONCEPT:
+    return "ENSURE_MODIFIER";
+  case K::QUALIFIER_CONCEPT:
+    return "QUALIFIER";
+  case K::MUT_QUALIFIER_CONCEPT:
+    return "MUT_QUALIFIER";
+  case K::VOLATILE_QUALIFIER_CONCEPT:
+    return "VOLATILE_QUALIFIER";
+  case K::ATOMIC_QUALIFIER_CONCEPT:
+    return "ATOMIC_QUALIFIER";
+  case K::NULL_TERMINATE_QUALIFIER_CONCEPT:
+    return "NULL_TERMINATE_QUALIFIER";
+  case K::MARGIN_QUALIFIER_CONCEPT:
+    return "MARGIN_QUALIFIER";
+  case K::THROWS_QUALIFIER_CONCEPT:
+    return "THROWS_QUALIFIER";
 
   case K::LAST:
     break;
@@ -857,29 +1137,30 @@ enum class KeywordInfoFlags : std::uint32_t {
   FINISHING_CHAINLINK = rq::getBit(5),
   IF_CHAINLINK = rq::getBit(6),
   SWITCH_CHAINLINK = rq::getBit(7),
+  MATCH_CHAINLINK = rq::getBit(8),
+  TRY_CHAINLINK = rq::getBit(9),
   // TOP
-  STATEMENT = rq::getBit(8),
-  RVALUE = rq::getBit(9),
-  LVALUE = rq::getBit(10),
-  RAILCAR = rq::getBit(11),
-  ARGUMENT = rq::getBit(12),
-  PARAMETER = rq::getBit(13),
-  TUPLE_ELEMENT = rq::getBit(14),
-  BINDING = rq::getBit(15),
-  NAME = rq::getBit(16),
-  PATH = rq::getBit(17),
-  ROUTE = rq::getBit(18),
-  PORTAL = rq::getBit(19),
-  ASCRIPTION = rq::getBit(20),
-  MODIFIER = rq::getBit(21),
-  QUALIFIER = rq::getBit(22),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(23),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(24),
+  STATEMENT = rq::getBit(10),
+  RVALUE = rq::getBit(11),
+  LVALUE = rq::getBit(12),
+  RAILCAR = rq::getBit(13),
+  ARGUMENT = rq::getBit(14),
+  PARAMETER = rq::getBit(15),
+  TUPLE_ELEMENT = rq::getBit(16),
+  BINDING = rq::getBit(17),
+  NAME = rq::getBit(18),
+  PATH = rq::getBit(19),
+  ROUTE = rq::getBit(20),
+  PORTAL = rq::getBit(21),
+  ASCRIPTION = rq::getBit(22),
+  MODIFIER = rq::getBit(23),
+  QUALIFIER = rq::getBit(24),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
       PARAMETER | BINDING | NAME | PATH | ROUTE | PORTAL | ASCRIPTION |
       MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
       ARITHMETIC_SEQUENCE_CONDITION,
-
 };
 
 RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
@@ -994,7 +1275,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::APPEND:
+  case K::JUXT:
+    return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::TRIP:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // ARITHMETIC
@@ -1066,6 +1349,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // MEMORY
   case K::ASSIGN:
     return KIF::STATEMENT;
+  case K::SPLIT:
+    return KIF::LVALUE;
+  case K::RVALUE_LABEL:
+    return KIF::RVALUE;
   case K::POLYADIC_PARAMETER:
     return KIF::PARAMETER;
   case K::CONTENT:
@@ -1149,6 +1436,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SPLIT_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::EXISTENTIAL_SUBTYPE:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -1157,8 +1446,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::PARAMETER;
   case K::LOCKED_PARAMETERS_BEGIN:
     return KIF::PARAMETER;
-  case K::NONAME:
-    return KIF::NAME | KIF::LVALUE;
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
@@ -1203,6 +1490,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::ADAPTER:
     return KIF::STATEMENT;
+  case K::VARIANT:
+    return KIF::STATEMENT;
 
   // VALUES
   case K::ARRAY:
@@ -1221,8 +1510,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE;
 
   // BUILTIN TYPES
-  case K::SYMBOL:
-    return KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::INFERENCE:
     return KIF::RVALUE | KIF::ARGUMENT;
   case K::EXPRESSION:
@@ -1297,6 +1584,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::SWITCH_CHAIN:
     return KIF::STATEMENT;
+  case K::MATCH_CHAIN:
+    return KIF::STATEMENT;
+  case K::TRY_CHAIN:
+    return KIF::STATEMENT;
   case K::IF:
     return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::ELSE_IF:
@@ -1309,9 +1600,21 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CASE:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::SWITCH_CHAINLINK;
+  case K::MATCH:
+    return KIF::STARTING_CHAINLINK | KIF::MATCH_CHAINLINK;
+  case K::ARM:
+    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
+           KIF::MATCH_CHAINLINK;
   case K::DEFAULT:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::SWITCH_CHAINLINK;
+           KIF::SWITCH_CHAINLINK | KIF::MATCH_CHAINLINK;
+  case K::TRY:
+    return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::TRY_CHAINLINK;
+  case K::CATCH:
+    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
+           KIF::TRY_CHAINLINK;
+  case K::FINALLY:
+    return KIF::FINISHING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::FOR:
     return KIF::STATEMENT;
   case K::WHILE:
@@ -1320,7 +1623,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::FOLD:
     return KIF::STATEMENT;
-  case K::CHECK:
+  case K::CHECK_GLOBAL:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::CHECK_FRAME:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VALIDATE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1537,12 +1842,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MARGIN:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-
-  // MODIFIER TYPES
-  case K::MODIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::QUALIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::NO_THROWS:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::THROWS:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -1623,10 +1926,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::AT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::MAIN:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
-  case K::MAIN_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DESTRUCTOR:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
   case K::DESTRUCTOR_OF:
@@ -1643,6 +1942,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::UNDERLYING_TYPE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::THROW:
+    return KIF::RAILCAR;
+  case K::THROW_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::STATEMENT;
+  case K::PASS:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PASS_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::STATEMENT;
   case K::REFLECT:
     return KIF::RAILCAR;
   case K::REFLECT_OF:
@@ -1681,50 +1988,454 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::RESOLVE_ADAPTER_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_RANGE_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_RANGE_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_PLACEMENT_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_PLACEMENT_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_SIGNED_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_SIGNED_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_UNSIGNED_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_UNSIGNED_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_INTEGER_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_INTEGER_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_FLOAT_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_FLOAT_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_BINARY_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_BINARY_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_BFLOAT_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_BFLOAT_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_STRING_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_STRING_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::IS_CODEUNIT_TYPE:
-    return KIF::RAILCAR;
-  case K::IS_CODEUNIT_TYPE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+
+  case K::ANY_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::TYPE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::GENTIME_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::RUNTIME_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ANYTIME_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::RANGE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ROUTE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FIGURATIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::REFLECTION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PRIMITIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FITTING_PRIMITIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PLATFORM_PRIMITIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::STANDARD_PRIMITIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SCALED_PRIMITIVE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SIGNED_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::UNSIGNED_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::EXACT_INT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FAST_INT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LEAST_INT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FLOAT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::BINARY_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::BFLOAT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONCEPT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SUBTYPE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ARRAY_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::REF_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PTR_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SLICE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SPLIT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MODULE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::IMPORT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PORTAL_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::REALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONFORMITY_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::TRIP_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::JUXT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SPECIALIZATION_SET_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTER_SPECIALIZATION_SET_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PROCEDURE_SPECIALIZATION_SET_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ARITHMETIC_SEQUENCE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ARITHMETIC_INTERVAL_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::EAGER_DECLARATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ANCHOR_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENUMERATOR_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIABLE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::EAGER_VARIABLE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::POST_EAGER_VARIABLE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PRE_EAGER_VARIABLE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PARAMETER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SIGNATURE_PARAMETER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAYOUT_PARAMETER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PARAMETER_LIST_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SIGNATURE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAYOUT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PLACEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::COMPOSITION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SYNONYM_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SYMBOL_TABLE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::NAMESPACE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::EAGER_SCOPING_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::IF_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ELSE_IF_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ELSE_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SWITCH_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CASE_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::DEFAULT_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FOR_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::WHILE_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SCOPE_STATEMENT_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CLASS_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CLASS_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CLASS_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CLASS_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENUM_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENUM_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENUM_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENUM_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INTERFACE_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INTERFACE_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INTERFACE_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INTERFACE_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTER_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTER_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTER_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADAPTER_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PROCEDURE_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PROCEDURE_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PROCEDURE_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PROCEDURE_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAZY_VARIABLE_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAZY_VARIABLE_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAZY_VARIABLE_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ALIAS_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ALIAS_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ALIAS_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ALIAS_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONCEPT_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONCEPT_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONCEPT_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONCEPT_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIANT_IMPLEMENTATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIANT_OVERLOAD_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIANT_SPECIALIZATION_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIANT_TEMPLATE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ATTRIBUTE_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ANCHOR_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONTAINER_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VISIBILITY_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ACCESS_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MUTABILITY_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::EVALUATION_TIME_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::DIALECT_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::TENURE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::INITIALIZATION_TIME_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CLOSURE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LINKAGE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SIDE_EFFECTS_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MANGLE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::PACK_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::BRANCH_TREND_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::SUPPORT_NOTICE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ADDRESS_STABILITY_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VARIADIC_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::OFFSET_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::LAZY_DECLARATION_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::CONSTRAINT_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::WEIGHT_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::DEDUCTION_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VIRTUALITY_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::RANGER_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::REQUIRE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ENSURE_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MUT_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::VOLATILE_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::ATOMIC_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::NULL_TERMINATE_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::MARGIN_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::THROWS_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
 
   case K::LAST:
     break;
@@ -1833,12 +2544,20 @@ enum class Situation : std::uint_fast8_t {
   FINISHING_CHAINLINK,
   IF_CHAINLINK,
   SWITCH_CHAINLINK,
+  MATCH_CHAINLINK,
+  TRY_CHAINLINK,
   STARTING_IF_CHAINLINK,
   CONTINUING_IF_CHAINLINK,
   FINISHING_IF_CHAINLINK,
   STARTING_SWITCH_CHAINLINK,
   CONTINUING_SWITCH_CHAINLINK,
   FINISHING_SWITCH_CHAINLINK,
+  STARTING_MATCH_CHAINLINK,
+  CONTINUING_MATCH_CHAINLINK,
+  FINISHING_MATCH_CHAINLINK,
+  STARTING_TRY_CHAINLINK,
+  CONTINUING_TRY_CHAINLINK,
+  FINISHING_TRY_CHAINLINK
 };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
@@ -1892,6 +2611,10 @@ getDescription(rq::Situation situation) {
     return "if chainlink";
   case S::SWITCH_CHAINLINK:
     return "switch chainlink";
+  case S::MATCH_CHAINLINK:
+    return "match chainlink";
+  case S::TRY_CHAINLINK:
+    return "try chainlink";
   case S::STARTING_IF_CHAINLINK:
     return "starting if chainlink";
   case S::CONTINUING_IF_CHAINLINK:
@@ -1904,6 +2627,18 @@ getDescription(rq::Situation situation) {
     return "continuing switch chainlink";
   case S::FINISHING_SWITCH_CHAINLINK:
     return "finishing switch chainlink";
+  case S::STARTING_MATCH_CHAINLINK:
+    return "starting match chainlink";
+  case S::CONTINUING_MATCH_CHAINLINK:
+    return "continuing match chainlink";
+  case S::FINISHING_MATCH_CHAINLINK:
+    return "finishing match chainlink";
+  case S::STARTING_TRY_CHAINLINK:
+    return "starting try chainlink";
+  case S::CONTINUING_TRY_CHAINLINK:
+    return "continuing try chainlink";
+  case S::FINISHING_TRY_CHAINLINK:
+    return "finishing try chainlink";
   }
   return "error expression";
 }
@@ -1998,8 +2733,6 @@ getDescription(rq::Situation situation) {
     return K::SYNONYM_OF;
   case K::AT:
     return K::AT_OF;
-  case K::MAIN:
-    return K::MAIN_OF;
   case K::DESTRUCTOR:
     return K::DESTRUCTOR_OF;
   case K::DESTROY:
@@ -2030,28 +2763,6 @@ getDescription(rq::Situation situation) {
     return K::RESOLVE_PROCEDURE_OF;
   case K::RESOLVE_ADAPTER:
     return K::RESOLVE_ADAPTER_OF;
-  case K::IS_TYPE:
-    return K::IS_TYPE_OF;
-  case K::IS_RANGE_TYPE:
-    return K::IS_RANGE_TYPE_OF;
-  case K::IS_PLACEMENT_TYPE:
-    return K::IS_PLACEMENT_TYPE_OF;
-  case K::IS_SIGNED_TYPE:
-    return K::IS_SIGNED_TYPE_OF;
-  case K::IS_UNSIGNED_TYPE:
-    return K::IS_UNSIGNED_TYPE_OF;
-  case K::IS_INTEGER_TYPE:
-    return K::IS_INTEGER_TYPE_OF;
-  case K::IS_FLOAT_TYPE:
-    return K::IS_FLOAT_TYPE_OF;
-  case K::IS_BINARY_TYPE:
-    return K::IS_BINARY_TYPE_OF;
-  case K::IS_BFLOAT_TYPE:
-    return K::IS_BFLOAT_TYPE_OF;
-  case K::IS_STRING_TYPE:
-    return K::IS_STRING_TYPE_OF;
-  case K::IS_CODEUNIT_TYPE:
-    return K::IS_CODEUNIT_TYPE_OF;
   default:
     break;
   }
@@ -2192,6 +2903,17 @@ getCanBeSwitchChainlink(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeMatchChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTryChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::TRY_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeStartingIfChainlink(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasAll(flags, rq::KeywordInfoFlags::IF_CHAINLINK |
@@ -2234,9 +2956,52 @@ getCanBeFinishingSwitchChainlink(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeStartingMatchChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
+                                  rq::KeywordInfoFlags::STARTING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeContinuingMatchChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
+                                  rq::KeywordInfoFlags::CONTINUING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeFinishingMatchChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::MATCH_CHAINLINK |
+                                  rq::KeywordInfoFlags::FINISHING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeStartingTryChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::TRY_CHAINLINK |
+                                  rq::KeywordInfoFlags::STARTING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeContinuingTryChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::TRY_CHAINLINK |
+                                  rq::KeywordInfoFlags::CONTINUING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getCanBeFinishingTryChainlink(rq::Keyword keyword) {
+  const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
+  return rq::getHasAll(flags, rq::KeywordInfoFlags::TRY_CHAINLINK |
+                                  rq::KeywordInfoFlags::FINISHING_CHAINLINK);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsChainlinkKind(rq::Situation situation) {
   using S = rq::Situation;
-  return situation == S::IF_CHAINLINK || situation == S::SWITCH_CHAINLINK;
+  return situation == S::IF_CHAINLINK || situation == S::SWITCH_CHAINLINK ||
+         situation == S::MATCH_CHAINLINK || situation == S::TRY_CHAINLINK;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2297,6 +3062,10 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeIfChainlink(keyword);
   case S::SWITCH_CHAINLINK:
     return rq::getCanBeSwitchChainlink(keyword);
+  case S::MATCH_CHAINLINK:
+    return rq::getCanBeMatchChainlink(keyword);
+  case S::TRY_CHAINLINK:
+    return rq::getCanBeTryChainlink(keyword);
   case S::STARTING_IF_CHAINLINK:
     return rq::getCanBeStartingIfChainlink(keyword);
   case S::CONTINUING_IF_CHAINLINK:
@@ -2309,6 +3078,18 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeContinuingSwitchChainlink(keyword);
   case S::FINISHING_SWITCH_CHAINLINK:
     return rq::getCanBeFinishingSwitchChainlink(keyword);
+  case S::STARTING_MATCH_CHAINLINK:
+    return rq::getCanBeStartingMatchChainlink(keyword);
+  case S::CONTINUING_MATCH_CHAINLINK:
+    return rq::getCanBeContinuingMatchChainlink(keyword);
+  case S::FINISHING_MATCH_CHAINLINK:
+    return rq::getCanBeFinishingMatchChainlink(keyword);
+  case S::STARTING_TRY_CHAINLINK:
+    return rq::getCanBeStartingTryChainlink(keyword);
+  case S::CONTINUING_TRY_CHAINLINK:
+    return rq::getCanBeContinuingTryChainlink(keyword);
+  case S::FINISHING_TRY_CHAINLINK:
+    return rq::getCanBeFinishingTryChainlink(keyword);
   }
   return false;
 }
@@ -3453,7 +4234,9 @@ enum class Qualifier : std::uint_fast8_t {
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
   NO_MARGIN,
-  MARGIN
+  MARGIN,
+  NO_THROWS,
+  THROWS
 };
 
 [[nodiscard]] inline llvm::StringRef getName(rq::Qualifier modifier) {
@@ -3484,6 +4267,10 @@ enum class Qualifier : std::uint_fast8_t {
     return "no_margin";
   case Q::MARGIN:
     return "margin";
+  case Q::NO_THROWS:
+    return "no_throws";
+  case Q::THROWS:
+    return "throws";
   }
   RQ_UNREACHABLE();
 }
@@ -3515,6 +4302,10 @@ enum class Qualifier : std::uint_fast8_t {
     return Q::NO_MARGIN;
   case K::MARGIN:
     return Q::MARGIN;
+  case K::NO_THROWS:
+    return Q::NO_THROWS;
+  case K::THROWS:
+    return Q::THROWS;
   default:
     break;
   }
@@ -3543,7 +4334,11 @@ enum class QualifierFuseFlags : std::uint_fast16_t {
 
   NO_MARGIN = rq::getBit(9),
   MARGIN = rq::getBit(10),
-  MARGIN_MASK = NO_MARGIN | MARGIN
+  MARGIN_MASK = NO_MARGIN | MARGIN,
+
+  NO_THROWS = rq::getBit(11),
+  THROWS = rq::getBit(12),
+  THROWS_MASK = NO_THROWS | THROWS
 };
 
 RQ_DEFINE_FLAGS(rq::QualifierFuseFlags);
@@ -3578,6 +4373,10 @@ getFuseFlags(rq::Qualifier modifier) {
     return QFF::NO_MARGIN;
   case Q::MARGIN:
     return QFF::MARGIN;
+  case Q::NO_THROWS:
+    return QFF::NO_THROWS;
+  case Q::THROWS:
+    return QFF::THROWS;
   }
   RQ_UNREACHABLE();
 }
@@ -3588,7 +4387,8 @@ enum class QualifierKind : std::uint_fast8_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATE,
-  MARGIN
+  MARGIN,
+  THROWS
 };
 
 [[nodiscard]] inline llvm::StringRef getDescription(rq::QualifierKind kind) {
@@ -3606,6 +4406,8 @@ enum class QualifierKind : std::uint_fast8_t {
     return "null terminate qualifier";
   case HAK::MARGIN:
     return "margin qualifier";
+  case HAK::THROWS:
+    return "throws qualifier";
   }
   RQ_UNREACHABLE();
 }
@@ -3638,6 +4440,10 @@ enum class QualifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case Q::MARGIN:
     return QK::MARGIN;
+  case Q::NO_THROWS:
+    [[fallthrough]];
+  case Q::THROWS:
+    return QK::THROWS;
   }
   RQ_UNREACHABLE();
 }
@@ -3691,44 +4497,74 @@ enum class ArithmeticStep : std::uint_fast8_t {
   SUBTRACT,
   MULTIPLY,
   DIVIDE,
-  MODULUS
+  MODULUS,
+  WRAPPING_ADD,
+  WRAPPING_SUBTRACT,
+  WRAPPING_MULTIPLY,
+  SATURATING_ADD,
+  SATURATING_SUBTRACT,
+  SATURATING_MULTIPLY
 };
 
 [[nodiscard]] inline llvm::StringRef getDescription(rq::ArithmeticStep step) {
   using namespace rq;
-  using ASS = ArithmeticStep;
+  using AS = ArithmeticStep;
   switch (step) {
-  case ASS::NONE:
+  case AS::NONE:
     return "no step";
-  case ASS::ADD:
+  case AS::ADD:
     return "add step";
-  case ASS::SUBTRACT:
+  case AS::SUBTRACT:
     return "subtract step";
-  case ASS::MULTIPLY:
+  case AS::MULTIPLY:
     return "multiply step";
-  case ASS::DIVIDE:
+  case AS::DIVIDE:
     return "divide step";
-  case ASS::MODULUS:
+  case AS::MODULUS:
     return "modulus step";
+  case AS::WRAPPING_ADD:
+    return "wrapping add step";
+  case AS::WRAPPING_SUBTRACT:
+    return "wrapping subtract step";
+  case AS::WRAPPING_MULTIPLY:
+    return "wrapping multiply step";
+  case AS::SATURATING_ADD:
+    return "saturating add step";
+  case AS::SATURATING_SUBTRACT:
+    return "saturating subtract step";
+  case AS::SATURATING_MULTIPLY:
+    return "saturating multiply step";
   }
   RQ_UNREACHABLE();
 }
 
 [[nodiscard]] inline rq::ArithmeticStep getArithmeticStep(rq::Keyword keyword) {
   using namespace rq;
-  using ASS = ArithmeticStep;
+  using AS = ArithmeticStep;
   using K = Keyword;
   switch (keyword) {
   case K::ARITHMETIC_SEQUENCE_STEP_ADD:
-    return ASS::ADD;
+    return AS::ADD;
   case K::ARITHMETIC_SEQUENCE_STEP_SUBTRACT:
-    return ASS::SUBTRACT;
+    return AS::SUBTRACT;
   case K::ARITHMETIC_SEQUENCE_STEP_MULTIPLY:
-    return ASS::MULTIPLY;
+    return AS::MULTIPLY;
   case K::ARITHMETIC_SEQUENCE_STEP_DIVIDE:
-    return ASS::DIVIDE;
+    return AS::DIVIDE;
   case K::ARITHMETIC_SEQUENCE_STEP_MODULUS:
-    return ASS::MODULUS;
+    return AS::MODULUS;
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_ADD:
+    return AS::WRAPPING_ADD;
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_SUBTRACT:
+    return AS::WRAPPING_SUBTRACT;
+  case K::ARITHMETIC_SEQUENCE_STEP_WRAPPING_MULTIPLY:
+    return AS::WRAPPING_MULTIPLY;
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_ADD:
+    return AS::SATURATING_ADD;
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_SUBTRACT:
+    return AS::SATURATING_SUBTRACT;
+  case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY:
+    return AS::SATURATING_MULTIPLY;
   default:
     break;
   }
@@ -3792,7 +4628,7 @@ getArithmeticCondition(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
-enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH };
+enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH, MATCH, TRY };
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getDescription(rq::Chain chain) {
   using C = rq::Chain;
@@ -3803,6 +4639,10 @@ enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH };
     return "if chain";
   case C::SWITCH:
     return "switch case chain";
+  case C::MATCH:
+    return "match arm chain";
+  case C::TRY:
+    return "try catch chain";
   }
   RQ_UNREACHABLE();
 }
@@ -4036,6 +4876,64 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticStep() const {
     return rq::getCanBeArithmeticStep(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingChainlink() const {
+    return rq::getCanBeStartingChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingChainlink() const {
+    return rq::getCanBeContinuingChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingChainlink() const {
+    return rq::getCanBeFinishingChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeIfChainlink() const {
+    return rq::getCanBeIfChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeSwitchChainlink() const {
+    return rq::getCanBeSwitchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeMatchChainlink() const {
+    return rq::getCanBeMatchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeTryChainlink() const {
+    return rq::getCanBeTryChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingIfChainlink() const {
+    return rq::getCanBeStartingIfChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingIfChainlink() const {
+    return rq::getCanBeContinuingIfChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingIfChainlink() const {
+    return rq::getCanBeFinishingIfChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingSwitchChainlink() const {
+    return rq::getCanBeStartingSwitchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getCanBeContinuingSwitchChainlink() const {
+    return rq::getCanBeContinuingSwitchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingSwitchChainlink() const {
+    return rq::getCanBeFinishingSwitchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingMatchChainlink() const {
+    return rq::getCanBeStartingMatchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingMatchChainlink() const {
+    return rq::getCanBeContinuingMatchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingMatchChainlink() const {
+    return rq::getCanBeFinishingMatchChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeStartingTryChainlink() const {
+    return rq::getCanBeStartingTryChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeContinuingTryChainlink() const {
+    return rq::getCanBeContinuingTryChainlink(this->getKeyword());
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeFinishingTryChainlink() const {
+    return rq::getCanBeFinishingTryChainlink(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool
   getCanBeSituation(rq::Situation situation) const {
