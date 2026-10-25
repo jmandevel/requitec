@@ -54,48 +54,135 @@ enum class EvaluationState : std::uint_fast8_t {
 
 [[nodiscard]] inline llvm::StringRef getName(rq::EvaluationState state);
 
+template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
+struct SimpleSymbolBranch;
+template <typename ParentParam, rq::SymbolKind KIND_PARAM>
+struct SimpleSymbolLeaf;
+
 // clang-format off
 struct Symbol;
-  struct SimpleSymbol;
-    struct Literal;
-      struct IntegerLiteral;
-      struct FloatLiteral;
-      struct StringLiteral;
-      struct CodeunitLiteral;
-    struct Figurative;
-      struct InferenceType;
-      struct VoidType;
-      struct NoReturnType;
-      struct UnknownType;
-    struct ReflectionType;
-      struct SymbolType;
-      struct ExpressionType;
-      struct SymbolRangeType;
-      struct ExpressionRangeType;
-    struct SimplePrimitiveType;
-      struct StandardPrimitiveType;
-        struct Binary16Type;
-        struct Binary32Type;
-        struct Binary64Type;
-        struct Binary128Type;
-        struct BFloat16Type;
-        struct AsciiType;
-        struct Utf8Type;
-      struct PlatformPrimitiveType;
-        struct HalfType;
-        struct SingleType;
-        struct DoubleType;
-        struct QuadrupleType;
-        struct BoolType;
-        struct CharType;
-        struct USizeType;
-        struct SSizeType;
-        struct UIndexType;
-        struct SIndexType;
-    struct AttributeType;
-      struct ModifierType;
-      struct QualifierType;
-    struct VariadicArgumentsType;
+  using LiteralType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::LITERAL>;
+    using IntegerLiteralType = rq::SimpleSymbolLeaf<rq::LiteralType, rq::SymbolKind::INTEGER_LITERAL_TYPE>;
+    using FloatLiteralType = rq::SimpleSymbolLeaf<rq::LiteralType, rq::SymbolKind::FLOAT_LITERAL_TYPE>;
+    using StringLiteralType = rq::SimpleSymbolLeaf<rq::LiteralType, rq::SymbolKind::STRING_LITERAL_TYPE>;
+    using CodeunitLiteralType = rq::SimpleSymbolLeaf<rq::LiteralType, rq::SymbolKind::CODEUNIT_LITERAL_TYPE>;
+  using FigurativeType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::FIGURATIVE>;
+    using UnknownType = rq::SimpleSymbolLeaf<rq::FigurativeType, rq::SymbolKind::UNKNOWN_TYPE>;
+    using InferenceType = rq::SimpleSymbolLeaf<rq::FigurativeType, rq::SymbolKind::INFERENCE_TYPE>;
+    using VoidType = rq::SimpleSymbolLeaf<rq::FigurativeType, rq::SymbolKind::VOID_TYPE>;
+    using NoReturnType = rq::SimpleSymbolLeaf<rq::FigurativeType, rq::SymbolKind::NO_RETURN_TYPE>;
+  using ReflectionType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::REFLECTION_TYPE>;
+    using ExpressionType = rq::SimpleSymbolLeaf<rq::ReflectionType, rq::SymbolKind::EXPRESSION_TYPE>;
+    using ExpressionRangeType = rq::SimpleSymbolLeaf<rq::ReflectionType, rq::SymbolKind::EXPRESSION_RANGE_TYPE>;
+    using SymbolRangeType = rq::SimpleSymbolLeaf<rq::ReflectionType, rq::SymbolKind::SYMBOL_RANGE_TYPE>;
+  using FittingPrimitiveType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::FITTING_PRIMITIVE_TYPE>;
+    using FittingFSIntType = rq::SimpleSymbolLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FSINT_TYPE>;
+    using FittingFUIntType = rq::SimpleSymbolLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FUINT_TYPE>;
+    using FittingLSIntType = rq::SimpleSymbolLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
+    using SymbolRangeType = rq::SimpleSymbolLeaf<rq::ReflectionType, rq::SymbolKind::SYMBOL_RANGE_TYPE>;
+  using PlatformPrimitiveType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE>;
+    using BooleanType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::BOOLEAN_TYPE>;
+    using HalfType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::HALF_TYPE>;
+    using SingleType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SINGLE_TYPE>;
+    using DoubleType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::DOUBLE_TYPE>;
+    using QuadrupleType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::QUADRUPLE_TYPE>;
+    using SIntType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SINT_TYPE>;
+    using UIntType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::UINT_TYPE>;
+    using SSizeType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SSIZE_TYPE>;
+    using USizeType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::USIZE_TYPE>;
+    using SIndexType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SINDEX_TYPE>;
+    using CharType = rq::SimpleSymbolLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::CHAR_TYPE>;
+  using StandardPrimitiveType = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::STANDARD_PRIMITIVE_TYPE>;
+    using Binary16Type = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY16_TYPE>;
+    using Binary32Type = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY32_TYPE>;
+    using Binary64Type = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY128_TYPE>;
+    using BFloat16Type = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BFLOAT16_TYPE>;
+    using AsciiType = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ASCII_TYPE>;
+    using Utf8Type = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::UTF8_TYPE>;
+  struct ScaledPrimitiveType;
+    struct ScaledSIntType;
+    struct ScaledUIntType;
+    struct ScaledFSIntType;
+    struct ScaledFUIntType;
+    struct ScaledLSIntType;
+    struct ScaledLUIntType;
+  using ModifierValue = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::MODIFIER>;
+    using NoModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::NO_MODIFIER>;
+    using AnchorModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ANCHOR_MODIFIER>;
+    using ResidentModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RESIDENT_MODIFIER>;
+    using FlankModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::FLANK_MODIFIER>;
+    using TransparentModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::TRANSPARENT_MODIFIER>;
+    using OpaqueModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::OPAQUE_MODIFIER>;
+    using PrivateModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRIVATE_MODIFIER>;
+    using PublicModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PUBLIC_MODIFIER>;
+    using ExportModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EXPORT_MODIFIER>;
+    using MutableModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MUTABLE_MODIFIER>;
+    using PartiallyMutableModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PARTIALLY_MUTABLE_MODIFIER>;
+    using ConstantModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONSTANT_MODIFIER>;
+    using EagerModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EAGER_MODIFIER>;
+    using LazyModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LAZY_MODIFIER>;
+    using PostModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::POST_MODIFIER>;
+    using PreModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRE_MODIFIER>;
+    using AliasModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ALIAS_MODIFIER>;
+    using EnumeratorModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ENUMERATOR_MODIFIER>;
+    using ConceptModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONCEPT_MODIFIER>;
+    using SplitModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SPLIT_MODIFIER>;
+    using RuntimeModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RUNTIME_MODIFIER>;
+    using GentimeModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::GENTIME_MODIFIER>;
+    using AnytimeModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ANYTIME_MODIFIER>;
+    using PresetModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRESET_MODIFIER>;
+    using SingletonModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SINGLETON_MODIFIER>;
+    using CaptureModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CAPTURE_MODIFIER>;
+    using StatelessModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::STATELESS_MODIFIER>;
+    using LinkedModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LINKED_MODIFIER>;
+    using InlineModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::INLINE_MODIFIER>;
+    using PureModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PURE_MODIFIER>;
+    using ImpureModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::IMPURE_MODIFIER>;
+    using StandardMangleModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::STANDARD_MANGLE_MODIFIER>;
+    using MangleModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MANGLE_MODIFIER>;
+    using PadModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PAD_MODIFIER>;
+    using PackModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PACK_MODIFIER>;
+    using EquivocalModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EQUIVOCAL_MODIFIER>;
+    using LikelyModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LIKELY_MODIFIER>;
+    using UnlikelyModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::UNLIKELY_MODIFIER>;
+    using SupportedModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SUPPORTED_MODIFIER>;
+    using DepreciatedModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::DEPRECIATED_MODIFIER>;
+    using ExperimentalModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EXPERIMENTAL_MODIFIER>;
+    using UnstableAddressModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::UNSTABLE_ADDRESS_MODIFIER>;
+    using StableAddressModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::STABLE_ADDRESS_MODIFIER>;
+    using InvariadicModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::INVARIADIC_MODIFIER>;
+    using VariadicModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::VARIADIC_MODIFIER>;
+    using BestLocationModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BEST_LOCATION_MODIFIER>;
+    using LocationModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LOCATION_MODIFIER>;
+    using TemplateModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::TEMPLATE_MODIFIER>;
+    using OverloadModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::OVERLOAD_MODIFIER>;
+    using ConstraintModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONSTRAINT_MODIFIER>;
+    using DefaultWeightModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::DEFAULT_WEIGHT_MODIFIER>;
+    using WeightModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::WEIGHT_MODIFIER>;
+    using ManualModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MANUAL_MODIFIER>;
+    using AutoModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::AUTO_MODIFIER>;
+    using DirectModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::DIRECT_MODIFIER>;
+    using VirualModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::VIRTUAL_MODIFIER>;
+    using RangerModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RANGER_MODIFIER>;
+    using RequireModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::REQUIRE_MODIFIER>;
+    using EnsureModifier = rq::SimpleSymbolLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ENSURE_MODIFIER>;
+  using QualifierValue = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::QUALIFIER>;
+    using NoMutQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_MUT_QUALIFIER>;
+    using PartialMutQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::PARTIAL_MUT_QUALIFIER>;
+    using MutQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::MUT_QUALIFIER>;
+    using NoVolatileQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_VOLATILE_QUALIFIER>;
+    using VolatileQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::VOLATILE_QUALIFIER>;
+    using NoAtomicQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_ATOMIC_QUALIFIER>;
+    using AtomicQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::ATOMIC_QUALIFIER>;
+    using NoNullTerminateQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_NULL_TERMINATE_QUALIFIER>;
+    using NullTerminateQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NULL_TERMINATE_QUALIFIER>;
+    using NoMarginQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_MARGIN_QUALIFIER>;
+    using MarginQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::MARGIN_QUALIFIER>;
+    using NoThrowsQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_THROWS_QUALIFIER>;
+    using ThrowsQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::THROWS_QUALIFIER>;
+  using BuiltinConcept = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::BUILTIN_CONCEPT>;
+    using AnyConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ANY_CONCEPT>;
+    
   struct Subtype;
     struct ArraySubtype;
     struct SimpleSubtype;
@@ -104,13 +191,7 @@ struct Symbol;
       struct InferenceCountArraySubtype;
       struct SliceSubtype;
       struct SplitSubtype;
-  struct ScaledIntegerType;
-    struct ScaledSIntType;
-    struct ScaledUIntType;
-    struct ScaledFSIntType;
-    struct ScaledFUIntType;
-    struct ScaledLSIntType;
-    struct ScaledLUIntType;
+      struct ExistentialSubtype;
   struct Adaption;
   struct Realization;
   struct Conformity;
@@ -122,6 +203,7 @@ struct Symbol;
     struct InfiniteArithmeticSequenceType;
     struct FiniteArithmeticSequenceTYpe;
   struct Import;
+  struct Portal;
   struct SpecializationSetArgument;
   struct SpecializationSet;
     struct ProcedureSpecializationSet;
@@ -140,6 +222,8 @@ struct Symbol;
     struct EnumWeightLevel;
     struct ClassWeightLevel;
     struct LazyVariableWeightLevel;
+    struct AliasWeightLevel;
+    struct ConceptWeightLevel;
   struct Polymorph;
     struct EnumPolymorph;
     struct ClassPolymorph;
@@ -147,11 +231,10 @@ struct Symbol;
     struct AdapterPolymorph;
     struct ProcedurePolymorph;
     struct LazyVariablePolymorph;
+    struct AliasPolymorph;
+    struct ConceptPolymorph;
   struct TableMember;
     struct EagerDeclaration;
-      struct Route;
-        struct Alias;
-        struct Portal;
       struct Anchor;
       struct Enumerator;
       struct EagerVariable;
@@ -192,13 +275,21 @@ struct Symbol;
             struct ProcedureImplementation;
               struct ProcedureOverload;
               struct ProcedureSpecialization;
+            struct AliasImplementation;
+              struct AliasOverload;
+              struct AliasSpecialization;
+            struct ConceptImplementation;
+              struct ConceptOverload;
+              struct ConceptSpecialization;
           struct Template;
             struct EnumTemplate;
             struct ClassTemplate;
             struct InterfaceTemplate;
-            struct LazyVariableTemplate;
             struct AdapterTemplate;
             struct ProcedureTemplate;
+            struct LazyVariableTemplate;
+            struct AliasTemplate;
+            struct ConceptTemplate;
 // clang-format on
 
 struct Symbol : public rq::Entity {
@@ -215,330 +306,24 @@ struct Symbol : public rq::Entity {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct SimpleSymbol : public rq::Symbol {
-  using Self = rq::SimpleSymbol;
+template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
+struct SimpleSymbolBranch : public ParentParam {
+  using Parent = ParentParam;
+  static constexpr rq::SymbolInfoFlags FLAG = FLAG_PARAM;
+  using Self = rq::SimpleSymbolBranch<Parent, FLAG>;
 
-  explicit RQ_ALWAYS_INLINE SimpleSymbol(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Literal : public rq::SimpleSymbol {
-  using Self = rq::Literal;
-
-  explicit RQ_ALWAYS_INLINE Literal(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE SimpleSymbolBranch(rq::SymbolKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-struct IntegerLiteral final : public rq::Literal {
-  using Self = rq::IntegerLiteral;
-
-  explicit RQ_ALWAYS_INLINE IntegerLiteral();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct FloatLiteral final : public rq::Literal {
-  using Self = rq::FloatLiteral;
-
-  explicit RQ_ALWAYS_INLINE FloatLiteral();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct StringLiteral final : public rq::Literal {
-  using Self = rq::StringLiteral;
-
-  explicit RQ_ALWAYS_INLINE StringLiteral();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct CodeunitLiteral final : public rq::Literal {
-  using Self = rq::CodeunitLiteral;
-
-  explicit RQ_ALWAYS_INLINE CodeunitLiteral();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Figurative : public rq::SimpleSymbol {
-  using Self = rq::Figurative;
-
-  explicit RQ_ALWAYS_INLINE Figurative(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct InferenceType final : public rq::Figurative {
-  using Self = rq::InferenceType;
-
-  explicit RQ_ALWAYS_INLINE InferenceType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct VoidType final : public rq::Figurative {
-  using Self = rq::VoidType;
-
-  explicit RQ_ALWAYS_INLINE VoidType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct NoReturnType final : public rq::Figurative {
-  using Self = rq::NoReturnType;
-
-  explicit RQ_ALWAYS_INLINE NoReturnType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct UnknownType final : public rq::Figurative {
-  using Self = rq::UnknownType;
-
-  explicit RQ_ALWAYS_INLINE UnknownType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ReflectionType : public rq::SimpleSymbol {
-  using Self = rq::ReflectionType;
-
-  explicit RQ_ALWAYS_INLINE ReflectionType(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SymbolType final : public rq::ReflectionType {
-  using Self = rq::SymbolType;
-
-  explicit RQ_ALWAYS_INLINE SymbolType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ExpressionType final : public rq::ReflectionType {
-  using Self = rq::ExpressionType;
-
-  explicit RQ_ALWAYS_INLINE ExpressionType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SymbolRangeType final : public rq::ReflectionType {
-  using Self = rq::SymbolRangeType;
-
-  explicit RQ_ALWAYS_INLINE SymbolRangeType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ExpressionRangeType final : public rq::ReflectionType {
-  using Self = rq::ExpressionRangeType;
-
-  explicit RQ_ALWAYS_INLINE ExpressionRangeType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct PrimitiveType : public rq::SimpleSymbol {
-  using Self = rq::PrimitiveType;
-
-  explicit RQ_ALWAYS_INLINE PrimitiveType(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct StandardPrimitiveType : public rq::PrimitiveType {
-  using Self = rq::StandardPrimitiveType;
-
-  explicit RQ_ALWAYS_INLINE StandardPrimitiveType(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Binary16Type final : public rq::StandardPrimitiveType {
-  using Self = rq::Binary16Type;
-
-  explicit RQ_ALWAYS_INLINE Binary16Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Binary32Type final : public rq::StandardPrimitiveType {
-  using Self = rq::Binary32Type;
-
-  explicit RQ_ALWAYS_INLINE Binary32Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Binary64Type final : public rq::StandardPrimitiveType {
-  using Self = rq::Binary64Type;
-
-  explicit RQ_ALWAYS_INLINE Binary64Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Binary128Type final : public rq::StandardPrimitiveType {
-  using Self = rq::Binary128Type;
-
-  explicit RQ_ALWAYS_INLINE Binary128Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct BFloat16Type final : public rq::StandardPrimitiveType {
-  using Self = rq::BFloat16Type;
-
-  explicit RQ_ALWAYS_INLINE BFloat16Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AsciiType final : public rq::StandardPrimitiveType {
-  using Self = rq::AsciiType;
-
-  explicit RQ_ALWAYS_INLINE AsciiType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Utf8Type final : public rq::StandardPrimitiveType {
-  using Self = rq::Utf8Type;
-
-  explicit RQ_ALWAYS_INLINE Utf8Type();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct PlatformPrimitiveType : public rq::PrimitiveType {
-  using Self = rq::PlatformPrimitiveType;
-
-  explicit RQ_ALWAYS_INLINE PlatformPrimitiveType(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct HalfType final : public rq::PlatformPrimitiveType {
-  using Self = rq::HalfType;
-
-  explicit RQ_ALWAYS_INLINE HalfType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SingleType final : public rq::PlatformPrimitiveType {
-  using Self = rq::SingleType;
-
-  explicit RQ_ALWAYS_INLINE SingleType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct DoubleType final : public rq::PlatformPrimitiveType {
-  using Self = rq::DoubleType;
-
-  explicit RQ_ALWAYS_INLINE DoubleType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct QuadrupleType final : public rq::PlatformPrimitiveType {
-  using Self = rq::QuadrupleType;
-
-  explicit RQ_ALWAYS_INLINE QuadrupleType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct BooleanType final : public rq::PlatformPrimitiveType {
-  using Self = rq::BooleanType;
-
-  explicit RQ_ALWAYS_INLINE BooleanType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct CharType final : public rq::PlatformPrimitiveType {
-  using Self = rq::CharType;
-
-  explicit RQ_ALWAYS_INLINE CharType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct USizeType final : public rq::PlatformPrimitiveType {
-  using Self = rq::USizeType;
-
-  explicit RQ_ALWAYS_INLINE USizeType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SSizeType final : public rq::PlatformPrimitiveType {
-  using Self = rq::SSizeType;
-
-  explicit RQ_ALWAYS_INLINE SSizeType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct UIndexType final : public rq::PlatformPrimitiveType {
-  using Self = rq::UIndexType;
-
-  explicit RQ_ALWAYS_INLINE UIndexType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct SIndexType final : public rq::PlatformPrimitiveType {
-  using Self = rq::SIndexType;
-
-  explicit RQ_ALWAYS_INLINE SIndexType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct AttributeType : public rq::SimpleSymbol {
-  using Self = rq::AttributeType;
-
-  explicit RQ_ALWAYS_INLINE AttributeType(rq::SymbolKind kind);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct QualifierType final : public rq::AttributeType {
-  using Self = rq::ModifierType;
-
-  explicit RQ_ALWAYS_INLINE QualifierType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ModifierType final : public rq::AttributeType {
-  using Self = rq::ModifierType;
-
-  explicit RQ_ALWAYS_INLINE ModifierType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct VariadicArgumentsType final : public rq::SimpleSymbol {
-  using Self = rq::VariadicArgumentsType;
-
-  explicit RQ_ALWAYS_INLINE VariadicArgumentsType();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Check final : public rq::SimpleSymbol {
-  using Self = rq::Check;
-
-  explicit RQ_ALWAYS_INLINE Check();
+template <typename ParentParam, rq::SymbolKind KIND_PARAM>
+struct SimpleSymbolLeaf final : public ParentParam {
+  using Parent = ParentParam;
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::SimpleSymbolLeaf<Parent, KIND>;
+
+  explicit RQ_ALWAYS_INLINE SimpleSymbolLeaf();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1533,43 +1318,6 @@ struct EagerDeclaration : public rq::TableMember {
   RQ_ALWAYS_INLINE void setHost(rq::SymbolTable &host);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostPtr() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Route : public rq::EagerDeclaration {
-  using Self = rq::Route;
-
-  rq::Expression *_path_ptr{nullptr};
-  rq::Expression *_expression_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Route(rq::SymbolKind kind);
-
-  RQ_ALWAYS_INLINE void setPath(rq::Expression &path);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getPathPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getPathPtr();
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Alias final : public rq::Route {
-  using Self = rq::Alias;
-
-  explicit RQ_ALWAYS_INLINE Alias();
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Portal final : public rq::Route {
-  using Self = rq::Portal;
-
-  rq::Portal *_next_ptr{nullptr};
-  rq::Import *_import_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Portal();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
