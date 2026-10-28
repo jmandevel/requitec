@@ -2,6 +2,7 @@
 // the model is fundamentally RAII, but it uses GC to keep it memory safe.
 
 // values in prequite code are garbage collected under the hood.
+// might use generational references in future. will do benchmarks to see if they are better.
 
 val0 :SInt= 0;
 
@@ -20,15 +21,6 @@ var3 :SInt= 0;
 var4 :Ref@SInt= var4.[ref];
 var3.[destroy];
 var5 :SInt= var5; // this is a compiler error!
-
-// creating an initial value with .[ref] means that it has no owner!
-// values like this are only destroyed when no variables referincing them remain.
-// you cannot do this is postquite, but its valid in prequite
-
-var6 :Ref@SInt= 0.[ref];
-var7 :Ref@SInt= var6.[ref];
-var6.[destroy];
-var8 :SInt= var7; // this is not a compiler error!
 
 [import "std", std];
 
