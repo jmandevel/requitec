@@ -31,7 +31,7 @@ impure
 runtime predefined MY_NUMBER := myAdd(1, 2);
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // pure functions can be rvalue sub-expressions
     added := myAdd(1, myAdd(2, 3));
 

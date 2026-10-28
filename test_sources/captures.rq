@@ -16,7 +16,7 @@ runtime capture::{ num:=val }
 common_number := [capture].num;
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     std.print(line=common_number);
     result <:= 0;
 ];

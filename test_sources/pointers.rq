@@ -1,5 +1,5 @@
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // mut single floating point number
     var :mut\Single= 0;
 

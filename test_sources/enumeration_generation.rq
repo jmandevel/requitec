@@ -10,7 +10,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
 	my_fruit := Fruit.MY_FRUIT42;
 	
 	result <:= my_fruit.[underlying_value].[cast];

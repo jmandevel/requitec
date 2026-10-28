@@ -5,7 +5,7 @@
 [import "safe_export", A];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;
@@ -14,7 +14,7 @@ mangle::main
 
 [namespace A,
     pure
-    [procedure getBool, ()Bool, result,
+    [proc getBool, ()Bool, result,
         // lazy symbols in same namespace have to be specified with whole path!
 
         // this still uses the _SneakyMacro so it expands to [true].
@@ -32,12 +32,12 @@ mangle::main
     my_pre_var := false;
 
     // note that full paths are not required for eager symbols even in namespaces
-    lazy gentime VAR := my_pre_var;
+    lazy comtime VAR := my_pre_var;
 
     // note that full paths are not required for eager symbols even in namespaces
-    lazy gentime VAR := my_pre_var;
+    lazy comtime VAR := my_pre_var;
 
-    // NOTE: gentime are always lazy, static are always eager. Writing it
+    // NOTE: comtime are always lazy, static are always eager. Writing it
     // here explicitly to make it more clear, but you can leave out the eager
     // and lazy modifiers.
 ];

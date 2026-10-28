@@ -5,7 +5,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     fruit := Fruit.APPLE;
 
     result <:= fruit.[underlying_value].[cast];

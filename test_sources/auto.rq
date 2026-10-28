@@ -2,9 +2,9 @@
 
 template::{> auto Type:TYPE <}
 pure
-[procedure add, 
+[proc add, 
     // statements before signature are surveyed (not evaluated) at template survey time.
-    // everything before signature must be pre (if eager) or gentime (if lazy).
+    // everything before signature must be pre (if eager) or comtime (if lazy).
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
     (> a:Type, b:Type <)Split@{ c:Type <}, result,
     // statements after signature are evaluated at specialization implementation time
@@ -12,7 +12,7 @@ pure
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     mut0 :SInt = add(1, 2); // Type is SInt
 
     mut1 := add(1.[as Double], 2.[as Double]); // Type is Double

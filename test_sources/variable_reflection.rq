@@ -1,7 +1,7 @@
 [class MyClass, {}];
-gentime VAR := MyClass;
+comtime VAR := MyClass;
 
 // use .[reflect] to reflect on the variable itself
-gentime the_variable := VAR.[reflect];
+comtime the_variable := VAR.[reflect];
 // use the variable alone to retrieve the reflected symbol stored in it (MyClass).
-gentime the_class := VAR;
+comtime the_class := VAR;

@@ -1,8 +1,8 @@
 opaque mangle::puts
-[procedure , (>str:Ptr@Char<)Void];
+[proc , (>str:Ptr@Char<)Void];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     c.puts("hello, world\n".[of Char].[data_address]);
 
     result <:= 0;

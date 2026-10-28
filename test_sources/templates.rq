@@ -2,23 +2,23 @@
 
 template::{> Type:FLOAT <}
 weight::1
-[procedure printType, ( val:Type <)Void,
+[proc printType, ( val:Type <)Void,
     std.print(line="Its a float");
 ];
 
 template::{> Type:INT <}
 weight::1
-[procedure printType, ( val:Type <)Void,
+[proc printType, ( val:Type <)Void,
     std.print(line="Its an integer");
 ];
 
 template::{> Type:TYPE <}
-[procedure printType, ( val:Type <)Void,
+[proc printType, ( val:Type <)Void,
     std.print(line="Its something");
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     printType{SInt32}();
     printType{Single}();
     printType{Bool}();

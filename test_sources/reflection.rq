@@ -3,7 +3,7 @@
 template::{> NUM:SInt <}
 weight::3
 pure
-[procedure getNum, ()SInt, result,
+[proc getNum, ()SInt, result,
     result <:= NUM;
 ];
 
@@ -12,20 +12,20 @@ pure
 // declarations without a template modifier are attached directly to polymorph
 
 pure
-[procedure getNum, ()SInt, result,
+[proc getNum, ()SInt, result,
     result <:= 0;
 ];
 
 pure
-[procedure getNum, (> num:SInt <)SInt, result,
+[proc getNum, (> num:SInt <)SInt, result,
     result <:= num;
 ];
 
 // get overload with no args.
-gentime noArgs := getNum.[resolve_procedure ()SInt];
+comtime noArgs := getNum.[resolve_proc ()SInt];
 
 // get specialization with signature and given template args
-gentime templateNoArgs := getNum{ NUM=0 }.[resolve_procedure ()SInt];
+comtime templateNoArgs := getNum{ NUM=0 }.[resolve_proc ()SInt];
 
 // loop over all template specializations of polymorphs found through alias
 [for getNum.[template_range], template := value,

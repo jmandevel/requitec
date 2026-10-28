@@ -10,7 +10,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();

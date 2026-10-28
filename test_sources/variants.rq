@@ -8,7 +8,7 @@
 [import "std", std];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     num0 := Number.integer(4);
     num1 := Number.float(3.14);
     num2 := Number.double(2.18);

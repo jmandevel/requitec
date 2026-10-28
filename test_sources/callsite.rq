@@ -1,6 +1,6 @@
 [import "std", std];
 
-[procedure printMe, 
+[proc printMe, 
     (|
         snippet:=callsite.[snippet],
         line:=callsite.[line],
@@ -13,7 +13,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // this will print the following line to the terminal:
     // snippet: "printMe()" line: 18 column: 4
     printMe();

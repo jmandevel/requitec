@@ -1,7 +1,7 @@
 [import "std", std];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     [fold int:SInt, float:Single,
         int <:= 4;
         float <:= 3.14;

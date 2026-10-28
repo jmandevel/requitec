@@ -1,7 +1,7 @@
 [import "std", std];
 
 template::{> auto List:ANY <}
-[procedure printList, (> list:List <)Void,
+[proc printList, (> list:List <)Void,
     std.print(line="begin!");
     pre [for list.[juxt_range], item:#TYPE=value.[ref],
         [fold text:Slice@Utf8,
@@ -19,7 +19,7 @@ template::{> auto List:ANY <}
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     printList(
         "hello" +>
         3.14.[as Single] +>

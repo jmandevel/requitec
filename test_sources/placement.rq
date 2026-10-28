@@ -1,10 +1,10 @@
 
 
 opaque mangle::malloc
-[procedure malloc, (size:USize<)Ptr@mut\Void];
+[proc malloc, (size:USize<)Ptr@mut\Void];
 
 opaque mangle::free
-[procedure free, (ptr:Ptr@mut\Void<)Void];
+[proc free, (ptr:Ptr@mut\Void<)Void];
 
 template::{ Type:TYPE <}
 [class UniquePtr,
@@ -14,7 +14,7 @@ template::{ Type:TYPE <}
 
     public inline
     template::{Placement:PLACEMENT<}
-    [procedure create, 
+    [proc create, 
         (placement:Placement<)mut\UniquePtr{Type}, result,
 
         ptr := malloc(Type.[byte_size]).[cast ?mut\Type];
@@ -39,7 +39,7 @@ template::{ Type:TYPE <}
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

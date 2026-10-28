@@ -10,17 +10,17 @@
     public pure [layout_constructor];
 
     public pure
-    [procedure fromScalar, (> scalar:FSInt32 <)MyClass, result,
+    [proc fromScalar, (> scalar:FSInt32 <)MyClass, result,
         result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public pure
-    [procedure getTotal, ()FSInt32=>Ref@, result,
+    [proc getTotal, ()FSInt32=>Ref@, result,
         result <:= this.x + this.y + this.z;
     ];
 
     public pure
-    [procedure add, (>a:MyClass, b:MyClass<)MyClass, result,
+    [proc add, (>a:MyClass, b:MyClass<)MyClass, result,
         result <:=
             MyClass(
                 a.x + b.x,
@@ -31,7 +31,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
 
     a := MyClass();
     b := MyClass(1, 2, 3);

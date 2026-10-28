@@ -23,7 +23,7 @@ template::{> auto Element:NUMERIC <}
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
 
     // using explicit parameter and layout constructor
     var0 := Vector4{Single}(0, 1, 2, 3);

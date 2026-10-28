@@ -1,11 +1,11 @@
 pure
-[procedure multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <}, result,
+[proc multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <}, result,
     result.div <:= a / b;
     result.mul <:= a * b;
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // by name
     // in is a name for the returned value. since it is a split tuple, can store members in seperate local variables
     [split divided:= in.div, multiplied:= in.mul ] =in\\ multiReturn(0, 1);

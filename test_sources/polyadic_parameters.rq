@@ -7,7 +7,7 @@
 // note: if a signature or layout has a polyadic parameter, it must be the 
 // last postional parameter.
 
-[procedure getSum, ( ...var:SInt <)SInt, result,
+[proc getSum, ( ...var:SInt <)SInt, result,
     result <:= 0;
     pre [for var, num:=value,
         result = result + num;
@@ -17,7 +17,7 @@
 [import "std", std];
 
 template::{ auto ...Types:TYPE <}
-[procedure printAll, ( ...values:Types <)Void,
+[proc printAll, ( ...values:Types <)Void,
     // note: must be pre so loop gets unrolled because types could be different.
     pre [for values, value:=value.[ref], 
         std.print(line=value);    
@@ -25,7 +25,7 @@ template::{ auto ...Types:TYPE <}
 ];
 
 template::{ auto ...Types:TYPE <}
-[procedure printThird, ( ...values::Types <)Void,
+[proc printThird, ( ...values::Types <)Void,
     pre [if values.[element_count] < 3,
         std.print(line="There are less than three!");
     ][else

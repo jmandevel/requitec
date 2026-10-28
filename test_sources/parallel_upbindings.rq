@@ -1,7 +1,7 @@
 [import "std", std];
 
 mangle::main
-[procedure , (>args:Ptr@Ptr@Char<)SInt, result,
+[proc , (>args:Ptr@Ptr@Char<)SInt, result,
     [if args.[element_count] == 0,
         result <:= 5;
     ][else 
@@ -10,7 +10,7 @@ mangle::main
 ];
 
 pure
-[procedure doMath, (>int:SInt<)SInt, result,
+[proc doMath, (>int:SInt<)SInt, result,
 
     other_int :mut\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
 

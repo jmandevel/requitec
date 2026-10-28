@@ -12,7 +12,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // create stack
     my_stack :mut\= std.StackList{MyClass}();
     

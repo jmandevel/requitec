@@ -1,16 +1,16 @@
 [import "std", std];
 
 [interface ISpeak,
-    // this procedure is virtual so can be overriden by adapters
+    // this proc is virtual so can be overriden by adapters
     // its not opaque, so it does not have to be overriden
     public virtual
-    [procedure speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="I don't speak.");
     ];
 
-    // this procedure is not virtual so it cannot be overriden by adapters
+    // this proc is not virtual so it cannot be overriden by adapters
     public
-    [procedure doSomething, ()Void=>,
+    [proc doSomething, ()Void=>,
         std.print(line="do something now!");
     ];
 
@@ -22,21 +22,21 @@
 
 [class Rat, public[layout_constructor]; {},
     public
-    [procedure squeak, ()Void=>,
+    [proc squeak, ()Void=>,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [procedure speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
     public
-    [procedure speak, ()Void=>,
+    [proc speak, ()Void=>,
         std.print(line="Meow!");
     ];
 ];
@@ -48,25 +48,25 @@
 [interface IGreet,
     // virtual and opqaque, so there is no default implementation and adapters must implement it.
     public virtual opaque
-    [procedure greet, ()Void=>];
+    [proc greet, ()Void=>];
 ];
 
 [adapter A, Dog==>IGreet,
     public
-    [procedure greet, ()Void=>,
+    [proc greet, ()Void=>,
         std.print(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
     public
-    [procedure greet, ()Void=>,
+    [proc greet, ()Void=>,
         std.print(line="bark!");
     ];
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     dog := Dog();
     cat := Cat();
     rat := Rat();
@@ -95,7 +95,7 @@ mangle::main
     result <:= 0;
 ];
 
-[procedure speakAndGreet, (> animal:margin::64\[composition ISpeak, IGreet] <)Void,
+[proc speakAndGreet, (> animal:margin::64\[composition ISpeak, IGreet] <)Void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

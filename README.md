@@ -14,7 +14,7 @@ Requite is a statically typed systems programming langauge with an orthogonal sy
 [import "std", std];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     std.print(line="hello, world!");
     result <:= 0;
 ];

@@ -1,7 +1,7 @@
 [import "std", std];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     std.print(line="this" $ "is" $ "one" $ "string" $ "literal");
     result <:= 0;
 ];

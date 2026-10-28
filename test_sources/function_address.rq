@@ -1,5 +1,5 @@
 pure
-[procedure myProcedure, ( 
+[proc myProc, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -10,7 +10,7 @@ pure
 ];
 
 pure
-[procedure myOtherProcedure, ( 
+[proc myOtherProc, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
@@ -20,7 +20,7 @@ pure
 ];
 
 pure
-[procedure myThirdProcedure, ( 
+[proc myThirdProc, ( 
         positional:Single=0.0,
         >positional_and_named:Single=0.0<,
         named:Single=0.0 * 0.0,
@@ -29,7 +29,7 @@ pure
     result <:= (positional + positional_and_named + named + locked);
 ];
 
-[procedure myFourthProcedure, ( 
+[proc myFourthProc, ( 
         first_arg:single=0.0,
         >positional_and_named:single=0.0<,
         named:single=0.0,
@@ -39,23 +39,23 @@ pure
 ];
 
 mangle::main
-[procedure , ()SInt, result,
-    // calling directly from myProcedure
+[proc , ()SInt, result,
+    // calling directly from myProc
     // default values are used
     // locked parameters cannot be set
     // parameter marks apply
-    a := myProcedure();
-    b := myProcedure(1.0);
-    b := myProcedure(1.0, 2.0);
-    c := myProcedure(1.0, positional_and_named);
-    d := myProcedure(1.0, named=2.0);
-    e := myProcedure(1.0, named=2.0, positional_and_named=3.0);
-    f := myProcedure(1.0, 2.0, named=3.0);
-    g := myProcedure(1.0, positional_and_named=2.0, named=3.0);
+    a := myProc();
+    b := myProc(1.0);
+    b := myProc(1.0, 2.0);
+    c := myProc(1.0, positional_and_named);
+    d := myProc(1.0, named=2.0);
+    e := myProc(1.0, named=2.0, positional_and_named=3.0);
+    f := myProc(1.0, 2.0, named=3.0);
+    g := myProc(1.0, positional_and_named=2.0, named=3.0);
 
-    // call from a pointer to myProcedure
-    ptr :\mut= myProcedure.[procedure_address];
-    // you can call from ptr just like myProcedure
+    // call from a pointer to myProc
+    ptr :\mut= myProc.[proc_address];
+    // you can call from ptr just like myProc
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();
     j := ptr(1.0);
@@ -68,19 +68,19 @@ mangle::main
 
     // can assign different function to variable if its [mut] and has EXACTLY the same signature.
     // the default values need to have identical expressions when situated.
-    ptr = myOtherProcedure.[procedure_address];
+    ptr = myOtherProc.[proc_address];
     ptr();
 
     // type is different even if default value evaluates to the same result.
-    // ptr = myThirdProcedure.[procedure_address]; 
+    // ptr = myThirdProc.[proc_address]; 
     // this would result in compile error because named parameter's default value is wrong.
     // its wrong even though it still evaluates to 0.
     // need to use signature_cast
-    ptr = myThirdProcedure.[procedure_address].[signature_cast];
+    ptr = myThirdProc.[proc_address].[signature_cast];
     ptr();
     
     // need to cast if parameters are named differently
-    ptr = myFourthProcedure.[procedure_address].[signature_cast];
+    ptr = myFourthProc.[proc_address].[signature_cast];
     ptr();
 
     result <:= 0;

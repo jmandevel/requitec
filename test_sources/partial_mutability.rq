@@ -7,12 +7,12 @@
      public pure[layout_constructor];
 ];
 
-// gentime variables must have variables of no_mut type becauese
+// comtime variables must have variables of no_mut type becauese
 // they are constant:
-gentime never_mut : no_mut\ = Partialable();
+comtime never_mut : no_mut\ = Partialable();
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // all properties are mut for fully mut values:
     fully_mut : mut\ = Partialiable();
 

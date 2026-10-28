@@ -3,12 +3,12 @@
 anchor::A
 [for 0.<=10, num:=value,
     varname :std.String= std.format(text="VAR" +> num);
-    flank::A gentime capture::{num:=num}
+    flank::A comtime capture::{num:=num}
     varname.getSlice().[identify] : SInt = num.[bake];
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     pre [for 0.<=10, pre num:=value,
         pre varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  

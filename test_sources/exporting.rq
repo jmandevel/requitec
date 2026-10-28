@@ -2,11 +2,11 @@
 
 [namespace my_stuff,
     export
-    [procedure printHelloWorld, ()Void,
+    [proc printHelloWorld, ()Void,
         std.print(line = "Hello, world!");
     ];
     [namespace detail,
-        export gentime NO_EXPORT_VAR := 0;    
+        export comtime NO_EXPORT_VAR := 0;    
     ]
 ];
 

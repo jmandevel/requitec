@@ -7,22 +7,22 @@ stable_address
 [class MyPinned, public pure [layout_constructor]; {}];
 
 pure
-[procedure takeReciever, ()Void=>MyPinned,
+[proc takeReciever, ()Void=>MyPinned,
 
 ];
 
 pure
-[procedure takeArg, (pinned:MyPinned<)Void,
+[proc takeArg, (pinned:MyPinned<)Void,
 
 ];
 
 pure
-[procedure takeOrCopyArg, (pinned:MyClass<)Void,
+[proc takeOrCopyArg, (pinned:MyClass<)Void,
 
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
   class :mut\= MyClass();
   copy := class;
   reference := class.[ref];

@@ -1,6 +1,6 @@
 [import "std", std];
 
-[procedure myFunc, (>a:SInt32, b:SInt32<)SInt32, result,
+[proc myFunc, (>a:SInt32, b:SInt32<)SInt32, result,
     [if a > b,
         std.print(line="a is greater than b");
     ][else_if b > a,
@@ -12,7 +12,7 @@
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     std.print(line="the return value is " +> myFunc(1, 2));
 
     result <:= 0;

@@ -1,7 +1,7 @@
 [import "std", std];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     result <:mut\=0;
 
     anchor::MyWhile

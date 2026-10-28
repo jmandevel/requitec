@@ -1,5 +1,5 @@
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     // an array and its elements share mutiability
     arr :mut\= [array 0, 1, 2, 3];
     arr.mut\[ref].[at 1] = 2;

@@ -1,12 +1,12 @@
 template::{ Type:TYPE <}
 pure
-[procedure asSigned, 
+[proc asSigned, 
     pre Signed : = [SInt Type.[byte_size]];
     ( var:Type <)Signed, result,
     result <:= var.[bitwise_cast Signed];
 ];
 
 mangle::main
-[procedure , ()SInt, result,
+[proc , ()SInt, result,
     result <:= asSigned{Single}(3.14);
 ];
