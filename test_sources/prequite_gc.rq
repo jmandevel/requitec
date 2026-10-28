@@ -1,0 +1,49 @@
+// prequite uses a memory safe mixture of garbage collection and RAII.
+// the model is fundamentally RAII, but it uses GC to keep it memory safe.
+
+// values in prequite code are garbage collected under the hood.
+
+val0 :SInt= 0;
+
+// referencing a value in prequite will just reuse the same gc value.
+
+val1 :Ref@SInt= val0.[ref];
+
+// writing without ref will copy and create a new gc value
+
+val2 :SInt= val1;
+
+// the gc value is owned by the initial variable it is assigned to, and it gets destroyed with raii
+// if other variables access a gc ref that was destroyed, this is a compiler error
+
+var3 :SInt= 0;
+var4 :Ref@SInt= var4.[ref];
+var3.[destroy];
+var5 :SInt= var5; // this is a compiler error!
+
+// creating an initial value with .[ref] means that it has no owner!
+// values like this are only destroyed when no variables referincing them remain.
+// you cannot do this is postquite, but its valid in prequite
+
+var6 :Ref@SInt= 0.[ref];
+var7 :Ref@SInt= var6.[ref];
+var6.[destroy];
+var8 :SInt= var7; // this is not a compiler error!
+
+[import "std", std];
+
+// std.List is both postquite and prequite
+
+list :std.List{SInt}= std.List(5).[pass std.AllocationException];
+list.mut\[ref].pushBack(4).[pass std.AllocationException];
+list.mut\[ref].pushBack(4).[pass std.AllocationException];
+list.mut\[ref].pushBack(4).[pass std.AllocationException];
+list.mut\[ref].pushBack(4).[pass std.AllocationException];
+
+// can copy value out of the list into a prequite variable.
+
+var9 :SInt= list.[ref].at(0);
+
+// can reference as well
+
+var10 :Ref@SInt= list.[ref].at(1).[ref];
