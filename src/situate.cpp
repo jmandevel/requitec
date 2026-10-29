@@ -444,10 +444,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::SLICE_OF:
     is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
     break;
-  case K::PROCEDURE_ADDRESS:
+  case K::PROC_ADDRESS:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::PROCEDURE_ADDRESS_OF:
+  case K::PROC_ADDRESS_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::REF:
@@ -582,7 +582,7 @@ bool Situator::situateTree(rq::Situation situation,
                                                S::RVALUE, S::ARGUMENT);
     break;
 
-  // PROCEDURES
+  // PROCS
   case K::NAMED_ARGUMENT:
     is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::RVALUE);
     break;
@@ -600,9 +600,9 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok =
         this->situateBinaryTag(situation, expression, S::BINDING, S::RVALUE);
     break;
-  case K::PROCEDURE:
+  case K::PROC:
     [[fallthrough]];
-  case K::IMPLEMENT_PROCEDURE:
+  case K::IMPLEMENT_PROC:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
   case K::CONSTRUCTOR:
@@ -938,7 +938,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::RUNTIME:
     [[fallthrough]];
-  case K::GENTIME:
+  case K::COMTIME:
     [[fallthrough]];
   case K::ANYTIME:
     [[fallthrough]];
@@ -1039,6 +1039,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NO_NULL_TERMINATE:
     [[fallthrough]];
   case K::NULL_TERMINATE:
+    [[fallthrough]];
+  case K::NO_DETATCH:
+    [[fallthrough]];
+  case K::DETACH:
     [[fallthrough]];
   case K::NO_MARGIN:
     [[fallthrough]];
@@ -1255,10 +1259,10 @@ bool Situator::situateTree(rq::Situation situation,
   case K::RESOLVE_TEMPLATE_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::RESOLVE_PROCEDURE:
+  case K::RESOLVE_PROC:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::RESOLVE_PROCEDURE_OF:
+  case K::RESOLVE_PROC_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::RESOLVE_ADAPTER:

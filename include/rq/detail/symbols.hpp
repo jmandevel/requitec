@@ -25,25 +25,19 @@ namespace rq {
     return "Void";
   case S::NO_RETURN_TYPE:
     return "NoReturn";
-  case S::MODIFIER_TYPE:
-    return "Modifier";
-  case S::QUALIFIER_TYPE:
-    return "Qualifier";
-  case S::SYMBOL_TYPE:
-    return "Symbol";
   case S::SYMBOL_RANGE_TYPE:
     return "SymbolRange";
   case S::EXPRESSION_TYPE:
     return "Expression";
   case S::EXPRESSION_RANGE_TYPE:
     return "ExpressionRange";
-  case S::FSINT:
+  case S::FITTING_FSINT_TYPE:
     return "FSInt";
-  case S::FUINT:
+  case S::FITTING_FUINT_TYPE:
     return "FUInt";
-  case S::LSINT:
+  case S::FITTING_LSINT_TYPE:
     return "LSInt";
-  case S::LUINT:
+  case S::FITTING_LUINT_TYPE:
     return "LUInt";
   case S::BOOLEAN_TYPE:
     return "Bool";
@@ -55,17 +49,17 @@ namespace rq {
     return "Double";
   case S::QUADRUPLE_TYPE:
     return "Quadruple";
-  case S::SINT:
+  case S::SINT_TYPE:
     return "SInt";
-  case S::UINT:
+  case S::UINT_TYPE:
     return "UInt";
-  case S::SSIZE:
+  case S::SSIZE_TYPE:
     return "SSize";
-  case S::USIZE:
+  case S::USIZE_TYPE:
     return "USize";
-  case S::SINDEX:
+  case S::SINDEX_TYPE:
     return "SIndex";
-  case S::UINDEX:
+  case S::UINDEX_TYPE:
     return "UIndex";
   case S::CHAR_TYPE:
     return "Char";
@@ -83,17 +77,17 @@ namespace rq {
     return "Ascii";
   case S::UTF8_TYPE:
     return "Utf8";
-  case S::SCALED_SINT:
+  case S::SCALED_SINT_TYPE:
     return "ScaledSInt";
-  case S::SCALED_UINT:
+  case S::SCALED_UINT_TYPE:
     return "ScaledUInt";
-  case S::SCALED_FSINT:
+  case S::SCALED_FSINT_TYPE:
     return "ScaledFSInt";
-  case S::SCALED_FUINT:
+  case S::SCALED_FUINT_TYPE:
     return "ScaledFUInt";
-  case S::SCALED_LSINT:
+  case S::SCALED_LSINT_TYPE:
     return "ScaledLSInt";
-  case S::SCALED_LUINT:
+  case S::SCALED_LUINT_TYPE:
     return "ScaledLUInt";
   case S::VARIADIC_ARGUMENTS_TYPE:
     return "VariadicArguments";
@@ -131,8 +125,8 @@ namespace rq {
     return "SpecializationSet";
   case S::ADAPTER_SPECIALIZATION_SET:
     return "AdapterSpecializationSet";
-  case S::PROCEDURE_SPECIALIZATION_SET:
-    return "ProcedureSpecializationSet";
+  case S::PROC_SPECIALIZATION_SET:
+    return "ProcSpecializationSet";
   case S::ARITHMETIC_INTERVAL_TYPE:
     return "ArithmeticInterval";
   case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
@@ -191,8 +185,8 @@ namespace rq {
     return "InterfaceOverload";
   case S::ADAPTER_OVERLOAD:
     return "AdapterOverload";
-  case S::PROCEDURE_OVERLOAD:
-    return "ProcedureOverload";
+  case S::PROC_OVERLOAD:
+    return "ProcOverload";
   case S::LAZY_VARIABLE_OVERLOAD:
     return "LazyVariableOverload";
   case S::ALIAS_OVERLOAD:
@@ -205,8 +199,8 @@ namespace rq {
     return "InterfaceSpecialization";
   case S::ADAPTER_SPECIALIZATION:
     return "AdapterSpecialization";
-  case S::PROCEDURE_SPECIALIZATION:
-    return "ProcedureSpecialization";
+  case S::PROC_SPECIALIZATION:
+    return "ProcSpecialization";
   case S::LAZY_VARIABLE_SPECIALIZATION:
     return "LazyVariableSpecialization";
   case S::CLASS_TEMPLATE:
@@ -217,8 +211,8 @@ namespace rq {
     return "InterfaceTemplate";
   case S::ADAPTER_TEMPLATE:
     return "AdapterTemplate";
-  case S::PROCEDURE_TEMPLATE:
-    return "ProcedureTemplate";
+  case S::PROC_TEMPLATE:
+    return "ProcTemplate";
   case S::LAZY_VARIABLE_TEMPLATE:
     return "LazyVariableTemplate";
   case S::ALIAS_TEMPLATE:
@@ -231,8 +225,8 @@ namespace rq {
     return "InterfacePolymorph";
   case S::ADAPTER_POLYMORPH:
     return "AdapterPolymorph";
-  case S::PROCEDURE_POLYMORPH:
-    return "ProcedurePolymorph";
+  case S::PROC_POLYMORPH:
+    return "ProcPolymorph";
   case S::LAZY_VARIABLE_POLYMORPH:
     return "LazyVariablePolymorph";
   case S::ALIAS_POLYMORPH:
@@ -245,8 +239,8 @@ namespace rq {
     return "InterfaceWeightLevel";
   case S::ADAPTER_WEIGHT_LEVEL:
     return "AdapterWeightLevel";
-  case S::PROCEDURE_WEIGHT_LEVEL:
-    return "ProcedureWeightLevel";
+  case S::PROC_WEIGHT_LEVEL:
+    return "ProcWeightLevel";
   case S::LAZY_VARIABLE_WEIGHT_LEVEL:
     return "LazyVariableWeightLevel";
   case S::ALIAS_WEIGHT_LEVEL:
@@ -281,16 +275,6 @@ namespace rq {
 RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : Entity(rq::getId(kind)) {
   RQ_ASSERT(kind > rq::SymbolKind::NONE && kind < rq::SymbolKind::LAST,
             "not symbol kind");
-}
-
-RQ_ALWAYS_INLINE SimpleSymbol::SimpleSymbol(rq::SymbolKind kind)
-    : Symbol(kind) {
-  RQ_ASSERT(rq::getIsSimpleSymbol(kind), "not simple symbol");
-}
-
-[[nodiscard]] inline bool SimpleSymbol::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getIsSimpleSymbol();
 }
 
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
@@ -788,10 +772,10 @@ profileSpecializationSet(llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
 }
 
 [[nodiscard]] inline bool
-ProcedureSpecializationSet::classof(const rq::Entity *entity_ptr) {
+ProcSpecializationSet::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() ==
-         rq::getId(rq::SymbolKind::PROCEDURE_SPECIALIZATION_SET);
+         rq::getId(rq::SymbolKind::PROC_SPECIALIZATION_SET);
 }
 
 [[nodiscard]] inline bool
@@ -1068,17 +1052,17 @@ profileLayoutType(llvm::FoldingSetNodeID &inout_id,
 }
 
 RQ_ALWAYS_INLINE
-PlacementType::PlacementType(rq::ProcedureImplementation &function)
-    : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _procedure_ptr(&function) {}
+PlacementType::PlacementType(rq::ProcImplementation &function)
+    : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _proc_ptr(&function) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedureImplementation &
-PlacementType::getProcedure() const {
-  return rq::dereferencePtr(this->_procedure_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcImplementation &
+PlacementType::getProc() const {
+  return rq::dereferencePtr(this->_proc_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedureImplementation &
-PlacementType::getProcedure() {
-  return rq::dereferencePtr(this->_procedure_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcImplementation &
+PlacementType::getProc() {
+  return rq::dereferencePtr(this->_proc_ptr);
 }
 
 [[nodiscard]] inline bool PlacementType::classof(const rq::Entity *entity_ptr) {
@@ -1087,12 +1071,12 @@ PlacementType::getProcedure() {
 }
 
 inline void PlacementType::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  rq::profilePlacementType(inout_id, this->getProcedure());
+  rq::profilePlacementType(inout_id, this->getProc());
 }
 
 RQ_ALWAYS_INLINE void
 profilePlacementType(llvm::FoldingSetNodeID &inout_id,
-                     const rq::ProcedureImplementation &function) {
+                     const rq::ProcImplementation &function) {
   inout_id.AddPointer(&function);
 }
 
@@ -1196,58 +1180,58 @@ InterfaceWeightLevel::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL);
 }
 
-RQ_ALWAYS_INLINE ProcedureWeightLevel::ProcedureWeightLevel(unsigned weight)
-    : WeightLevel(rq::SymbolKind::PROCEDURE_WEIGHT_LEVEL, weight) {}
+RQ_ALWAYS_INLINE ProcWeightLevel::ProcWeightLevel(unsigned weight)
+    : WeightLevel(rq::SymbolKind::PROC_WEIGHT_LEVEL, weight) {}
 
 RQ_ALWAYS_INLINE void
-ProcedureWeightLevel::setProcedurePolymorph(rq::ProcedurePolymorph &polymorph) {
+ProcWeightLevel::setProcPolymorph(rq::ProcPolymorph &polymorph) {
   rq::assignSingleValue(this->_polymorph_ptr, &polymorph);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcedurePolymorph *
-ProcedureWeightLevel::getProcedurePolymorphPtr() const {
-  return llvm::cast<rq::ProcedurePolymorph>(this->_polymorph_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcPolymorph *
+ProcWeightLevel::getProcPolymorphPtr() const {
+  return llvm::cast<rq::ProcPolymorph>(this->_polymorph_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcedurePolymorph *
-ProcedureWeightLevel::getProcedurePolymorphPtr() {
-  return llvm::cast<rq::ProcedurePolymorph>(this->_polymorph_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcPolymorph *
+ProcWeightLevel::getProcPolymorphPtr() {
+  return llvm::cast<rq::ProcPolymorph>(this->_polymorph_ptr);
 }
 
 RQ_ALWAYS_INLINE void
-ProcedureWeightLevel::addProcedureTemplate(rq::ProcedureTemplate &template_) {
+ProcWeightLevel::addProcTemplate(rq::ProcTemplate &template_) {
   template_._next_ptr = this->_first_ptr;
   this->_first_ptr = &template_;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::NextSubrange<rq::Template, rq::ProcedureTemplate>
-    ProcedureWeightLevel::getProcedureTemplateSubrange() {
-  return rq::NextSubrange<rq::Template, rq::ProcedureTemplate>(
-      rq::NextIterator<rq::Template, rq::ProcedureTemplate>(this->_first_ptr),
-      rq::NextIterator<rq::Template, rq::ProcedureTemplate>());
+    rq::NextSubrange<rq::Template, rq::ProcTemplate>
+    ProcWeightLevel::getProcTemplateSubrange() {
+  return rq::NextSubrange<rq::Template, rq::ProcTemplate>(
+      rq::NextIterator<rq::Template, rq::ProcTemplate>(this->_first_ptr),
+      rq::NextIterator<rq::Template, rq::ProcTemplate>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>
-    ProcedureWeightLevel::getProcedureTemplateSubrange() const {
-  return rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>(
-      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>(
+    rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
+    ProcWeightLevel::getProcTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ProcTemplate>(
           this->_first_ptr),
-      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>());
+      rq::ConstNextIterator<rq::Template, rq::ProcTemplate>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>
-    ProcedureWeightLevel::getConstProcedureTemplateSubrange() const {
-  return rq::ConstNextSubrange<rq::Template, rq::ProcedureTemplate>(
-      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>(
+    rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
+    ProcWeightLevel::getConstProcTemplateSubrange() const {
+  return rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>(
+      rq::ConstNextIterator<rq::Template, rq::ProcTemplate>(
           this->_first_ptr),
-      rq::ConstNextIterator<rq::Template, rq::ProcedureTemplate>());
+      rq::ConstNextIterator<rq::Template, rq::ProcTemplate>());
 }
 
 [[nodiscard]] inline bool
-ProcedureWeightLevel::classof(const rq::Entity *entity_ptr) {
+ProcWeightLevel::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_WEIGHT_LEVEL);
 }
@@ -1934,79 +1918,79 @@ AdapterPolymorph::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_POLYMORPH);
 }
 
-RQ_ALWAYS_INLINE ProcedurePolymorph::ProcedurePolymorph()
-    : Polymorph(rq::SymbolKind::PROCEDURE_POLYMORPH) {}
+RQ_ALWAYS_INLINE ProcPolymorph::ProcPolymorph()
+    : Polymorph(rq::SymbolKind::PROC_POLYMORPH) {}
 
 RQ_ALWAYS_INLINE void
-ProcedurePolymorph::addProcedureOverload(rq::ProcedureOverload &procedure) {
-  rq::assignSingleValue(procedure._next_ptr, this->_first_overload_ptr);
-  this->_first_overload_ptr = &procedure;
+ProcPolymorph::addProcOverload(rq::ProcOverload &proc) {
+  rq::assignSingleValue(proc._next_ptr, this->_first_overload_ptr);
+  this->_first_overload_ptr = &proc;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::NextSubrange<rq::Implementation, rq::ProcedureOverload>
-    ProcedurePolymorph::getProcedureOverloadSubrange() {
-  return rq::NextSubrange<rq::Implementation, rq::ProcedureOverload>(
-      rq::NextIterator<rq::Implementation, rq::ProcedureOverload>(
+    rq::NextSubrange<rq::Implementation, rq::ProcOverload>
+    ProcPolymorph::getProcOverloadSubrange() {
+  return rq::NextSubrange<rq::Implementation, rq::ProcOverload>(
+      rq::NextIterator<rq::Implementation, rq::ProcOverload>(
           this->_first_overload_ptr),
-      rq::NextIterator<rq::Implementation, rq::ProcedureOverload>());
+      rq::NextIterator<rq::Implementation, rq::ProcOverload>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>
-    ProcedurePolymorph::getProcedureOverloadSubrange() const {
-  return rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>(
-      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>(
+    rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
+    ProcPolymorph::getProcOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ProcOverload>(
           this->_first_overload_ptr),
-      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>());
+      rq::ConstNextIterator<rq::Implementation, rq::ProcOverload>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>
-    ProcedurePolymorph::getConstProcedureOverloadSubrange() const {
-  return rq::ConstNextSubrange<rq::Implementation, rq::ProcedureOverload>(
-      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>(
+    rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
+    ProcPolymorph::getConstProcOverloadSubrange() const {
+  return rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>(
+      rq::ConstNextIterator<rq::Implementation, rq::ProcOverload>(
           this->_first_overload_ptr),
-      rq::ConstNextIterator<rq::Implementation, rq::ProcedureOverload>());
+      rq::ConstNextIterator<rq::Implementation, rq::ProcOverload>());
 }
 
-[[nodiscard]] inline rq::ProcedureWeightLevel &
-ProcedurePolymorph::getProcedureWeightLevel(rq::BumpPtrAllocator &allocator,
+[[nodiscard]] inline rq::ProcWeightLevel &
+ProcPolymorph::getProcWeightLevel(rq::BumpPtrAllocator &allocator,
                                             unsigned weight) {
-  return rq::addWeightLevel<rq::ProcedureWeightLevel>(allocator, *this, weight);
+  return rq::addWeightLevel<rq::ProcWeightLevel>(allocator, *this, weight);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-    ProcedurePolymorph::getProcedureWeightLevelSubrange() {
-  return rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+    rq::NextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+    ProcPolymorph::getProcWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::NextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-    ProcedurePolymorph::getProcedureWeightLevelSubrange() const {
-  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+    ProcPolymorph::getProcWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE
-    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-    ProcedurePolymorph::getConstProcedureWeightLevelSubrange() const {
-  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+    rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+    ProcPolymorph::getConstProcWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
 [[nodiscard]] inline bool
-ProcedurePolymorph::classof(const rq::Entity *entity_ptr) {
+ProcPolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_POLYMORPH);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROC_POLYMORPH);
 }
 
 RQ_ALWAYS_INLINE TableMember::TableMember(rq::SymbolKind kind) : Symbol(kind) {
@@ -3174,74 +3158,74 @@ ClassSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-ProcedureImplementation::ProcedureImplementation(rq::SymbolKind kind)
+ProcImplementation::ProcImplementation(rq::SymbolKind kind)
     : Implementation(kind) {
-  RQ_ASSERT(rq::getIsProcedureImplementation(kind),
-            "not procedure implementation");
+  RQ_ASSERT(rq::getIsProcImplementation(kind),
+            "not proc implementation");
 }
 
 RQ_ALWAYS_INLINE void
-ProcedureImplementation::setSignatureType(rq::SignatureType &signature) {
+ProcImplementation::setSignatureType(rq::SignatureType &signature) {
   rq::assignSingleValue(this->_signature_type_ptr, &signature);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *
-ProcedureImplementation::getSignatureTypePtr() {
+ProcImplementation::getSignatureTypePtr() {
   return this->_signature_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
-ProcedureImplementation::getSignatureTypePtr() const {
+ProcImplementation::getSignatureTypePtr() const {
   return this->_signature_type_ptr;
 }
 
 [[nodiscard]] inline bool
-ProcedureImplementation::classof(const rq::Entity *entity_ptr) {
+ProcImplementation::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getIsProcedureImplementation();
+  return entity.getIsProcImplementation();
 }
 
-RQ_ALWAYS_INLINE ProcedureOverload::ProcedureOverload()
-    : ProcedureImplementation(rq::SymbolKind::PROCEDURE_OVERLOAD) {}
+RQ_ALWAYS_INLINE ProcOverload::ProcOverload()
+    : ProcImplementation(rq::SymbolKind::PROC_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
-ProcedureOverload::getPrototypeExpressionPtrList() {
+ProcOverload::getPrototypeExpressionPtrList() {
   return this->_prototype_expression_ptr_list;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
-ProcedureOverload::getPrototypeExpressionPtrList() const {
+ProcOverload::getPrototypeExpressionPtrList() const {
   return this->_prototype_expression_ptr_list;
 }
 
 [[nodiscard]] inline bool
-ProcedureOverload::classof(const rq::Entity *entity_ptr) {
+ProcOverload::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_OVERLOAD);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROC_OVERLOAD);
 }
 
-RQ_ALWAYS_INLINE ProcedureSpecialization::ProcedureSpecialization()
-    : ProcedureImplementation(rq::SymbolKind::PROCEDURE_SPECIALIZATION) {}
+RQ_ALWAYS_INLINE ProcSpecialization::ProcSpecialization()
+    : ProcImplementation(rq::SymbolKind::PROC_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void
-ProcedureSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
+ProcSpecialization::setTemplateTuple(rq::ConstantArray &template_tuple) {
   rq::assignSingleValue(this->_template_tuple_ptr, &template_tuple);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *
-ProcedureSpecialization::getTemplateTuplePtr() {
+ProcSpecialization::getTemplateTuplePtr() {
   return this->_template_tuple_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
-ProcedureSpecialization::getTemplateTuplePtr() const {
+ProcSpecialization::getTemplateTuplePtr() const {
   return this->_template_tuple_ptr;
 }
 
 [[nodiscard]] inline bool
-ProcedureSpecialization::classof(const rq::Entity *entity_ptr) {
+ProcSpecialization::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_SPECIALIZATION);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROC_SPECIALIZATION);
 }
 
 RQ_ALWAYS_INLINE Template::Template(rq::SymbolKind kind)
@@ -3453,37 +3437,37 @@ AdapterTemplate::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::ADAPTER_TEMPLATE);
 }
 
-RQ_ALWAYS_INLINE ProcedureTemplate::ProcedureTemplate()
-    : Template(rq::SymbolKind::PROCEDURE_TEMPLATE) {}
+RQ_ALWAYS_INLINE ProcTemplate::ProcTemplate()
+    : Template(rq::SymbolKind::PROC_TEMPLATE) {}
 
-[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-ProcedureTemplate::getProcedureWeightLevelSubrange() {
-  return rq::NextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+[[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+ProcTemplate::getProcWeightLevelSubrange() {
+  return rq::NextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::NextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::NextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::NextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
-[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-ProcedureTemplate::getProcedureWeightLevelSubrange() const {
-  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+ProcTemplate::getProcWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
-[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>
-ProcedureTemplate::getConstProcedureWeightLevelSubrange() const {
-  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcedureWeightLevel>(
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>(
+[[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
+ProcTemplate::getConstProcWeightLevelSubrange() const {
+  return rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>(
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>(
           this->_first_weight_level_ptr),
-      rq::ConstNextIterator<rq::WeightLevel, rq::ProcedureWeightLevel>());
+      rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
 [[nodiscard]] inline bool
-ProcedureTemplate::classof(const rq::Entity *entity_ptr) {
+ProcTemplate::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::PROCEDURE_TEMPLATE);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROC_TEMPLATE);
 }
 
 } // namespace rq

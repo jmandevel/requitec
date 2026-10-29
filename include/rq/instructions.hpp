@@ -5,6 +5,7 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Casting.h>
+#include <llvm/ADT/FoldingSet.h>
 
 #include <cstdint>
 #include <tuple>

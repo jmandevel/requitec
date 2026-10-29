@@ -206,10 +206,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "slice";
   case K::SLICE_OF:
     return "_slice_of";
-  case K::PROCEDURE_ADDRESS:
-    return "procedure_address";
-  case K::PROCEDURE_ADDRESS_OF:
-    return "_procedure_address_of";
+  case K::PROC_ADDRESS:
+    return "proc_address";
+  case K::PROC_ADDRESS_OF:
+    return "_proc_address_of";
   case K::REF:
     return "ref";
   case K::REF_OF:
@@ -266,7 +266,7 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_subtype";
   case K::ARRAY_SUBTYPE:
     return "Array";
-  case K::REFERENCE_SUBTYPE:
+  case K::REF_SUBTYPE:
     return "Ref";
   case K::PTR_SUBTYPE:
     return "Ptr";
@@ -274,8 +274,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "Slice";
   case K::SPLIT_SUBTYPE:
     return "Split";
-  case K::EXISTENTIAL_SUBTYPE:
-    return "_Existential";
+  case K::GENERIC_SUBTYPE:
+    return "_Generic";
   case K::COMPLEMENTARY_SUBTYPE:
     return "_Complementary";
 
@@ -297,7 +297,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::SPECIALIZE:
     return "_specialize";
 
-  // PROCEDURES
+  // PROCS
   case K::NAMED_ARGUMENT:
     return "_named_argument";
   case K::INSTANTIATE_SIGNATURE:
@@ -308,10 +308,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "composition";
   case K::DEFAULT_VALUE_PARAMETER:
     return "_default_value_parameter";
-  case K::PROCEDURE:
-    return "procedure";
-  case K::IMPLEMENT_PROCEDURE:
-    return "implement_procedure";
+  case K::PROC:
+    return "proc";
+  case K::IMPLEMENT_PROC:
+    return "implement_proc";
   case K::CONSTRUCTOR:
     return "constructor";
   case K::LAYOUT_CONSTRUCTOR:
@@ -574,8 +574,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "concept";
   case K::RUNTIME:
     return "runtime";
-  case K::GENTIME:
-    return "gentime";
+  case K::COMTIME:
+    return "comtime";
   case K::ANYTIME:
     return "anytime";
   case K::PRESET:
@@ -670,6 +670,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_null_terminate";
   case K::NULL_TERMINATE:
     return "null_terminate";
+  case K::NO_DETACH:
+    return "no_detach";
+  case K::DETACH:
+    return "detach";
   case K::NO_MARGIN:
     return "no_margin";
   case K::MARGIN:
@@ -812,10 +816,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "resolve_template";
   case K::RESOLVE_TEMPLATE_OF:
     return "_resolve_template_of";
-  case K::RESOLVE_PROCEDURE:
+  case K::RESOLVE_PROC:
     return "resolve_proc";
-  case K::RESOLVE_PROCEDURE_OF:
-    return "_resolve_procedure_of";
+  case K::RESOLVE_PROC_OF:
+    return "_resolve_proc_of";
   case K::RESOLVE_ADAPTER:
     return "resolve_adapter";
   case K::RESOLVE_ADAPTER_OF:
@@ -826,8 +830,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "ANY";
   case K::TYPE_CONCEPT:
     return "TYPE";
-  case K::GENTIME_CONCEPT:
-    return "GENTIME";
+  case K::COMTIME_CONCEPT:
+    return "COMTIME";
   case K::RUNTIME_CONCEPT:
     return "RUNTIME";
   case K::ANYTIME_CONCEPT:
@@ -902,8 +906,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "SPECIALIZATION_SET";
   case K::ADAPTER_SPECIALIZATION_SET_CONCEPT:
     return "ADAPTER_SPECIALIZATION_SET";
-  case K::PROCEDURE_SPECIALIZATION_SET_CONCEPT:
-    return "PROCEDURE_SPECIALIZATION_SET";
+  case K::PROC_SPECIALIZATION_SET_CONCEPT:
+    return "PROC_SPECIALIZATION_SET";
   case K::ARITHMETIC_SEQUENCE_CONCEPT:
     return "ARITHMETIC_SEQUENCE";
   case K::ARITHMETIC_INTERVAL_CONCEPT:
@@ -1008,14 +1012,14 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "ADAPTER_SPECIALIZATION";
   case K::ADAPTER_TEMPLATE_CONCEPT:
     return "ADAPTER_TEMPLATE";
-  case K::PROCEDURE_IMPLEMENTATION_CONCEPT:
-    return "PROCEDURE_IMPLEMENTATION";
-  case K::PROCEDURE_OVERLOAD_CONCEPT:
-    return "PROCEDURE_OVERLOAD";
-  case K::PROCEDURE_SPECIALIZATION_CONCEPT:
-    return "PROCEDURE_SPECIALIZATION";
-  case K::PROCEDURE_TEMPLATE_CONCEPT:
-    return "PROCEDURE_TEMPLATE";
+  case K::PROC_IMPLEMENTATION_CONCEPT:
+    return "PROC_IMPLEMENTATION";
+  case K::PROC_OVERLOAD_CONCEPT:
+    return "PROC_OVERLOAD";
+  case K::PROC_SPECIALIZATION_CONCEPT:
+    return "PROC_SPECIALIZATION";
+  case K::PROC_TEMPLATE_CONCEPT:
+    return "PROC_TEMPLATE";
   case K::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
     return "LAZY_VARIABLE_IMPLEMENTATION";
   case K::LAZY_VARIABLE_OVERLOAD_CONCEPT:
@@ -1116,6 +1120,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "ATOMIC_QUALIFIER";
   case K::NULL_TERMINATE_QUALIFIER_CONCEPT:
     return "NULL_TERMINATE_QUALIFIER";
+  case K::DETACH_QUALIFIER_CONCEPT:
+    return "DETACH_QUALIFIER";
   case K::MARGIN_QUALIFIER_CONCEPT:
     return "MARGIN_QUALIFIER";
   case K::THROWS_QUALIFIER_CONCEPT:
@@ -1369,9 +1375,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::SLICE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_ADDRESS:
+  case K::PROC_ADDRESS:
     return KIF::RAILCAR;
-  case K::PROCEDURE_ADDRESS_OF:
+  case K::PROC_ADDRESS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REF:
     return KIF::RAILCAR;
@@ -1430,7 +1436,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ARRAY_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::REFERENCE_SUBTYPE:
+  case K::REF_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PTR_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1438,7 +1444,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SPLIT_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::EXISTENTIAL_SUBTYPE:
+  case K::GENERIC_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::COMPLEMENTARY_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1461,7 +1467,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPECIALIZE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR;
 
-  // PROCEDURES
+  // PROCS
   case K::NAMED_ARGUMENT:
     return KIF::ARGUMENT;
   case K::INSTANTIATE_SIGNATURE:
@@ -1472,9 +1478,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::DEFAULT_VALUE_PARAMETER:
     return KIF::PARAMETER;
-  case K::PROCEDURE:
+  case K::PROC:
     return KIF::STATEMENT;
-  case K::IMPLEMENT_PROCEDURE:
+  case K::IMPLEMENT_PROC:
     return KIF::STATEMENT;
   case K::CONSTRUCTOR:
     return KIF::STATEMENT;
@@ -1743,7 +1749,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RUNTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::GENTIME:
+  case K::COMTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ANYTIME:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1841,6 +1847,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::NO_NULL_TERMINATE:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::NO_DETACH:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::DETACH:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::NO_MARGIN:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1984,9 +1994,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::RESOLVE_TEMPLATE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::RESOLVE_PROCEDURE:
+  case K::RESOLVE_PROC:
     return KIF::RAILCAR;
-  case K::RESOLVE_PROCEDURE_OF:
+  case K::RESOLVE_PROC_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RESOLVE_ADAPTER:
     return KIF::RAILCAR;
@@ -1999,7 +2009,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::TYPE_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::GENTIME_CONCEPT:
+  case K::COMTIME_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::RUNTIME_CONCEPT:
@@ -2113,7 +2123,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ADAPTER_SPECIALIZATION_SET_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_SPECIALIZATION_SET_CONCEPT:
+  case K::PROC_SPECIALIZATION_SET_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::ARITHMETIC_SEQUENCE_CONCEPT:
@@ -2272,16 +2282,16 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ADAPTER_TEMPLATE_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_IMPLEMENTATION_CONCEPT:
+  case K::PROC_IMPLEMENTATION_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_OVERLOAD_CONCEPT:
+  case K::PROC_OVERLOAD_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_SPECIALIZATION_CONCEPT:
+  case K::PROC_SPECIALIZATION_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::PROCEDURE_TEMPLATE_CONCEPT:
+  case K::PROC_TEMPLATE_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
@@ -2432,6 +2442,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::NULL_TERMINATE_QUALIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::DETACH_QUALIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::MARGIN_QUALIFIER_CONCEPT:
@@ -2667,8 +2680,8 @@ getDescription(rq::Situation situation) {
     return K::CONTENT_OF;
   case K::ADDRESS:
     return K::ADDRESS_OF;
-  case K::PROCEDURE_ADDRESS:
-    return K::PROCEDURE_ADDRESS_OF;
+  case K::PROC_ADDRESS:
+    return K::PROC_ADDRESS_OF;
   case K::DATA_ADDRESS:
     return K::DATA_ADDRESS_OF;
   case K::MOVE:
@@ -2763,8 +2776,8 @@ getDescription(rq::Situation situation) {
     return K::CONSTRUCTOR_RANGE_OF;
   case K::RESOLVE_TEMPLATE:
     return K::RESOLVE_TEMPLATE_OF;
-  case K::RESOLVE_PROCEDURE:
-    return K::RESOLVE_PROCEDURE_OF;
+  case K::RESOLVE_PROC:
+    return K::RESOLVE_PROC_OF;
   case K::RESOLVE_ADAPTER:
     return K::RESOLVE_ADAPTER_OF;
   default:
@@ -3132,7 +3145,7 @@ enum class Modifier : std::uint_fast8_t {
   CONCEPT,
   // tenure
   RUNTIME,
-  GENTIME,
+  COMTIME,
   ANYTIME,
   // initialization_time
   PRESET,
@@ -3236,8 +3249,8 @@ enum class Modifier : std::uint_fast8_t {
     return "concept";
   case M::RUNTIME:
     return "runtime";
-  case M::GENTIME:
-    return "gentime";
+  case M::COMTIME:
+    return "comtime";
   case M::ANYTIME:
     return "anytime";
   case M::PRESET:
@@ -3363,8 +3376,8 @@ enum class Modifier : std::uint_fast8_t {
     return M::CONCEPT;
   case K::RUNTIME:
     return M::RUNTIME;
-  case K::GENTIME:
-    return M::GENTIME;
+  case K::COMTIME:
+    return M::COMTIME;
   case K::ANYTIME:
     return M::ANYTIME;
   case K::PRESET:
@@ -3479,9 +3492,9 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   DIALECT_MODIFIER_MASK = PRE | POST | ALIAS | ENUMERATOR | CONCEPT,
 
   RUNTIME = rq::getBit(20),
-  GENTIME = rq::getBit(21),
+  COMTIME = rq::getBit(21),
   ANYTIME = rq::getBit(22),
-  TENURE_MODIFIER_MASK = RUNTIME | GENTIME | ANYTIME,
+  TENURE_MODIFIER_MASK = RUNTIME | COMTIME | ANYTIME,
 
   PRESET = rq::getBit(23),
   SINGLETON = rq::getBit(24),
@@ -3601,8 +3614,8 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::CONCEPT;
   case M::RUNTIME:
     return MFF::RUNTIME;
-  case M::GENTIME:
-    return MFF::GENTIME;
+  case M::COMTIME:
+    return MFF::COMTIME;
   case M::ANYTIME:
     return MFF::ANYTIME;
   case M::EAGER:
@@ -3737,7 +3750,7 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::RUNTIME:
     return MIF::NO_ATTACHMENT;
-  case M::GENTIME:
+  case M::COMTIME:
     return MIF::NO_ATTACHMENT;
   case M::ANYTIME:
     return MIF::NO_ATTACHMENT;
@@ -4045,7 +4058,7 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::DIALECT;
   case M::RUNTIME:
     [[fallthrough]];
-  case M::GENTIME:
+  case M::COMTIME:
     [[fallthrough]];
   case M::ANYTIME:
     return MK::TENURE;
@@ -4237,6 +4250,8 @@ enum class Qualifier : std::uint_fast8_t {
   ATOMIC,
   NO_NULL_TERMINATE,
   NULL_TERMINATE,
+  NO_DETACH,
+  DETACH,
   NO_MARGIN,
   MARGIN,
   NO_THROWS,
@@ -4267,6 +4282,10 @@ enum class Qualifier : std::uint_fast8_t {
     return "no_null_terminate";
   case Q::NULL_TERMINATE:
     return "null_terminate";
+  case Q::NO_DETACH:
+    return "no_detach";
+  case Q::DETACH:
+    return "detach";
   case Q::NO_MARGIN:
     return "no_margin";
   case Q::MARGIN:
@@ -4302,6 +4321,10 @@ enum class Qualifier : std::uint_fast8_t {
     return Q::NO_NULL_TERMINATE;
   case K::NULL_TERMINATE:
     return Q::NULL_TERMINATE;
+  case K::NO_DETACH:
+    return Q::NO_DETACH;
+  case K::DETACH:
+    return Q::DETACH;
   case K::NO_MARGIN:
     return Q::NO_MARGIN;
   case K::MARGIN:
@@ -4336,12 +4359,16 @@ enum class QualifierFuseFlags : std::uint_fast16_t {
   NULL_TERMINATE = rq::getBit(8),
   NULL_TERMINATE_MASK = NO_NULL_TERMINATE | NULL_TERMINATE,
 
-  NO_MARGIN = rq::getBit(9),
-  MARGIN = rq::getBit(10),
+  NO_DETACH = rq::getBit(9),
+  DETACH = rq::getBit(10),
+  DETACH_MASK = NO_DETACH | DETACH,
+
+  NO_MARGIN = rq::getBit(11),
+  MARGIN = rq::getBit(12),
   MARGIN_MASK = NO_MARGIN | MARGIN,
 
-  NO_THROWS = rq::getBit(11),
-  THROWS = rq::getBit(12),
+  NO_THROWS = rq::getBit(13),
+  THROWS = rq::getBit(14),
   THROWS_MASK = NO_THROWS | THROWS
 };
 
@@ -4373,6 +4400,10 @@ getFuseFlags(rq::Qualifier modifier) {
     return QFF::NO_NULL_TERMINATE;
   case Q::NULL_TERMINATE:
     return QFF::NULL_TERMINATE;
+  case Q::NO_DETACH:
+    return QFF::NO_DETACH;
+  case Q::DETACH:
+    return QFF::DETACH;
   case Q::NO_MARGIN:
     return QFF::NO_MARGIN;
   case Q::MARGIN:
@@ -4391,6 +4422,7 @@ enum class QualifierKind : std::uint_fast8_t {
   VOLATILE,
   ATOMIC,
   NULL_TERMINATE,
+  DETACH,
   MARGIN,
   THROWS
 };
@@ -4408,6 +4440,8 @@ enum class QualifierKind : std::uint_fast8_t {
     return "atomic qualifier";
   case HAK::NULL_TERMINATE:
     return "null terminate qualifier";
+  case HAK::DETACH:
+    return "detach qualifier";
   case HAK::MARGIN:
     return "margin qualifier";
   case HAK::THROWS:
@@ -4440,6 +4474,10 @@ enum class QualifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case Q::NULL_TERMINATE:
     return QK::NULL_TERMINATE;
+  case Q::NO_DETACH:
+    [[fallthrough]];
+  case Q::DETACH:
+    return QK::DETACH;
   case Q::NO_MARGIN:
     [[fallthrough]];
   case Q::MARGIN:

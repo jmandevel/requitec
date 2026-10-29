@@ -28,8 +28,6 @@ struct Generator final {
   void
   lookupInnerMemberOf(rq::SymbolTable &host, rq::Expression &ex,
                       llvm::SmallVector<rq::Symbol *> &inout_candidate_ptrs);
-  void lookupAlias(rq::Alias &alias,
-                   llvm::SmallVector<rq::Symbol *> &inout_candidate_ptrs);
   [[nodiscard]] rq::Symbol* lookupPredefinedMacro(rq::Expression& ex);
   [[nodiscard]] rq::RValue generateIdentifyOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateAsOf(rq::SymbolTable& host, rq::Expression& ex);
@@ -40,7 +38,7 @@ struct Generator final {
   [[nodiscard]] rq::RValue generateContentOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateAddressOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateSliceOf(rq::SymbolTable& host, rq::Expression& ex);
-  [[nodiscard]] rq::RValue generateProcedureAddressOf(rq::SymbolTable& host, rq::Expression& ex);
+  [[nodiscard]] rq::RValue generateProcAddressOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateRefOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateDataAddressOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateMoveOf(rq::SymbolTable& host, rq::Expression& ex);
@@ -83,7 +81,7 @@ struct Generator final {
   [[nodiscard]] rq::RValue generateTemplateOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateTemplateRangeOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateConstructorRangeOf(rq::SymbolTable& host, rq::Expression& ex);
-  [[nodiscard]] rq::RValue generateResolveProcedureOf(rq::SymbolTable& host, rq::Expression& ex);
+  [[nodiscard]] rq::RValue generateResolveProcOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateResolveAdapterOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateIsTypeOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateIsRangeTypeOf(rq::SymbolTable& host, rq::Expression& ex);

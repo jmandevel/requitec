@@ -115,8 +115,8 @@ enum class Keyword : rq::EntityId {
   ADDRESS_OF,
   SLICE,
   SLICE_OF,
-  PROCEDURE_ADDRESS,
-  PROCEDURE_ADDRESS_OF,
+  PROC_ADDRESS,
+  PROC_ADDRESS_OF,
   REF,
   REF_OF,
   DATA_ADDRESS,
@@ -146,11 +146,11 @@ enum class Keyword : rq::EntityId {
   // SUBTYPE
   INSTANTIATE_SUBTYPE,
   ARRAY_SUBTYPE,
-  REFERENCE_SUBTYPE,
+  REF_SUBTYPE,
   PTR_SUBTYPE,
   SLICE_SUBTYPE,
   SPLIT_SUBTYPE,
-  EXISTENTIAL_SUBTYPE,
+  GENERIC_SUBTYPE,
   COMPLEMENTARY_SUBTYPE,
 
   // PARAMETER RULES
@@ -164,14 +164,14 @@ enum class Keyword : rq::EntityId {
   INSTANTIATE_LAYOUT,
   SPECIALIZE,
 
-  // PROCEDURES
+  // PROCS
   NAMED_ARGUMENT,
   INSTANTIATE_SIGNATURE,
   PLACEMENT,
   COMPOSITION,
   DEFAULT_VALUE_PARAMETER,
-  PROCEDURE,
-  IMPLEMENT_PROCEDURE,
+  PROC,
+  IMPLEMENT_PROC,
   CONSTRUCTOR,
   LAYOUT_CONSTRUCTOR,
 
@@ -195,7 +195,7 @@ enum class Keyword : rq::EntityId {
   INDEX,
   // reference to reciever
   THIS,
-  // get information about location of a procedure call
+  // get information about location of a proc call
   CALLSITE,
 
   // BUILTIN TYPES
@@ -325,7 +325,7 @@ enum class Keyword : rq::EntityId {
   CONCEPT,
   // tenure (lazy symbols)
   RUNTIME,
-  GENTIME,
+  COMTIME,
   ANYTIME,
   // initialization_time
   PRESET,
@@ -400,6 +400,9 @@ enum class Keyword : rq::EntityId {
   // margin
   NO_MARGIN,
   MARGIN,
+  // scheme
+  NO_DETACH,
+  DETACH,
   // throws
   NO_THROWS,
   THROWS,
@@ -473,15 +476,15 @@ enum class Keyword : rq::EntityId {
   CONSTRUCTOR_RANGE_OF,
   RESOLVE_TEMPLATE,
   RESOLVE_TEMPLATE_OF,
-  RESOLVE_PROCEDURE,
-  RESOLVE_PROCEDURE_OF,
+  RESOLVE_PROC,
+  RESOLVE_PROC_OF,
   RESOLVE_ADAPTER,
   RESOLVE_ADAPTER_OF,
 
   // BUILTIN CONCEPTS
   ANY_CONCEPT,
   TYPE_CONCEPT,
-  GENTIME_CONCEPT,
+  COMTIME_CONCEPT,
   RUNTIME_CONCEPT,
   ANYTIME_CONCEPT,
   RANGE_CONCEPT,
@@ -519,7 +522,7 @@ enum class Keyword : rq::EntityId {
   JUXT_CONCEPT,
   SPECIALIZATION_SET_CONCEPT,
   ADAPTER_SPECIALIZATION_SET_CONCEPT,
-  PROCEDURE_SPECIALIZATION_SET_CONCEPT,
+  PROC_SPECIALIZATION_SET_CONCEPT,
   ARITHMETIC_SEQUENCE_CONCEPT,
   ARITHMETIC_INTERVAL_CONCEPT,
   INFINITE_ARITHMETIC_SEQUENCE_CONCEPT,
@@ -572,10 +575,10 @@ enum class Keyword : rq::EntityId {
   ADAPTER_OVERLOAD_CONCEPT,
   ADAPTER_SPECIALIZATION_CONCEPT,
   ADAPTER_TEMPLATE_CONCEPT,
-  PROCEDURE_IMPLEMENTATION_CONCEPT,
-  PROCEDURE_OVERLOAD_CONCEPT,
-  PROCEDURE_SPECIALIZATION_CONCEPT,
-  PROCEDURE_TEMPLATE_CONCEPT,
+  PROC_IMPLEMENTATION_CONCEPT,
+  PROC_OVERLOAD_CONCEPT,
+  PROC_SPECIALIZATION_CONCEPT,
+  PROC_TEMPLATE_CONCEPT,
   LAZY_VARIABLE_IMPLEMENTATION_CONCEPT,
   LAZY_VARIABLE_OVERLOAD_CONCEPT,
   LAZY_VARIABLE_SPECIALIZATION_CONCEPT,
@@ -626,6 +629,7 @@ enum class Keyword : rq::EntityId {
   VOLATILE_QUALIFIER_CONCEPT,
   ATOMIC_QUALIFIER_CONCEPT,
   NULL_TERMINATE_QUALIFIER_CONCEPT,
+  DETACH_QUALIFIER_CONCEPT,
   MARGIN_QUALIFIER_CONCEPT,
   THROWS_QUALIFIER_CONCEPT,
 
@@ -711,7 +715,7 @@ enum class SymbolKind : rq::EntityId {
   CONCEPT_MODIFIER,
   SPLIT_MODIFIER,
   RUNTIME_MODIFIER,
-  GENTIME_MODIFIER,
+  COMTIME_MODIFIER,
   ANYTIME_MODIFIER,
   PRESET_MODIFIER,
   SINGLETON_MODIFIER,
@@ -762,13 +766,15 @@ enum class SymbolKind : rq::EntityId {
   NULL_TERMINATE_QUALIFIER,
   NO_MARGIN_QUALIFIER,
   MARGIN_QUALIFIER,
+  NO_DETACH_QUALIFIER,
+  DETACH_QUALIFIER,
   NO_THROWS_QUALIFIER,
   THROWS_QUALIFIER,
 
   // BUILTIN CONCEPTS
   ANY_CONCEPT,
   TYPE_CONCEPT,
-  GENTIME_CONCEPT,
+  COMTIME_CONCEPT,
   RUNTIME_CONCEPT,
   ANYTIME_CONCEPT,
   RANGE_CONCEPT,
@@ -806,7 +812,7 @@ enum class SymbolKind : rq::EntityId {
   JUXT_CONCEPT,
   SPECIALIZATION_SET_CONCEPT,
   ADAPTER_SPECIALIZATION_SET_CONCEPT,
-  PROCEDURE_SPECIALIZATION_SET_CONCEPT,
+  PROC_SPECIALIZATION_SET_CONCEPT,
   ARITHMETIC_SEQUENCE_CONCEPT,
   ARITHMETIC_INTERVAL_CONCEPT,
   INFINITE_ARITHMETIC_SEQUENCE_CONCEPT,
@@ -859,10 +865,10 @@ enum class SymbolKind : rq::EntityId {
   ADAPTER_OVERLOAD_CONCEPT,
   ADAPTER_SPECIALIZATION_CONCEPT,
   ADAPTER_TEMPLATE_CONCEPT,
-  PROCEDURE_IMPLEMENTATION_CONCEPT,
-  PROCEDURE_OVERLOAD_CONCEPT,
-  PROCEDURE_SPECIALIZATION_CONCEPT,
-  PROCEDURE_TEMPLATE_CONCEPT,
+  PROC_IMPLEMENTATION_CONCEPT,
+  PROC_OVERLOAD_CONCEPT,
+  PROC_SPECIALIZATION_CONCEPT,
+  PROC_TEMPLATE_CONCEPT,
   LAZY_VARIABLE_IMPLEMENTATION_CONCEPT,
   LAZY_VARIABLE_OVERLOAD_CONCEPT,
   LAZY_VARIABLE_SPECIALIZATION_CONCEPT,
@@ -913,21 +919,25 @@ enum class SymbolKind : rq::EntityId {
   VOLATILE_QUALIFIER_CONCEPT,
   ATOMIC_QUALIFIER_CONCEPT,
   NULL_TERMINATE_QUALIFIER_CONCEPT,
+  DETACH_QUALIFIER_CONCEPT,
   MARGIN_QUALIFIER_CONCEPT,
   THROWS_QUALIFIER_CONCEPT,
 
   // VARIADIC ARGUMENTS
   VARIADIC_ARGUMENTS_TYPE,
 
-  // SUBTYPES
+  // QUALIFIED TYPE
+  QUALIFIED_TYPE,
+
+  // SUBENTITIES
   ARRAY_SUBTYPE,
   REF_SUBTYPE,
   PTR_SUBTYPE,
   SLICE_SUBTYPE,
   SPLIT_SUBTYPE,
-  EXISTENTIAL_SUBTYPE,
-  COMPLEMENTARY_SUBTYPE,
   INFERENCE_COUNT_ARRAY_SUBTYPE,
+  GENERIC_SUBSYMBOL,
+  COMPLEMENTARY_SUBSYMBOL,
 
   // MODULES
   MODULE,
@@ -961,7 +971,7 @@ enum class SymbolKind : rq::EntityId {
   // SPECIALIZATION SET
   SPECIALIATION_SET,
   ADAPTER_SPECIALIZATION_SET,
-  PROCEDURE_SPECIALIZATION_SET,
+  PROC_SPECIALIZATION_SET,
 
   // ARITHMETIC SEQUENCES
   ARITHMETIC_INTERVAL_TYPE,
@@ -1011,7 +1021,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_OVERLOAD,
   INTERFACE_OVERLOAD,
   ADAPTER_OVERLOAD,
-  PROCEDURE_OVERLOAD,
+  PROC_OVERLOAD,
   LAZY_VARIABLE_OVERLOAD,
   ALIAS_OVERLOAD,
   CONCEPT_OVERLOAD,
@@ -1022,7 +1032,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_SPECIALIZATION,
   INTERFACE_SPECIALIZATION,
   ADAPTER_SPECIALIZATION,
-  PROCEDURE_SPECIALIZATION,
+  PROC_SPECIALIZATION,
   LAZY_VARIABLE_SPECIALIZATION,
   ALIAS_SPECIALIZATION,
   CONCEPT_SPECIALIZATION,
@@ -1033,7 +1043,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_TEMPLATE,
   INTERFACE_TEMPLATE,
   ADAPTER_TEMPLATE,
-  PROCEDURE_TEMPLATE,
+  PROC_TEMPLATE,
   LAZY_VARIABLE_TEMPLATE,
   ALIAS_TEMPLATE,
   CONCEPT_TEMPLATE,
@@ -1044,7 +1054,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_POLYMORPH,
   INTERFACE_POLYMORPH,
   ADAPTER_POLYMORPH,
-  PROCEDURE_POLYMORPH,
+  PROC_POLYMORPH,
   LAZY_VARIABLE_POLYMORPH,
   ALIAS_POLYMORPH,
   CONCEPT_POLYMORPH,
@@ -1055,7 +1065,7 @@ enum class SymbolKind : rq::EntityId {
   ENUM_WEIGHT_LEVEL,
   INTERFACE_WEIGHT_LEVEL,
   ADAPTER_WEIGHT_LEVEL,
-  PROCEDURE_WEIGHT_LEVEL,
+  PROC_WEIGHT_LEVEL,
   LAZY_VARIABLE_WEIGHT_LEVEL,
   ALIAS_WEIGHT_LEVEL,
   CONCEPT_WEIGHT_LEVEL,
@@ -1064,23 +1074,13 @@ enum class SymbolKind : rq::EntityId {
   LAST
 };
 
-enum class ConstantKind : rq::EntityId {
-  NONE,
-
-  WORD,
-  ARRAY,
-  DATA_ARRAY,
-  SYMBOL,
-  ENTITY_RANGE,
-  ARITHMETIC_SEQUENCE,
-
-  LAST
-};
-
 enum class ValueKind : rq::EntityId {
   NONE,
 
-  // TODO
+  CONSTANT_INT,
+  MUTABLE_INT,
+  CONSTANT_FLOAT,
+  MUTABLE_FLOAT,
 
   LAST
 };
@@ -1157,14 +1157,11 @@ constexpr rq::EntityId KEYWORD_OFFSET = 0;
 constexpr rq::EntityId SYMBOL_OFFSET =
     rq::getUnderlyingValue(rq::Keyword::LAST);
 
-constexpr rq::EntityId CONSTANT_OFFSET =
+constexpr rq::EntityId VALUE_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
-constexpr rq::EntityId VALUE_OFFSET =
-    rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ConstantKind::LAST);
-
 constexpr rq::EntityId OPCODE_OFFSET =
-    rq::CONSTANT_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
+    rq::VALUE_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
 
 constexpr rq::EntityId CFG_BLOCK_ID =
     OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
@@ -1180,8 +1177,8 @@ getId(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
-getId(rq::ConstantKind kind) {
-  return static_cast<rq::EntityId>(kind) + rq::CONSTANT_OFFSET;
+getId(rq::ValueKind kind) {
+  return static_cast<rq::EntityId>(kind) + rq::VALUE_OFFSET;
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId getId(rq::Opcode kind) {
@@ -1196,11 +1193,6 @@ getUnsafeKeyword(rq::EntityId id) {
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::SymbolKind
 getUnsafeSymbolKind(rq::EntityId id) {
   return static_cast<rq::SymbolKind>(id + rq::SYMBOL_OFFSET);
-}
-
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ConstantKind
-getUnsafeConstantKind(rq::EntityId id) {
-  return static_cast<rq::ConstantKind>(id + rq::CONSTANT_OFFSET);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ValueKind
@@ -1218,19 +1210,14 @@ getUnsafeOpcode(rq::EntityId id) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsSymbolKind(rq::EntityId id) {
-  return id >= rq::SYMBOL_OFFSET && id < rq::CONSTANT_OFFSET;
-}
-
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool
-getIsConstantKind(rq::EntityId id) {
-  return id >= rq::CONSTANT_OFFSET && id < rq::VALUE_OFFSET;
+  return id >= rq::SYMBOL_OFFSET && id < rq::VALUE_OFFSET;
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
   return id >= rq::VALUE_OFFSET && id < rq::OPCODE_OFFSET;
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsOpcodeKind(rq::EntityId id) {
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityId id) {
   return id >= rq::OPCODE_OFFSET && id < rq::CFG_BLOCK_ID;
 }
 
@@ -1250,12 +1237,6 @@ getSymbolKind(rq::EntityId id) {
   return rq::getUnsafeSymbolKind(id);
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ConstantKind
-getConstantKind(rq::EntityId id) {
-  RQ_ASSERT(rq::getIsConstantKind(id), "not constant kind");
-  return rq::getUnsafeConstantKind(id);
-}
-
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ValueKind
 getValueKind(rq::EntityId id) {
   RQ_ASSERT(rq::getIsValueKind(id), "not value kind");
@@ -1263,7 +1244,7 @@ getValueKind(rq::EntityId id) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Opcode getOpcode(rq::EntityId id) {
-  RQ_ASSERT(rq::getIsOpcodeKind(id), "not opcode kind");
+  RQ_ASSERT(rq::getIsOpcode(id), "not opcode kind");
   return rq::getUnsafeOpcode(id);
 }
 
@@ -1340,35 +1321,37 @@ enum class SymbolInfoFlags : std::uint64_t {
   PLATFORM_PRIMITIVE_TYPE = rq::getBit(7),
   STANDARD_PRIMITIVE_TYPE = rq::getBit(8),
   SCALED_PRIMITIVE_TYPE = rq::getBit(9),
-  SUBTYPE = rq::getBit(10),
-  SIMPLE_SUBTYPE = rq::getBit(11),
-  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(12),
-  SPECIALIZATION_SET = rq::getBit(13),
-  PARAMETER_LIST = rq::getBit(14),
-  TABLE_MEMBER = rq::getBit(15),
-  EAGER_DECLARATION = rq::getBit(16),
-  EAGER_VARIABLE = rq::getBit(17),
-  ROUTE = rq::getBit(18),
-  POLYMORPH = rq::getBit(19),
-  WEIGHT_LEVEL = rq::getBit(20),
-  TEMPLATE = rq::getBit(21),
-  SYMBOL_TABLE = rq::getBit(22),
-  EAGER_SCOPE = rq::getBit(23),
-  NAMED_TABLE = rq::getBit(24),
-  LAZY_DECLARATION = rq::getBit(25),
-  CLASS_IMPLEMENTATION = rq::getBit(26),
-  ENUM_IMPLEMENTATION = rq::getBit(27),
-  INTERFACE_IMPLEMENTATION = rq::getBit(28),
-  ADAPTER_IMPLEMENTATION = rq::getBit(29),
-  PROCEDURE_IMPLEMENTATION = rq::getBit(30),
-  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(31),
-  ALIAS_IMPLEMENTATION = rq::getBit(32),
-  CONCEPT_IMPLEMENTATION = rq::getBit(33),
-  VARIANT_IMPLEMENTATION = rq::getBit(34),
+  SUBSYMBOL = rq::getBit(10),
+  SUBTYPE = rq::getBit(11),
+  SIMPLE_SUBTYPE = rq::getBit(12),
+  SUBCONCEPT = rq::getBit(13),
+  ARITHMETIC_SEQUENCE_TYPE = rq::getBit(14),
+  SPECIALIZATION_SET = rq::getBit(15),
+  PARAMETER_LIST = rq::getBit(16),
+  TABLE_MEMBER = rq::getBit(16),
+  EAGER_DECLARATION = rq::getBit(17),
+  EAGER_VARIABLE = rq::getBit(18),
+  ROUTE = rq::getBit(19),
+  POLYMORPH = rq::getBit(20),
+  WEIGHT_LEVEL = rq::getBit(21),
+  TEMPLATE = rq::getBit(22),
+  SYMBOL_TABLE = rq::getBit(23),
+  EAGER_SCOPE = rq::getBit(24),
+  NAMED_TABLE = rq::getBit(25),
+  LAZY_DECLARATION = rq::getBit(26),
+  CLASS_IMPLEMENTATION = rq::getBit(27),
+  ENUM_IMPLEMENTATION = rq::getBit(28),
+  INTERFACE_IMPLEMENTATION = rq::getBit(29),
+  ADAPTER_IMPLEMENTATION = rq::getBit(30),
+  PROC_IMPLEMENTATION = rq::getBit(31),
+  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(32),
+  ALIAS_IMPLEMENTATION = rq::getBit(33),
+  CONCEPT_IMPLEMENTATION = rq::getBit(34),
+  VARIANT_IMPLEMENTATION = rq::getBit(35),
 
   // SYMBOL DETAIL
   IS_RUNTIME_TYPE = rq::getBit(48),
-  IS_GENTIME_TYPE = rq::getBit(49),
+  IS_COMTIME_TYPE = rq::getBit(49),
   IS_CONTEXTUAL = rq::getBit(50),
   IS_INTEGER = rq::getBit(51),
   IS_FAST = rq::getBit(52),
@@ -1396,13 +1379,13 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // LITERALS
   case S::INTEGER_LITERAL_TYPE:
-    return SIF::LITERAL | SIF::IS_GENTIME_TYPE;
+    return SIF::LITERAL | SIF::IS_COMTIME_TYPE;
   case S::FLOAT_LITERAL_TYPE:
-    return SIF::LITERAL | SIF::IS_GENTIME_TYPE;
+    return SIF::LITERAL | SIF::IS_COMTIME_TYPE;
   case S::STRING_LITERAL_TYPE:
-    return SIF::LITERAL | SIF::IS_GENTIME_TYPE;
+    return SIF::LITERAL | SIF::IS_COMTIME_TYPE;
   case S::CODEUNIT_LITERAL_TYPE:
-    return SIF::LITERAL | SIF::IS_GENTIME_TYPE;
+    return SIF::LITERAL | SIF::IS_COMTIME_TYPE;
 
   // FIGURATIVE TYPE
   case S::UNKNOWN_TYPE:
@@ -1416,123 +1399,123 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // REFLECTION TYPES
   case S::SYMBOL_RANGE_TYPE:
-    return SIF::REFLECTION_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::REFLECTION_TYPE | SIF::IS_COMTIME_TYPE;
   case S::EXPRESSION_TYPE:
-    return SIF::REFLECTION_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::REFLECTION_TYPE | SIF::IS_COMTIME_TYPE;
   case S::EXPRESSION_RANGE_TYPE:
-    return SIF::REFLECTION_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::REFLECTION_TYPE | SIF::IS_COMTIME_TYPE;
 
   // PLATFORM FITTING TYPES
   case S::FITTING_FSINT_TYPE:
     return SIF::FITTING_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
+           SIF::IS_COMTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
            SIF::IS_FAST | SIF::IS_SIGNED;
   case S::FITTING_FUINT_TYPE:
     return SIF::FITTING_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
+           SIF::IS_COMTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
            SIF::IS_FAST | SIF::IS_UNSIGNED;
   case S::FITTING_LSINT_TYPE:
     return SIF::FITTING_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
+           SIF::IS_COMTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
            SIF::IS_LEAST | SIF::IS_SIGNED;
   case S::FITTING_LUINT_TYPE:
     return SIF::FITTING_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
+           SIF::IS_COMTIME_TYPE | SIF::IS_CONTEXTUAL | SIF::IS_INTEGER |
            SIF::IS_LEAST | SIF::IS_UNSIGNED;
 
   // PLATFORM PRIMITIVE TYPES
   case S::BOOLEAN_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::HALF_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
   case S::SINGLE_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
   case S::DOUBLE_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
   case S::QUADRUPLE_TYPE:
     return SIF::SIMPLE_SUBTYPE | SIF::PLATFORM_PRIMITIVE_TYPE |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT |
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT |
            SIF::IS_SIGNED;
   case S::SINT_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
   case S::UINT_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_UNSIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_UNSIGNED;
   case S::SSIZE_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIZE |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIZE |
            SIF::IS_SIGNED;
   case S::USIZE_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIZE |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIZE |
            SIF::IS_UNSIGNED;
   case S::SINDEX_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_INDEX |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_INDEX |
            SIF::IS_SIGNED;
   case S::UINDEX_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_INDEX |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_INDEX |
            SIF::IS_UNSIGNED;
   case S::CHAR_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CODEUNIT;
+           SIF::IS_COMTIME_TYPE | SIF::IS_CODEUNIT;
 
   // STANDARD PRIMITIVE TYPE
   case S::BINARY16_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
            SIF::IS_SIGNED;
   case S::BINARY32_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
            SIF::IS_SIGNED;
   case S::BINARY64_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
            SIF::IS_SIGNED;
   case S::BINARY128_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BINARY |
            SIF::IS_SIGNED;
   case S::BFLOAT16_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BFLOAT |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_BFLOAT |
            SIF::IS_SIGNED;
   case S::ASCII_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CODEUNIT;
+           SIF::IS_COMTIME_TYPE | SIF::IS_CODEUNIT;
   case S::UTF8_TYPE:
     return SIF::STANDARD_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_CODEUNIT;
+           SIF::IS_COMTIME_TYPE | SIF::IS_CODEUNIT;
 
   // SCALED PRIMITIVE TYPES
   case S::SCALED_SINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
   case S::SCALED_UINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_UNSIGNED;
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_UNSIGNED;
   case S::SCALED_FSINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
            SIF::IS_SIGNED;
   case S::SCALED_FUINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_FAST |
            SIF::IS_UNSIGNED;
   case S::SCALED_LSINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
            SIF::IS_SIGNED;
   case S::SCALED_LUINT_TYPE:
     return SIF::SCALED_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
+           SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_LEAST |
            SIF::IS_UNSIGNED;
 
   // MODIFIERS
@@ -1578,7 +1561,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::MODIFIER;
   case S::RUNTIME_MODIFIER:
     return SIF::MODIFIER;
-  case S::GENTIME_MODIFIER:
+  case S::COMTIME_MODIFIER:
     return SIF::MODIFIER;
   case S::ANYTIME_MODIFIER:
     return SIF::MODIFIER;
@@ -1674,6 +1657,10 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::QUALIFIER;
   case S::NULL_TERMINATE_QUALIFIER:
     return SIF::QUALIFIER;
+  case S::NO_DETACH_QUALIFIER:
+    return SIF::QUALIFIER;
+  case S::DETACH_QUALIFIER:
+    return SIF::QUALIFIER;
   case S::NO_MARGIN_QUALIFIER:
     return SIF::QUALIFIER;
   case S::MARGIN_QUALIFIER:
@@ -1688,7 +1675,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::TYPE_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::GENTIME_CONCEPT:
+  case S::COMTIME_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::RUNTIME_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
@@ -1764,7 +1751,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::ADAPTER_SPECIALIZATION_SET_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::PROCEDURE_SPECIALIZATION_SET_CONCEPT:
+  case S::PROC_SPECIALIZATION_SET_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::ARITHMETIC_SEQUENCE_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
@@ -1870,13 +1857,13 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::ADAPTER_TEMPLATE_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::PROCEDURE_IMPLEMENTATION_CONCEPT:
+  case S::PROC_IMPLEMENTATION_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::PROCEDURE_OVERLOAD_CONCEPT:
+  case S::PROC_OVERLOAD_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::PROCEDURE_SPECIALIZATION_CONCEPT:
+  case S::PROC_SPECIALIZATION_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::PROCEDURE_TEMPLATE_CONCEPT:
+  case S::PROC_TEMPLATE_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
@@ -1978,6 +1965,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::NULL_TERMINATE_QUALIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
+  case S::DETACH_QUALIFIER_CONCEPT:
+    return SIF::BUILTIN_CONCEPT;
   case S::MARGIN_QUALIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::THROWS_QUALIFIER_CONCEPT:
@@ -1985,30 +1974,34 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // VARIADIC ARGUMENTS
   case S::VARIADIC_ARGUMENTS_TYPE:
-    return SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE;
 
-  // SUBTYPES
+  // QUALIFIED TYPE
+  case S::QUALIFIED_TYPE:
+    return SIF::IS_COMTIME_TYPE;
+
+  // SUBENTITIES
   case S::ARRAY_SUBTYPE:
-    return SIF::SUBTYPE | SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::SUBTYPE | SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE;
   case S::REF_SUBTYPE:
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::PTR_SUBTYPE:
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::SLICE_SUBTYPE:
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::SPLIT_SUBTYPE:
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
-  case S::EXISTENTIAL_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_GENTIME_TYPE;
-  case S::COMPLEMENTARY_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
+  case S::GENERIC_SUBSYMBOL:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_COMTIME_TYPE;
+  case S::COMPLEMENTARY_SUBSYMBOL:
+    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_COMTIME_TYPE;
 
   // MODULES
   case S::MODULE:
@@ -2032,17 +2025,17 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // ADAPTION
   case S::ADAPTION:
-    return SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE;
 
   // JUXT LIST
   case S::JUXT_LIST_TYPE:
-    return SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE;
+    return SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE;
   case S::JUXT_LIST_ITEM:
     return SIF::NONE;
 
   // TRIP
   case S::TRIP_TYPE:
-    return SIF::IS_GENTIME_TYPE;
+    return SIF::IS_COMTIME_TYPE;
   case S::TRIP_ITEM:
     return SIF::NONE;
 
@@ -2055,19 +2048,19 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::NONE;
   case S::ADAPTER_SPECIALIZATION_SET:
     return SIF::NONE;
-  case S::PROCEDURE_SPECIALIZATION_SET:
+  case S::PROC_SPECIALIZATION_SET:
     return SIF::NONE;
 
   // ARITHMETIC SEQUENCES
   case S::ARITHMETIC_INTERVAL_TYPE:
     return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
     return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
   case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
     return SIF::ARITHMETIC_SEQUENCE_TYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE;
+           SIF::IS_COMTIME_TYPE;
 
   // EAGER DECLARATIONS
   case S::ANCHOR:
@@ -2133,22 +2126,22 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::CLASS_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::CLASS_IMPLEMENTATION |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ENUM_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::ENUM_IMPLEMENTATION |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::INTERFACE_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::INTERFACE_IMPLEMENTATION |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ADAPTER_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::ADAPTER_IMPLEMENTATION |
            SIF::IS_OBJECT_SCOPE;
-  case S::PROCEDURE_OVERLOAD:
+  case S::PROC_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::LAZY_DECLARATION | SIF::PROCEDURE_IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::PROC_IMPLEMENTATION |
            SIF::IS_FRAME_SCOPE;
   case S::LAZY_VARIABLE_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
@@ -2167,23 +2160,23 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::CLASS_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::CLASS_IMPLEMENTATION |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ENUM_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::ENUM_IMPLEMENTATION |
            SIF::ENUM_IMPLEMENTATION | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::INTERFACE_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::INTERFACE_IMPLEMENTATION |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE | SIF::IS_OBJECT_SCOPE;
+           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_OBJECT_SCOPE;
   case S::ADAPTER_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::ADAPTER_IMPLEMENTATION |
            SIF::IS_OBJECT_SCOPE;
-  case S::PROCEDURE_SPECIALIZATION:
+  case S::PROC_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::LAZY_DECLARATION | SIF::PROCEDURE_IMPLEMENTATION |
+           SIF::LAZY_DECLARATION | SIF::PROC_IMPLEMENTATION |
            SIF::IS_FRAME_SCOPE;
   case S::LAZY_VARIABLE_SPECIALIZATION:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
@@ -2211,7 +2204,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::ADAPTER_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::TEMPLATE;
-  case S::PROCEDURE_TEMPLATE:
+  case S::PROC_TEMPLATE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::TEMPLATE;
   case S::LAZY_VARIABLE_TEMPLATE:
@@ -2236,7 +2229,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::POLYMORPH;
   case S::ADAPTER_POLYMORPH:
     return SIF::POLYMORPH;
-  case S::PROCEDURE_POLYMORPH:
+  case S::PROC_POLYMORPH:
     return SIF::POLYMORPH;
   case S::LAZY_VARIABLE_POLYMORPH:
     return SIF::POLYMORPH;
@@ -2256,7 +2249,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::WEIGHT_LEVEL;
   case S::ADAPTER_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
-  case S::PROCEDURE_WEIGHT_LEVEL:
+  case S::PROC_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
   case S::LAZY_VARIABLE_WEIGHT_LEVEL:
     return SIF::WEIGHT_LEVEL;
@@ -2420,7 +2413,7 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasSome(
       flags, SIF::CLASS_IMPLEMENTATION | SIF::ENUM_IMPLEMENTATION |
                  SIF::INTERFACE_IMPLEMENTATION | SIF::ADAPTER_IMPLEMENTATION |
-                 SIF::PROCEDURE_IMPLEMENTATION);
+                 SIF::PROC_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2452,10 +2445,10 @@ getIsAdapterImplementation(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getIsProcedureImplementation(rq::SymbolKind kind) {
+getIsProcImplementation(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::PROCEDURE_IMPLEMENTATION);
+  return rq::getHasAll(flags, SIF::PROC_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2468,7 +2461,7 @@ getIsLazyVariableImplementation(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasSome(flags, SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE);
+  return rq::getHasSome(flags, SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRuntimeType(rq::SymbolKind kind) {
@@ -2480,13 +2473,13 @@ getIsLazyVariableImplementation(rq::SymbolKind kind) {
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCompileTimeType(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::IS_GENTIME_TYPE);
+  return rq::getHasAll(flags, SIF::IS_COMTIME_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAnytimeType(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::IS_RUNTIME_TYPE | SIF::IS_GENTIME_TYPE);
+  return rq::getHasAll(flags, SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsContextual(rq::SymbolKind kind) {
@@ -2586,7 +2579,6 @@ struct Entity {
 #if !defined(_NDEBUG)
   rq::Keyword _debug_keyword{rq::Keyword::NONE};
   rq::SymbolKind _debug_symbol_kind{rq::SymbolKind::NONE};
-  rq::ConstantKind _debug_constant_kind{rq::ConstantKind::NONE};
   rq::ValueKind _debug_value_kind{rq::ValueKind::NONE};
   rq::Opcode _debug_opcode{rq::Opcode::NONE};
 #endif
@@ -2594,18 +2586,13 @@ struct Entity {
   explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {
 #if !defined(_NDEBUG)
     if (id < rq::SYMBOL_OFFSET) {
-      this->_debug_keyword = static_cast<rq::Keyword>(id);
-    } else if (id < rq::CONSTANT_OFFSET) {
-      this->_debug_symbol_kind =
-          static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET);
+      this->_debug_keyword = rq::getKeyword(id);
     } else if (id < rq::VALUE_OFFSET) {
-      this->_debug_constant_kind =
-          static_cast<rq::ConstantKind>(id - rq::CONSTANT_OFFSET);
+      this->_debug_symbol_kind = rq::getSymbolKind(id);
     } else if (id < rq::OPCODE_OFFSET) {
-      this->_debug_value_kind =
-          static_cast<rq::ValueKind>(id - rq::VALUE_OFFSET);
+      this->_debug_value_kind = rq::getValueKind(id);
     } else {
-      this->_debug_opcode = static_cast<rq::Opcode>(id - rq::OPCODE_OFFSET);
+      this->_debug_opcode = rq::getOpcode(id);
     }
 #endif
   }
@@ -2634,11 +2621,6 @@ struct Entity {
     return rq::getUnsafeSymbolKind(this->_id);
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind
-  getUnsafeConstantKind() const {
-    return rq::getUnsafeConstantKind(this->_id);
-  }
-
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getUnsafeValueKind() const {
     return rq::getUnsafeValueKind(this->_id);
   }
@@ -2648,15 +2630,19 @@ struct Entity {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
-    return this->_id < rq::getUnderlyingValue(rq::Keyword::LAST);
+    return rq::getIsKeyword(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
-    return this->_id >= rq::SYMBOL_OFFSET && this->_id < rq::CONSTANT_OFFSET;
+    return rq::getIsSymbolKind(this->_id);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValue() const {
+    return rq::getIsValueKind(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return this->_id >= rq::OPCODE_OFFSET && this->_id < rq::CFG_BLOCK_ID;
+    return rq::getIsOpcode(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCfgBlock() const {
@@ -2669,10 +2655,6 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getSymbolKind() const {
     return rq::getSymbolKind(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantKind getConstantKind() const {
-    return rq::getConstantKind(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getValueKind() const {
@@ -2796,8 +2778,8 @@ struct Entity {
     return rq::getIsAdapterImplementation(this->getUnsafeSymbolKind());
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcedureImplementation() const {
-    return rq::getIsProcedureImplementation(this->getUnsafeSymbolKind());
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcImplementation() const {
+    return rq::getIsProcImplementation(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyVariableImplementation() const {
