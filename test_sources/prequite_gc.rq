@@ -53,12 +53,12 @@ generic_list.mut\[ref].pushBack(nested_list.[move]);
 
 // no_detach lists are special, will use contiguous memory in native format.
 // the adjoin qualifier is applied to the data array pointer.
-// std.List is no_detach by default, detached only if specified.
+// std.List is no_detach by default, detach only if specified.
 // specifying here explicitly for this example.
 // in prequite, no_detach can only be used for primitive types.
 // in postquite, it can be used for any type.
 
-adjoined_list :std.List{SInt, Detach=no_detach}= std.List{SInt, no_detach}();
+adjoined_list :std.List{SInt, no_detach}= std.List{SInt, no_detach}();
 adjoined_list.mut\[ref].pushBack(0).[pass std.AllocationException];
 adjoined_list.mut\[ref].pushBack(1).[pass std.AllocationException];
 adjoined_list.mut\[ref].pushBack(2).[pass std.AllocationException];
