@@ -11,10 +11,12 @@ namespace rq {
 
 using EntityId = std::uint16_t;
 
+static constexpr rq::EntityId TOMBSTONE_ID = 0;
+
 enum class Keyword : rq::EntityId {
   // this is the initial keyword set for expressions. it must be overwritten
   // later!
-  NONE,
+  NONE = 1,
 
   // LITERALS
   INTEGER_LITERAL,
@@ -1077,7 +1079,6 @@ enum class SymbolKind : rq::EntityId {
 enum class ValueKind : rq::EntityId {
   NONE,
 
-  TOMBSTONE,
   CONSTANT_INT,
   MUTABLE_INT,
   CONSTANT_FLOAT,
@@ -1153,7 +1154,7 @@ enum class Opcode : rq::EntityId {
   LAST
 };
 
-constexpr rq::EntityId KEYWORD_OFFSET = 0;
+constexpr rq::EntityId KEYWORD_OFFSET = 1;
 
 constexpr rq::EntityId SYMBOL_OFFSET =
     rq::getUnderlyingValue(rq::Keyword::LAST);
@@ -1188,7 +1189,7 @@ getId(rq::ValueKind kind) {
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword
 getUnsafeKeyword(rq::EntityId id) {
-  return static_cast<rq::Keyword>(id);
+  return static_cast<rq::Keyword>(id + rq::KEYWORD_OFFSET);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::SymbolKind
@@ -1206,8 +1207,12 @@ getUnsafeOpcode(rq::EntityId id) {
   return static_cast<rq::Opcode>(id + rq::OPCODE_OFFSET);
 }
 
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsTombstone(rq::EntityId id) {
+  return id == rq::TOMBSTONE_ID;
+}
+
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsKeyword(rq::EntityId id) {
-  return id < rq::SYMBOL_OFFSET;
+  return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsSymbolKind(rq::EntityId id) {
@@ -2887,6 +2892,18 @@ struct Entity {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
     RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
     return true;
+  }
+};
+
+struct Tombstone final : public rq::Entity {
+  using Self = rq::Tombstone;
+
+  RQ_ALWAYS_INLINE Tombstone() 
+    : rq::Entity(rq::TOMBSTONE_ID) {}
+
+  [[nodiscard]] static inline bool classof(const rq::Entity* entity_ptr) {
+    const rq::Entity& entity = rq::dereferencePtr(entity_ptr);
+    return entity.getId() == rq::TOMBSTONE_ID;
   }
 };
 

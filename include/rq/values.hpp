@@ -17,15 +17,7 @@ struct Value : public rq::Entity {
 
   RQ_ALWAYS_INLINE Value(rq::ValueKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
-};
-
-struct TombstoneValue final : public rq::Value {
-  using Self = rq::Value;
-
-  RQ_ALWAYS_INLINE TombstoneValue();
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Int : public rq::Value {
