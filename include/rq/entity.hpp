@@ -2635,26 +2635,6 @@ struct Entity {
     return rq::getUnsafeOpcode(this->_id);
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsExpression() const {
-    return rq::getIsKeyword(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbol() const {
-    return rq::getIsSymbolKind(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsValue() const {
-    return rq::getIsValueKind(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInstruction() const {
-    return rq::getIsOpcode(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsCfgBlock() const {
-    return this->_id == rq::CFG_BLOCK_ID;
-  }
-
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
     return rq::getKeyword(this->_id);
   }
