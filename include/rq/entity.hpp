@@ -2595,13 +2595,13 @@ struct Entity {
 
   explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {
 #if !defined(_NDEBUG)
-    if (id < rq::SYMBOL_OFFSET) {
+    if (rq::getIsKeyword(id)) {
       this->_debug_keyword = rq::getKeyword(id);
-    } else if (id < rq::VALUE_OFFSET) {
+    } else if (rq::getIsSymbolKind(id)) {
       this->_debug_symbol_kind = rq::getSymbolKind(id);
-    } else if (id < rq::OPCODE_OFFSET) {
+    } else if (rq::getIsValueKind(id)) {
       this->_debug_value_kind = rq::getValueKind(id);
-    } else {
+    } else if (rq::getIsOpcode(id)) {
       this->_debug_opcode = rq::getOpcode(id);
     }
 #endif
