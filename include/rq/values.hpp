@@ -23,6 +23,8 @@ struct Value : public rq::Entity {
 struct TombstoneValue final : public rq::Value {
   using Self = rq::Value;
 
+  RQ_ALWAYS_INLINE TombstoneValue();
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
@@ -31,17 +33,27 @@ struct Int : public rq::Value {
 
   llvm::APInt _int;
 
+  RQ_ALWAYS_INLINE Int(rq::ValueKind kind);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt& getInt() const;
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ConstantInt final : public rq::Int {
   using Self = rq::ConstantInt;
 
+  RQ_ALWAYS_INLINE ConstantInt();
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct MutableInt final : public rq::Int {
   using Self = rq::MutableInt;
+
+  RQ_ALWAYS_INLINE MutableInt();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt& getInt();
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
@@ -51,11 +63,17 @@ struct Float : public rq::Value {
 
   llvm::APFloat _float;
 
+  RQ_ALWAYS_INLINE Float(rq::ValueKind kind);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getFloat() const;
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ConstantFloat final : public rq::Float {
   using Self = rq::ConstantFloat;
+
+  RQ_ALWAYS_INLINE ConstantFloat();
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
@@ -63,7 +81,13 @@ struct ConstantFloat final : public rq::Float {
 struct MutableFloat final : public rq::Float {
   using Self = rq::MutableFloat;
 
+  RQ_ALWAYS_INLINE MutableFloat();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat& getFloat();
+
   [[nodiscard]] RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 } // namespace rq
+
+#include <rq/detail/values.hpp>
