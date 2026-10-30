@@ -1077,6 +1077,7 @@ enum class SymbolKind : rq::EntityId {
 enum class ValueKind : rq::EntityId {
   NONE,
 
+  TOMBSTONE,
   CONSTANT_INT,
   MUTABLE_INT,
   CONSTANT_FLOAT,
