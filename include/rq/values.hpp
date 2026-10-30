@@ -141,7 +141,7 @@ struct ConstantDetachedArray final : public rq::DetachedArray,
       rq::NextSubrange<rq::ConstantDetachedArrayElement>
       getElementSubrange();
   [[nodiscard]] RQ_ALWAYS_INLINE const
-      rq::NextSubrange<rq::ConstantDetachedArrayElement>
+      rq::ConstNextSubrange<rq::ConstantDetachedArrayElement>
       getElementSubrange() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const
       rq::ConstNextSubrange<rq::ConstantDetachedArrayElement>
