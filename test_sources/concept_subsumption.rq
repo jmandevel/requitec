@@ -1,15 +1,18 @@
 [import "std", std];
 
+// A
 template::{> Type:FLOAT <}
 [proc printType, ( val:Type <)Void,
     std.print(line="Its a float");
 ];
 
+// B
 template::{> Type:INT <}
 [proc printType, ( val:Type <)Void,
     std.print(line="Its an integer");
 ];
 
+// C
 template::{> Type:TYPE <}
 [proc printType, ( val:Type <)Void,
     std.print(line="Its something");
@@ -17,9 +20,9 @@ template::{> Type:TYPE <}
 
 mangle::main
 [proc , ()SInt, result,
-    printType{SInt32}();
-    printType{Single}();
-    printType{Bool}();
+    printType{SInt32}(); // B
+    printType{Single}(); // A
+    printType{Bool}();   // C
 
     result <:= 0;
 ];
