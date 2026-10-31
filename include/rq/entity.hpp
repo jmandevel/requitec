@@ -369,9 +369,6 @@ enum class Keyword : rq::EntityId {
   OVERLOAD,
   // constraint
   CONSTRAINT,
-  // weight
-  DEFAULT_WEIGHT,
-  WEIGHT,
   // deduction
   MANUAL,
   AUTO,
@@ -470,7 +467,6 @@ enum class Keyword : rq::EntityId {
   OVERLOAD_RANGE_OF,
   SPECIALIZATION_RANGE,
   SPECIALIZATION_RANGE_OF,
-  WEIGHT_OF,
   TEMPLATE_OF,
   TEMPLATE_RANGE,
   TEMPLATE_RANGE_OF,
@@ -620,7 +616,6 @@ enum class Keyword : rq::EntityId {
   OFFSET_MODIFIER_CONCEPT,
   LAZY_DECLARATION_MODIFIER_CONCEPT,
   CONSTRAINT_MODIFIER_CONCEPT,
-  WEIGHT_MODIFIER_CONCEPT,
   DEDUCTION_MODIFIER_CONCEPT,
   VIRTUALITY_MODIFIER_CONCEPT,
   RANGER_MODIFIER_CONCEPT,
@@ -746,8 +741,6 @@ enum class SymbolKind : rq::EntityId {
   TEMPLATE_MODIFIER,
   OVERLOAD_MODIFIER,
   CONSTRAINT_MODIFIER,
-  DEFAULT_WEIGHT_MODIFIER,
-  WEIGHT_MODIFIER,
   MANUAL_MODIFIER,
   AUTO_MODIFIER,
   DIRECT_MODIFIER,
@@ -910,7 +903,6 @@ enum class SymbolKind : rq::EntityId {
   OFFSET_MODIFIER_CONCEPT,
   LAZY_DECLARATION_MODIFIER_CONCEPT,
   CONSTRAINT_MODIFIER_CONCEPT,
-  WEIGHT_MODIFIER_CONCEPT,
   DEDUCTION_MODIFIER_CONCEPT,
   VIRTUALITY_MODIFIER_CONCEPT,
   RANGER_MODIFIER_CONCEPT,
@@ -1061,17 +1053,6 @@ enum class SymbolKind : rq::EntityId {
   ALIAS_POLYMORPH,
   CONCEPT_POLYMORPH,
   VARIANT_POLYMORPH,
-
-  // WEIGHT LEVELS
-  CLASS_WEIGHT_LEVEL,
-  ENUM_WEIGHT_LEVEL,
-  INTERFACE_WEIGHT_LEVEL,
-  ADAPTER_WEIGHT_LEVEL,
-  PROC_WEIGHT_LEVEL,
-  LAZY_VARIABLE_WEIGHT_LEVEL,
-  ALIAS_WEIGHT_LEVEL,
-  CONCEPT_WEIGHT_LEVEL,
-  VARIANT_WEIGHT_LEVEL,
 
   LAST
 };
@@ -1343,21 +1324,20 @@ enum class SymbolInfoFlags : std::uint64_t {
   EAGER_VARIABLE = rq::getBit(18),
   ROUTE = rq::getBit(19),
   POLYMORPH = rq::getBit(20),
-  WEIGHT_LEVEL = rq::getBit(21),
-  TEMPLATE = rq::getBit(22),
-  SYMBOL_TABLE = rq::getBit(23),
-  EAGER_SCOPE = rq::getBit(24),
-  NAMED_TABLE = rq::getBit(25),
-  LAZY_DECLARATION = rq::getBit(26),
-  CLASS_IMPLEMENTATION = rq::getBit(27),
-  ENUM_IMPLEMENTATION = rq::getBit(28),
-  INTERFACE_IMPLEMENTATION = rq::getBit(29),
-  ADAPTER_IMPLEMENTATION = rq::getBit(30),
-  PROC_IMPLEMENTATION = rq::getBit(31),
-  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(32),
-  ALIAS_IMPLEMENTATION = rq::getBit(33),
-  CONCEPT_IMPLEMENTATION = rq::getBit(34),
-  VARIANT_IMPLEMENTATION = rq::getBit(35),
+  TEMPLATE = rq::getBit(21),
+  SYMBOL_TABLE = rq::getBit(22),
+  EAGER_SCOPE = rq::getBit(23),
+  NAMED_TABLE = rq::getBit(24),
+  LAZY_DECLARATION = rq::getBit(25),
+  CLASS_IMPLEMENTATION = rq::getBit(26),
+  ENUM_IMPLEMENTATION = rq::getBit(27),
+  INTERFACE_IMPLEMENTATION = rq::getBit(28),
+  ADAPTER_IMPLEMENTATION = rq::getBit(29),
+  PROC_IMPLEMENTATION = rq::getBit(30),
+  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(31),
+  ALIAS_IMPLEMENTATION = rq::getBit(32),
+  CONCEPT_IMPLEMENTATION = rq::getBit(33),
+  VARIANT_IMPLEMENTATION = rq::getBit(34),
 
   // SYMBOL DETAIL
   IS_RUNTIME_TYPE = rq::getBit(48),
@@ -1628,10 +1608,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::OVERLOAD_MODIFIER:
     return SIF::MODIFIER;
   case S::CONSTRAINT_MODIFIER:
-    return SIF::MODIFIER;
-  case S::DEFAULT_WEIGHT_MODIFIER:
-    return SIF::MODIFIER;
-  case S::WEIGHT_MODIFIER:
     return SIF::MODIFIER;
   case S::MANUAL_MODIFIER:
     return SIF::MODIFIER;
@@ -1953,8 +1929,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::CONSTRAINT_MODIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::WEIGHT_MODIFIER_CONCEPT:
-    return SIF::BUILTIN_CONCEPT;
   case S::DEDUCTION_MODIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::VIRTUALITY_MODIFIER_CONCEPT:
@@ -2250,26 +2224,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::VARIANT_POLYMORPH:
     return SIF::POLYMORPH;
 
-  // WEIGHT LEVELS
-  case S::CLASS_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::ENUM_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::INTERFACE_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::ADAPTER_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::PROC_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::LAZY_VARIABLE_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::ALIAS_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::CONCEPT_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-  case S::VARIANT_WEIGHT_LEVEL:
-    return SIF::WEIGHT_LEVEL;
-
   case S::LAST:
     break;
 
@@ -2379,12 +2333,6 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::POLYMORPH);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::WEIGHT_LEVEL);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate(rq::SymbolKind kind) {
@@ -2722,10 +2670,6 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph() const {
     return rq::getIsPolymorph(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsWeightLevel() const {
-    return rq::getIsWeightLevel(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {

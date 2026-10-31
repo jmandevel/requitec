@@ -632,10 +632,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "overload";
   case K::CONSTRAINT:
     return "constraint";
-  case K::DEFAULT_WEIGHT:
-    return "default_weight";
-  case K::WEIGHT:
-    return "weight";
   case K::MANUAL:
     return "manual";
   case K::AUTO:
@@ -800,8 +796,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "specialization_range";
   case K::SPECIALIZATION_RANGE_OF:
     return "_specialization_range_of";
-  case K::WEIGHT_OF:
-    return "_weight_of";
   case K::TEMPLATE_OF:
     return "_template_of";
   case K::TEMPLATE_RANGE:
@@ -1098,8 +1092,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "LAZY_DECLARATION_MODIFIER";
   case K::CONSTRAINT_MODIFIER_CONCEPT:
     return "CONSTRAINT_MODIFIER";
-  case K::WEIGHT_MODIFIER_CONCEPT:
-    return "WEIGHT_MODIFIER";
   case K::DEDUCTION_MODIFIER_CONCEPT:
     return "DEDUCTION_MODIFIER";
   case K::VIRTUALITY_MODIFIER_CONCEPT:
@@ -1809,11 +1801,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::RAILCAR;
   case K::CONSTRAINT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DEFAULT_WEIGHT:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::RAILCAR;
   case K::MANUAL:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::AUTO:
@@ -1977,8 +1964,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPECIALIZATION_RANGE:
     return KIF::RAILCAR;
   case K::SPECIALIZATION_RANGE_OF:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::TEMPLATE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2411,9 +2396,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CONSTRAINT_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::WEIGHT_MODIFIER_CONCEPT:
-    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
   case K::DEDUCTION_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -2766,8 +2748,6 @@ getDescription(rq::Situation situation) {
     return K::OVERLOAD_RANGE_OF;
   case K::SPECIALIZATION_RANGE:
     return K::SPECIALIZATION_RANGE_OF;
-  case K::WEIGHT:
-    return K::WEIGHT_OF;
   case K::TEMPLATE:
     return K::TEMPLATE_OF;
   case K::TEMPLATE_RANGE:
@@ -3187,9 +3167,6 @@ enum class Modifier : std::uint_fast8_t {
   OVERLOAD,
   // constraint
   CONSTRAINT,
-  // weight
-  DEFAULT_WEIGHT,
-  WEIGHT,
   // deduction
   MANUAL,
   AUTO,
@@ -3307,10 +3284,6 @@ enum class Modifier : std::uint_fast8_t {
     return "overload";
   case M::CONSTRAINT:
     return "constraint";
-  case M::DEFAULT_WEIGHT:
-    return "default_weight";
-  case M::WEIGHT:
-    return "weight";
   case M::MANUAL:
     return "manual";
   case M::AUTO:
@@ -3430,10 +3403,6 @@ enum class Modifier : std::uint_fast8_t {
     return M::OVERLOAD;
   case K::CONSTRAINT:
     return M::CONSTRAINT;
-  case K::DEFAULT_WEIGHT:
-    return M::DEFAULT_WEIGHT;
-  case K::WEIGHT:
-    return M::WEIGHT;
   case K::MANUAL:
     return M::MANUAL;
   case K::AUTO:
@@ -3549,25 +3518,21 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   CONSTRAINT = rq::getBit(49),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  DEFAULT_WEIGHT = rq::getBit(50),
-  WEIGHT = rq::getBit(51),
-  WEIGHT_MODIFIER_MASK = DEFAULT_WEIGHT | WEIGHT,
-
-  MANUAL = rq::getBit(52),
-  AUTO = rq::getBit(53),
+  MANUAL = rq::getBit(50),
+  AUTO = rq::getBit(51),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(54),
-  VIRTUAL = rq::getBit(55),
+  DIRECT = rq::getBit(52),
+  VIRTUAL = rq::getBit(53),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(56),
+  RANGER = rq::getBit(54),
   RANGER_MODIFIER_MASK = RANGER,
 
-  REQUIRE = rq::getBit(57),
+  REQUIRE = rq::getBit(55),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(58),
+  ENSURE = rq::getBit(56),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -3676,10 +3641,6 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::OVERLOAD;
   case M::CONSTRAINT:
     return MFF::CONSTRAINT;
-  case M::DEFAULT_WEIGHT:
-    return MFF::DEFAULT_WEIGHT;
-  case M::WEIGHT:
-    return MFF::WEIGHT;
   case M::MANUAL:
     return MFF::MANUAL;
   case M::AUTO:
@@ -3812,10 +3773,6 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::NO_ATTACHMENT;
   case M::CONSTRAINT:
     return MIF::ATTACHMENT;
-  case M::DEFAULT_WEIGHT:
-    return MIF::NO_ATTACHMENT;
-  case M::WEIGHT:
-    return MIF::ATTACHMENT;
   case M::MANUAL:
     return MIF::NO_ATTACHMENT;
   case M::AUTO:
@@ -3878,7 +3835,6 @@ enum class ModifierKind : std::uint_fast8_t {
   OFFSET,
   LAZY_DECLARATION_KIND,
   CONSTRAINT,
-  WEIGHT,
   DEDUCTION,
   VIRTUALITY,
   RANGER,
@@ -3934,8 +3890,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return "lazy declaration kind modifier";
   case MK::CONSTRAINT:
     return "constraint modifier";
-  case MK::WEIGHT:
-    return "weight modifier";
   case MK::DEDUCTION:
     return "deduction modifier";
   case MK::VIRTUALITY:
@@ -4000,8 +3954,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::LAZY_DECLARATION_KIND_MODIFIER_MASK;
   case MK::CONSTRAINT:
     return MFF::CONSTRAINT_MODIFIER_MASK;
-  case MK::WEIGHT:
-    return MFF::WEIGHT_MODIFIER_MASK;
   case MK::DEDUCTION:
     return MFF::DEDUCTION_MODIFIER_MASK;
   case MK::VIRTUALITY:
@@ -4120,10 +4072,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::LAZY_DECLARATION_KIND;
   case M::CONSTRAINT:
     return MK::CONSTRAINT;
-  case M::DEFAULT_WEIGHT:
-    [[fallthrough]];
-  case M::WEIGHT:
-    return MK::WEIGHT;
   case M::MANUAL:
     [[fallthrough]];
   case M::AUTO:

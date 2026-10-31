@@ -77,7 +77,6 @@ struct Generator final {
   [[nodiscard]] rq::RValue generateOverloadOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateOverloadRangeOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateSpecializationRangeOf(rq::SymbolTable& host, rq::Expression& ex);
-  [[nodiscard]] rq::RValue generateWeightOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateTemplateOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateTemplateRangeOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateConstructorRangeOf(rq::SymbolTable& host, rq::Expression& ex);

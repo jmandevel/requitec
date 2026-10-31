@@ -1,7 +1,6 @@
 // templates refeer to declarations with template modifiers
 
 template::{> NUM:SInt <}
-weight::3
 pure
 [proc getNum, ()SInt, result,
     result <:= NUM;

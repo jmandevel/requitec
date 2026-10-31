@@ -1,13 +1,11 @@
 [import "std", std];
 
 template::{> Type:FLOAT <}
-weight::1
 [proc printType, ( val:Type <)Void,
     std.print(line="Its a float");
 ];
 
 template::{> Type:INT <}
-weight::1
 [proc printType, ( val:Type <)Void,
     std.print(line="Its an integer");
 ];
