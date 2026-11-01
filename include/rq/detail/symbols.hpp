@@ -89,8 +89,452 @@ namespace rq {
     return "ScaledLSInt";
   case S::SCALED_LUINT_TYPE:
     return "ScaledLUInt";
+  case S::NO_MODIFIER:
+    return "NoModifier";
+  case S::ANCHOR_MODIFIER:
+    return "AnchorModifier";
+  case S::RESIDENT_MODIFIER:
+    return "ResidentModifier";
+  case S::FLANK_MODIFIER:
+    return "FlankModifier";
+  case S::TRANSPARENT_MODIFIER:
+    return "TransparentModifier";
+  case S::OPAQUE_MODIFIER:
+    return "OpaqueModifier";
+  case S::PRIVATE_MODIFIER:
+    return "PrivateModifier";
+  case S::PUBLIC_MODIFIER:
+    return "PublicModifier";
+  case S::EXPORT_MODIFIER:
+    return "ExportModifier";
+  case S::MUTABLE_MODIFIER:
+    return "MutableModifier";
+  case S::PARTIALLY_MUTABLE_MODIFIER:
+    return "PartiallyMutableModifier";
+  case S::CONSTANT_MODIFIER:
+    return "ConstantModifier";
+  case S::EAGER_MODIFIER:
+    return "EagerModifier";
+  case S::LAZY_MODIFIER:
+    return "LazyModifier";
+  case S::POST_MODIFIER:
+    return "PostModifier";
+  case S::PRE_MODIFIER:
+    return "PreModifier";
+  case S::ALIAS_MODIFIER:
+    return "AliasModifier";
+  case S::ENUMERATOR_MODIFIER:
+    return "EnumeratorModifier";
+  case S::CONCEPT_MODIFIER:
+    return "ConceptModifier";
+  case S::SPLIT_MODIFIER:
+    return "SplitModifier";
+  case S::RUNTIME_MODIFIER:
+    return "RuntimeModifier";
+  case S::COMTIME_MODIFIER:
+    return "ComtimeModifier";
+  case S::ANYTIME_MODIFIER:
+    return "AnytimeModifier";
+  case S::PRESET_MODIFIER:
+    return "PresetModifier";
+  case S::SINGLETON_MODIFIER:
+    return "SingletonModifier";
+  case S::CAPTURE_MODIFIER:
+    return "CaptureModifier";
+  case S::STATELESS_MODIFIER:
+    return "StatelessModifier";
+  case S::LINKED_MODIFIER:
+    return "LinkedModifier";
+  case S::INLINE_MODIFIER:
+    return "InlineModifier";
+  case S::PURE_MODIFIER:
+    return "PureModifier";
+  case S::IMPURE_MODIFIER:
+    return "ImpureModifier";
+  case S::STANDARD_MANGLE_MODIFIER:
+    return "StandardMangleModifier";
+  case S::MANGLE_MODIFIER:
+    return "MangleModifier";
+  case S::PAD_MODIFIER:
+    return "PadModifier";
+  case S::PACK_MODIFIER:
+    return "PackModifier";
+  case S::EQUIVOCAL_MODIFIER:
+    return "EquivocalModifier";
+  case S::LIKELY_MODIFIER:
+    return "LikelyModifier";
+  case S::UNLIKELY_MODIFIER:
+    return "UnlikelyModifier";
+  case S::SUPPORTED_MODIFIER:
+    return "SupportedModifier";
+  case S::DEPRECIATED_MODIFIER:
+    return "DepreciatedModifier";
+  case S::EXPERIMENTAL_MODIFIER:
+    return "ExperimentalModifier";
+  case S::UNSTABLE_ADDRESS_MODIFIER:
+    return "UnstableAddressModifier";
+  case S::STABLE_ADDRESS_MODIFIER:
+    return "StableAddressModifier";
+  case S::INVARIADIC_MODIFIER:
+    return "InvariadicModifier";
+  case S::VARIADIC_MODIFIER:
+    return "VariadicConcept";
+  case S::BEST_LOCATION_MODIFIER:
+    return "BestLocationModifier";
+  case S::LOCATION_MODIFIER:
+    return "LocationModifier";
+  case S::TEMPLATE_MODIFIER:
+    return "TemplateModifier";
+  case S::OVERLOAD_MODIFIER:
+    return "OverloadModifier";
+  case S::CONSTRAINT_MODIFIER:
+    return "ConstraintModifier";
+  case S::MANUAL_MODIFIER:
+    return "ManualModifier";
+  case S::AUTO_MODIFIER:
+    return "AutoModifier";
+  case S::DIRECT_MODIFIER:
+    return "DirectModifier";
+  case S::VIRTUAL_MODIFIER:
+    return "VirtualModifier";
+  case S::RANGER_MODIFIER:
+    return "RangerModifier";
+  case S::REQUIRE_MODIFIER:
+    return "RequireModifier";
+  case S::ENSURE_MODIFIER:
+    return "EnsureModifier";
+  case S::NO_MUT_QUALIFIER:
+    return "NoMutQualifier";
+  case S::PARTIAL_MUT_QUALIFIER:
+    return "PartialMutQualifier";
+  case S::MUT_QUALIFIER:
+    return "MutQualifier";
+  case S::NO_VOLATILE_QUALIFIER:
+    return "NoVolatileQualifier";
+  case S::VOLATILE_QUALIFIER:
+    return "VolatileQualifier";
+  case S::NO_ATOMIC_QUALIFIER:
+    return "NoAtomicQualifier";
+  case S::ATOMIC_QUALIFIER:
+    return "AtomicQualifier";
+  case S::NO_NULL_TERMINATE_QUALIFIER:
+    return "NoNullTerminateQualifier";
+  case S::NULL_TERMINATE_QUALIFIER:
+    return "NullTerminateQualifier";
+  case S::NO_MARGIN_QUALIFIER:
+    return "NoMarginQualifier";
+  case S::MARGIN_QUALIFIER:
+    return "MarginQualifier";
+  case S::NO_DETACH_QUALIFIER:
+    return "NoDetachQualifier";
+  case S::DETACH_QUALIFIER:
+    return "DetachQualifier";
+  case S::NO_THROWS_QUALIFIER:
+    return "NoThrowsQualifier";
+  case S::THROWS_QUALIFIER:
+    return "ThrowsQualifier";
+  case S::ANY_CONCEPT:
+    return "AnyConcept";
+  case S::TYPE_CONCEPT:
+    return "TypeConcept";
+  case S::COMTIME_CONCEPT:
+    return "ComtimeConcept";
+  case S::RUNTIME_CONCEPT:
+    return "RuntimeConcept";
+  case S::ANYTIME_CONCEPT:
+    return "AnytimeConcept";
+  case S::RANGE_CONCEPT:
+    return "RangeConcept";
+  case S::ROUTE_CONCEPT:
+    return "RouteConcept";
+  case S::FIGURATIVE_CONCEPT:
+    return "FigurativeConcept";
+  case S::REFLECTION_CONCEPT:
+    return "ReflectionConcept";
+  case S::PRIMITIVE_CONCEPT:
+    return "PrimitiveConcept";
+  case S::FITTING_PRIMITIVE_CONCEPT:
+    return "FittingPrimitiveConcept";
+  case S::PLATFORM_PRIMITIVE_CONCEPT:
+    return "PlatformPrimitiveConcept";
+  case S::STANDARD_PRIMITIVE_CONCEPT:
+    return "StandardPrimitiveConcept";
+  case S::SCALED_PRIMITIVE_CONCEPT:
+    return "ScaledPrimitiveConcept";
+  case S::SIGNED_CONCEPT:
+    return "SignedConcept";
+  case S::UNSIGNED_CONCEPT:
+    return "UnsignedConcept";
+  case S::INT_CONCEPT:
+    return "IntConcept";
+  case S::EXACT_INT_CONCEPT:
+    return "ExactIntConcept";
+  case S::FAST_INT_CONCEPT:
+    return "FastIntConcept";
+  case S::LEAST_INT_CONCEPT:
+    return "LeastIntConcept";
+  case S::FLOAT_CONCEPT:
+    return "FloatConcept";
+  case S::BINARY_CONCEPT:
+    return "BinaryConcept";
+  case S::BFLOAT_CONCEPT:
+    return "BfloatConcept";
+  case S::CONCEPT_CONCEPT:
+    return "ConceptConcept";
+  case S::SUBTYPE_CONCEPT:
+    return "SubtypeConcept";
+  case S::ARRAY_CONCEPT:
+    return "ArrayConcept";
+  case S::REF_CONCEPT:
+    return "RefConcept";
+  case S::PTR_CONCEPT:
+    return "PtrConcept";
+  case S::SLICE_CONCEPT:
+    return "SliceConcept";
+  case S::SPLIT_CONCEPT:
+    return "SplitConcept";
+  case S::MODULE_CONCEPT:
+    return "ModuleConcept";
+  case S::IMPORT_CONCEPT:
+    return "ImportConcept";
+  case S::PORTAL_CONCEPT:
+    return "PortalConcept";
+  case S::REALIZATION_CONCEPT:
+    return "RealizationConcept";
+  case S::CONFORMITY_CONCEPT:
+    return "ConformityConcept";
+  case S::ADAPTION_CONCEPT:
+    return "AdaptionConcept";
+  case S::TRIP_CONCEPT:
+    return "TripConcept";
+  case S::JUXT_CONCEPT:
+    return "JuxtConcept";
+  case S::SPECIALIZATION_SET_CONCEPT:
+    return "SpecializationSetConcept";
+  case S::ADAPTER_SPECIALIZATION_SET_CONCEPT:
+    return "AdapterSpecializationSetConcept";
+  case S::PROC_SPECIALIZATION_SET_CONCEPT:
+    return "ProcSpecializationSetConcept";
+  case S::ARITHMETIC_SEQUENCE_CONCEPT:
+    return "ArithmeticSequenceConcept";
+  case S::ARITHMETIC_INTERVAL_CONCEPT:
+    return "ArithmeticIntervalConcept";
+  case S::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return "InfiniteArithmeticSequenceConcept";
+  case S::FINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    return "FiniteArithmeticSequenceConcept";
+  case S::EAGER_DECLARATION_CONCEPT:
+    return "EagerDeclarationConcept";
+  case S::ANCHOR_CONCEPT:
+    return "AnchorConcept";
+  case S::ENUMERATOR_CONCEPT:
+    return "EnumeratorConcept";
+  case S::VARIABLE_CONCEPT:
+    return "VariableConcept";
+  case S::EAGER_VARIABLE_CONCEPT:
+    return "EagerVariableConcept";
+  case S::POST_EAGER_VARIABLE_CONCEPT:
+    return "PostEagerVariableConcept";
+  case S::PRE_EAGER_VARIABLE_CONCEPT:
+    return "PreEagerVariableConcept";
+  case S::PARAMETER_CONCEPT:
+    return "ParameterConcept";
+  case S::SIGNATURE_PARAMETER_CONCEPT:
+    return "SignatureParameterConcept";
+  case S::LAYOUT_PARAMETER_CONCEPT:
+    return "LayoutParameterConcept";
+  case S::PARAMETER_LIST_CONCEPT:
+    return "ParameterListConcept";
+  case S::SIGNATURE_CONCEPT:
+    return "SignatureConcept";
+  case S::LAYOUT_CONCEPT:
+    return "LayoutConcept";
+  case S::PLACEMENT_CONCEPT:
+    return "PlacementConcept";
+  case S::COMPOSITION_CONCEPT:
+    return "CompositionConcept";
+  case S::SYNONYM_CONCEPT:
+    return "SynonymConcept";
+  case S::SYMBOL_TABLE_CONCEPT:
+    return "SymbolTableConcept";
+  case S::NAMESPACE_CONCEPT:
+    return "NamespaceConcept";
+  case S::EAGER_SCOPING_STATEMENT_CONCEPT:
+    return "EagerScopingStatementConcept";
+  case S::IF_STATEMENT_CONCEPT:
+    return "IfStatementConcept";
+  case S::ELSE_IF_STATEMENT_CONCEPT:
+    return "ElseIfStatementConcept";
+  case S::ELSE_STATEMENT_CONCEPT:
+    return "ElseStatementConcept";
+  case S::SWITCH_STATEMENT_CONCEPT:
+    return "SwitchStatementConcept";
+  case S::CASE_STATEMENT_CONCEPT:
+    return "CaseStatementConcept";
+  case S::DEFAULT_STATEMENT_CONCEPT:
+    return "DefaultStatementConcept";
+  case S::FOR_STATEMENT_CONCEPT:
+    return "ForStatementConcept";
+  case S::WHILE_STATEMENT_CONCEPT:
+    return "WhileStatementConcept";
+  case S::SCOPE_STATEMENT_CONCEPT:
+    return "ScopeStatementConcept";
+  case S::IMPLEMENTATION_CONCEPT:
+    return "ImplementationConcept";
+  case S::OVERLOAD_CONCEPT:
+    return "OverloadConcept";
+  case S::SPECIALIZATION_CONCEPT:
+    return "SpecializationConcept";
+  case S::TEMPLATE_CONCEPT:
+    return "TemplateConcept";
+  case S::CLASS_IMPLEMENTATION_CONCEPT:
+    return "ClassImplementationConcept";
+  case S::CLASS_OVERLOAD_CONCEPT:
+    return "ClassOverloadConcept";
+  case S::CLASS_SPECIALIZATION_CONCEPT:
+    return "ClassSpecializationConcept";
+  case S::CLASS_TEMPLATE_CONCEPT:
+    return "ClassTemplateConcept";
+  case S::ENUM_IMPLEMENTATION_CONCEPT:
+    return "EnumImplementationConcept";
+  case S::ENUM_OVERLOAD_CONCEPT:
+    return "EnumOverloadConcept";
+  case S::ENUM_SPECIALIZATION_CONCEPT:
+    return "EnumSpecializationConcept";
+  case S::ENUM_TEMPLATE_CONCEPT:
+    return "EnumTemplateConcept";
+  case S::INTERFACE_IMPLEMENTATION_CONCEPT:
+    return "InterfaceImplementationConcept";
+  case S::INTERFACE_OVERLOAD_CONCEPT:
+    return "InterfaceOverloadConcept";
+  case S::INTERFACE_SPECIALIZATION_CONCEPT:
+    return "InterfaceSpecializationConcept";
+  case S::INTERFACE_TEMPLATE_CONCEPT:
+    return "InterfaceTemplateConcept";
+  case S::ADAPTER_IMPLEMENTATION_CONCEPT:
+    return "AdapterImplementationConcept";
+  case S::ADAPTER_OVERLOAD_CONCEPT:
+    return "AdapterOverloadConcept";
+  case S::ADAPTER_SPECIALIZATION_CONCEPT:
+    return "AdapterSpecializationConcept";
+  case S::ADAPTER_TEMPLATE_CONCEPT:
+    return "AdapterTemplateConcept";
+  case S::PROC_IMPLEMENTATION_CONCEPT:
+    return "ProcImplementationConcept";
+  case S::PROC_OVERLOAD_CONCEPT:
+    return "ProcOverloadConcept";
+  case S::PROC_SPECIALIZATION_CONCEPT:
+    return "ProcSpecializationConcept";
+  case S::PROC_TEMPLATE_CONCEPT:
+    return "ProcTemplateConcept";
+  case S::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
+    return "LazyVariableImplementationConcept";
+  case S::LAZY_VARIABLE_OVERLOAD_CONCEPT:
+    return "LazyVariableOverloadConcept";
+  case S::LAZY_VARIABLE_SPECIALIZATION_CONCEPT:
+    return "LazyVariableSpecializationConcept";
+  case S::LAZY_VARIABLE_TEMPLATE_CONCEPT:
+    return "LazyVariableTemplateConcept";
+  case S::ALIAS_IMPLEMENTATION_CONCEPT:
+    return "AliasImplementationConcept";
+  case S::ALIAS_OVERLOAD_CONCEPT:
+    return "AliasOverloadConcept";
+  case S::ALIAS_SPECIALIZATION_CONCEPT:
+    return "AliasSpecializationConcept";
+  case S::ALIAS_TEMPLATE_CONCEPT:
+    return "AliasTemplateConcept";
+  case S::CONCEPT_IMPLEMENTATION_CONCEPT:
+    return "ConceptImplementationConcept";
+  case S::CONCEPT_OVERLOAD_CONCEPT:
+    return "ConceptOverloadConcept";
+  case S::CONCEPT_SPECIALIZATION_CONCEPT:
+    return "ConceptSpecializationConcept";
+  case S::CONCEPT_TEMPLATE_CONCEPT:
+    return "ConceptTemplateConcept";
+  case S::VARIANT_IMPLEMENTATION_CONCEPT:
+    return "VariantImplementationConcept";
+  case S::VARIANT_OVERLOAD_CONCEPT:
+    return "VariantOverloadConcept";
+  case S::VARIANT_SPECIALIZATION_CONCEPT:
+    return "VariantSpecializationConcept";
+  case S::VARIANT_TEMPLATE_CONCEPT:
+    return "VariantTemplateConcept";
+  case S::ATTRIBUTE_CONCEPT:
+    return "AttributeConcept";
+  case S::MODIFIER_CONCEPT:
+    return "ModifierConcept";
+  case S::ANCHOR_MODIFIER_CONCEPT:
+    return "AnchorModifierConcept";
+  case S::CONTAINER_MODIFIER_CONCEPT:
+    return "ContainerModifierConcept";
+  case S::VISIBILITY_MODIFIER_CONCEPT:
+    return "VisibilityModifierConcept";
+  case S::ACCESS_MODIFIER_CONCEPT:
+    return "AccessModifierConcept";
+  case S::MUTABILITY_MODIFIER_CONCEPT:
+    return "MutabilityModifierConcept";
+  case S::EVALUATION_TIME_MODIFIER_CONCEPT:
+    return "EvaluationTimeModifierConcept";
+  case S::DIALECT_MODIFIER_CONCEPT:
+    return "DialectModifierConcept";
+  case S::TENURE_MODIFIER_CONCEPT:
+    return "TenureModifierConcept";
+  case S::INITIALIZATION_TIME_MODIFIER_CONCEPT:
+    return "InitializationTimeModifierConcept";
+  case S::CLOSURE_MODIFIER_CONCEPT:
+    return "ClosureModifierConcept";
+  case S::LINKAGE_MODIFIER_CONCEPT:
+    return "LinkageModifierConcept";
+  case S::SIDE_EFFECTS_MODIFIER_CONCEPT:
+    return "SideEffectsModifierConcept";
+  case S::MANGLE_MODIFIER_CONCEPT:
+    return "MangleModifierConcept";
+  case S::PACK_MODIFIER_CONCEPT:
+    return "PackModifierConcept";
+  case S::BRANCH_TREND_MODIFIER_CONCEPT:
+    return "BranchTrendModifierConcept";
+  case S::SUPPORT_NOTICE_MODIFIER_CONCEPT:
+    return "SupportNoticeModifierConcept";
+  case S::ADDRESS_STABILITY_MODIFIER_CONCEPT:
+    return "AddressStabilityModifierConcept";
+  case S::VARIADIC_MODIFIER_CONCEPT:
+    return "VariadicModifierConcept";
+  case S::OFFSET_MODIFIER_CONCEPT:
+    return "OffsetModifierConcept";
+  case S::LAZY_DECLARATION_MODIFIER_CONCEPT:
+    return "LazyDeclarationModifierConcept";
+  case S::CONSTRAINT_MODIFIER_CONCEPT:
+    return "ConstraintModifierConcept";
+  case S::DEDUCTION_MODIFIER_CONCEPT:
+    return "DeductionModifierConcept";
+  case S::VIRTUALITY_MODIFIER_CONCEPT:
+    return "VirtualityModifierConcept";
+  case S::RANGER_MODIFIER_CONCEPT:
+    return "RangerModifierConcept";
+  case S::REQUIRE_MODIFIER_CONCEPT:
+    return "RequireModifierConcept";
+  case S::ENSURE_MODIFIER_CONCEPT:
+    return "EnsureModifierConcept";
+  case S::QUALIFIER_CONCEPT:
+    return "QualifierConcept";
+  case S::MUT_QUALIFIER_CONCEPT:
+    return "MutQualifierConcept";
+  case S::VOLATILE_QUALIFIER_CONCEPT:
+    return "VolatileQualifierConcept";
+  case S::ATOMIC_QUALIFIER_CONCEPT:
+    return "AtomicQualifierConcept";
+  case S::NULL_TERMINATE_QUALIFIER_CONCEPT:
+    return "NullTerminateQualifierConcept";
+  case S::DETATCH_QUALIFIER_CONCEPT:
+    return "DetatchQualifierConcept";
+  case S::MARGIN_QUALIFIER_CONCEPT:
+    return "MarginQualifierConcept";
+  case S::THROWS_QUALIFIER_CONCEPT:
+    return "ThrowsQualifierConcept";
   case S::VARIADIC_ARGUMENTS_TYPE:
     return "VariadicArguments";
+  case S::QUALIFIED_TYPE:
+    return "QualifiedType";
   case S::ARRAY_SUBTYPE:
     return "Array";
   case S::REF_SUBTYPE:
@@ -103,6 +547,8 @@ namespace rq {
     return "Split";
   case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
     return "InferenceCountArray";
+  case S::GENERIC_SUBSYMBOL:
+    return "GenericSubsymbol";
   case S::MODULE:
     return "Module";
   case S::IMPORT:
@@ -117,8 +563,8 @@ namespace rq {
     return "Adaption";
   case S::JUXT_LIST_TYPE:
     return "JuxtListType";
-  case S::JUXT_LIST_ITEM:
-    return "JuxtListItem";
+  case S::TRIP:
+    return "Trip";
   case S::SPECIALIZATION_SET_ARGUMENT:
     return "SpecializationSetArgument";
   case S::SPECIALIATION_SET:
@@ -149,8 +595,6 @@ namespace rq {
     return "LayoutType";
   case S::PLACEMENT_TYPE:
     return "PlacementType";
-  case S::COMPOSITION_COMPONENT:
-    return "CompositionComponent";
   case S::COMPOSITION_TYPE:
     return "CompositionType";
   case S::SYNONYM_TYPE:
@@ -191,6 +635,10 @@ namespace rq {
     return "LazyVariableOverload";
   case S::ALIAS_OVERLOAD:
     return "AliasOverload";
+  case S::CONCEPT_OVERLOAD:
+    return "ConceptOverload";
+  case S::VARIANT_OVERLOAD:
+    return "VariantOverload";
   case S::CLASS_SPECIALIZATION:
     return "ClassSpecialization";
   case S::ENUM_SPECIALIZATION:
@@ -203,6 +651,12 @@ namespace rq {
     return "ProcSpecialization";
   case S::LAZY_VARIABLE_SPECIALIZATION:
     return "LazyVariableSpecialization";
+  case S::ALIAS_SPECIALIZATION:
+    return "AliasSpecialization";
+  case S::CONCEPT_SPECIALIZATION:
+    return "ConceptSpecialization";
+  case S::VARIANT_SPECIALIZATION:
+    return "VariantSpecialization";
   case S::CLASS_TEMPLATE:
     return "ClassTemplate";
   case S::ENUM_TEMPLATE:
@@ -217,6 +671,10 @@ namespace rq {
     return "LazyVariableTemplate";
   case S::ALIAS_TEMPLATE:
     return "AliasTemplate";
+  case S::CONCEPT_TEMPLATE:
+    return "ConceptTemplate";
+  case S::VARIANT_TEMPLATE:
+    return "VariantTemplate";
   case S::CLASS_POLYMORPH:
     return "ClassPolymorph";
   case S::ENUM_POLYMORPH:
@@ -231,6 +689,10 @@ namespace rq {
     return "LazyVariablePolymorph";
   case S::ALIAS_POLYMORPH:
     return "AliasPolymorph";
+  case S::CONCEPT_POLYMORPH:
+    return "ConceptPolymorph";
+  case S::VARIANT_POLYMORPH:
+    return "VariantPolymorph";
   case S::LAST:
     break;
   }
@@ -760,8 +1222,7 @@ profileSpecializationSet(llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
 [[nodiscard]] inline bool
 ProcSpecializationSet::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() ==
-         rq::getId(rq::SymbolKind::PROC_SPECIALIZATION_SET);
+  return entity.getId() == rq::getId(rq::SymbolKind::PROC_SPECIALIZATION_SET);
 }
 
 [[nodiscard]] inline bool
@@ -1443,8 +1904,7 @@ AdapterPolymorph::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE ProcPolymorph::ProcPolymorph()
     : Polymorph(rq::SymbolKind::PROC_POLYMORPH) {}
 
-RQ_ALWAYS_INLINE void
-ProcPolymorph::addProcOverload(rq::ProcOverload &proc) {
+RQ_ALWAYS_INLINE void ProcPolymorph::addProcOverload(rq::ProcOverload &proc) {
   rq::assignSingleValue(proc._next_ptr, this->_first_overload_ptr);
   this->_first_overload_ptr = &proc;
 }
@@ -1478,7 +1938,7 @@ ProcPolymorph::addProcOverload(rq::ProcOverload &proc) {
 
 [[nodiscard]] inline rq::ProcWeightLevel &
 ProcPolymorph::getProcWeightLevel(rq::BumpPtrAllocator &allocator,
-                                            unsigned weight) {
+                                  unsigned weight) {
   return rq::addWeightLevel<rq::ProcWeightLevel>(allocator, *this, weight);
 }
 
@@ -1509,8 +1969,7 @@ ProcPolymorph::getProcWeightLevel(rq::BumpPtrAllocator &allocator,
       rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
-[[nodiscard]] inline bool
-ProcPolymorph::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool ProcPolymorph::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_POLYMORPH);
 }
@@ -2682,8 +3141,7 @@ ClassSpecialization::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE
 ProcImplementation::ProcImplementation(rq::SymbolKind kind)
     : Implementation(kind) {
-  RQ_ASSERT(rq::getIsProcImplementation(kind),
-            "not proc implementation");
+  RQ_ASSERT(rq::getIsProcImplementation(kind), "not proc implementation");
 }
 
 RQ_ALWAYS_INLINE void
@@ -2720,8 +3178,7 @@ ProcOverload::getPrototypeExpressionPtrList() const {
   return this->_prototype_expression_ptr_list;
 }
 
-[[nodiscard]] inline bool
-ProcOverload::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool ProcOverload::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_OVERLOAD);
 }
@@ -2986,8 +3443,7 @@ ProcTemplate::getConstProcWeightLevelSubrange() const {
       rq::ConstNextIterator<rq::WeightLevel, rq::ProcWeightLevel>());
 }
 
-[[nodiscard]] inline bool
-ProcTemplate::classof(const rq::Entity *entity_ptr) {
+[[nodiscard]] inline bool ProcTemplate::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_TEMPLATE);
 }

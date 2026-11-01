@@ -16,7 +16,7 @@ struct Value : public rq::Entity {
 
   rq::QualifiedType *_type_ptr;
 
-  RQ_ALWAYS_INLINE Value(rq::ValueKind kind);
+  explicit RQ_ALWAYS_INLINE Value(rq::ValueKind kind);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -26,7 +26,7 @@ struct Int : public rq::Value {
 
   llvm::APInt _int;
 
-  RQ_ALWAYS_INLINE Int(rq::ValueKind kind);
+  explicit RQ_ALWAYS_INLINE Int(rq::ValueKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getInt() const;
 
@@ -36,7 +36,7 @@ struct Int : public rq::Value {
 struct ConstantInt final : public rq::Int {
   using Self = rq::ConstantInt;
 
-  RQ_ALWAYS_INLINE ConstantInt();
+  explicit RQ_ALWAYS_INLINE ConstantInt();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -44,7 +44,7 @@ struct ConstantInt final : public rq::Int {
 struct MutableInt final : public rq::Int {
   using Self = rq::MutableInt;
 
-  RQ_ALWAYS_INLINE MutableInt();
+  explicit RQ_ALWAYS_INLINE MutableInt();
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt &getInt();
 
@@ -56,7 +56,7 @@ struct Float : public rq::Value {
 
   llvm::APFloat _float;
 
-  RQ_ALWAYS_INLINE Float(rq::ValueKind kind);
+  explicit RQ_ALWAYS_INLINE Float(rq::ValueKind kind);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getFloat() const;
 
@@ -66,7 +66,7 @@ struct Float : public rq::Value {
 struct ConstantFloat final : public rq::Float {
   using Self = rq::ConstantFloat;
 
-  RQ_ALWAYS_INLINE ConstantFloat();
+  explicit RQ_ALWAYS_INLINE ConstantFloat();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -74,7 +74,7 @@ struct ConstantFloat final : public rq::Float {
 struct MutableFloat final : public rq::Float {
   using Self = rq::MutableFloat;
 
-  RQ_ALWAYS_INLINE MutableFloat();
+  explicit RQ_ALWAYS_INLINE MutableFloat();
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat &getFloat();
 
@@ -84,7 +84,7 @@ struct MutableFloat final : public rq::Float {
 struct DetachedArray : public rq::Value {
   using Self = rq::DetachedArray;
 
-  RQ_ALWAYS_INLINE DetachedArray();
+  explicit RQ_ALWAYS_INLINE DetachedArray();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -94,7 +94,7 @@ struct MutableDetachedArray final : public rq::DetachedArray {
 
   std::vector<rq::Entity *> _data;
 
-  RQ_ALWAYS_INLINE MutableDetachedArray();
+  explicit RQ_ALWAYS_INLINE MutableDetachedArray();
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Entity *>
   getDataArray() const;
@@ -109,7 +109,7 @@ struct ConstantDetachedArrayElement final : public llvm::FoldingSetNode {
   rq::Entity *_element_ptr;
   rq::ConstantDetachedArrayElement *_next_ptr;
 
-  RQ_ALWAYS_INLINE
+  explicit RQ_ALWAYS_INLINE
   ConstantDetachedArrayElement(rq::Entity &entity,
                                rq::ConstantDetachedArrayElement *next_ptr);
 
@@ -135,7 +135,8 @@ struct ConstantDetachedArray final : public rq::DetachedArray,
 
   rq::ConstantDetachedArrayElement *_first_ptr;
 
-  RQ_ALWAYS_INLINE ConstantDetachedArray(rq::ConstantDetachedArray *first_ptr);
+  explicit RQ_ALWAYS_INLINE
+  ConstantDetachedArray(rq::ConstantDetachedArray *first_ptr);
 
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::ConstantDetachedArrayElement>

@@ -33,6 +33,7 @@ struct CfgBlock;
 struct Instruction;
 struct BumpPtrAllocator;
 struct ConstantInt;
+struct ConstantDetachedArray;
 struct Value;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind);
@@ -58,6 +59,7 @@ template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
 struct SimpleSymbolBranch;
 template <typename ParentParam, rq::SymbolKind KIND_PARAM>
 struct SimpleSymbolLeaf;
+template <rq::SymbolKind KIND_PARAM> struct BuiltinConceptLeaf;
 
 // clang-format off
 struct Symbol;
@@ -178,180 +180,180 @@ struct Symbol;
     using MarginQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::MARGIN_QUALIFIER>;
     using NoThrowsQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::NO_THROWS_QUALIFIER>;
     using ThrowsQualifier = rq::SimpleSymbolLeaf<rq::Qualifier, rq::SymbolKind::THROWS_QUALIFIER>;
-  using BuiltinConcept = rq::SimpleSymbolBranch<rq::Symbol, rq::SymbolInfoFlags::BUILTIN_CONCEPT>;
-    using AnyConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ANY_CONCEPT>;
-    using TypeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::TYPE_CONCEPT>;
-    using ComtimeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::COMTIME_CONCEPT>;
-    using RuntimeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::RUNTIME_CONCEPT>;
-    using AnytimeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ANYTIME_CONCEPT>;
-    using RangeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::RANGE_CONCEPT>;
-    using RouteConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ROUTE_CONCEPT>;
-    using FigurativeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FIGURATIVE_CONCEPT>;
-    using ReflectionConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::REFLECTION_CONCEPT>;
-    using PrimtiveConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PRIMITIVE_CONCEPT>;
-    using FittingPrimitiveConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FITTING_PRIMITIVE_CONCEPT>;
-    using PlatformPrimitiveConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PLATFORM_PRIMITIVE_CONCEPT>;
-    using StandardPrimitiveConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::STANDARD_PRIMITIVE_CONCEPT>;
-    using ScaledPrimitiveConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SCALED_PRIMITIVE_CONCEPT>;
-    using SignedConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNED_CONCEPT>;
-    using UnsignedConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::UNSIGNED_CONCEPT>;
-    using IntConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INT_CONCEPT>;
-    using ExactIntConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::EXACT_INT_CONCEPT>;
-    using FastIntConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FAST_INT_CONCEPT>;
-    using LeastIntConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LEAST_INT_CONCEPT>;
-    using FloatConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FLOAT_CONCEPT>;
-    using BinaryConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::BINARY_CONCEPT>;
-    using BFloatConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::BFLOAT_CONCEPT>;
-    using ConceptConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_CONCEPT>;
-    using SubtypeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SUBTYPE_CONCEPT>;
-    using ArrayConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ARRAY_CONCEPT>;
-    using RefConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::REF_CONCEPT>;
-    using PtrConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PTR_CONCEPT>;
-    using SliceConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SLICE_CONCEPT>;
-    using SplitConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SPLIT_CONCEPT>;
-    using ModuleConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MODULE_CONCEPT>;
-    using ImportConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::IMPORT_CONCEPT>;
-    using PortalConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PORTAL_CONCEPT>;
-    using RealizationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::REALIZATION_CONCEPT>;
-    using ConformityConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONFORMITY_CONCEPT>;
-    using AdaptionConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTION_CONCEPT>;
-    using TripConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::TRIP_CONCEPT>;
-    using JuxtConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::JUXT_CONCEPT>;
-    using SpecializationSetConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SPECIALIZATION_SET_CONCEPT>;
-    using AdapterSpecializationSetConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTER_SPECIALIZATION_SET_CONCEPT>;
-    using ProcSpecializationSetConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_SPECIALIZATION_SET_CONCEPT>;
-    using ArithmeticSequenceConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_SEQUENCE_CONCEPT>;
-    using ArithmeticIntervalConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_INTERVAL_CONCEPT>;
-    using InfiniteArithmeticSequenceConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
-    using FiniteArithmeticSequenceConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
-    using EagerDeclarationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::EAGER_DECLARATION_CONCEPT>;
-    using AnchorConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ANCHOR_CONCEPT>;
-    using EnumeratorConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENUMERATOR_CONCEPT>;
-    using VariableConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIABLE_CONCEPT>;
-    using EagerVariableConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::EAGER_VARIABLE_CONCEPT>;
-    using PostEagerVariableConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::POST_EAGER_VARIABLE_CONCEPT>;
-    using PreEagerVariableConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PRE_EAGER_VARIABLE_CONCEPT>;
-    using ParameterConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PARAMETER_CONCEPT>;
-    using SignatureParameterConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNATURE_PARAMETER_CONCEPT>;
-    using LayoutParameterConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAYOUT_PARAMETER_CONCEPT>;
-    using ParameterListConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PARAMETER_LIST_CONCEPT>;
-    using SignatureConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNATURE_CONCEPT>;
-    using LayoutConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAYOUT_CONCEPT>;
-    using PlacementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PLACEMENT_CONCEPT>;
-    using CompositionConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::COMPOSITION_CONCEPT>;
-    using SynonymConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SYNONYM_CONCEPT>;
-    using SymbolTableConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SYMBOL_TABLE_CONCEPT>;
-    using NamespaceConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::NAMESPACE_CONCEPT>;
-    using EagerScopingStatementConcept= rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::EAGER_SCOPING_STATEMENT_CONCEPT>;
-    using IfStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::IF_STATEMENT_CONCEPT>;
-    using ElseIfStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ELSE_IF_STATEMENT_CONCEPT>;
-    using ElseStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ELSE_STATEMENT_CONCEPT>;
-    using SwitchStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SWITCH_STATEMENT_CONCEPT>;
-    using CaseStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CASE_STATEMENT_CONCEPT>;
-    using DefaultStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::DEFAULT_STATEMENT_CONCEPT>;
-    using ForStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::FOR_STATEMENT_CONCEPT>;
-    using WhileStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::WHILE_STATEMENT_CONCEPT>;
-    using ScopeStatementConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SCOPE_STATEMENT_CONCEPT>;
-    using ImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::IMPLEMENTATION_CONCEPT>;
-    using OverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::OVERLOAD_CONCEPT>;
-    using SpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SPECIALIZATION_CONCEPT>;
-    using TemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::TEMPLATE_CONCEPT>;
-    using ClassImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CLASS_IMPLEMENTATION_CONCEPT>;
-    using ClassOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CLASS_OVERLOAD_CONCEPT>;
-    using ClassSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CLASS_SPECIALIZATION_CONCEPT>;
-    using ClassTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CLASS_TEMPLATE_CONCEPT>;
-    using EnumImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENUM_IMPLEMENTATION_CONCEPT>;
-    using EnumOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENUM_OVERLOAD_CONCEPT>;
-    using EnumSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENUM_SPECIALIZATION_CONCEPT>;
-    using EnumTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENUM_TEMPLATE_CONCEPT>;
-    using InterfaceImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INTERFACE_IMPLEMENTATION_CONCEPT>;
-    using InterfaceOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INTERFACE_OVERLOAD_CONCEPT>;
-    using InterfaceSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INTERFACE_SPECIALIZATION_CONCEPT>;
-    using InterfaceTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INTERFACE_TEMPLATE_CONCEPT>;
-    using AdapterImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTER_IMPLEMENTATION_CONCEPT>;
-    using AdapterOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTER_OVERLOAD_CONCEPT>;
-    using AdapterSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTER_SPECIALIZATION_CONCEPT>;
-    using AdapterTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADAPTER_TEMPLATE_CONCEPT>;
-    using ProcImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_IMPLEMENTATION_CONCEPT>;
-    using ProcOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_OVERLOAD_CONCEPT>;
-    using ProcSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_SPECIALIZATION_CONCEPT>;
-    using ProcTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_TEMPLATE_CONCEPT>;
-    using LazyVariableIMplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT>;
-    using LazyVariableOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_VARIABLE_OVERLOAD_CONCEPT>;
-    using LazyVariableSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION_CONCEPT>;
-    using LazyVariableTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_VARIABLE_TEMPLATE_CONCEPT>;
-    using AliasImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ALIAS_IMPLEMENTATION_CONCEPT>;
-    using AliasOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ALIAS_OVERLOAD_CONCEPT>;
-    using AliasSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ALIAS_SPECIALIZATION_CONCEPT>;
-    using AliasTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ALIAS_TEMPLATE_CONCEPT>;
-    using ConceptImplementationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_IMPLEMENTATION_CONCEPT>;
-    using ConceptOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_OVERLOAD_CONCEPT>;
-    using ConceptSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_SPECIALIZATION_CONCEPT>;
-    using ConceptTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_TEMPLATE_CONCEPT>;
-    using VariantImplmentationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIANT_IMPLEMENTATION_CONCEPT>;
-    using VariantOverloadConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIANT_OVERLOAD_CONCEPT>;
-    using VariantSpecializationConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIANT_SPECIALIZATION_CONCEPT>;
-    using VariantTemplateConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIANT_TEMPLATE_CONCEPT>;
-    using AttributeConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ATTRIBUTE_CONCEPT>;
-    using ModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MODIFIER_CONCEPT>;
-    using AnchorModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ANCHOR_MODIFIER_CONCEPT>;
-    using ContainerModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONTAINER_MODIFIER_CONCEPT>;
-    using VisibilityModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VISIBILITY_MODIFIER_CONCEPT>;
-    using AccessModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ACCESS_MODIFIER_CONCEPT>;
-    using MutabilityModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MUTABILITY_MODIFIER_CONCEPT>;
-    using EvaluationTimeModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::EVALUATION_TIME_MODIFIER_CONCEPT>;
-    using DialectModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::DIALECT_MODIFIER_CONCEPT>;
-    using TenureModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::TENURE_MODIFIER_CONCEPT>;
-    using InitializationTimeModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::INITIALIZATION_TIME_MODIFIER_CONCEPT>;
-    using ClosureModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CLOSURE_MODIFIER_CONCEPT>;
-    using LinkageModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LINKAGE_MODIFIER_CONCEPT>;
-    using SideEffectsModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SIDE_EFFECTS_MODIFIER_CONCEPT>;
-    using MangleModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MANGLE_MODIFIER_CONCEPT>;
-    using PackModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::PACK_MODIFIER_CONCEPT>;
-    using BranchTrendModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::BRANCH_TREND_MODIFIER_CONCEPT>;
-    using SupportNoticeModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::SUPPORT_NOTICE_MODIFIER_CONCEPT>;
-    using AddressStabilityModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ADDRESS_STABILITY_MODIFIER_CONCEPT>;
-    using VariadicModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIADIC_MODIFIER_CONCEPT>;
-    using OffsetModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::OFFSET_MODIFIER_CONCEPT>;
-    using LazyDeclarationModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_DECLARATION_MODIFIER_CONCEPT>;
-    using ConstraintModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::CONSTRAINT_MODIFIER_CONCEPT>;
-    using DeductionModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::DEDUCTION_MODIFIER_CONCEPT>;
-    using VirtualityModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VIRTUALITY_MODIFIER_CONCEPT>;
-    using RangerModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::RANGER_MODIFIER_CONCEPT>;
-    using RequireModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::REQUIRE_MODIFIER_CONCEPT>;
-    using EnsureModifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ENSURE_MODIFIER_CONCEPT>;
-    using QualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::QUALIFIER_CONCEPT>;
-    using MutQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MUT_QUALIFIER_CONCEPT>;
-    using VolatileQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::VOLATILE_QUALIFIER_CONCEPT>;
-    using AtomicQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::ATOMIC_QUALIFIER_CONCEPT>;
-    using NullTerminateQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::NULL_TERMINATE_QUALIFIER_CONCEPT>;
-    using DetachQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::DETACH_QUALIFIER_CONCEPT>;
-    using MarginQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::MARGIN_QUALIFIER_CONCEPT>;
-    using ThrowsQualifierConcept = rq::SimpleSymbolLeaf<rq::BuiltinConcept, rq::SymbolKind::THROWS_QUALIFIER_CONCEPT>;
+  struct BuiltinConcept;
+    using AnyConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ANY_CONCEPT>;
+    using TypeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::TYPE_CONCEPT>;
+    using ComtimeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::COMTIME_CONCEPT>;
+    using RuntimeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::RUNTIME_CONCEPT>;
+    using AnytimeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ANYTIME_CONCEPT>;
+    using RangeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::RANGE_CONCEPT>;
+    using RouteConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ROUTE_CONCEPT>;
+    using FigurativeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FIGURATIVE_CONCEPT>;
+    using ReflectionConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::REFLECTION_CONCEPT>;
+    using PrimitiveConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PRIMITIVE_CONCEPT>;
+    using FittingPrimitiveConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FITTING_PRIMITIVE_CONCEPT>;
+    using PlatformPrimitiveConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PLATFORM_PRIMITIVE_CONCEPT>;
+    using StandardPrimitiveConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::STANDARD_PRIMITIVE_CONCEPT>;
+    using ScaledPrimitiveConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SCALED_PRIMITIVE_CONCEPT>;
+    using SignedConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SIGNED_CONCEPT>;
+    using UnsignedConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::UNSIGNED_CONCEPT>;
+    using IntConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INT_CONCEPT>;
+    using ExactIntConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::EXACT_INT_CONCEPT>;
+    using FastIntConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FAST_INT_CONCEPT>;
+    using LeastIntConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LEAST_INT_CONCEPT>;
+    using FloatConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FLOAT_CONCEPT>;
+    using BinaryConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::BINARY_CONCEPT>;
+    using BfloatConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::BFLOAT_CONCEPT>;
+    using ConceptConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONCEPT_CONCEPT>;
+    using SubtypeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SUBTYPE_CONCEPT>;
+    using ArrayConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ARRAY_CONCEPT>;
+    using RefConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::REF_CONCEPT>;
+    using SliceConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SLICE_CONCEPT>;
+    using SplitConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SPLIT_CONCEPT>;
+    using ModuleConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MODULE_CONCEPT>;
+    using ImportConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::IMPORT_CONCEPT>;
+    using PortalConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PORTAL_CONCEPT>;
+    using RealizationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::REALIZATION_CONCEPT>;
+    using ConformityConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONFORMITY_CONCEPT>;
+    using AdaptionConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTION_CONCEPT>;
+    using TripConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::TRIP_CONCEPT>;
+    using JuxtConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::JUXT_CONCEPT>;
+    using SpecializationSetConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SPECIALIZATION_SET_CONCEPT>;
+    using AdapterSpecializationSetConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTER_SPECIALIZATION_SET_CONCEPT>;
+    using ProcSpecializationSetConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PROC_SPECIALIZATION_SET_CONCEPT>;
+    using ArithmeticSequenceConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ARITHMETIC_SEQUENCE_CONCEPT>;
+    using ArithmeticIntervalConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ARITHMETIC_INTERVAL_CONCEPT>;
+    using InfiniteARithmeticSequenceConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
+    using FiniteArithmeticSequenceConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
+    using EagerDeclarationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::EAGER_DECLARATION_CONCEPT>;
+    using AnchorConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ANCHOR_CONCEPT>;
+    using EnumeratorConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENUMERATOR_CONCEPT>;
+    using VariableConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIABLE_CONCEPT>;
+    using EagerVariableConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::EAGER_VARIABLE_CONCEPT>;
+    using PostEagerVariableConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::POST_EAGER_VARIABLE_CONCEPT>;
+    using PreEagerVariableConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PRE_EAGER_VARIABLE_CONCEPT>;
+    using ParameterConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PARAMETER_CONCEPT>;
+    using SignatureParameterConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SIGNATURE_PARAMETER_CONCEPT>;
+    using LayoutParameterConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAYOUT_PARAMETER_CONCEPT>;
+    using ParameterListConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PARAMETER_LIST_CONCEPT>;
+    using SignatureConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SIGNATURE_CONCEPT>;
+    using LayoutParameterConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAYOUT_PARAMETER_CONCEPT>;
+    using ParameterListConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PARAMETER_LIST_CONCEPT>;
+    using SignatureConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SIGNATURE_CONCEPT>;
+    using LayoutConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAYOUT_CONCEPT>;
+    using PlacementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PLACEMENT_CONCEPT>;
+    using CompositionConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::COMPOSITION_CONCEPT>;
+    using SynonymConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SYNONYM_CONCEPT>;
+    using SymbolTableConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SYMBOL_TABLE_CONCEPT>;
+    using NamespaceConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::NAMESPACE_CONCEPT>;
+    using EagerScopingStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::EAGER_SCOPING_STATEMENT_CONCEPT>;
+    using IfStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::IF_STATEMENT_CONCEPT>;
+    using ElseIfStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ELSE_IF_STATEMENT_CONCEPT>;
+    using ElseStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ELSE_STATEMENT_CONCEPT>;
+    using SwitchStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SWITCH_STATEMENT_CONCEPT>;
+    using CaseStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CASE_STATEMENT_CONCEPT>;
+    using DefaultStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::DEFAULT_STATEMENT_CONCEPT>;
+    using ForStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::FOR_STATEMENT_CONCEPT>;
+    using WhileStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::WHILE_STATEMENT_CONCEPT>;
+    using ScopeStatementConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SCOPE_STATEMENT_CONCEPT>;
+    using ImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::IMPLEMENTATION_CONCEPT>;
+    using OverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::OVERLOAD_CONCEPT>;
+    using SpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SPECIALIZATION_CONCEPT>;
+    using TemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::TEMPLATE_CONCEPT>;
+    using ClassImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CLASS_IMPLEMENTATION_CONCEPT>;
+    using ClassOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CLASS_OVERLOAD_CONCEPT>;
+    using ClassSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CLASS_SPECIALIZATION_CONCEPT>;
+    using ClassTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CLASS_TEMPLATE_CONCEPT>;
+    using EnumImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENUM_IMPLEMENTATION_CONCEPT>;
+    using EnumOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENUM_OVERLOAD_CONCEPT>;
+    using EnumSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENUM_SPECIALIZATION_CONCEPT>;
+    using EnumTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENUM_TEMPLATE_CONCEPT>;
+    using InterfaceImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INTERFACE_IMPLEMENTATION_CONCEPT>;
+    using InterfaceOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INTERFACE_OVERLOAD_CONCEPT>;
+    using InterfaceSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INTERFACE_SPECIALIZATION_CONCEPT>;
+    using InterfaceTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INTERFACE_TEMPLATE_CONCEPT>;
+    using AdapterImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTER_IMPLEMENTATION_CONCEPT>;
+    using AdapterOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTER_OVERLOAD_CONCEPT>;
+    using AdapterSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTER_SPECIALIZATION_CONCEPT>;
+    using AdapterTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADAPTER_TEMPLATE_CONCEPT>;
+    using ProcImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PROC_IMPLEMENTATION_CONCEPT>;
+    using ProcOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PROC_OVERLOAD_CONCEPT>;
+    using ProcSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PROC_SPECIALIZATION_CONCEPT>;
+    using ProcTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PROC_TEMPLATE_CONCEPT>;
+    using LazyVariableImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT>;
+    using LazyVariableOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAZY_VARIABLE_OVERLOAD_CONCEPT>;
+    using LazyVariableSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION_CONCEPT>;
+    using LazyVariableTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAZY_VARIABLE_TEMPLATE_CONCEPT>;
+    using AliasImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ALIAS_IMPLEMENTATION_CONCEPT>;
+    using AliasOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ALIAS_OVERLOAD_CONCEPT>;
+    using AliasSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ALIAS_SPECIALIZATION_CONCEPT>;
+    using AliasTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ALIAS_TEMPLATE_CONCEPT>;
+    using ConceptImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONCEPT_IMPLEMENTATION_CONCEPT>;
+    using ConceptOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONCEPT_OVERLOAD_CONCEPT>;
+    using ConceptSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONCEPT_SPECIALIZATION_CONCEPT>;
+    using ConceptTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONCEPT_TEMPLATE_CONCEPT>;
+    using VariantImplementationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIANT_IMPLEMENTATION_CONCEPT>;
+    using VariantOverloadConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIANT_OVERLOAD_CONCEPT>;
+    using VariantSpecializationConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIANT_SPECIALIZATION_CONCEPT>;
+    using VariantTemplateConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIANT_TEMPLATE_CONCEPT>;
+    using AttributeConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ATTRIBUTE_CONCEPT>;
+    using ModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MODIFIER_CONCEPT>;
+    using AnchorModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ANCHOR_MODIFIER_CONCEPT>;
+    using ContainerModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONTAINER_MODIFIER_CONCEPT>;
+    using VisibilityModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VISIBILITY_MODIFIER_CONCEPT>;
+    using AccessModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ACCESS_MODIFIER_CONCEPT>;
+    using MutabilityModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MUTABILITY_MODIFIER_CONCEPT>;
+    using EvaluationTimeModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::EVALUATION_TIME_MODIFIER_CONCEPT>;
+    using DialectModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::DIALECT_MODIFIER_CONCEPT>;
+    using TenureModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::TENURE_MODIFIER_CONCEPT>;
+    using InitializationTimeModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::INITIALIZATION_TIME_MODIFIER_CONCEPT>;
+    using ClosureModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CLOSURE_MODIFIER_CONCEPT>;
+    using LinkageModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LINKAGE_MODIFIER_CONCEPT>;
+    using SideEffectsModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SIDE_EFFECTS_MODIFIER_CONCEPT>;
+    using MangleModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MANGLE_MODIFIER_CONCEPT>;
+    using PackModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::PACK_MODIFIER_CONCEPT>;
+    using BranchTrendModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::BRANCH_TREND_MODIFIER_CONCEPT>;
+    using SupportNoticeModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::SUPPORT_NOTICE_MODIFIER_CONCEPT>;
+    using AddressStabilityModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ADDRESS_STABILITY_MODIFIER_CONCEPT>;
+    using VariadicModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VARIADIC_MODIFIER_CONCEPT>;
+    using OffsetModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::OFFSET_MODIFIER_CONCEPT>;
+    using LazyDeclarationModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::LAZY_DECLARATION_MODIFIER_CONCEPT>;
+    using ConstraintModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::CONSTRAINT_MODIFIER_CONCEPT>;
+    using DeductionModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::DEDUCTION_MODIFIER_CONCEPT>;
+    using VirtualityModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VIRTUALITY_MODIFIER_CONCEPT>;
+    using RangerModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::RANGER_MODIFIER_CONCEPT>;
+    using RequireModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::REQUIRE_MODIFIER_CONCEPT>;
+    using EnsureModifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ENSURE_MODIFIER_CONCEPT>;
+    using QualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::QUALIFIER_CONCEPT>;
+    using MutQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MUT_QUALIFIER_CONCEPT>;
+    using VolatileQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::VOLATILE_QUALIFIER_CONCEPT>;
+    using AtomicQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::ATOMIC_QUALIFIER_CONCEPT>;
+    using NullTerminateQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::NULL_TERMINATE_QUALIFIER_CONCEPT>;
+    using DetatchQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::DETATCH_QUALIFIER_CONCEPT>;
+    using MarginQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::MARGIN_QUALIFIER_CONCEPT>;
+    using ThrowsQualifierConcept = rq::BuiltinConceptLeaf<rq::SymbolKind::THROWS_QUALIFIER_CONCEPT>;
   struct QualifiedType;
   struct Subentity;
     struct Subtype;
       struct ArraySubtype;
       struct SimpleSubtype;
-        struct TypeSubtype;
         struct RefSubtype;
-        struct PointerSubtype;
-        struct InferenceCountArraySubtype;
+        struct PtrSubtype;
         struct SliceSubtype;
         struct SplitSubtype;
+        struct InferenceCountArraySubtype;
     struct Subsymbol;
       struct GenericSubsymbol;
-      struct ComplementarySubsymbol;
   struct Adaption;
   struct Realization;
   struct Conformity;
-  struct JuxtListItem;
   struct JuxtListType;
+  struct Trip;
   struct SynonymType;
   struct ArithmeticSequenceType;
     struct ArithmeticIntervalType;
     struct InfiniteArithmeticSequenceType;
-    struct FiniteArithmeticSequenceTYpe;
+    struct FiniteArithmeticSequenceType;
   struct Import;
   struct Portal;
   struct SpecializationSetArgument;
@@ -359,22 +361,21 @@ struct Symbol;
     struct ProcSpecializationSet;
     struct AdapterSpecializationSet;
   struct Parameter;
-  struct CompositionComponent;
   struct CompositionType;
   struct ParameterList;
     struct SignatureType;
     struct LayoutType;
   struct PlacementType;
   struct Polymorph;
-    struct EnumPolymorph;
     struct ClassPolymorph;
+    struct EnumPolymorph;
     struct InterfacePolymorph;
     struct AdapterPolymorph;
     struct ProcPolymorph;
     struct LazyVariablePolymorph;
     struct AliasPolymorph;
-    struct ConceptPolymorph;
     struct VariantPolymorph;
+    struct ConceptPolymorph;
   struct TableMember;
     struct EagerDeclaration;
       struct Anchor;
@@ -474,6 +475,30 @@ struct SimpleSymbolLeaf final : public ParentParam {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct BuiltinConcept : public rq::Symbol {
+  using Self = rq::BuiltinConcept;
+
+  rq::Trip *_predecessor_ptrs;
+
+  explicit RQ_ALWAYS_INLINE BuiltinConcept(rq::SymbolKind kind,
+                                           rq::Trip &predecessors);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Trip &getPredecessors() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Trip &getPredecessors();
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+template <rq::SymbolKind KIND_PARAM>
+struct BuiltinConceptLeaf final : public rq::BuiltinConcept {
+  static constexpr rq::SymbolKind KIND = KIND_PARAM;
+  using Self = rq::BuiltinConceptLeaf<KIND>;
+
+  explicit RQ_ALWAYS_INLINE BuiltinConceptLeaf(rq::Trip &predecessors);
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct QualifiedType final : public rq::Symbol {
   using Self = rq::QualifiedType;
 
@@ -493,9 +518,10 @@ struct QualifiedType final : public rq::Symbol {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-RQ_ALWAYS_INLINE void
-profileQualifiedType(llvm::FoldingSetNodeID &id, const rq::Symbol &type,
-                     rq::QualifierFuseFlags qualifiers, unsigned margin);
+inline void profileQualifiedType(llvm::FoldingSetNodeID &id,
+                                 const rq::Symbol &type,
+                                 rq::QualifierFuseFlags qualifiers,
+                                 unsigned margin);
 
 struct Subentity : public rq::Symbol {
   using Self = rq::Subentity;
@@ -536,8 +562,8 @@ struct ArraySubtype : public rq::Subtype {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
-RQ_ALWAYS_INLINE void profileArraySubtype(const rq::QualifiedType &child,
-                                          rq::ConstantInt &count);
+inline void profileArraySubtype(const rq::QualifiedType &child,
+                                rq::ConstantInt &count);
 
 struct SimpleSubtype : public rq::Subtype {
   using Self = rq::SimpleSubtype;
@@ -604,14 +630,6 @@ struct GenericSubsymbol : public rq::Subsymbol {
   using Self = rq::GenericSubsymbol;
 
   explicit RQ_ALWAYS_INLINE GenericSubsymbol(rq::Symbol &child);
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct ComplementarySubsymbol : public rq::Subsymbol {
-  using Self = rq::ComplementarySubsymbol;
-
-  explicit RQ_ALWAYS_INLINE ComplementarySubsymbol(rq::Symbol &child);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -697,26 +715,24 @@ profileConformity(llvm::FoldingSetNodeID &inout_id,
                   const rq::InterfaceImplementation &interface,
                   const rq::AdapterImplementation &adapter);
 
-struct JuxtListItem final : public rq::Symbol, public llvm::FoldingSetNode {
+struct JuxtListItem final : public llvm::FoldingSetNode {
   using Self = rq::JuxtListItem;
 
   rq::JuxtListItem *_next_ptr;
   rq::QualifiedType *_type_ptr;
 
-  explicit RQ_ALWAYS_INLINE JuxtListItem(rq::JuxtListItem &next,
+  explicit RQ_ALWAYS_INLINE JuxtListItem(rq::JuxtListItem *next_ptr,
                                          rq::QualifiedType &type);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType &getType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType &getType();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileJuxtListItem(llvm::FoldingSetNodeID &inout_id,
-                                          const rq::JuxtListItem *next_ptr,
-                                          const rq::QualifiedType &type);
+inline void profileJuxtListItem(llvm::FoldingSetNodeID &inout_id,
+                                const rq::JuxtListItem *next_ptr,
+                                const rq::QualifiedType &type);
 
 struct JuxtListType final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::JuxtListType;
@@ -737,8 +753,59 @@ struct JuxtListType final : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileJuxtListType(llvm::FoldingSetNodeID &inout_id,
-                                          const rq::JuxtListItem *first_ptr);
+inline void profileJuxtListType(llvm::FoldingSetNodeID &inout_id,
+                                const rq::JuxtListItem *first_ptr);
+
+struct TripItem final : public llvm::FoldingSetNode {
+  using Self = rq::JuxtListItem;
+
+  rq::TripItem *_next_ptr;
+  rq::Symbol *_symbol_ptr;
+
+  explicit RQ_ALWAYS_INLINE TripItem(rq::TripItem *next_ptr,
+                                     rq::Symbol &symbol);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+inline void profileTripItem(llvm::FoldingSetNodeID &inout_id,
+                            const rq::TripItem *next_ptr,
+                            const rq::Symbol &type);
+
+// NOTE: need to sort ptrs by memory address before acquiring each trip item to ensure proper uniqification.
+
+struct TripDetail final {
+  using Self = rq::TripDetail;
+
+  llvm::SmallPtrSet<rq::Symbol*, 2> _symbol_ptrs;
+
+  explicit RQ_ALWAYS_INLINE TripDetail();
+};
+
+struct Trip final : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::Trip;
+
+  rq::TripItem *_first_ptr;
+
+  explicit RQ_ALWAYS_INLINE Trip(rq::TripItem *first);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::TripItem>
+  getTripItemSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TripItem>
+  getTripItemSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::TripItem>
+  getConstTripItemSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
+inline void profileTrip(llvm::FoldingSetNodeID &inout_id,
+                        const rq::TripItem *first_ptr);
 
 struct SynonymType final : public rq::Symbol {
   using Self = rq::SynonymType;
@@ -775,9 +842,10 @@ struct ArithmeticSequenceType : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileArithmeticSequenceType(
-    llvm::FoldingSetNodeID &inout_id, const rq::QualifiedType &child,
-    rq::ArithmeticCondition condition, rq::ArithmeticStep step);
+inline void profileArithmeticSequenceType(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::QualifiedType &child,
+                                          rq::ArithmeticCondition condition,
+                                          rq::ArithmeticStep step);
 
 struct ArithmeticIntervalType final : public rq::ArithmeticSequenceType {
   using Self = rq::ArithmeticIntervalType;
@@ -793,9 +861,48 @@ struct InfiniteArithmeticSequenceType final
 };
 
 struct FiniteArithmeticSequenceType final : public rq::ArithmeticSequenceType {
-  using Self = rq::FiniteArithmeticSequenceTYpe;
+  using Self = rq::FiniteArithmeticSequenceType;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Import final : public rq::Symbol {
+  using Self = rq::Import;
+
+  rq::Import *_next_ptr{nullptr};
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
+  rq::Expression *_expression_ptr{nullptr};
+  rq::Module *_imported_ptr{nullptr};
+  rq::Module *_module_ptr{nullptr};
+  rq::Portal *_first_portal_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Import();
+
+  RQ_ALWAYS_INLINE void setModifierFuseFlags(rq::ModifierFuseFlags flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
+  RQ_ALWAYS_INLINE void setImported(rq::Module &imported);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getImportedPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getImportedPtr();
+  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
+  RQ_ALWAYS_INLINE void addPortal(rq::Portal &portal);
+  [[nodiscard]] rq::NextSubrange<rq::Portal> getPortalSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Portal> getPortalSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Portal>
+  getConstPortalSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct Portal final : public rq::Symbol {
+  using Self = rq::Portal;
+
+  // TODO
 };
 
 struct SpecializationSetArgument final : public rq::Symbol,
@@ -930,14 +1037,14 @@ struct Parameter final : public rq::Symbol, public llvm::FoldingSetNode {
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-RQ_ALWAYS_INLINE void profileParameter(
-    llvm::FoldingSetNodeID &inout_id, const rq::Parameter *next_ptr,
-    rq::Name name, const rq::QualifiedType &type,
-    rq::ModifierFuseFlags modifier_fuse_flags,
-    rq::ParameterInfoFlags param_flags, const rq::Entity *default_ptr);
+inline void profileParameter(llvm::FoldingSetNodeID &inout_id,
+                             const rq::Parameter *next_ptr, rq::Name name,
+                             const rq::QualifiedType &type,
+                             rq::ModifierFuseFlags modifier_fuse_flags,
+                             rq::ParameterInfoFlags param_flags,
+                             const rq::Entity *default_ptr);
 
-struct CompositionComponent final : public rq::Symbol,
-                                    public llvm::FoldingSetNode {
+struct CompositionComponent final : public llvm::FoldingSetNode {
   using Self = rq::CompositionComponent;
 
   rq::CompositionComponent *_next_ptr;
@@ -950,8 +1057,6 @@ struct CompositionComponent final : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &getInterface();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
   getInterface() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
@@ -1114,7 +1219,7 @@ struct ClassPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
       getConstClassOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate& template_);
+  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::Template, rq::ClassTemplate>
       getClassTemplateSubrange();
@@ -1143,7 +1248,7 @@ struct EnumPolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
       getConstEnumOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate& template_);
+  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate &template_);
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::NextSubrange<rq::Template, rq::EnumTemplate>
       getEnumTemplateSubrange();
@@ -1182,36 +1287,6 @@ struct InterfacePolymorph final : public rq::Polymorph {
   [[nodiscard]] RQ_ALWAYS_INLINE
       rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
       getConstInterfaceTemplateSubrange() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct LazyVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::LazyVariablePolymorph;
-
-  explicit RQ_ALWAYS_INLINE LazyVariablePolymorph();
-
-  RQ_ALWAYS_INLINE void
-  addLazyVariableOverload(rq::LazyVariableOverload &variable);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getLazyVariableOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getLazyVariableOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getConstLazyVariableOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addLazyVariableTemplate(rq::LazyVariableTemplate& template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getLazyVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getLazyVariableTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getConstLazyVariableTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1274,6 +1349,124 @@ struct ProcPolymorph final : public rq::Polymorph {
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
+struct LazyVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::LazyVariablePolymorph;
+
+  explicit RQ_ALWAYS_INLINE LazyVariablePolymorph();
+
+  RQ_ALWAYS_INLINE void
+  addLazyVariableOverload(rq::LazyVariableOverload &variable);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getLazyVariableOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getLazyVariableOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getConstLazyVariableOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void
+  addLazyVariableTemplate(rq::LazyVariableTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getLazyVariableTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getLazyVariableTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getConstLazyVariableTemplateSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasPolymorph final : public rq::Polymorph {
+  using Self = rq::AliasPolymorph;
+
+  explicit RQ_ALWAYS_INLINE AliasPolymorph();
+
+  RQ_ALWAYS_INLINE void addAliasOverload(rq::AliasOverload &alias);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::AliasOverload>
+      getAliasOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
+      getAliasOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
+      getConstAliasOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addAliasTemplate(rq::AliasTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::AliasTemplate>
+      getAliasTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
+      getAliasTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
+      getConstAliasTemplateSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantPolymorph final : public rq::Polymorph {
+  using Self = rq::VariantPolymorph;
+
+  explicit RQ_ALWAYS_INLINE VariantPolymorph();
+
+  RQ_ALWAYS_INLINE void addConceptOverload(rq::VariantOverload &concept_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::VariantOverload>
+      getVariantOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
+      getVariantOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
+      getConstVariantOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addVariantTemplate(rq::VariantTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::VariantTemplate>
+      getVariantTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
+      getVariantTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
+      getConstVariantTemplateSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptPolymorph final : public rq::Polymorph {
+  using Self = rq::ConceptPolymorph;
+
+  explicit RQ_ALWAYS_INLINE ConceptPolymorph();
+
+  RQ_ALWAYS_INLINE void addConceptOverload(rq::ConceptOverload &concept_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConceptOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConceptOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConstConceptOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addConceptTemplate(rq::ConceptTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptConceptTemplateSubrange() const;
+
+  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+};
+
 struct TableMember : public rq::Symbol {
   using Self = rq::TableMember;
 
@@ -1285,39 +1478,6 @@ struct TableMember : public rq::Symbol {
   RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
-
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
-};
-
-struct Import final : public rq::Symbol {
-  using Self = rq::Import;
-
-  rq::Import *_next_ptr{nullptr};
-  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
-  rq::Expression *_expression_ptr{nullptr};
-  rq::Module *_imported_ptr{nullptr};
-  rq::Module *_module_ptr{nullptr};
-  rq::Portal *_first_portal_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Import();
-
-  RQ_ALWAYS_INLINE void setModifierFuseFlags(rq::ModifierFuseFlags flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-  getModifierFuseFlags() const;
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
-  RQ_ALWAYS_INLINE void setImported(rq::Module &imported);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getImportedPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getImportedPtr();
-  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
-  RQ_ALWAYS_INLINE void addPortal(rq::Portal &portal);
-  [[nodiscard]] rq::NextSubrange<rq::Portal> getPortalSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::Portal> getPortalSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::Portal>
-  getConstPortalSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -1753,7 +1913,7 @@ struct EnumOverload final : public rq::EnumImplementation {
 struct EnumSpecialization final : public rq::EnumImplementation {
   using Self = rq::EnumSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE EnumSpecialization();
 
@@ -1761,9 +1921,11 @@ struct EnumSpecialization final : public rq::EnumImplementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumTemplate *getParentEnumTemplatePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::EnumTemplate *
   getParentEnumTemplatePtr() const;
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1806,7 +1968,7 @@ struct LazyVariableOverload : public rq::LazyVariableImplementation {
 struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
   using Self = rq::LazyVariableSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE LazyVariableSpecialization();
 
@@ -1816,9 +1978,11 @@ struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
   getParentLazyVariableTemplatePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LazyVariableTemplate *
   getParentLazyVariableTemplatePtr() const;
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1857,13 +2021,15 @@ struct AdapterOverload final : public rq::AdapterImplementation {
 struct AdapterSpecialization final : public rq::AdapterImplementation {
   using Self = rq::AdapterSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE AdapterSpecialization();
 
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1895,13 +2061,15 @@ struct InterfaceOverload final : public rq::InterfaceImplementation {
 struct InterfaceSpecialization final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE InterfaceSpecialization();
 
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1941,13 +2109,15 @@ struct ClassOverload final : public rq::ClassImplementation {
 struct ClassSpecialization final : public rq::ClassImplementation {
   using Self = rq::ClassSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ClassSpecialization();
 
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -1986,13 +2156,15 @@ struct ProcOverload final : public rq::ProcImplementation {
 struct ProcSpecialization final : public rq::ProcImplementation {
   using Self = rq::ProcSpecialization;
 
-  rq::ConstantArray *_template_tuple_ptr{nullptr};
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ProcSpecialization();
 
-  RQ_ALWAYS_INLINE void setTemplateTuple(rq::ConstantArray &template_tuple);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantArray *getTemplateTuplePtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantArray *
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
@@ -2010,7 +2182,8 @@ struct Template : public rq::LazyDeclaration {
   RQ_ALWAYS_INLINE void setLayout(rq::LayoutType &layout);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutType *getLayoutPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::LayoutType *getLayoutPtr() const;
-  [[nodiscard]] rq::NextSubrange<rq::Implementation> getSpecializationSubrange();
+  [[nodiscard]] rq::NextSubrange<rq::Implementation>
+  getSpecializationSubrange();
   [[nodiscard]] rq::ConstNextSubrange<rq::Implementation>
   getSpecializationSubrange() const;
   [[nodiscard]] rq::ConstNextSubrange<rq::Implementation>
@@ -2024,12 +2197,14 @@ struct EnumTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE EnumTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
-  getEnumWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
-  getEnumWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::EnumWeightLevel>
-  getConstEnumWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation, rq::EnumSpecialization>
+  getEnumSpecializationSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::EnumSpecialization>
+  getEnumSpecializationSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::EnumSpecialization>
+  getConstEnumSpecializationSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2039,12 +2214,14 @@ struct ClassTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE ClassTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
-  getClassWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
-  getClassWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ClassWeightLevel>
-  getConstClassWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation, rq::ClassSpecialization>
+  getClassSpecializationSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::ClassSpecialization>
+  getClassSpecializationSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::ClassSpecialization>
+  getConstClassSpecializationSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2054,12 +2231,15 @@ struct InterfaceTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE InterfaceTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
-  getInterfaceWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
-  getInterfaceWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::InterfaceWeightLevel>
-  getConstInterfaceWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation,
+                                 rq::InterfaceSpecialization>
+  getInterfaceSpecializationSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::InterfaceSpecialization>
+  getInterfaceSpecializationSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::InterfaceSpecialization>
+  getConstInterfaceSpecializationSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2069,14 +2249,15 @@ struct LazyVariableTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE LazyVariableTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::LazyVariableWeightLevel>
-  getLazyVariableWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
-                                      rq::LazyVariableWeightLevel>
-  getLazyVariableWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel,
-                                      rq::LazyVariableWeightLevel>
-  getConstLazyVariableWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation,
+                                 rq::LazyVariableSpecialization>
+  getLazyVariableTemplateSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::LazyVariableSpecialization>
+  getLazyVariableTemplateSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::LazyVariableSpecialization>
+  getConstLazyVariableTemplateSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2086,12 +2267,14 @@ struct AdapterTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE AdapterTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
-  getAdapterWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
-  getAdapterWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::AdapterWeightLevel>
-  getConstAdapterWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation, rq::AdapterSpecialization>
+  getAdapterSpecializationSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::AdapterSpecialization>
+  getAdapterSpecializationSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::AdapterSpecialization>
+  getConstAdapterSpecializationSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -2101,12 +2284,14 @@ struct ProcTemplate final : public rq::Template {
 
   explicit RQ_ALWAYS_INLINE ProcTemplate();
 
-  [[nodiscard]] rq::NextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
-  getProcWeightLevelSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
-  getProcWeightLevelSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::WeightLevel, rq::ProcWeightLevel>
-  getConstProcWeightLevelSubrange() const;
+  [[nodiscard]] rq::NextSubrange<rq::Implementation, rq::ProcSpecialization>
+  getProcSpecializationSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::ProcSpecialization>
+  getProcSpecializationSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
+                                      rq::ProcSpecialization>
+  getConstProcSpecializationSubrange() const;
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

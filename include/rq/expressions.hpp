@@ -116,8 +116,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_concatenate";
   case K::JUXT:
     return "_juxt";
-  case K::TRIP:
-    return "_trip";
+  case K::INSTANTIATE_TRIP:
+    return "_instantiate_trip";
 
   // ARITHMETIC
   case K::ADD:
@@ -1277,7 +1277,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::JUXT:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::TRIP:
+  case K::INSTANTIATE_TRIP:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // ARITHMETIC
