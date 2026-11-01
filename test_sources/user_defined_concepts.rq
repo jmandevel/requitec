@@ -17,14 +17,12 @@ mangle::main
 ];
 
 concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate result,
-        // bang operator in front of concept uses logical complement
-        // !TUPLE is like saying symbol must not be a tuple
-        [if Subject.[is !TUPLE], 
+        [if !Subject.[is TUPLE], 
             result <:= false;
             done;
         ];
         [for Subject.[parameter_range], param:=value.[ref],
-            [if param.[type].[is !TYPE],
+            [if !param.[type].[is TYPE],
                 result <:= false;
                 done;
             ];
