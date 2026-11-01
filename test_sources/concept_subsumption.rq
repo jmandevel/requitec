@@ -1,5 +1,13 @@
 [import "std", std];
 
+// concepts are ranked according to a poset that starts at ANY. Its a directed acyclic graph.
+// concepts have one or more predecessor concepts. if compiler is choosing between template overloads between concepts, then
+// it will choose the one that is greater according to the poset. if neither concept is predecessor to the other then this is 
+// compiler error.
+
+// for the builtin concepts FLOAT, INT, and TYPE, TYPE is a predecessor of INT and FLOAT. neither INT nor FLOAT are predecessors
+// to one another.
+
 // A
 template::{> Type:FLOAT <}
 [proc printType, ( val:Type <)Void,

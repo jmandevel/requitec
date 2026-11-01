@@ -1,7 +1,7 @@
 // this concept only passes for float types of SInt32
 // Subject is the name of the symbol we are going to test.
-// the symbol in binding is the "parent concept" used when subsuming (see concept_subsumption.rq)
-// the highest "parent concept" is ANY.
+// the symbol in binding is the "predecessor" used when subsuming (see concept_subsumption.rq)
+// the earliest "predecessor" is of all concepts is ANY (the minimum of the poset)
 concept FLOAT_OR_SINT32 :SIGNED=Subject\\ Subject.[is FLOAT] || Subject.[is SInt32];
 
 // this template has constraints on the parameter, only accepting types that match the concept
