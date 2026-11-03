@@ -154,7 +154,6 @@ enum class Keyword : rq::EntityId {
   SLICE_SUBTYPE,
   SPLIT_SUBTYPE,
   GENERIC_SUBTYPE,
-  COMPLEMENTARY_SUBTYPE,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -303,6 +302,8 @@ enum class Keyword : rq::EntityId {
   NO_MODIFIER,
   // anchor
   ANCHOR,
+  // forked_initialization
+  INITS,
   // container
   RESIDENT,
   FLANK,
@@ -597,6 +598,7 @@ enum class Keyword : rq::EntityId {
   ATTRIBUTE_CONCEPT,
   MODIFIER_CONCEPT,
   ANCHOR_MODIFIER_CONCEPT,
+  FORKED_INITIALIZATION_MODIFIER_CONCEPT,
   CONTAINER_MODIFIER_CONCEPT,
   VISIBILITY_MODIFIER_CONCEPT,
   ACCESS_MODIFIER_CONCEPT,
@@ -694,6 +696,7 @@ enum class SymbolKind : rq::EntityId {
   // MODIFIERS
   NO_MODIFIER,
   ANCHOR_MODIFIER,
+  INITS_MODIFIER,
   RESIDENT_MODIFIER,
   FLANK_MODIFIER,
   TRANSPARENT_MODIFIER,
@@ -884,6 +887,7 @@ enum class SymbolKind : rq::EntityId {
   ATTRIBUTE_CONCEPT,
   MODIFIER_CONCEPT,
   ANCHOR_MODIFIER_CONCEPT,
+  FORKED_INITIALIZATION_MODIFIER_CONCEPT,
   CONTAINER_MODIFIER_CONCEPT,
   VISIBILITY_MODIFIER_CONCEPT,
   ACCESS_MODIFIER_CONCEPT,
@@ -1510,6 +1514,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::MODIFIER;
   case S::ANCHOR_MODIFIER:
     return SIF::MODIFIER;
+  case S::INITS_MODIFIER:
+    return SIF::MODIFIER;
   case S::RESIDENT_MODIFIER:
     return SIF::MODIFIER;
   case S::FLANK_MODIFIER:
@@ -1885,6 +1891,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::MODIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::ANCHOR_MODIFIER_CONCEPT:
+    return SIF::BUILTIN_CONCEPT;
+  case S::FORKED_INITIALIZATION_MODIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::CONTAINER_MODIFIER_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
@@ -2595,118 +2603,6 @@ struct Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags
   getSymbolInfoFlags() const {
     return rq::getInfoFlags(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLiteralType() const {
-    return rq::getIsLiteralType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsReflectionType() const {
-    return rq::getIsReflectionType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsFigurative() const {
-    return rq::getIsFigurative(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPrimitiveType() const {
-    return rq::getIsPrimitiveType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStandardPrimitiveType() const {
-    return rq::getIsStandardPrimitiveType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPlatformPrimitiveType() const {
-    return rq::getIsPlatformPrimitiveType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype() const {
-    return rq::getIsSubtype(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype() const {
-    return rq::getIsSimpleSubtype(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsArithmeticSequenceType() const {
-    return rq::getIsArithmeticSequenceType(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSpecializationSet() const {
-    return rq::getIsSpecializationSet(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsParameterList() const {
-    return rq::getIsParameterList(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTableMember() const {
-    return rq::getIsTableMember(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerDeclaration() const {
-    return rq::getIsEagerDeclaration(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerVariable() const {
-    return rq::getIsEagerVariable(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute() const {
-    return rq::getIsRoute(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph() const {
-    return rq::getIsPolymorph(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTemplate() const {
-    return rq::getIsTemplate(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSymbolTable() const {
-    return rq::getIsSymbolTable(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEagerScope() const {
-    return rq::getIsEagerScope(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsNamedTable() const {
-    return rq::getIsNamedTable(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion() const {
-    return rq::getIsLazyDeclarataion(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsImplementation() const {
-    return rq::getIsImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsClassImplementation() const {
-    return rq::getIsClassImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEnumImplementation() const {
-    return rq::getIsEnumImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInterfaceImplementation() const {
-    return rq::getIsInterfaceImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsAdapterImplementation() const {
-    return rq::getIsAdapterImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsProcImplementation() const {
-    return rq::getIsProcImplementation(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyVariableImplementation() const {
-    return rq::getIsLazyVariableImplementation(this->getUnsafeSymbolKind());
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType() const {

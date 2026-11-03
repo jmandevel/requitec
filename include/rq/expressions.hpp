@@ -188,6 +188,8 @@ static constexpr std::size_t KEYWORD_COUNT =
   // MEMORY
   case K::ASSIGN:
     return "_assign";
+  case K::INDETERMINATE_ASSIGN:
+    return "_indeterminate_assign";
   case K::SPLIT:
     return "split";
   case K::RVALUE_LABEL:
@@ -536,6 +538,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_modifier";
   case K::ANCHOR:
     return "anchor";
+  case K::INITS:
+    return "inits";
   case K::RESIDENT:
     return "resident";
   case K::FLANK:
@@ -1050,6 +1054,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "MODIFIER";
   case K::ANCHOR_MODIFIER_CONCEPT:
     return "ANCHOR_MODIFIER";
+  case K::FORKED_INITIALIZATION_MODIFIER_CONCEPT:
+    return "FORKED_INITIALIZATION_MODIFIER";
   case K::CONTAINER_MODIFIER_CONCEPT:
     return "CONTAINER_MODIFIER";
   case K::VISIBILITY_MODIFIER_CONCEPT:
@@ -1347,6 +1353,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // MEMORY
   case K::ASSIGN:
     return KIF::STATEMENT;
+  case K::INDETERMINATE_ASSIGN:
+    return KIF::STATEMENT;
   case K::SPLIT:
     return KIF::LVALUE;
   case K::RVALUE_LABEL:
@@ -1435,8 +1443,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SPLIT_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::GENERIC_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::COMPLEMENTARY_SUBTYPE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // PARAMETER RULES
@@ -1702,6 +1708,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::NO_MODIFIER:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ANCHOR:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::INITS:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::RESIDENT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -2332,6 +2340,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::ANCHOR_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
+  case K::FORKED_INITIALIZATION_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::CONTAINER_MODIFIER_CONCEPT:
@@ -3098,6 +3109,8 @@ enum class Modifier : std::uint_fast8_t {
   NO_MODIFIER,
   // anchor
   ANCHOR,
+  // forked_initializer
+  INITS,
   // container
   RESIDENT,
   FLANK,
@@ -3188,6 +3201,8 @@ enum class Modifier : std::uint_fast8_t {
     return "no_modifier";
   case M::ANCHOR:
     return "anchor";
+  case M::INITS:
+    return "inits";
   case M::RESIDENT:
     return "resident";
   case M::FLANK:
@@ -3311,6 +3326,8 @@ enum class Modifier : std::uint_fast8_t {
     return M::NO_MODIFIER;
   case K::ANCHOR:
     return M::ANCHOR;
+  case K::INITS:
+    return M::INITS;
   case K::RESIDENT:
     return M::RESIDENT;
   case K::FLANK:
@@ -3429,108 +3446,111 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   ANCHOR = rq::getBit(0),
   ANCHOR_MODIFIER_MASK = ANCHOR,
 
-  RESIDENT = rq::getBit(1),
-  FLANK = rq::getBit(2),
+  INITS = rq::getBit(1),
+  FORKED_INITIALIZER_MODIFIER_MASK = INITS,
+
+  RESIDENT = rq::getBit(2),
+  FLANK = rq::getBit(3),
   CONTAINER_MODIFIER_MASK = RESIDENT | FLANK,
 
-  TRANSPARENT = rq::getBit(3),
-  OPAQUE = rq::getBit(4),
+  TRANSPARENT = rq::getBit(4),
+  OPAQUE = rq::getBit(5),
   VISIBILITY_MODIFIER_MASK = TRANSPARENT | OPAQUE,
 
-  PRIVATE = rq::getBit(5),
-  PUBLIC = rq::getBit(6),
-  EXPORT = rq::getBit(7),
+  PRIVATE = rq::getBit(6),
+  PUBLIC = rq::getBit(7),
+  EXPORT = rq::getBit(8),
   ACCESS_MODIFIER_MASK = PRIVATE | PUBLIC | EXPORT,
 
-  MUTABLE = rq::getBit(8),
-  PARTIALLY_MUTABLE = rq::getBit(9),
-  CONSTANT = rq::getBit(10),
+  MUTABLE = rq::getBit(9),
+  PARTIALLY_MUTABLE = rq::getBit(10),
+  CONSTANT = rq::getBit(11),
   MUTATE_MODIFIER_MASK = MUTABLE | PARTIALLY_MUTABLE | CONSTANT,
 
-  EAGER = rq::getBit(16),
-  LAZY = rq::getBit(17),
+  EAGER = rq::getBit(12),
+  LAZY = rq::getBit(13),
   EVALUATION_TIME_MASK = EAGER | LAZY,
 
-  PRE = rq::getBit(18),
-  POST = rq::getBit(19),
-  ALIAS = rq::getBit(20),
-  ENUMERATOR = rq::getBit(21),
-  CONCEPT = rq::getBit(22),
+  PRE = rq::getBit(14),
+  POST = rq::getBit(15),
+  ALIAS = rq::getBit(16),
+  ENUMERATOR = rq::getBit(17),
+  CONCEPT = rq::getBit(18),
   DIALECT_MODIFIER_MASK = PRE | POST | ALIAS | ENUMERATOR | CONCEPT,
 
-  RUNTIME = rq::getBit(20),
-  COMTIME = rq::getBit(21),
-  ANYTIME = rq::getBit(22),
+  RUNTIME = rq::getBit(19),
+  COMTIME = rq::getBit(20),
+  ANYTIME = rq::getBit(21),
   TENURE_MODIFIER_MASK = RUNTIME | COMTIME | ANYTIME,
 
-  PRESET = rq::getBit(23),
-  SINGLETON = rq::getBit(24),
+  PRESET = rq::getBit(22),
+  SINGLETON = rq::getBit(23),
   INITIALIZATION_TIME_MASK = PRESET | SINGLETON,
 
-  CAPTURE = rq::getBit(25),
-  STATELESS = rq::getBit(26),
+  CAPTURE = rq::getBit(24),
+  STATELESS = rq::getBit(25),
   CLOSURE_MODIFIER_MASK = CAPTURE | STATELESS,
 
-  LINKED = rq::getBit(27),
-  INLINE = rq::getBit(28),
+  LINKED = rq::getBit(26),
+  INLINE = rq::getBit(27),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  PURE = rq::getBit(29),
-  IMPURE = rq::getBit(30),
+  PURE = rq::getBit(28),
+  IMPURE = rq::getBit(29),
   SIDE_EFFECTS_MODIFIER_MASK = PURE | IMPURE,
 
-  STANDARD_MANGLE = rq::getBit(31),
-  MANGLE = rq::getBit(32),
+  STANDARD_MANGLE = rq::getBit(30),
+  MANGLE = rq::getBit(31),
   MANGLE_MODIFIER_MASK = STANDARD_MANGLE | MANGLE,
 
-  PAD = rq::getBit(33),
-  PACK = rq::getBit(34),
+  PAD = rq::getBit(32),
+  PACK = rq::getBit(33),
   PACK_MODIFIER_MASK = PAD | PACK,
 
-  EQUIVOCAL = rq::getBit(35),
-  LIKELY = rq::getBit(36),
-  UNLIKELY = rq::getBit(37),
+  EQUIVOCAL = rq::getBit(34),
+  LIKELY = rq::getBit(35),
+  UNLIKELY = rq::getBit(36),
   BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  SUPPORTED = rq::getBit(38),
-  DEPRECIATED = rq::getBit(39),
-  EXPERIMENTAL = rq::getBit(40),
+  SUPPORTED = rq::getBit(37),
+  DEPRECIATED = rq::getBit(38),
+  EXPERIMENTAL = rq::getBit(39),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  UNSTABLE_ADDRESS = rq::getBit(41),
-  STABLE_ADDRESS = rq::getBit(42),
+  UNSTABLE_ADDRESS = rq::getBit(40),
+  STABLE_ADDRESS = rq::getBit(41),
   ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
 
-  INVARIADIC = rq::getBit(43),
-  VARIADIC = rq::getBit(44),
+  INVARIADIC = rq::getBit(42),
+  VARIADIC = rq::getBit(43),
   VARIADIC_MODIFIER_MASK,
 
-  BEST_LOCATION = rq::getBit(45),
-  LOCATION = rq::getBit(46),
+  BEST_LOCATION = rq::getBit(44),
+  LOCATION = rq::getBit(45),
   OFFSET_MODIFIER_MASK = BEST_LOCATION | LOCATION,
 
-  TEMPLATE = rq::getBit(47),
-  OVERLOAD = rq::getBit(48),
+  TEMPLATE = rq::getBit(46),
+  OVERLOAD = rq::getBit(47),
   LAZY_DECLARATION_KIND_MODIFIER_MASK = TEMPLATE | OVERLOAD,
 
-  CONSTRAINT = rq::getBit(49),
+  CONSTRAINT = rq::getBit(48),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  MANUAL = rq::getBit(50),
-  AUTO = rq::getBit(51),
+  MANUAL = rq::getBit(49),
+  AUTO = rq::getBit(50),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(52),
-  VIRTUAL = rq::getBit(53),
+  DIRECT = rq::getBit(51),
+  VIRTUAL = rq::getBit(52),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(54),
+  RANGER = rq::getBit(53),
   RANGER_MODIFIER_MASK = RANGER,
 
-  REQUIRE = rq::getBit(55),
+  REQUIRE = rq::getBit(54),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(56),
+  ENSURE = rq::getBit(55),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -3545,6 +3565,8 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::NO_MODIFIER;
   case M::ANCHOR:
     return MFF::ANCHOR;
+  case M::INITS:
+    return MFF::INITS;
   case M::RESIDENT:
     return MFF::RESIDENT;
   case M::FLANK:
@@ -3676,6 +3698,8 @@ getInfoFlags(rq::Modifier modifier) {
   case M::NO_MODIFIER:
     return MIF::NO_ATTACHMENT;
   case M::ANCHOR:
+    return MIF::ATTACHMENT;
+  case M::INITS:
     return MIF::ATTACHMENT;
   case M::RESIDENT:
     return MIF::NO_ATTACHMENT;
@@ -3813,6 +3837,7 @@ getMayOrMayNotHaveAttachment(rq::Modifier modifier) {
 enum class ModifierKind : std::uint_fast8_t {
   NONE,
   ANCHOR,
+  FORKED_INITIALIZER,
   CONTAINER,
   VISIBIITY,
   ACCESS,
@@ -3848,6 +3873,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "no modifier";
   case MK::ANCHOR:
     return "anchor modifier";
+  case MK::FORKED_INITIALIZER:
+    return "forked initializer modifier";
   case MK::CONTAINER:
     return "container modifier";
   case MK::VISIBIITY:
@@ -3912,6 +3939,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::NO_MODIFIER;
   case MK::ANCHOR:
     return MFF::ANCHOR_MODIFIER_MASK;
+  case MK::FORKED_INITIALIZER:
+    return MFF::FORKED_INITIALIZER_MODIFIER_MASK;
   case MK::CONTAINER:
     return MFF::CONTAINER_MODIFIER_MASK;
   case MK::VISIBIITY:
@@ -3976,6 +4005,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return MK::NONE;
   case M::ANCHOR:
     return MK::ANCHOR;
+  case M::INITS:
+    return MK::FORKED_INITIALIZER;
   case M::RESIDENT:
     [[fallthrough]];
   case M::FLANK:

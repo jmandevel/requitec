@@ -209,6 +209,8 @@ getName(rq::TokenKind kind) {
     return "equal_operator";
   case T::DOUBLE_EQUAL_OPERATOR:
     return "double_equal_operator";
+  case T::BACKSLASH_EQUAL_OPERATOR:
+    return "backslash_equal_operator";
   case T::ARROW_OPERATOR:
     return "arrow_operator";
   case T::DOUBLE_ARROW_OPERATOR:
@@ -248,7 +250,7 @@ getName(rq::TokenKind kind) {
   case T::DOT_STAR_PIPE_OPERATOR:
     return "dot_star_pipe_operator";
   case T::DOT_LESS_OPERATOR:
-    return "dot_less_operator";
+    return "dot_less_operatfor";
   case T::DOT_LESS_EQUAL_OPERATOR:
     return "dot_less_equal_operator";
   case T::DOT_GREATER_OPERATOR:
@@ -405,6 +407,8 @@ getInfoFlags(rq::TokenKind kind) {
   case T::EQUAL_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
+    return TF::OPERATOR;
+  case T::BACKSLASH_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
     return TF::OPERATOR;

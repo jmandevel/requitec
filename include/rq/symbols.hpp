@@ -444,12 +444,6 @@ struct Symbol : public rq::Entity {
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::SymbolKind kind);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolKind getKind() const;
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getDerivedExpressionPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
-  getDerivedExpressionPtr() const;
-
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
 
@@ -478,13 +472,13 @@ struct SimpleSymbolLeaf final : public ParentParam {
 struct BuiltinConcept : public rq::Symbol {
   using Self = rq::BuiltinConcept;
 
-  rq::Trip *_predecessor_ptrs;
+  rq::Entity *_predecessor_ptr;
 
   explicit RQ_ALWAYS_INLINE BuiltinConcept(rq::SymbolKind kind,
-                                           rq::Trip &predecessors);
+                                           rq::Entity &predecessors);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Trip &getPredecessors() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Trip &getPredecessors();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getPredecessor() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getPredecessor();
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -494,7 +488,7 @@ struct BuiltinConceptLeaf final : public rq::BuiltinConcept {
   static constexpr rq::SymbolKind KIND = KIND_PARAM;
   using Self = rq::BuiltinConceptLeaf<KIND>;
 
-  explicit RQ_ALWAYS_INLINE BuiltinConceptLeaf(rq::Trip &predecessors);
+  explicit RQ_ALWAYS_INLINE BuiltinConceptLeaf(rq::Entity &predecessors);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };
@@ -760,27 +754,27 @@ struct TripItem final : public llvm::FoldingSetNode {
   using Self = rq::JuxtListItem;
 
   rq::TripItem *_next_ptr;
-  rq::Symbol *_symbol_ptr;
+  rq::Entity *_entity_ptr;
 
   explicit RQ_ALWAYS_INLINE TripItem(rq::TripItem *next_ptr,
-                                     rq::Symbol &symbol);
+                                     rq::Entity &entity);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getEntity() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getEntity();
 
   inline void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
 inline void profileTripItem(llvm::FoldingSetNodeID &inout_id,
                             const rq::TripItem *next_ptr,
-                            const rq::Symbol &type);
+                            const rq::Entity &entity);
 
 // NOTE: need to sort ptrs by memory address before acquiring each trip item to ensure proper uniqification.
 
 struct TripDetail final {
   using Self = rq::TripDetail;
 
-  llvm::SmallPtrSet<rq::Symbol*, 2> _symbol_ptrs;
+  llvm::SmallPtrSet<rq::Entity*, 2> _entity_ptrs;
 
   explicit RQ_ALWAYS_INLINE TripDetail();
 };

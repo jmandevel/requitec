@@ -725,6 +725,62 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : Entity(rq::getId(kind)) {
             "not symbol kind");
 }
 
+[[nodiscard]] inline bool Symbol::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsSymbolKind(entity.getId());
+}
+
+template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
+RQ_ALWAYS_INLINE
+SimpleSymbolBranch<ParentParam, FLAG_PARAM>::SimpleSymbolBranch(
+    rq::SymbolKind kind)
+    : Parent(kind) {
+  RQ_ASSERT(rq::getHasAll(rq::getInfoFlags(kind), FLAG), "missing flag");
+}
+
+template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
+[[nodiscard]] inline bool SimpleSymbolBranch<ParentParam, FLAG_PARAM>::classof(
+    const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  rq::SymbolInfoFlags flags = entity.getSymbolInfoFlags();
+  return rq::getHasAll(flags, FLAG);
+}
+
+template <typename ParentParam, rq::SymbolKind KIND_PARAM>
+RQ_ALWAYS_INLINE SimpleSymbolLeaf<ParentParam, KIND_PARAM>::SimpleSymbolLeaf()
+    : ParentParam(KIND_PARAM) {}
+
+template <typename ParentParam, rq::SymbolKind KIND_PARAM>
+[[nodiscard]] inline bool SimpleSymbolLeaf<ParentParam, KIND_PARAM>::classof(
+    const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(KIND_PARAM);
+}
+
+RQ_ALWAYS_INLINE BuiltinConcept::BuiltinConcept(rq::SymbolKind kind,
+                                                rq::Entity &predecessors)
+    : Symbol(kind), _predecessor_ptr(&predecessors) {
+  RQ_ASSERT(rq::getHasAll(rq::getInfoFlags(kind),
+                          rq::SymbolInfoFlags::BUILTIN_CONCEPT),
+            "not builtin concept");
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &
+BuiltinConcept::getPredecessor() const {
+  return rq::dereferencePtr(this->_predecessor_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &BuiltinConcept::getPredecessor() {
+  return rq::dereferencePtr(this->_predecessor_ptr);
+}
+
+[[nodiscard]] inline bool
+BuiltinConcept::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  rq::SymbolInfoFlags flags = entity.getSymbolInfoFlags();
+  return rq::getHasAll(flags, rq::SymbolInfoFlags::BUILTIN_CONCEPT);
+}
+
 RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind,
                                   rq::ConstantSymbol &child)
     : Symbol(kind), _child_ptr(&child) {
