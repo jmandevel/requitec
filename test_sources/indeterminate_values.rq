@@ -27,6 +27,16 @@
         return;
     ];
 
+    unset :SInt=;
+
+    // indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
+    inits::unset
+    [for 0.<10, var:=value,
+        unset \= var;
+    ];
+
+    // doing the same for types with a destructor is a compiler error!
+
     // tuples can have indeterminate elements
     three_ints := {
             :SInt=,
