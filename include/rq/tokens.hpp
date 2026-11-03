@@ -50,6 +50,7 @@ enum class TokenKind : std::uint_fast8_t {
   DOLLAR_OPERATOR,             // $
   EQUAL_OPERATOR,              // =
   DOUBLE_EQUAL_OPERATOR,       // ==
+  BACKSLASH_EQUAL_OPERATOR,    // \=
   ARROW_OPERATOR,              // ->
   DOUBLE_ARROW_OPERATOR,       // -->
   THICK_ARROW_OPERATOR,        // =>

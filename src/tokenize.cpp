@@ -502,6 +502,9 @@ void Tokenizer::_tokenizeSourceText() {
       case '/':
         this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
         break;
+      case '=':
+        this->tokenizeLengthToken(T::BACKSLASH_EQUAL_OPERATOR, 2);
+        break;
       default:
         this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
       }

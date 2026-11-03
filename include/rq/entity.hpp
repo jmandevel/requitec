@@ -108,6 +108,7 @@ enum class Keyword : rq::EntityId {
 
   // MEMORY
   ASSIGN,
+  INDETERMINATE_ASSIGN,
   SPLIT,
   RVALUE_LABEL,
   POLYADIC_PARAMETER,

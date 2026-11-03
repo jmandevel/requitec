@@ -218,6 +218,12 @@ rq::Expression &RequiteParser::parsePrecedence10() {
                                      rq::Keyword::UNSITUATED_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
+    case rq::TokenKind::BACKSLASH_EQUAL_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token,
+                                     rq::Keyword::INDETERMINATE_ASSIGN);
+      precedence_factory.setRecent(this->parsePrecedence9());
+      continue;
     case rq::TokenKind::ELIPSIS_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token, rq::Keyword::POLYADIC_PARAMETER);
@@ -631,10 +637,6 @@ rq::Expression &RequiteParser::parsePrecedence2() {
     case rq::TokenKind::BANG_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseUnary(token, rq::Keyword::LOGICAL_COMPLEMENT);
-      continue;
-    case rq::TokenKind::HASH_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::Keyword::GENERIC_SUBTYPE);
       continue;
     case rq::TokenKind::DASH_OPERATOR:
       this->getRanger().incrementToken(1);

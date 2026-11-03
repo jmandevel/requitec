@@ -275,9 +275,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::SPLIT_SUBTYPE:
     return "Split";
   case K::GENERIC_SUBTYPE:
-    return "_Generic";
-  case K::COMPLEMENTARY_SUBTYPE:
-    return "_Complementary";
+    return "Generic";
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
