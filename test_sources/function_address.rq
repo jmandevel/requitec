@@ -4,9 +4,8 @@ pure
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
         |locked:Single=0.0
-    )Single, result,
-    result <:= 
-    (positional + positional_and_named + named + locked);
+    )Single,
+    result <:= (positional + positional_and_named + named + locked);
 ];
 
 pure
@@ -15,7 +14,7 @@ pure
         >positional_and_named:Single=0.0<,
         named:Single=0.0,
         |locked:Single=0.0
-    )Single, result,
+    )Single,
     result <:= (positional + positional_and_named + named + locked);
 ];
 
@@ -25,7 +24,7 @@ pure
         >positional_and_named:Single=0.0<,
         named:Single=0.0 * 0.0,
         |locked:Single=0.0
-    )Single, result,
+    )Single,
     result <:= (positional + positional_and_named + named + locked);
 ];
 
@@ -34,12 +33,12 @@ pure
         >positional_and_named:single=0.0<,
         named:single=0.0,
         |locked:single=0.0
-    )Single, result,
+    )Single,
     result <:= (positional + positional_and_named + named + locked);
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // calling directly from myProc
     // default values are used
     // locked parameters cannot be set

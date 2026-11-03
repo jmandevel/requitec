@@ -1,5 +1,5 @@
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // tell debugger to break here.
     debug_break;
 

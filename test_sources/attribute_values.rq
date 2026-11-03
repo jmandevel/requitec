@@ -23,7 +23,7 @@ mangle::main
     // if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
     public template::{| auto mut0:MUT }
     pure
-    [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\, result,
+    [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\,
         result <:= this.num.mut0\[ref]
     ];
 

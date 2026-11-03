@@ -9,8 +9,8 @@ comtime var := 0;
 mangle::main
 [proc , 
     pre Return := SInt;
-    ()Return, result,
-
+    ()Return,
+    
     result <:mut\= 0; 
 
     [if var0 == var1,

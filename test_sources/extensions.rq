@@ -2,7 +2,7 @@
 [namespace example,
     template::{> Type:TYPE, length:USize <}
     pure
-    [proc getElementCount, ()USize=>Ref@[array length]@Type, result,
+    [proc getElementCount, ()USize=>Ref@[array length]@Type,
         result <:= length;
     ];
 
@@ -15,7 +15,7 @@
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     my_array :Array::5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
     // call extension function

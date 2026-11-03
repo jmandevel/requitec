@@ -27,7 +27,7 @@ template::{> Type:TYPE <}
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     printType{SInt32}(); // B
     printType{Single}(); // A
     printType{Bool}();   // C

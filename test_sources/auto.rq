@@ -6,7 +6,7 @@ pure
     // statements before signature are surveyed (not evaluated) at template survey time.
     // everything before signature must be pre (if eager) or comtime (if lazy).
     // the template parameters do not exist at this point. However, you can still reflect on the template layout itself.
-    (> a:Type, b:Type <)Split@{ c:Type <}, result,
+    (> a:Type, b:Type <)Split@{ c:Type <},
     // statements after signature are evaluated at specialization implementation time
     result.c <:= a + b;
 ];
