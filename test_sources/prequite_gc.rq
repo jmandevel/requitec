@@ -32,10 +32,10 @@ var5 :SInt= var5; // this is a compiler error!
 // detach qualifier is only valid in comtime. its a compiler error to use it at all in runtime code.
 
 list :std.List{SInt}= std.List{SInt, detach}();
-list.mut\[ref].pushBack(0).[pass std.AllocationException];
-list.mut\[ref].pushBack(1).[pass std.AllocationException];
-list.mut\[ref].pushBack(2).[pass std.AllocationException];
-list.mut\[ref].pushBack(3).[pass std.AllocationException];
+list.mut\[ref].pushBack(0).[pass];
+list.mut\[ref].pushBack(1).[pass];
+list.mut\[ref].pushBack(2).[pass];
+list.mut\[ref].pushBack(3).[pass];
 
 // can copy value out of the list into a prequite variable.
 var9 :SInt= list.[ref].at(0);
@@ -59,10 +59,10 @@ generic_list.mut\[ref].pushBack(nested_list.[move]);
 // in postquite, it can be used for any type.
 
 adjoined_list :std.List{SInt, no_detach}= std.List{SInt, no_detach}();
-adjoined_list.mut\[ref].pushBack(0).[pass std.AllocationException];
-adjoined_list.mut\[ref].pushBack(1).[pass std.AllocationException];
-adjoined_list.mut\[ref].pushBack(2).[pass std.AllocationException];
-adjoined_list.mut\[ref].pushBack(3).[pass std.AllocationException];
+adjoined_list.mut\[ref].pushBack(0).[pass];
+adjoined_list.mut\[ref].pushBack(1).[pass];
+adjoined_list.mut\[ref].pushBack(2).[pass];
+adjoined_list.mut\[ref].pushBack(3).[pass];
 
 // can copy elements out of adjoined lists
 var11 :SInt= adjoined_list.[ref].at(0);
