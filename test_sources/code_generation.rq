@@ -4,14 +4,14 @@ anchor::A
 [for 0.<=10, num:=value,
     varname :std.String= std.format(text="VAR" +> num);
     flank::A comtime capture::{num:=num}
-    varname.getSlice().[identify] : SInt = num.[bake];
+    varname.getSlice().[identify] : SInt = num;
 ];
 
 mangle::main
 [proc , ()SInt, result,
     pre [for 0.<=10, pre num:=value,
         pre varname :std.String= std.format(text="VAR" +> num);
-        std.print(line=varname.getSlice().[bake] +> " is " +> (varname.getSlice().[identify]) +> "!");  
+        std.print(line=varname.getSlice() +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
 
     result <:= 0;

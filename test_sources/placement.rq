@@ -17,7 +17,7 @@ template::{ Type:TYPE <}
     [proc create, 
         (placement:Placement<)mut\UniquePtr{Type}, result,
 
-        ptr := malloc(Type.[byte_size]).[cast ?mut\Type];
+        ptr := malloc(Type.[byte_size]).[cast Ptr@mut\Type];
         result <:= UniquePtr{Type}(
                 ptr=ptr
             );   

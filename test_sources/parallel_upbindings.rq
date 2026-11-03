@@ -1,8 +1,8 @@
 [import "std", std];
 
 mangle::main
-[proc , (>args:Ptr@Ptr@Char<)SInt, result,
-    [if args.[element_count] == 0,
+[proc , (>args:Slice@Ptr@Char<)SInt, result,
+    [if args->std.count() == 0,
         result <:= 5;
     ][else 
         result <:= 6;

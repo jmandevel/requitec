@@ -1,3 +1,5 @@
+[import "std", std];
+
 template::{ Type:TYPE <}
 pure
 [proc asSigned, 

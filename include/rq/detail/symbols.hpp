@@ -93,6 +93,8 @@ namespace rq {
     return "NoModifier";
   case S::ANCHOR_MODIFIER:
     return "AnchorModifier";
+  case S::INITS_MODIFIER:
+    return "InitsModifier";
   case S::RESIDENT_MODIFIER:
     return "ResidentModifier";
   case S::FLANK_MODIFIER:
@@ -465,6 +467,8 @@ namespace rq {
     return "ModifierConcept";
   case S::ANCHOR_MODIFIER_CONCEPT:
     return "AnchorModifierConcept";
+  case S::FORKED_INITIALIZATION_MODIFIER_CONCEPT:
+    return "ForkedInitializationModifierConcept";
   case S::CONTAINER_MODIFIER_CONCEPT:
     return "ContainerModifierConcept";
   case S::VISIBILITY_MODIFIER_CONCEPT:

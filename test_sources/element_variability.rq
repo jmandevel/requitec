@@ -1,8 +1,10 @@
+[import "std", std];
+
 mangle::main
 [proc , ()SInt, result,
     // an array and its elements share mutiability
     arr :mut\= [array 0, 1, 2, 3];
-    arr.mut\[ref].[at 1] = 2;
+    arr.mut\[ref]->std.at{0}() = 2;
 
     // a tuple and its elements have different mutiability
     vector4 :mut\= { x:=0, y:mut\=1, z:=2, w:=3 };

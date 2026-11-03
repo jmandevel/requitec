@@ -3,11 +3,11 @@
 mangle::main
 [proc , ()SInt, result,
     my_array : mut\[array 4]@LSInt64 = [array 0, 1, 2, 3, 4].[of LSInt64];
-    const_slice : mut\slice@LSInt64 = my_array.[slice];
+    const_slice : mut\Slice@LSInt64 = my_array->std.slice();
     
     std.print(line=
         "stats: size:" +> my_array.[type].[byte_size] +>
-        " count:" +> my_array.[type].[element_count] +>
+        " count:" +> my_array.[type]->std.count() +>
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
     [for my_array, index:=index, element:=value, 
@@ -16,7 +16,7 @@ mangle::main
     [for my_array.[ref], index:=index, element:=value, 
         std.print(line="element " +> index +> " is " +> element +> "!");
     ];
-    std.print(line="it starts with " +> my_array.[ref].[at 0] +> "!");
+    std.print(line="it starts with " +> my_array.[ref]->std.at{0}() +> "!");
 
     result <:= 0;
 ];
