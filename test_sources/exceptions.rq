@@ -15,11 +15,12 @@ pure
 
 [proc , ()SInt, result,
     [try
-        result <:= divide(5, 0).[pass];
-    ][catch message:Slice@Utf8,
+        intermediate := divide(10, 2).[pass 0];
+        result <:= divide(5, 0).[pass 1];
+    ][catch (0, 1), message:Slice@Utf8,
         std.print(line=message);
         result <:= 0;
-    ][catch number:SInt,
+    ][catch (0, 1), number:SInt,
         result <:= number;
     ];
 ];
