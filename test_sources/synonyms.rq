@@ -1,5 +1,5 @@
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     pre i32 := SInt32;
     pre other_i32 := i32.[synonym];
 

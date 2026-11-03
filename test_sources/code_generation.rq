@@ -8,7 +8,7 @@ anchor::A
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     pre [for 0.<=10, pre num:=value,
         pre varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice() +> " is " +> (varname.getSlice().[identify]) +> "!");  

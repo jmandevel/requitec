@@ -7,11 +7,11 @@
 // note: if a signature or layout has a polyadic parameter, it must be the 
 // last postional parameter.
 
-[proc getSum, ( ...var:SInt <)SInt, result,
-    result <:= 0;
+[proc getSum, ( ...var:SInt <)SInt,
+    result <:=0;
     pre [for var, num:=value,
         result = result + num;
-    ];
+    ]
 ];
 
 [import "std", std];

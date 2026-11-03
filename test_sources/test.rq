@@ -1,4 +1,4 @@
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
   result <:= 0;
 ];

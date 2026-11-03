@@ -2,7 +2,7 @@ opaque mangle::puts
 [proc , (>str:Ptr@Char<)Void];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     c.puts("hello, world\n".[of Char].[data_address]);
 
     result <:= 0;

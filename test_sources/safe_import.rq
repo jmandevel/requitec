@@ -5,7 +5,7 @@
 [import "safe_export", A];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;
@@ -14,7 +14,7 @@ mangle::main
 
 [namespace A,
     pure
-    [proc getBool, ()Bool, result,
+    [proc getBool, ()Bool,
         // lazy symbols in same namespace have to be specified with whole path!
 
         // this still uses the _SneakyMacro so it expands to [true].

@@ -12,7 +12,7 @@
 comtime never_mut : no_mut\ = Partialable();
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // all properties are mut for fully mut values:
     fully_mut : mut\ = Partialiable();
 

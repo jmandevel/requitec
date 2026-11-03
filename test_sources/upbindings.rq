@@ -10,9 +10,12 @@ mangle::main
 ];
 
 pure
-[proc doMath, (>int:SInt<)SInt, result,
+[proc doMath, (>int:SInt<)SInt,
+    // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
+    other_int :mut\= 2; 
 
-    other_int :mut\= 2; // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
+    // upbinding in frame scope sets return value of the proc
+    result <:=; // the result is indeterminate (not set yet)
 
     other_int = 3; // to reassign to existing variable dont add the binding.
 
@@ -24,14 +27,21 @@ pure
     // (maybe can allow variables without destructors to be upbound in loops somehow...)
 
     [fold var:SInt,
+        // this var is mutable within the fold, constant after its done
+        // also, its indeterminate so not set yet.
+        var <:mut\SInt=;
+
+        inits::var.[reflect]
         [if int < 7,
-            var <:= 7;
+            var ?= 7;
         ][else_if int > 9,
-            result <:= 0; // result must be set before return
+            result ?= 0; // result must be set before return
             return; // dont need to set var because function returns before the fold ends
         ][else
-            var <:= 1;
+            var ?= 1;
         ];
+
+        var = var + 1;
     ];
-    result <:= var; // result was set in [else_if] condition which never reaches here, so its ok to initialize it again.
+    result ?= var;
 ];

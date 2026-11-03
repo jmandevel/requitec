@@ -66,7 +66,7 @@
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     dog := Dog();
     cat := Cat();
     rat := Rat();

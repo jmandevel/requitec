@@ -13,7 +13,7 @@
 // if a pure function does something with a side effect, this causes a compiler error.
 // returning a value, mutating referenced arguments, mutating reciver are ok in pure functions.
 pure
-[function myAdd, (> a:SInt, b:SInt <)SInt, result,
+[function myAdd, (> a:SInt, b:SInt <)SInt,
     result <:= a + b;
 ];
 
@@ -31,7 +31,7 @@ impure
 runtime predefined MY_NUMBER := myAdd(1, 2);
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // pure functions can be rvalue sub-expressions
     added := myAdd(1, myAdd(2, 3));
 

@@ -12,7 +12,7 @@ pure
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     mut0 :SInt = add(1, 2); // Type is SInt
 
     mut1 := add(1.[as Double], 2.[as Double]); // Type is Double

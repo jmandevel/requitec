@@ -19,7 +19,7 @@ template::{> auto List:ANY <}
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     printList(
         "hello" +>
         3.14.[as Single] +>

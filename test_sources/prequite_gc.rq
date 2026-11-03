@@ -32,7 +32,7 @@ var5 :SInt= var5; // this is a compiler error!
 // detach qualifier is only valid in comtime. its a compiler error to use it at all in runtime code.
 
 list :std.List{SInt}= std.List{SInt, detach}();
-list.mut\[ref].pushBack(0).[pass];
+list.mut\[ref].pushBack(0).[pass]; // passing in top scope crashes the script if something was thrown!
 list.mut\[ref].pushBack(1).[pass];
 list.mut\[ref].pushBack(2).[pass];
 list.mut\[ref].pushBack(3).[pass];

@@ -11,7 +11,7 @@
 
     // when you set an indeterminate value for the first time, you use \= operator
     // you can do this even if the type is no_mut.
-    indeterminate \= 0;
+    indeterminate ?= 0;
 
     // other is an indeterminate platform dependent typed float
     other :Single=;
@@ -20,19 +20,22 @@
     // this means that all branches must either set the value or return if in function frame
     inits::other.[reflect]
     [if indeterminate==0,
-        other \= 3.14;
+        other ?= 3.14;
     ][else_if indeterminate==1,
-        other \= 2.18;
+        other ?= 2.18;
     ][else
         return;
     ];
 
-    unset :SInt=;
+    unset :mut\SInt=;
 
-    // indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
+    // mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
+    // with an else where its also set.
     inits::unset.[reflect]
     [for 0.<10, var:=value,
-        unset \= var;
+        unset ?= var;
+    ][else 
+        unset ?= 0;
     ];
 
     // doing the same for types with a destructor is a compiler error!
@@ -44,7 +47,7 @@
             :SInt=
         };
 
-    three_ints->std.at{0}() \= 0;
-    three_ints->std.at{1}() \= 1;
-    three_ints->std.at{2}() \= 2;
+    three_ints->std.at{0}() ?= 0;
+    three_ints->std.at{1}() ?= 1;
+    three_ints->std.at{2}() ?= 2;
 ];

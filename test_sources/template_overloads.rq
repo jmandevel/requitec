@@ -4,11 +4,11 @@ template::{ Type:TYPE <}
 pure
 [proc asSigned, 
     pre Signed : = [SInt Type.[byte_size]];
-    ( var:Type <)Signed, result,
+    ( var:Type <)Signed,
     result <:= var.[bitwise_cast Signed];
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     result <:= asSigned{Single}(3.14);
 ];

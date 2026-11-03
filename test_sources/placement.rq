@@ -15,7 +15,7 @@ template::{ Type:TYPE <}
     public inline
     template::{Placement:PLACEMENT<}
     [proc create, 
-        (placement:Placement<)mut\UniquePtr{Type}, result,
+        (placement:Placement<)mut\UniquePtr{Type},
 
         ptr := malloc(Type.[byte_size]).[cast Ptr@mut\Type];
         result <:= UniquePtr{Type}(
@@ -39,7 +39,7 @@ template::{ Type:TYPE <}
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

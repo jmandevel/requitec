@@ -10,17 +10,17 @@
     public pure [layout_constructor];
 
     public pure
-    [proc fromScalar, (> scalar:FSInt32 <)MyClass, result,
+    [proc fromScalar, (> scalar:FSInt32 <)MyClass,
         result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public pure
-    [proc getTotal, ()FSInt32=>Ref@, result,
+    [proc getTotal, ()FSInt32=>Ref@,
         result <:= this.x + this.y + this.z;
     ];
 
     public pure
-    [proc add, (>a:MyClass, b:MyClass<)MyClass, result,
+    [proc add, (>a:MyClass, b:MyClass<)MyClass,
         result <:=
             MyClass(
                 a.x + b.x,

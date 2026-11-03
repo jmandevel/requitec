@@ -30,7 +30,7 @@ constraint::count_div_2 >= 0
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     my_double_array := A.Array{count_div_2=1}([array 1, 2].[emplace]);
 
     result <:= 0;

@@ -1,5 +1,5 @@
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // specify type in binding
     var0 : SInt32 =0;
 

@@ -22,7 +22,7 @@ pure
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
   class :mut\= MyClass();
   copy := class;
   reference := class.[ref];

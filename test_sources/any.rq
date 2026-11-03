@@ -1,7 +1,7 @@
 // ANY is a concept that can fit any symbol
 
 pure template::{ Symbol:ANY <}
-[function isType, ()Bool, result,
+[function isType, ()Bool,
     results <:= Symbol.[is TYPE];
 ];
 
@@ -14,7 +14,7 @@ my_any = true; // now it contains a Bool
 is_boolean := my_any.[type].[is Bool]; 
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     my_tuple := { 1, 3.14, true, "Hello!" };
     pre [for my_tuple, var:Generic@TYPE=value,
         pre [if var.[type].[is INT],

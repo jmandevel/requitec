@@ -6,13 +6,13 @@
 
     public [layout_constructor];
 
-    public[constructor {> a:SInt, b:SInt <}, result,
+    public[constructor {> a:SInt, b:SInt <},
         result <:= MyClass.[init a + b];
     ];
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     // create stack
     my_stack :mut\= std.StackList{MyClass}();
     

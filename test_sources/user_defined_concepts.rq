@@ -6,28 +6,29 @@ concept FLOAT_OR_SINT32 :SIGNED=Subject\\ Subject.[is FLOAT] || Subject.[is SInt
 
 // this template has constraints on the parameter, only accepting types that match the concept
 pure template::{ auto Type:FLOAT_OR_SINT32 <}
-[proc addOne, ( num:Type <)Type, result,
+[proc addOne, ( num:Type <)Type,
     result <:= num + 1;
 ];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     float := addOne(3.14);
     result <:= addOne(0);
 ];
 
-concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate result,
+concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate
+        result <:=;
         [if !Subject.[is TUPLE], 
-            result <:= false;
+            result ?= false;
             done;
         ];
         [for Subject.[parameter_range], param:=value.[ref],
             [if !param.[type].[is TYPE],
-                result <:= false;
+                result ?= false;
                 done;
             ];
         ];
-        result <:= true;
+        result ?= true;
     ];
 
 // this is an opaque function. it exists nowhere, but we can still perform substitution checking against it.

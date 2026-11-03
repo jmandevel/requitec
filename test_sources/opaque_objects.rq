@@ -18,7 +18,7 @@ opaque mangle::getSized
 [proc getSized, ()MyClass];
 
 mangle::main
-[proc , ()SInt, result,
+[proc , ()SInt,
     ref := getInstanceRef().[ref];
     sized := getSized(); 
     // Sized uses 64 bits of memory in the stack.

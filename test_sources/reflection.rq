@@ -2,7 +2,7 @@
 
 template::{> NUM:SInt <}
 pure
-[proc getNum, ()SInt, result,
+[proc getNum, ()SInt,
     result <:= NUM;
 ];
 
@@ -11,12 +11,12 @@ pure
 // declarations without a template modifier are attached directly to polymorph
 
 pure
-[proc getNum, ()SInt, result,
+[proc getNum, ()SInt,
     result <:= 0;
 ];
 
 pure
-[proc getNum, (> num:SInt <)SInt, result,
+[proc getNum, (> num:SInt <)SInt,
     result <:= num;
 ];
 
@@ -26,11 +26,9 @@ comtime noArgs := getNum.[resolve_proc ()SInt];
 // get specialization with signature and given template args
 comtime templateNoArgs := getNum{ NUM=0 }.[resolve_proc ()SInt];
 
-// loop over all template specializations of polymorphs found through alias
+// loop over all templates of polymorphs found through alias
 [for getNum.[template_range], template := value,
-    [for template.[specialization_range], specialization := value,
-        // etc
-    ];
+    // etc
 ];
 
 // loop over all overloads of all polymorphs of alias
