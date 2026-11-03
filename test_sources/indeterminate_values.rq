@@ -22,7 +22,7 @@
     [if indeterminate==0,
         other \= 3.14;
     ][else_if indeterminate==1,
-        other \= 2.18
+        other \= 2.18;
     ][else
         return;
     ];
