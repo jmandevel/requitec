@@ -21,6 +21,7 @@ enum class TokenKind : std::uint_fast8_t {
   BANG_EQUAL_OPERATOR,         // !=
   BANG_OPERATOR,               // !
   WHAT_OPERATOR,               // ?
+  WHAT_EQUAL_OPERATOR,         // ?=
   COLON_OPERATOR,              // :
   DOUBLE_COLON_OPERATOR,       // ::
   LESS_COLON_OPERATOR,         // <:
@@ -50,7 +51,6 @@ enum class TokenKind : std::uint_fast8_t {
   DOLLAR_OPERATOR,             // $
   EQUAL_OPERATOR,              // =
   DOUBLE_EQUAL_OPERATOR,       // ==
-  BACKSLASH_EQUAL_OPERATOR,    // \=
   ARROW_OPERATOR,              // ->
   DOUBLE_ARROW_OPERATOR,       // -->
   THICK_ARROW_OPERATOR,        // =>
@@ -151,6 +151,8 @@ getName(rq::TokenKind kind) {
     return "bang_operator";
   case T::WHAT_OPERATOR:
     return "what_operator";
+  case T::WHAT_EQUAL_OPERATOR:
+    return "what_equal_operator";
   case T::COLON_OPERATOR:
     return "colon_operator";
   case T::DOUBLE_COLON_OPERATOR:
@@ -209,8 +211,6 @@ getName(rq::TokenKind kind) {
     return "equal_operator";
   case T::DOUBLE_EQUAL_OPERATOR:
     return "double_equal_operator";
-  case T::BACKSLASH_EQUAL_OPERATOR:
-    return "backslash_equal_operator";
   case T::ARROW_OPERATOR:
     return "arrow_operator";
   case T::DOUBLE_ARROW_OPERATOR:
@@ -350,6 +350,8 @@ getInfoFlags(rq::TokenKind kind) {
     return TF::OPERATOR;
   case T::WHAT_OPERATOR:
     return TF::ERROR;
+  case T::WHAT_EQUAL_OPERATOR:
+    return TF::OPERATOR;
   case T::COLON_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_COLON_OPERATOR:
@@ -407,8 +409,6 @@ getInfoFlags(rq::TokenKind kind) {
   case T::EQUAL_OPERATOR:
     return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_EQUAL_OPERATOR:
-    return TF::OPERATOR;
-  case T::BACKSLASH_EQUAL_OPERATOR:
     return TF::OPERATOR;
   case T::ARROW_OPERATOR:
     return TF::OPERATOR;

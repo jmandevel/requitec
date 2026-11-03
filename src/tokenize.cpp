@@ -160,23 +160,23 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '-':
         switch (this->getRanger().getChar(2)) {
-          case '>':
-            this->tokenizeLengthToken(T::DOUBLE_ARROW_OPERATOR, 3);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
-            break;
+        case '>':
+          this->tokenizeLengthToken(T::DOUBLE_ARROW_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
+          break;
         }
         continue;
       case '>':
         this->tokenizeLengthToken(T::ARROW_OPERATOR, 2);
         break;
-          case '%':
-            this->tokenizeLengthToken(T::DASH_PERCENT_OPERATOR, 2);
-            break;
-          case '|':
-            this->tokenizeLengthToken(T::DASH_PIPE_OPERATOR, 2);
-            break;
+      case '%':
+        this->tokenizeLengthToken(T::DASH_PERCENT_OPERATOR, 2);
+        break;
+      case '|':
+        this->tokenizeLengthToken(T::DASH_PIPE_OPERATOR, 2);
+        break;
       default:
         this->tokenizeLengthToken(T::DASH_OPERATOR, 1);
         break;
@@ -186,40 +186,40 @@ void Tokenizer::_tokenizeSourceText() {
       switch (this->getRanger().getChar(1)) {
       case '.':
         switch (this->getRanger().getChar(2)) {
-          case '.':
-            this->tokenizeLengthToken(T::ELIPSIS_OPERATOR, 3);
-            break;
-          default:
-            this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
+        case '.':
+          this->tokenizeLengthToken(T::ELIPSIS_OPERATOR, 3);
+          break;
+        default:
+          this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
         }
         break;
       case '+':
         switch (this->getRanger().getChar(2)) {
-          case '%':
-            this->tokenizeLengthToken(T::DOT_PLUS_PERCENT_OPERATOR, 3);
-            break;
-          case '|':
-            this->tokenizeLengthToken(T::DOT_PLUS_PIPE_OPERATOR, 3);
-            break;
-          default:
+        case '%':
+          this->tokenizeLengthToken(T::DOT_PLUS_PERCENT_OPERATOR, 3);
+          break;
+        case '|':
+          this->tokenizeLengthToken(T::DOT_PLUS_PIPE_OPERATOR, 3);
+          break;
+        default:
           this->tokenizeLengthToken(T::DOT_PLUS_OPERATOR, 2);
         }
         break;
       case '-':
         switch (this->getRanger().getChar(2)) {
-          case '%':
-            this->tokenizeLengthToken(T::DOT_DASH_PERCENT_OPERATOR, 3);
-            break;
-          default:
+        case '%':
+          this->tokenizeLengthToken(T::DOT_DASH_PERCENT_OPERATOR, 3);
+          break;
+        default:
           this->tokenizeLengthToken(T::DOT_DASH_OPERATOR, 2);
         }
         break;
       case '*':
         switch (this->getRanger().getChar(2)) {
-          case '%':
-            this->tokenizeLengthToken(T::DOT_STAR_PERCENT_OPERATOR, 3);
-            break;
-          default:
+        case '%':
+          this->tokenizeLengthToken(T::DOT_STAR_PERCENT_OPERATOR, 3);
+          break;
+        default:
           this->tokenizeLengthToken(T::DOT_STAR_OPERATOR, 2);
         }
         break;
@@ -437,7 +437,13 @@ void Tokenizer::_tokenizeSourceText() {
       }
       continue;
     case '?':
-      this->tokenizeLengthToken(T::WHAT_OPERATOR, 1);
+      switch (this->getRanger().getChar(1)) {
+      case '=':
+        this->tokenizeLengthToken(T::WHAT_EQUAL_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(T::WHAT_OPERATOR, 1);
+      }
       continue;
     case '@':
       this->tokenizeLengthToken(T::AT_OPERATOR, 1);
@@ -502,9 +508,6 @@ void Tokenizer::_tokenizeSourceText() {
       case '/':
         this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
         break;
-      case '=':
-        this->tokenizeLengthToken(T::BACKSLASH_EQUAL_OPERATOR, 2);
-        break;
       default:
         this->tokenizeLengthToken(T::BACKSLASH_OPERATOR, 1);
       }
@@ -514,11 +517,11 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '^':
       switch (this->getRanger().getChar(1)) {
-        case '^':
-          this->tokenizeLengthToken(T::DOUBLE_CAROT_OPERATOR, 2);
-          break;
-        default:
-        this->tokenizeLengthToken(T::CAROT_OPERATOR, 1);        
+      case '^':
+        this->tokenizeLengthToken(T::DOUBLE_CAROT_OPERATOR, 2);
+        break;
+      default:
+        this->tokenizeLengthToken(T::CAROT_OPERATOR, 1);
       }
       continue;
     case '_':

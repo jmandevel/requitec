@@ -218,7 +218,7 @@ rq::Expression &RequiteParser::parsePrecedence10() {
                                      rq::Keyword::UNSITUATED_EQUAL_OPERATOR);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
-    case rq::TokenKind::BACKSLASH_EQUAL_OPERATOR:
+    case rq::TokenKind::WHAT_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseBinary(token,
                                      rq::Keyword::INDETERMINATE_ASSIGN);
