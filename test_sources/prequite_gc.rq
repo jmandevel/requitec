@@ -45,7 +45,7 @@ var10 :Ref@SInt= list.[ref].at(1).[ref];
 
 // with detached lists, you can use generic types
 // as you can see here, this list can contain any type for each element
-generic_list :std.List{#ANY, detach}();
+generic_list :std.List{Generic@ANY, detach}();
 generic_list.mut\[ref].pushBack(0.[as SInt]);
 generic_list.mut\[ref].pushBack(3.14.[as Single]);
 nested_list :mut\= std.List{SInt, detach}([list 0, 1, 2, 3, 4]);

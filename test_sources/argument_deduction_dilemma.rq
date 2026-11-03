@@ -25,7 +25,7 @@ constraint::count_div_2 >= 0
 
     // note that Element is [auto], so its still possible to map arguments for deduction at declaration time
     // the value of count cannot be determined until specialization, but this does not stop the mapping during declaration!
-    {> data:count#Element <},
+    {> data:[array count]::Element <},
 
 ];
 
