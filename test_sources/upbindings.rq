@@ -2,10 +2,13 @@
 
 mangle::main
 [proc , (>args:Slice@Ptr@Char<)SInt,
+    result <:=;
+
+    inits::result
     [if args->std.count() == 0,
-        result <:= 5;
+        result ?= 5;
     ][else 
-        result <:= 6;
+        result ?= 6;
     ];
 ];
 
