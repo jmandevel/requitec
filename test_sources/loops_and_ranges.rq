@@ -6,8 +6,6 @@ mangle::main
     // all of these loops are equivalent
 
     // equal limit interval
-    // the lvalue "value" is name of variable, the rvalue "value" is an 
-    // expaneded _SneakyMacro.
     [for 0.!=9, value:=value, 
         std.print(line="value is " +> value);    
     ];
