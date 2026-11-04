@@ -13,7 +13,8 @@
 
 mangle::main
 [proc , ()SInt,
-    std.print(line="the return value is " +> myFunc(1, 2));
+    ret := myFunc(1, 2);
+    std.print(line="the return value is " +> ret);
 
     result <:= 0;
 ];
