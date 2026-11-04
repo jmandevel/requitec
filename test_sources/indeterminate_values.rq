@@ -9,7 +9,7 @@
     // if try accessing indeterminate value, this is a compiler error
     // value := indeterminate; // uncomment for a compiler error
 
-    // when you set an indeterminate value for the first time, you use \= operator
+    // when you set an indeterminate value for the first time, you use ?= operator
     // you can do this even if the type is no_mut.
     indeterminate ?= 0;
 
