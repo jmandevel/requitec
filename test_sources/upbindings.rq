@@ -4,7 +4,7 @@ mangle::main
 [proc , (>args:Slice@Ptr@Char<)SInt,
     result <:=;
 
-    inits::result
+    inits::result.[reflect]
     [if args->std.count() == 0,
         result ?= 5;
     ][else 
