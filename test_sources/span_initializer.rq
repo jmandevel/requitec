@@ -10,7 +10,6 @@ mangle::main
         uninit:=value.unset\mut\[ref],
 
         uninit ?= index * 2;
-    ][amid // this occurs every loop continue
         index = index + 1;
     ];
 
