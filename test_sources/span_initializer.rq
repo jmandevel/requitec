@@ -5,11 +5,23 @@ mangle::main
     list := std.List{SInt}();
     [for 
         SInt index := 0; // this is created before first loop iteration and exists for all iterations.
+
         list.pushBackSpan(5),
         uninit:=value.unset\mut\[ref],
+
         uninit ?= index * 2;
     ][amid // this occurs every loop continue
         index = index + 1;
     ];
+
+    other_list := std.List{SInt}();
+
+    // move items over manually
+    [for
+        other_list.pushBackSpan(list.count())->std.reverse(),
+        uninit:=value.unset\mut\[ref],
+
+        uninit ?= list.popBack();
+    ];  
     result <:= 0;
 ];
