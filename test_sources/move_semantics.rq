@@ -32,7 +32,7 @@ mangle::main
   copy_value_at_pointer := pointer.[content];
   non_destructive_move := class.mut\[ref]->std.extract();
   destructive_move := class.[move];
-  // class was forgetped because it was moved out of
+  // class was ignored because it was moved out of
   class := destructive_move.[move]; /// move it back!
   pinned :mut\= MyPinned();
   // moved := pinned.[move]; // this move would cause a compiler error because moving to a new memory location and and it has no_stable_address modifier

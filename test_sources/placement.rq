@@ -21,13 +21,13 @@ template::{ Type:TYPE <}
         result <:= UniquePtr{Type}(
                 ptr=ptr
             );   
-        this.ptr.[inplace_init placement.[invoke]];
+        this.ptr.[content] ?= placement.[invoke];
     ];
 
     public[destructor         
-        this.ptr.[content].[inplace_destroy];
+        this.ptr.[content].[take].[destroy];
         free(this.ptr);
-        this.[forget];
+        this.[take].[ignore];
     ];
 
 ];

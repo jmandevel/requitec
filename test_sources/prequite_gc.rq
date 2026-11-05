@@ -21,7 +21,7 @@ val2 :SInt= val1;
 
 var3 :SInt= 0;
 var4 :Ref@SInt= var3.[ref];
-var3.[destroy];
+var3.[take].[destroy];
 var5 :SInt= var5; // this is a compiler error!
 
 [import "std", std];

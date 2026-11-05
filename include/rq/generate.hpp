@@ -47,7 +47,6 @@ struct Generator final {
   [[nodiscard]] rq::RValue generateInvokeOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateComposeOf(rq::SymbolTable &host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateDecomposeOf(rq::SymbolTable& host, rq::Expression& ex);
-  [[nodiscard]] rq::Statement generateForgetOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateInitOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateInplaceDestroyOf(rq::SymbolTable& host, rq::Expression& ex);
   [[nodiscard]] rq::RValue generateInplaceInitOf(rq::SymbolTable& host, rq::Expression& ex);

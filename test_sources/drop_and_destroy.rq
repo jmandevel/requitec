@@ -5,7 +5,7 @@
 [class WithDestroy, public[layout_constructor]; {},
     [destructor
         std.print(line="In destroy!");
-        this.[forget];
+        this.[take].[ignore];
     ];
 ];
 
@@ -16,17 +16,17 @@ mangle::main
     c := WithDestroy();
     d := WithDestroy();
 
-    // after forget or destroy, variable is invalidated (can no longer be used)
-    a.[forget]; 
+    // after ignore or destroy, variable is invalidated (can no longer be used)
+    a.[take].[ignore]; 
 
-    // since b's type has no destroy, behaviour is same as b.[forget]
-    b.[destroy];
+    // since b's type has no destroy, behaviour is same as b.[take].[ignore]
+    b.[take].[destroy];
 
     // even though c's type has a destroy, its not called
-    c.[forget];
+    c.[take].[ignore];
 
     // d's destroy is called
-    d.[destroy];
+    d.[take].[destroy];
 
     without := WithoutDestroy();
     with := WithDestroy();

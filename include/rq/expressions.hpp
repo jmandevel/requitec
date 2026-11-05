@@ -246,10 +246,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "decompose";
   case K::DECOMPOSE_OF:
     return "_decompose_of";
-  case K::FORGET:
-    return "forget";
-  case K::FORGET_OF:
-    return "_forget_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
   case K::INPLACE_DESTROY_OF:
@@ -1412,10 +1408,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::DECOMPOSE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::FORGET:
-    return KIF::RAILCAR;
-  case K::FORGET_OF:
-    return KIF::STATEMENT;
   case K::INIT:
     return KIF::RAILCAR;
   case K::INIT_OF:
@@ -2687,8 +2679,6 @@ getDescription(rq::Situation situation) {
     return K::COMPOSE_OF;
   case K::DECOMPOSE:
     return K::DECOMPOSE_OF;
-  case K::FORGET:
-    return K::FORGET_OF;
   case K::INIT:
     return K::INIT_OF;
   case K::INPLACE_DESTROY:

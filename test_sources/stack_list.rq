@@ -21,7 +21,7 @@ mangle::main
     my_stack.pushBack(MyClass(1, 2).[emplace]);
 
     // forget the last element
-    my_stack.popBack();
+    my_stack.popBack().[ignore];
     
     result <:= 0;
 ];

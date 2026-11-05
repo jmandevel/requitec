@@ -137,8 +137,6 @@ enum class Keyword : rq::EntityId {
   COMPOSE_OF,
   DECOMPOSE,
   DECOMPOSE_OF,
-  FORGET,
-  FORGET_OF,
   INIT,
   INIT_OF,
   INPLACE_DESTROY,

@@ -502,12 +502,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DECOMPOSE_OF:
     is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
     break;
-  case K::FORGET:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-  case K::FORGET_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
   case K::INIT:
     is_ok = this->situateNaryTag(situation, expression, 0, S::ARGUMENT);
     break;
