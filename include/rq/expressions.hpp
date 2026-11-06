@@ -438,8 +438,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "match";
   case K::ARM:
     return "arm";
-  case K::DEFAULT:
-    return "default";
   case K::TRY:
     return "try";
   case K::CATCH:
@@ -612,10 +610,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "depreciated";
   case K::EXPERIMENTAL:
     return "experimental";
-  case K::UNSTABLE_ADDRESS:
-    return "unstable_address";
-  case K::STABLE_ADDRESS:
-    return "stable_address";
+  case K::MOVEABLE:
+    return "moveable";
+  case K::COPYABLE:
+    return "copyable";
   case K::INVARIADIC:
     return "invariadic";
   case K::VARIADIC:
@@ -676,6 +674,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_throws";
   case K::THROWS:
     return "throws";
+  case K::NO_UNSET:
+    return "no_unset";
+  case K::UNSET:
+    return "unset";
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -1148,15 +1150,15 @@ enum class KeywordInfoFlags : std::uint32_t {
   PARAMETER = rq::getBit(15),
   TUPLE_ELEMENT = rq::getBit(16),
   BINDING = rq::getBit(17),
-  NAME = rq::getBit(18),
-  PATH = rq::getBit(19),
-  ROUTE = rq::getBit(20),
-  PORTAL = rq::getBit(21),
-  ASCRIPTION = rq::getBit(22),
-  MODIFIER = rq::getBit(23),
-  QUALIFIER = rq::getBit(24),
-  ARITHMETIC_SEQUENCE_STEP = rq::getBit(25),
-  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(26),
+  NAME = rq::getBit(19),
+  PATH = rq::getBit(20),
+  ROUTE = rq::getBit(21),
+  PORTAL = rq::getBit(22),
+  ASCRIPTION = rq::getBit(23),
+  MODIFIER = rq::getBit(24),
+  QUALIFIER = rq::getBit(25),
+  ARITHMETIC_SEQUENCE_STEP = rq::getBit(26),
+  ARITHMETIC_SEQUENCE_CONDITION = rq::getBit(27),
   ALL_SITUATIONS = STATEMENT | RVALUE | LVALUE | RAILCAR | ARGUMENT |
       PARAMETER | BINDING | NAME | PATH | ROUTE | PORTAL | ASCRIPTION |
       MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
@@ -1592,7 +1594,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::IF_CHAINLINK;
   case K::ELSE:
-    return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK;
+    return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK | KIF::MATCH_CHAINLINK | KIF::SWITCH_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::SWITCH:
     return KIF::STARTING_CHAINLINK | KIF::SWITCH_CHAINLINK;
   case K::CASE:
@@ -1603,9 +1605,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ARM:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::MATCH_CHAINLINK;
-  case K::DEFAULT:
-    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::SWITCH_CHAINLINK | KIF::MATCH_CHAINLINK;
   case K::TRY:
     return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::CATCH:
@@ -1614,9 +1613,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::FINALLY:
     return KIF::FINISHING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::FOR:
-    return KIF::STATEMENT;
+    return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::WHILE:
-    return KIF::STATEMENT;
+    return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::SCOPE:
     return KIF::STATEMENT;
   case K::FOLD:
@@ -1779,9 +1778,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXPERIMENTAL:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::UNSTABLE_ADDRESS:
+  case K::MOVEABLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::STABLE_ADDRESS:
+  case K::COPYABLE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INVARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -1844,6 +1843,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::NO_THROWS:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::THROWS:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::NO_UNSET:
+    return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::UNSET:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
@@ -3154,9 +3157,10 @@ enum class Modifier : std::uint_fast8_t {
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // address_stability
-  UNSTABLE_ADDRESS,
-  STABLE_ADDRESS,
+  // moving
+  MOVEABLE,
+  // copying
+  COPYABLE,
   // variadic
   INVARIADIC,
   VARIADIC,
@@ -3269,10 +3273,10 @@ enum class Modifier : std::uint_fast8_t {
     return "depreciated";
   case M::EXPERIMENTAL:
     return "experimental";
-  case M::UNSTABLE_ADDRESS:
-    return "unstable_address";
-  case M::STABLE_ADDRESS:
-    return "stable_address";
+  case M::MOVEABLE:
+    return "moveable";
+  case M::COPYABLE:
+    return "copyable";
   case M::INVARIADIC:
     return "invariadic";
   case M::VARIADIC:
@@ -3390,10 +3394,10 @@ enum class Modifier : std::uint_fast8_t {
     return M::DEPRECIATED;
   case K::EXPERIMENTAL:
     return M::EXPERIMENTAL;
-  case K::UNSTABLE_ADDRESS:
-    return M::UNSTABLE_ADDRESS;
-  case K::STABLE_ADDRESS:
-    return M::STABLE_ADDRESS;
+  case K::MOVEABLE:
+    return M::MOVEABLE;
+  case K::COPYABLE:
+    return M::COPYABLE;
   case K::INVARIADIC:
     return M::INVARIADIC;
   case K::VARIADIC:
@@ -3507,9 +3511,11 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   EXPERIMENTAL = rq::getBit(39),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  UNSTABLE_ADDRESS = rq::getBit(40),
-  STABLE_ADDRESS = rq::getBit(41),
-  ADDRESS_STABILITY_MODIFIER_MASK = UNSTABLE_ADDRESS | STABLE_ADDRESS,
+  MOVEABLE = rq::getBit(40),
+  MOVING_MODIFIER_MASK = MOVEABLE,
+
+  COPYABLE = rq::getBit(41),
+  COPYING_MODIFIER_MASK = COPYABLE,
 
   INVARIADIC = rq::getBit(42),
   VARIADIC = rq::getBit(43),
@@ -3633,10 +3639,10 @@ RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
     return MFF::DEPRECIATED;
   case M::EXPERIMENTAL:
     return MFF::EXPERIMENTAL;
-  case M::UNSTABLE_ADDRESS:
-    return MFF::UNSTABLE_ADDRESS;
-  case M::STABLE_ADDRESS:
-    return MFF::STABLE_ADDRESS;
+  case M::MOVEABLE:
+    return MFF::MOVEABLE;
+  case M::COPYABLE:
+    return MFF::COPYABLE;
   case M::INVARIADIC:
     return MFF::INVARIADIC;
   case M::VARIADIC:
@@ -3767,9 +3773,9 @@ getInfoFlags(rq::Modifier modifier) {
     return MIF::ATTACHMENT;
   case M::EXPERIMENTAL:
     return MIF::ATTACHMENT;
-  case M::UNSTABLE_ADDRESS:
+  case M::MOVEABLE:
     return MIF::NO_ATTACHMENT;
-  case M::STABLE_ADDRESS:
+  case M::COPYABLE:
     return MIF::NO_ATTACHMENT;
   case M::INVARIADIC:
     return MIF::NO_ATTACHMENT;
@@ -3843,7 +3849,8 @@ enum class ModifierKind : std::uint_fast8_t {
   PACK,
   BRANCH_TREND,
   SUPPORT_NOTICE,
-  ADDRESS_STABILITY,
+  MOVING,
+  COPYING,
   VARIADIC,
   OFFSET,
   LAZY_DECLARATION_KIND,
@@ -3895,8 +3902,10 @@ enum class ModifierKind : std::uint_fast8_t {
     return "branch trend modifier";
   case MK::SUPPORT_NOTICE:
     return "support modifier";
-  case MK::ADDRESS_STABILITY:
-    return "address stability modifier";
+  case MK::MOVING:
+    return "moving modifier";
+  case MK::COPYING:
+    return "copying modifier";
   case MK::VARIADIC:
     return "variadic modifier";
   case MK::OFFSET:
@@ -3961,8 +3970,10 @@ enum class ModifierKind : std::uint_fast8_t {
     return MFF::BRANCH_TREND_MODIFIER_MASK;
   case MK::SUPPORT_NOTICE:
     return MFF::SUPPORT_NOTICE_MODIFIER_MASK;
-  case MK::ADDRESS_STABILITY:
-    return MFF::ADDRESS_STABILITY_MODIFIER_MASK;
+  case MK::MOVING:
+    return MFF::MOVING_MODIFIER_MASK;
+  case MK::COPYING:
+    return MFF::COPYING_MODIFIER_MASK;
   case MK::VARIADIC:
     return MFF::VARIADIC_MODIFIER_MASK;
   case MK::OFFSET:
@@ -4073,10 +4084,10 @@ enum class ModifierKind : std::uint_fast8_t {
     [[fallthrough]];
   case M::EXPERIMENTAL:
     return MK::SUPPORT_NOTICE;
-  case M::UNSTABLE_ADDRESS:
-    [[fallthrough]];
-  case M::STABLE_ADDRESS:
-    return MK::ADDRESS_STABILITY;
+  case M::MOVEABLE:
+    return MK::MOVING;
+  case M::COPYABLE:
+    return MK::COPYING;
   case M::INVARIADIC:
     [[fallthrough]];
   case M::VARIADIC:

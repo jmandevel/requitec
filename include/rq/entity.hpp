@@ -247,7 +247,6 @@ enum class Keyword : rq::EntityId {
   CASE,
   MATCH,
   ARM,
-  DEFAULT,
   TRY,
   CATCH,
   FINALLY,
@@ -355,9 +354,10 @@ enum class Keyword : rq::EntityId {
   SUPPORTED,
   DEPRECIATED,
   EXPERIMENTAL,
-  // address_stability
-  UNSTABLE_ADDRESS,
-  STABLE_ADDRESS,
+  // movability
+  MOVEABLE,
+  // copyability
+  COPYABLE,
   // variadic
   INVARIADIC,
   VARIADIC,
@@ -405,6 +405,9 @@ enum class Keyword : rq::EntityId {
   // throws
   NO_THROWS,
   THROWS,
+  // unset
+  NO_UNSET,
+  UNSET,
 
   // REFLECTIONS
   MEMBER_OF,
@@ -734,8 +737,8 @@ enum class SymbolKind : rq::EntityId {
   SUPPORTED_MODIFIER,
   DEPRECIATED_MODIFIER,
   EXPERIMENTAL_MODIFIER,
-  UNSTABLE_ADDRESS_MODIFIER,
-  STABLE_ADDRESS_MODIFIER,
+  MOVABLE_MODIFIER,
+  COPYABLE_MODIFIER,
   INVARIADIC_MODIFIER,
   VARIADIC_MODIFIER,
   BEST_LOCATION_MODIFIER,
@@ -1592,9 +1595,9 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::MODIFIER;
   case S::EXPERIMENTAL_MODIFIER:
     return SIF::MODIFIER;
-  case S::UNSTABLE_ADDRESS_MODIFIER:
+  case S::COPYABLE_MODIFIER:
     return SIF::MODIFIER;
-  case S::STABLE_ADDRESS_MODIFIER:
+  case S::MOVABLE_MODIFIER:
     return SIF::MODIFIER;
   case S::INVARIADIC_MODIFIER:
     return SIF::MODIFIER;

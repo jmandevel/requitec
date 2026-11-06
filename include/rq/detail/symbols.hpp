@@ -173,10 +173,10 @@ namespace rq {
     return "DepreciatedModifier";
   case S::EXPERIMENTAL_MODIFIER:
     return "ExperimentalModifier";
-  case S::UNSTABLE_ADDRESS_MODIFIER:
-    return "UnstableAddressModifier";
-  case S::STABLE_ADDRESS_MODIFIER:
-    return "StableAddressModifier";
+  case S::MOVABLE_MODIFIER:
+    return "MoveableModifier";
+  case S::COPYABLE_MODIFIER:
+    return "CopyableModifier";
   case S::INVARIADIC_MODIFIER:
     return "InvariadicModifier";
   case S::VARIADIC_MODIFIER:
