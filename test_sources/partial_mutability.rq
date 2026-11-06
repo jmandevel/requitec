@@ -1,3 +1,4 @@
+copyable movable
 [class Partialable,
     {>
         public partial_mutate property_a : FSInt32 = 0,

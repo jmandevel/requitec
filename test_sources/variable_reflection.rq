@@ -1,3 +1,4 @@
+copyable movable
 [class MyClass, {}];
 comtime VAR := MyClass;
 

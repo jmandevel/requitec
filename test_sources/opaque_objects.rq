@@ -1,5 +1,6 @@
 
 // the layout of this prototype is unknown. it can be defined later if the class is fully implemented.
+copyable movable
 opaque mangle::MyClass
 [class MyClass, Unknown];
 
@@ -7,6 +8,7 @@ opaque mangle::getInstanceRef
 [proc getInstance, ()Ref@MyClass];
 
 // when this class fully implemented, it can be a maximum of 64 bits in size
+copyable movable
 opaque mangle::SizedClass
 [class SizedClass, margin::64\Unknown,
 

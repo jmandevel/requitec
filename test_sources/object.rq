@@ -1,5 +1,6 @@
 [import "std", std];
 
+copyable movable
 [class MyClass,
     {>
         public x : FSInt32 = 0,

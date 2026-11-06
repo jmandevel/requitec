@@ -1,7 +1,9 @@
 [import "std", std];
 
+copyable movable
 [class WithoutDestroy, public pure[layout_constructor]; {}];
 
+copyable movable
 [class WithDestroy, public[layout_constructor]; {},
     [destructor
         std.print(line="In destroy!");
@@ -27,15 +29,6 @@ mangle::main
 
     // d's destroy is called
     d.[take].[destroy];
-
-    without := WithoutDestroy();
-    with := WithDestroy();
-
-    // if type has no destroy, can do a shallow copy (copies byte for byte)
-    copy := without; 
-
-    // this results in a compile error if uncommented because cannot shallow copy types with destroys 
-    // other_copy := with;
 
     result <:= 0;
 ];

@@ -15,6 +15,7 @@ mangle::main
 
 // equivalent to deducing this in c++
 
+copyable movable
 [class NumContainer,
     {| num := 0 },
 

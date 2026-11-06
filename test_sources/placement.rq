@@ -6,6 +6,7 @@ opaque mangle::malloc
 opaque mangle::free
 [proc free, (ptr:Ptr@mut\Void<)Void];
 
+copyable movable
 template::{ Type:TYPE <}
 [class UniquePtr,
     { ptr:Ptr@mut\Type <},
@@ -32,6 +33,7 @@ template::{ Type:TYPE <}
 
 ];
 
+copyable movable
 [class MyClass,
     { val:Single <},
 

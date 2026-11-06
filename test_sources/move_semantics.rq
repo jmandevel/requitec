@@ -1,9 +1,10 @@
 [import "std", std];
 
+copyable movable
 [class MyClass, public pure [layout_constructor]; {}];
 
-// This class has stable_address modifier, so it cannnot be moved to a new memory address
-stable_address
+// This class has no movable modifier, so it cannnot be moved to a new memory address
+copyable
 [class MyPinned, public pure [layout_constructor]; {}];
 
 pure

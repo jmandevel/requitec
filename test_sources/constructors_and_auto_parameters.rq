@@ -1,3 +1,4 @@
+copyable movable
 template::{> auto Element:NUMERIC <}
 [class Vector4,
     // everything before layout is surveyed (not evaluated) at class survey time.

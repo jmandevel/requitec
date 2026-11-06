@@ -6,6 +6,7 @@
         result <:= length;
     ];
 
+    copyable movable
     [class Foo, public pure[layout_constructor]; {}];
 
     pure

@@ -1,3 +1,4 @@
+copyable movable
 [class MyObject, 
     pre size := 0;
     pre Element := SInt;

@@ -16,10 +16,13 @@
 
 ];
 
+copyable movable
 [class Dog, public[layout_constructor]; {},];
 
+copyable movable
 [class Cat, public[layout_constructor]; {},];
 
+copyable movable
 [class Rat, public[layout_constructor]; {},
     public
     [proc squeak, ()Void=>,
