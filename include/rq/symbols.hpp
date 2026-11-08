@@ -488,7 +488,7 @@ struct BuiltinConceptLeaf final : public rq::BuiltinConcept {
   static constexpr rq::SymbolKind KIND = KIND_PARAM;
   using Self = rq::BuiltinConceptLeaf<KIND>;
 
-  explicit RQ_ALWAYS_INLINE BuiltinConceptLeaf(rq::Entity &predecessors);
+  explicit RQ_ALWAYS_INLINE BuiltinConceptLeaf(rq::Entity &predecessor);
 
   [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
 };

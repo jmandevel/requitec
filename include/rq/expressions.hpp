@@ -674,10 +674,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "no_throws";
   case K::THROWS:
     return "throws";
-  case K::NO_UNSET:
-    return "no_unset";
-  case K::UNSET:
-    return "unset";
+  case K::NO_UNINIT:
+    return "no_uninit";
+  case K::UNINIT:
+    return "uninit";
 
   // REFLECTIONS
   case K::MEMBER_OF:
@@ -1844,9 +1844,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::THROWS:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::NO_UNSET:
+  case K::NO_UNINIT:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::UNSET:
+  case K::UNINIT:
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS

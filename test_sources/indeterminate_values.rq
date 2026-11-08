@@ -27,15 +27,15 @@
         return;
     ];
 
-    unset :mut\SInt=;
+    uninit :mut\SInt=;
 
     // mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
     // with an else where its also set.
-    inits::unset.[reflect]
+    inits::uninit.[reflect]
     [for 0.<10, var:=value,
-        unset ?= var;
+        uninit ?= var;
     ][else 
-        unset ?= 0;
+        uninit ?= 0;
     ];
 
     // doing the same for types with a destructor is a compiler error!

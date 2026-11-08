@@ -405,9 +405,9 @@ enum class Keyword : rq::EntityId {
   // throws
   NO_THROWS,
   THROWS,
-  // unset
-  NO_UNSET,
-  UNSET,
+  // uninit
+  NO_UNINIT,
+  UNINIT,
 
   // REFLECTIONS
   MEMBER_OF,
