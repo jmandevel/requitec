@@ -109,7 +109,7 @@ template <typename ItemParam> struct NodeList final {
   llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
 
   NodeList() = default;
-  NodeList(Item& item) : _ptr_union(&item) {}
+  NodeList(Item &item) : _ptr_union(&item) {}
   ~NodeList() = default;
   NodeList(const Self &) = delete;
   NodeList(Self &&) = default;
@@ -125,7 +125,7 @@ template <typename ItemParam> struct NodeList final {
     return this->_ptr_union.isNull();
   }
   RQ_ALWAYS_INLINE void insertFront(rq::BumpPtrAllocator &allocator,
-                                  Item &item) {
+                                    Item &item) {
     if (this->getIsEmpty()) {
       this->_ptr_union = &item;
       return;
@@ -178,12 +178,8 @@ template <typename ItemParam> struct NodeList final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this->_ptr_union != rhs._ptr_union;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Iterator begin() {
-    return Iterator(*this);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Iterator end() {
-    return Iterator();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Iterator begin() { return Iterator(*this); }
+  [[nodiscard]] RQ_ALWAYS_INLINE Iterator end() { return Iterator(); }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator begin() const {
     ConstRef ref(*this);
     return ConstIterator(ref);
@@ -194,9 +190,7 @@ template <typename ItemParam> struct NodeList final {
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cbegin() const {
     return begin();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const {
-    return end();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const { return end(); }
 };
 
 template <typename ItemParam> struct NodeListRef final {
@@ -208,7 +202,7 @@ template <typename ItemParam> struct NodeListRef final {
   using Self = rq::NodeListRef<Item>;
   using Ref = rq::NodeListRef<Item>;
   using ConstRef = rq::ConstNodeListRef<Item>;
-  
+
   llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
 
   NodeListRef() = default;
@@ -261,12 +255,8 @@ template <typename ItemParam> struct NodeListRef final {
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &rhs) const {
     return this->_ptr_union != rhs._ptr_union;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Iterator begin() {
-    return Iterator(*this);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Iterator end() {
-    return Iterator();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE Iterator begin() { return Iterator(*this); }
+  [[nodiscard]] RQ_ALWAYS_INLINE Iterator end() { return Iterator(); }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator begin() const {
     ConstRef ref(*this);
     return ConstIterator(ref);
@@ -277,9 +267,7 @@ template <typename ItemParam> struct NodeListRef final {
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cbegin() const {
     return begin();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const {
-    return end();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const { return end(); }
 };
 
 template <typename ItemParam> struct ConstNodeListRef final {
@@ -323,14 +311,12 @@ template <typename ItemParam> struct ConstNodeListRef final {
       const Item *item_ptr = llvm::cast<const Item *>(this->_ptr_union);
       return rq::dereferencePtr(item_ptr);
     }
-    const Allocated *node_ptr =
-        llvm::cast<const Allocated *>(this->_ptr_union);
+    const Allocated *node_ptr = llvm::cast<const Allocated *>(this->_ptr_union);
     const Allocated &node = rq::dereferencePtr(node_ptr);
     return rq::dereferencePtr(node.item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstRef getTail() const {
-    const Allocated *node_ptr =
-        llvm::cast<const Allocated *>(this->_ptr_union);
+    const Allocated *node_ptr = llvm::cast<const Allocated *>(this->_ptr_union);
     const Allocated &node = rq::dereferencePtr(node_ptr);
     return node.list;
   }
@@ -350,9 +336,7 @@ template <typename ItemParam> struct ConstNodeListRef final {
   [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cbegin() const {
     return begin();
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const {
-    return end();
-  }
+  [[nodiscard]] RQ_ALWAYS_INLINE ConstIterator cend() const { return end(); }
 };
 
 } // namespace rq
