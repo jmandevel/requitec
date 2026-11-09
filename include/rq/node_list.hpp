@@ -111,7 +111,7 @@ template <typename ItemParam> struct NodeList final {
     return this->_ptr_union.isNull();
   }
   RQ_ALWAYS_INLINE void insertFront(rq::BumpPtrAllocator &allocator,
-                                  Item &item) {
+                                    Item &item) {
     if (this->getIsEmpty()) {
       this->_ptr_union = &item;
       return;
@@ -156,7 +156,7 @@ template <typename ItemParam> struct NodeList final {
     tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
     return tail;
   }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     void *list_value = this->_ptr_union.getOpaqueValue();
     inout_id.AddPointer(list_value);
   }
@@ -246,7 +246,7 @@ template <typename ItemParam> struct NodeListRef final {
     tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
     return tail;
   }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     void *list_value = this->_ptr_union.getOpaqueValue();
     inout_id.AddPointer(list_value);
   }
@@ -325,7 +325,7 @@ template <typename ItemParam> struct ConstNodeListRef final {
     tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
     return tail;
   }
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+  inline void Profile(llvm::FoldingSetNodeID &inout_id) const {
     void *list_value = this->_ptr_union.getOpaqueValue();
     inout_id.AddPointer(list_value);
   }
