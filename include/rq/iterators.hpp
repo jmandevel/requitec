@@ -5,132 +5,112 @@
 #include <llvm/Support/Casting.h>
 
 #include <concepts>
-#include <type_traits>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <ranges>
 
 namespace rq {
 
-template <typename BaseParam, typename DerivedParam = BaseParam>
-struct NextIterator final {
-  using Base = BaseParam;
-  using Derived = DerivedParam;
-  using Element = DerivedParam;
-  using Self = rq::NextIterator<Base, Derived>;
-  using value_type = Element;
-  using reference = Element &;
-  using pointer = Element *;
+template <typename StateParam, typename NextPolicyParam, typename ValueParam>
+struct Iterator final {
+  using State = StateParam;
+  using NextPolicy = NextPolicyParam;
+  using Value = ValueParam;
+  using Self = rq::Iterator<State, NextPolicy, Value>;
+  using value_type = Value;
+  using reference = Value &;
+  using pointer = Value *;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::forward_iterator_tag;
 
-  Element *_cur_ptr{nullptr};
+  State _state{};
 
-  NextIterator() = default;
-  explicit RQ_ALWAYS_INLINE NextIterator(Base *cur_ptr)
-      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {
-    using NextPtr = decltype(std::declval<Element>()._next_ptr);
-    using Next =
-        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-    static_assert(std::is_pointer_v<NextPtr>);
-    static_assert(std::derived_from<Derived, Base>);
-    static_assert(std::same_as<Next, Base>);
-  }
-  NextIterator(const Self &) = default;
-  NextIterator(Self &&) = default;
-  ~NextIterator() = default;
+  Iterator() = default;
+  explicit Iterator(const State &state) : _state(state) {}
+  Iterator(const Self &) = default;
+  Iterator(Self &&) = default;
+  ~Iterator() = default;
   Self &operator=(const Self &) = default;
   Self &operator=(Self &&) = default;
+
   RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr = llvm::cast_or_null<Element>(
-        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    NextPolicy{}.next(this->_state);
     return *this;
   }
   RQ_ALWAYS_INLINE Self operator++(int) {
-    rq::NextIterator<Element> temp = *this;
-    this->_cur_ptr = llvm::cast_or_null<Element>(
-        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
+    Self temp = *this;
+    ++*this;
     return temp;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_cur_ptr == it._cur_ptr;
+    return this->_state == it._state;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_cur_ptr != it._cur_ptr;
+    return this->_state != it._state;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Element &operator*() {
-    return rq::dereferencePtr(this->_cur_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE Value &operator*() {
+    return NextPolicy{}.value(this->_state);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const {
-    return rq::dereferencePtr(this->_cur_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const Value &operator*() const {
+    return NextPolicy{}.value(this->_state);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Element *operator->() {
-    return this->_cur_ptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE Value *operator->() {
+    return std::addressof(NextPolicy{}.value(this->_state));
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const {
-    return this->_cur_ptr;
+  [[nodiscard]] RQ_ALWAYS_INLINE const Value *operator->() const {
+    return std::addressof(NextPolicy{}.value(this->_state));
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_cur_ptr != nullptr;
+    return NextPolicy{}.getIsDone(this->_state);
   }
 };
 
-template <typename ElementParam>
-struct NextIterator<ElementParam, ElementParam> final {
-  using Base = ElementParam;
-  using Derived = ElementParam;
-  using Element = ElementParam;
-  using Self = rq::NextIterator<Base, Derived>;
-  using value_type = Element;
-  using reference = Element &;
-  using pointer = Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+template <typename BaseParam, typename DerivedParam>
+struct NextIteratorPolicy final {
+  using Base = BaseParam;
+  using Derived = DerivedParam;
 
-  Element *_cur_ptr{nullptr};
+  static_assert(std::derived_from<Derived, Base>);
 
-  NextIterator() = default;
-  explicit RQ_ALWAYS_INLINE NextIterator(Element *cur_ptr) : _cur_ptr(cur_ptr) {
-    using NextPtr = decltype(std::declval<Element>()._next_ptr);
-    using Next =
-        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
+  RQ_ALWAYS_INLINE void next(Base *&inout_state_ptr) const {
+    Base &state = rq::dereferencePtr(inout_state_ptr);
+    inout_state_ptr = state->_next_ptr;
+  }
 
-    static_assert(std::is_pointer_v<NextPtr>);
-    static_assert(std::derived_from<Derived, Base>);
-    static_assert(std::same_as<Next, Base>);
+  [[nodiscard]] RQ_ALWAYS_INLINE Derived &
+  value(Base *const &inout_state_ptr) const {
+    Base &state = rq::dereferencePtr(inout_state_ptr);
+    return llvm::cast<Derived>(state);
   }
-  NextIterator(const Self &) = default;
-  NextIterator(Self &&) = default;
-  ~NextIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr = rq::dereferencePtr(this->_cur_ptr)._next_ptr;
-    return *this;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(Base *const &inout_state_ptr) const {
+    return inout_state_ptr == nullptr;
   }
-  RQ_ALWAYS_INLINE Self operator++(int) {
-    rq::NextIterator<Element> temp = *this;
-    this->_cur_ptr = rq::dereferencePtr(this->_cur_ptr)._next_ptr;
-    return temp;
+};
+
+template <typename BaseParam, typename DerivedParam>
+struct ConstNextIteratorPolicy final {
+  using Base = BaseParam;
+  using Derived = DerivedParam;
+
+  static_assert(std::derived_from<Derived, Base>);
+
+  RQ_ALWAYS_INLINE void next(const Base *&inout_state_ptr) const {
+    const Base &state = rq::dereferencePtr(inout_state_ptr);
+    inout_state_ptr = state->_next_ptr;
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_cur_ptr == it._cur_ptr;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const Derived &
+  value(const Base *const &inout_state_ptr) const {
+    const Base &state = rq::dereferencePtr(inout_state_ptr);
+    return llvm::cast<const Derived>(state);
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_cur_ptr != it._cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Element &operator*() {
-    return rq::dereferencePtr(this->_cur_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const {
-    return rq::dereferencePtr(this->_cur_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE Element *operator->() {
-    return this->_cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const {
-    return this->_cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_cur_ptr != nullptr;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(const Base *const &inout_state_ptr) const {
+    return inout_state_ptr == nullptr;
   }
 };
 
@@ -139,128 +119,21 @@ using Subrange = std::ranges::subrange<BeginParam, EndParam,
                                        std::ranges::subrange_kind::unsized>;
 
 template <typename BaseParam, typename DerivedParam = BaseParam>
-using NextSubrange = rq::Subrange<rq::NextIterator<BaseParam, DerivedParam>,
-                                  rq::NextIterator<BaseParam, DerivedParam>>;
+using NextIterator =
+    rq::Iterator<BaseParam *, rq::NextIteratorPolicy<BaseParam, DerivedParam>,
+                 DerivedParam>;
 
 template <typename BaseParam, typename DerivedParam = BaseParam>
-struct ConstNextIterator final {
-  using Base = BaseParam;
-  using Derived = DerivedParam;
-  using Element = DerivedParam;
-  using Self = rq::ConstNextIterator<Base, Derived>;
-  using value_type = Element;
-  using reference = Element &;
-  using pointer = Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+using ConstNextIterator =
+    rq::Iterator<const BaseParam *,
+                 rq::ConstNextIteratorPolicy<BaseParam, DerivedParam>,
+                 const DerivedParam>;
 
-  const Element *_cur_ptr{nullptr};
-
-  ConstNextIterator() = default;
-  explicit RQ_ALWAYS_INLINE ConstNextIterator(const Base *cur_ptr)
-      : _cur_ptr(llvm::cast_or_null<Element>(cur_ptr)) {
-    using NextPtr =
-        std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
-    using Next =
-        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-    static_assert(std::is_pointer_v<NextPtr>);
-    static_assert(std::derived_from<Derived, Base>);
-    static_assert(std::same_as<Next, Base>);
-  }
-  ConstNextIterator(const Self &) = default;
-  ConstNextIterator(Self &&) = default;
-  ~ConstNextIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr = llvm::cast_or_null<Element>(
-        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
-    return *this;
-  }
-  RQ_ALWAYS_INLINE Self operator++(int) {
-    rq::NextIterator<Element> temp = *this;
-    this->_cur_ptr = llvm::cast_or_null<Element>(
-        rq::dereferencePtr(this->_cur_ptr)._next_ptr);
-    return temp;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_cur_ptr == it._cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_cur_ptr != it._cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const {
-    return rq::dereferencePtr(this->_cur_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const {
-    return this->_cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_cur_ptr != nullptr;
-  }
-};
-
-template <typename ElementParam>
-struct ConstNextIterator<ElementParam, ElementParam> final {
-  using Base = ElementParam;
-  using Derived = ElementParam;
-  using Element = ElementParam;
-  using Self = rq::ConstNextIterator<Element>;
-  using value_type = const Element;
-  using reference = const Element &;
-  using pointer = const Element *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const Element *_cur_ptr{nullptr};
-
-  ConstNextIterator() = default;
-  explicit RQ_ALWAYS_INLINE ConstNextIterator(const Element *cur_ptr)
-      : _cur_ptr(cur_ptr) {
-    using NextPtr =
-        std::remove_cv_t<decltype(std::declval<Element>()._next_ptr)>;
-    using Next =
-        std::remove_pointer_t<decltype(std::declval<Element>()._next_ptr)>;
-
-    static_assert(std::is_pointer_v<NextPtr>);
-    static_assert(std::derived_from<Derived, Base>);
-    static_assert(std::same_as<Next, Base>);
-  }
-  ConstNextIterator(const Self &) = default;
-  ConstNextIterator(Self &&) = default;
-  ~ConstNextIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++() {
-    this->_cur_ptr = rq::dereferencePtr(this->_cur_ptr)._next_ptr;
-    return *this;
-  }
-  RQ_ALWAYS_INLINE Self operator++(int) {
-    rq::ConstNextIterator<Element> temp = *this;
-    this->_cur_ptr = rq::dereferencePtr(this->_cur_ptr)._next_ptr;
-    return temp;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_cur_ptr == it._cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_cur_ptr != it._cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element &operator*() const {
-    return rq::dereferencePtr(this->_cur_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const Element *operator->() const {
-    return this->_cur_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_cur_ptr != nullptr;
-  }
-};
+template <typename BaseParam, typename DerivedParam = BaseParam>
+using NextSubrange = rq::Subrange<rq::NextIterator<BaseParam, DerivedParam>>;
 
 template <typename BaseParam, typename DerivedParam = BaseParam>
 using ConstNextSubrange =
-    rq::Subrange<rq::ConstNextIterator<BaseParam, DerivedParam>,
-                 rq::ConstNextIterator<BaseParam, DerivedParam>>;
+    rq::Subrange<rq::ConstNextIterator<BaseParam, DerivedParam>>;
 
 } // namespace rq
