@@ -13,14 +13,14 @@
 namespace rq {
 
 template <typename ItemParam> struct NodeList;
-template <typename ItemParam> struct NodeListItem;
 template <typename ItemParam> struct NodeListRef;
 template <typename ItemParam> struct ConstNodeListRef;
 
 template <typename ItemParam> struct NodeListIteratorPolicy final {
   using Item = ItemParam;
   using Ref = rq::NodeListRef<Item>;
-  using Allocated = rq::NodeListItem<Item>;
+  using Allocated = rq::NodeListItem;
+  using PtrUnion = llvm::PointerUnion<Item *, Allocated *>;
 
   RQ_ALWAYS_INLINE void next(Ref &state) const {
     if (llvm::isa<Item *>(state._ptr_union)) {
@@ -28,7 +28,8 @@ template <typename ItemParam> struct NodeListIteratorPolicy final {
     } else if (llvm::isa<Allocated *>(state._ptr_union)) {
       Allocated *node_ptr = llvm::cast<Allocated *>(state._ptr_union);
       Allocated &node = rq::dereferencePtr(node_ptr);
-      state._ptr_union = node.next._ptr_union;
+      void *next_value = node.next;
+      state._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
     } else {
       RQ_UNREACHABLE();
     }
@@ -47,7 +48,7 @@ template <typename ItemParam> struct NodeListIteratorPolicy final {
 template <typename ItemParam> struct ConstNodeListIteratorPolicy final {
   using Item = ItemParam;
   using Ref = rq::ConstNodeListRef<Item>;
-  using Allocated = rq::NodeListItem<Item>;
+  using Allocated = rq::NodeListItem;
   using PtrUnion = llvm::PointerUnion<const Item *, const Allocated *>;
 
   RQ_ALWAYS_INLINE void next(Ref &state) const {
@@ -57,7 +58,7 @@ template <typename ItemParam> struct ConstNodeListIteratorPolicy final {
       const Allocated *node_ptr =
           llvm::cast<const Allocated *>(state._ptr_union);
       const Allocated &node = rq::dereferencePtr(node_ptr);
-      void *next_value = node.next._ptr_union.getOpaqueValue();
+      void *next_value = node.next;
       state._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
     } else {
       RQ_UNREACHABLE();
@@ -81,32 +82,17 @@ using ConstNodeListIterator =
     rq::Iterator<rq::ConstNodeListRef<ItemParam>,
                  rq::ConstNodeListIteratorPolicy<ItemParam>, const ItemParam>;
 
-template <typename ItemParam> struct NodeListItem final {
-  using Item = ItemParam;
-  using List = rq::NodeList<Item>;
-  using Self = rq::NodeListItem<Item>;
-
-  Item *item_ptr{nullptr};
-  List next{};
-
-  RQ_ALWAYS_INLINE NodeListItem() = default;
-  NodeListItem(const Self &) = delete;
-  NodeListItem(Self &&) = delete;
-  RQ_ALWAYS_INLINE ~NodeListItem() = default;
-  Self &operator=(const Self &) = delete;
-  Self &operator=(Self &&) = delete;
-};
-
 template <typename ItemParam> struct NodeList final {
   using Item = ItemParam;
-  using Allocated = rq::NodeListItem<Item>;
+  using Allocated = rq::NodeListItem;
   using Iterator = rq::NodeListIterator<Item>;
   using ConstIterator = rq::ConstNodeListIterator<Item>;
   using Self = rq::NodeList<Item>;
   using Ref = rq::NodeListRef<Item>;
   using ConstRef = rq::ConstNodeListRef<Item>;
+  using PtrUnion = llvm::PointerUnion<Item *, Allocated *>;
 
-  llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
+  PtrUnion _ptr_union{nullptr};
 
   NodeList() = default;
   NodeList(Item &item) : _ptr_union(&item) {}
@@ -125,23 +111,13 @@ template <typename ItemParam> struct NodeList final {
     return this->_ptr_union.isNull();
   }
   RQ_ALWAYS_INLINE void insertFront(rq::BumpPtrAllocator &allocator,
-                                    Item &item) {
+                                  Item &item) {
     if (this->getIsEmpty()) {
       this->_ptr_union = &item;
       return;
     }
-    Allocated &node = allocator.allocateValue<Allocated>();
-    node.item_ptr = &item;
-    if (llvm::isa<Allocated *>(this->_ptr_union)) {
-      Allocated *old_node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
-      Allocated &old_node = rq::dereferencePtr(old_node_ptr);
-      node.next._ptr_union = &old_node;
-      this->_ptr_union = &node;
-      return;
-    }
-    Item *old_item_ptr = llvm::cast<Item *>(this->_ptr_union);
-    Item &old_item = rq::dereferencePtr(old_item_ptr);
-    node.next._ptr_union = &old_item;
+    void *next_value = this->_ptr_union.getOpaqueValue();
+    Allocated &node = allocator.getNodeListItem(&item, next_value);
     this->_ptr_union = &node;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const Item &getHead() const {
@@ -151,7 +127,8 @@ template <typename ItemParam> struct NodeList final {
     }
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return rq::dereferencePtr(node.item_ptr);
+    Item *item_ptr = static_cast<Item *>(node.item_ptr);
+    return rq::dereferencePtr(item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Item &getHead() {
     if (llvm::isa<Item *>(this->_ptr_union)) {
@@ -160,17 +137,28 @@ template <typename ItemParam> struct NodeList final {
     }
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return rq::dereferencePtr(node.item_ptr);
+    Item *item_ptr = static_cast<Item *>(node.item_ptr);
+    return rq::dereferencePtr(item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstRef getTail() const {
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return node.list;
+    void *next_value = node.next;
+    Ref tail;
+    tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
+    return tail;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Ref getTail() {
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return node.list;
+    void *next_value = node.next;
+    Ref tail;
+    tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
+    return tail;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    void *list_value = this->_ptr_union.getOpaqueValue();
+    inout_id.AddPointer(list_value);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this->_ptr_union == rhs._ptr_union;
@@ -195,15 +183,16 @@ template <typename ItemParam> struct NodeList final {
 
 template <typename ItemParam> struct NodeListRef final {
   using Item = ItemParam;
-  using Allocated = rq::NodeListItem<Item>;
+  using Allocated = rq::NodeListItem;
   using Iterator = rq::NodeListIterator<Item>;
   using ConstIterator = rq::ConstNodeListIterator<Item>;
   using List = rq::NodeList<Item>;
   using Self = rq::NodeListRef<Item>;
   using Ref = rq::NodeListRef<Item>;
   using ConstRef = rq::ConstNodeListRef<Item>;
+  using PtrUnion = llvm::PointerUnion<Item *, Allocated *>;
 
-  llvm::PointerUnion<Item *, Allocated *> _ptr_union{nullptr};
+  PtrUnion _ptr_union{nullptr};
 
   NodeListRef() = default;
   NodeListRef(List &list) : _ptr_union(list._ptr_union) {}
@@ -228,7 +217,8 @@ template <typename ItemParam> struct NodeListRef final {
     }
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return rq::dereferencePtr(node.item_ptr);
+    Item *item_ptr = static_cast<Item *>(node.item_ptr);
+    return rq::dereferencePtr(item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Item &getHead() {
     if (llvm::isa<Item *>(this->_ptr_union)) {
@@ -237,17 +227,28 @@ template <typename ItemParam> struct NodeListRef final {
     }
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return rq::dereferencePtr(node.item_ptr);
+    Item *item_ptr = static_cast<Item *>(node.item_ptr);
+    return rq::dereferencePtr(item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstRef getTail() const {
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return node.list;
+    void *next_value = node.next;
+    Ref tail;
+    tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
+    return tail;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE Ref getTail() {
     Allocated *node_ptr = llvm::cast<Allocated *>(this->_ptr_union);
     Allocated &node = rq::dereferencePtr(node_ptr);
-    return node.list;
+    void *next_value = node.next;
+    Ref tail;
+    tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
+    return tail;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    void *list_value = this->_ptr_union.getOpaqueValue();
+    inout_id.AddPointer(list_value);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this->_ptr_union == rhs._ptr_union;
@@ -272,7 +273,7 @@ template <typename ItemParam> struct NodeListRef final {
 
 template <typename ItemParam> struct ConstNodeListRef final {
   using Item = ItemParam;
-  using Allocated = rq::NodeListItem<Item>;
+  using Allocated = rq::NodeListItem;
   using Iterator = rq::NodeListIterator<Item>;
   using ConstIterator = rq::ConstNodeListIterator<Item>;
   using List = rq::NodeList<Item>;
@@ -313,12 +314,20 @@ template <typename ItemParam> struct ConstNodeListRef final {
     }
     const Allocated *node_ptr = llvm::cast<const Allocated *>(this->_ptr_union);
     const Allocated &node = rq::dereferencePtr(node_ptr);
-    return rq::dereferencePtr(node.item_ptr);
+    const Item *item_ptr = static_cast<const Item *>(node.item_ptr);
+    return rq::dereferencePtr(item_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE ConstRef getTail() const {
     const Allocated *node_ptr = llvm::cast<const Allocated *>(this->_ptr_union);
     const Allocated &node = rq::dereferencePtr(node_ptr);
-    return node.list;
+    void *next_value = node.next;
+    ConstRef tail;
+    tail._ptr_union = PtrUnion::getFromOpaqueValue(next_value);
+    return tail;
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    void *list_value = this->_ptr_union.getOpaqueValue();
+    inout_id.AddPointer(list_value);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &rhs) const {
     return this->_ptr_union == rhs._ptr_union;

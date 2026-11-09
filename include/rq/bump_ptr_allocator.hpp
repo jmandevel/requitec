@@ -4,6 +4,7 @@
 
 #include <llvm/Support/Allocator.h>
 #include <llvm/ADT/DenseSet.h>
+#include <llvm/ADT/FoldingSet.h>
 #include <gc/gc.h>
 
 #include <cstring>
@@ -12,6 +13,30 @@
 namespace rq {
 
 struct Top;
+
+struct NodeListItem final : llvm::FoldingSetNode {
+  using Self = rq::NodeListItem;
+
+  void *const item_ptr;
+  void *const next;
+
+  NodeListItem(void *item_ptr, void *next)
+      : item_ptr(item_ptr), next(next) {}
+  NodeListItem(const Self &) = delete;
+  NodeListItem(Self &&) = delete;
+  ~NodeListItem() = default;
+  Self &operator=(const Self &) = delete;
+  Self &operator=(Self &&) = delete;
+
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                                     const void *item_ptr, const void *next) {
+    inout_id.AddPointer(item_ptr);
+    inout_id.AddPointer(next);
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    Self::Profile(inout_id, this->item_ptr, this->next);
+  }
+};
 
 class GcSlabAllocator : public llvm::AllocatorBase<rq::GcSlabAllocator> {
   using Self = rq::GcSlabAllocator;
@@ -50,6 +75,7 @@ struct BumpPtrAllocator {
 
   llvm::BumpPtrAllocatorImpl<rq::GcSlabAllocator> _llvm_arena{};
   llvm::DenseSet<llvm::StringRef> _unique_strings{};
+  llvm::FoldingSet<rq::NodeListItem> _unique_node_list_items{};
 
   BumpPtrAllocator() = default;
   BumpPtrAllocator(const Self &) = delete;
@@ -63,6 +89,20 @@ struct BumpPtrAllocator {
     TypeParam *ptr = this->_llvm_arena.Allocate<TypeParam>(1);
     ptr = new (ptr) TypeParam(std::forward<ArgNParam>(arg_n)...);
     return rq::dereferencePtr(ptr);
+  }
+  inline rq::NodeListItem &getNodeListItem(void *item_ptr, void *next) {
+    llvm::FoldingSetNodeID id;
+    rq::NodeListItem::Profile(id, item_ptr, next);
+    void *insert_pos = nullptr;
+    rq::NodeListItem *existing_ptr =
+        this->_unique_node_list_items.FindNodeOrInsertPos(id, insert_pos);
+    if (existing_ptr != nullptr) {
+      return rq::dereferencePtr(existing_ptr);
+    }
+    rq::NodeListItem &node =
+        this->allocateValue<rq::NodeListItem>(item_ptr, next);
+    this->_unique_node_list_items.InsertNode(&node, insert_pos);
+    return node;
   }
   template <typename TypeParam, typename... ArgNParam>
   inline std::span<TypeParam> allocateZeroedArray(unsigned count) {
