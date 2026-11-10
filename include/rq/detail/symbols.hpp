@@ -174,13 +174,13 @@ namespace rq {
   case S::EXPERIMENTAL_MODIFIER:
     return "ExperimentalModifier";
   case S::MOVABLE_MODIFIER:
-    return "MoveableModifier";
+    return "MovableModifier";
   case S::COPYABLE_MODIFIER:
     return "CopyableModifier";
   case S::INVARIADIC_MODIFIER:
     return "InvariadicModifier";
   case S::VARIADIC_MODIFIER:
-    return "VariadicConcept";
+    return "VariadicModifier";
   case S::BEST_LOCATION_MODIFIER:
     return "BestLocationModifier";
   case S::LOCATION_MODIFIER:
@@ -280,7 +280,7 @@ namespace rq {
   case S::BINARY_CONCEPT:
     return "BinaryConcept";
   case S::BFLOAT_CONCEPT:
-    return "BfloatConcept";
+    return "BFloatConcept";
   case S::CONCEPT_CONCEPT:
     return "ConceptConcept";
   case S::SUBTYPE_CONCEPT:
@@ -582,7 +582,7 @@ namespace rq {
   case S::INFINITE_ARITHMETIC_SEQUENCE_TYPE:
     return "InfiniteArithmeticSequence";
   case S::FINITE_ARITHMETIC_SEQUENCE_TYPE:
-    return "InfiniteArithmeticSequence";
+    return "FiniteArithmeticSequence";
   case S::ANCHOR:
     return "Anchor";
   case S::ENUMERATOR:
