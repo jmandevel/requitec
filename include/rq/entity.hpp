@@ -1074,73 +1074,6 @@ enum class ValueKind : rq::EntityId {
   LAST
 };
 
-enum class Opcode : rq::EntityId {
-  NONE,
-
-  // address0 = head
-  // address1 = tail
-  STATEMENT,
-
-  // address0 = lvalue
-  // address1 = rvalue
-  ASSIGN,
-
-  // address0 = variable
-  REF,
-
-  // address0 = condition rvalue
-  // address1 = false target block
-  CONDITIONAL_JUMP,
-  LIKELY_CONDITIONAL_JUMP,
-  UNLIKELY_CONDITIONAL_JUMP,
-
-  // address0 = block
-  JUMP,
-
-  // LOGICAL
-  // address0 = head
-  // address1 = tail
-  LOGICAL_AND,
-  LOGICAL_OR,
-
-  // address0 = rvalue
-  LOGICAL_COMPLEMENT,
-
-  // address0 = rvalue0
-  // address1 = rvalue1
-  RVALUE_PAIR,
-
-  RETURN,
-
-  // address0 = proc
-  // address1 = push_args
-  CALL,
-
-  // COMPARISON
-  // address0 = operand type
-  // address1 = rvalue pair
-  LESS,
-  GREATER,
-  LESS_EQUAL,
-  GREATER_EQUAL,
-  EQUAL,
-  NOT_EQUAL,
-
-  // ARITHMETIC
-  // address0 = head
-  // address1 = tail
-  ADD,
-  SUBTRACT,
-  MULTIPLY,
-  DIVIDE,
-  MODULUS,
-
-  // address0 = rvalue
-  NEGATE,
-
-  LAST
-};
-
 constexpr rq::EntityId KEYWORD_OFFSET = 1;
 
 constexpr rq::EntityId SYMBOL_OFFSET =
@@ -1149,11 +1082,8 @@ constexpr rq::EntityId SYMBOL_OFFSET =
 constexpr rq::EntityId VALUE_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
-constexpr rq::EntityId OPCODE_OFFSET =
-    rq::VALUE_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
-
 constexpr rq::EntityId CFG_BLOCK_ID =
-    OPCODE_OFFSET + rq::getUnderlyingValue(rq::Opcode::LAST);
+    VALUE_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
 getId(rq::Keyword keyword) {
@@ -1189,11 +1119,6 @@ getUnsafeValueKind(rq::EntityId id) {
   return static_cast<rq::ValueKind>(id + rq::VALUE_OFFSET);
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Opcode
-getUnsafeOpcode(rq::EntityId id) {
-  return static_cast<rq::Opcode>(id + rq::OPCODE_OFFSET);
-}
-
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsTombstone(rq::EntityId id) {
   return id == rq::TOMBSTONE_ID;
 }
@@ -1222,10 +1147,6 @@ getUnsafeOpcode(rq::EntityId id) {
   return rq::getUnderlyingValue(kind) < rq::getUnderlyingValue(rq::ValueKind::LAST);
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityId id) {
-  return id >= rq::OPCODE_OFFSET && id < rq::CFG_BLOCK_ID;
-}
-
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsCfgBlock(rq::EntityId id) {
   return id == rq::CFG_BLOCK_ID;
 }
@@ -1246,11 +1167,6 @@ getSymbolKind(rq::EntityId id) {
 getValueKind(rq::EntityId id) {
   RQ_ASSERT(rq::getIsValueKind(id), "not value kind");
   return rq::getUnsafeValueKind(id);
-}
-
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Opcode getOpcode(rq::EntityId id) {
-  RQ_ASSERT(rq::getIsOpcode(id), "not opcode kind");
-  return rq::getUnsafeOpcode(id);
 }
 
 struct Entity;
