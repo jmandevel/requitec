@@ -648,7 +648,7 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       continue;
     case rq::TokenKind::HASH_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseUnary(token, rq::Keyword::ENTITY);
+      precedence_factory.parseUnary(token, rq::Keyword::SEMANTIC_ADDRESS);
       continue;
     default:
       precedence_factory.appendBranch(this->parsePrecedence1());

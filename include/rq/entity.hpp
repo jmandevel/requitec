@@ -24,11 +24,10 @@ enum class Keyword : rq::EntityId {
   STRING_LITERAL,
   CODEUNIT_LITERAL,
   IDENTIFIER_LITERAL,
-  ENTITY_LITERAL,
+  SEMANTIC_LITERAL,
 
   // ERRORS
   ERROR,
-  ENTITY,
 
   // SITUATIONAL
   UNSITUATED_PARENTHESIS_GROUP,
@@ -251,7 +250,6 @@ enum class Keyword : rq::EntityId {
   ARM,
   TRY,
   CATCH,
-  FINALLY,
   FOR,
   WHILE,
   SCOPE,
@@ -284,7 +282,8 @@ enum class Keyword : rq::EntityId {
   ARITHMETIC_SEQUENCE_STEP_SATURATING_SUBTRACT,
   ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY,
 
-  // TABLE GRAPH
+  // ENTITY GRAPH
+  SEMANTIC_ADDRESS,
   IMPORT,
   NAMESPACE,
   C,
@@ -1102,10 +1101,6 @@ getId(rq::ValueKind kind) {
   return static_cast<rq::EntityId>(kind) + rq::VALUE_OFFSET;
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId getId(rq::Opcode kind) {
-  return static_cast<rq::EntityId>(kind) + rq::OPCODE_OFFSET;
-}
-
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword
 getUnsafeKeyword(rq::EntityId id) {
   return static_cast<rq::Keyword>(id + rq::KEYWORD_OFFSET);
@@ -1142,7 +1137,7 @@ getUnsafeValueKind(rq::EntityId id) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
-  return id >= rq::VALUE_OFFSET && id < rq::OPCODE_OFFSET;
+  return id >= rq::VALUE_OFFSET && id < rq::CFG_BLOCK_ID;
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::ValueKind kind) {
@@ -1172,63 +1167,6 @@ getValueKind(rq::EntityId id) {
 }
 
 struct Entity;
-
-struct DottedInstructionIterator final {
-  using Self = rq::DottedInstructionIterator;
-  using value_type = rq::Entity;
-  using reference = rq::Entity &;
-  using pointer = rq::Entity *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  rq::Entity *_entity_ptr{nullptr};
-  rq::Opcode _opcode{rq::Opcode::NONE};
-
-  DottedInstructionIterator() = default;
-  explicit DottedInstructionIterator(rq::Entity *entity_ptr, rq::Opcode opcode);
-  DottedInstructionIterator(const Self &) = default;
-  DottedInstructionIterator(Self &&) = default;
-  ~DottedInstructionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE rq::DottedInstructionIterator &operator++();
-  RQ_ALWAYS_INLINE rq::DottedInstructionIterator operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
-
-struct ConstDottedInstructionIterator final {
-  using Self = rq::ConstDottedInstructionIterator;
-  using value_type = const rq::Entity;
-  using reference = const rq::Entity &;
-  using pointer = rq::Entity *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
-
-  const rq::Entity *_entity_ptr = nullptr;
-  rq::Opcode _opcode{rq::Opcode::NONE};
-
-  ConstDottedInstructionIterator() = default;
-  explicit ConstDottedInstructionIterator(const rq::Entity *entity_ptr,
-                                          rq::Opcode opcode);
-  ConstDottedInstructionIterator(const Self &) = default;
-  ConstDottedInstructionIterator(Self &&) = default;
-  ~ConstDottedInstructionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator &operator++();
-  RQ_ALWAYS_INLINE rq::ConstDottedInstructionIterator operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
-};
 
 enum class SymbolInfoFlags : std::uint64_t {
   NONE = 0,
@@ -2506,7 +2444,6 @@ struct Entity {
   rq::Keyword _debug_keyword{rq::Keyword::NONE};
   rq::SymbolKind _debug_symbol_kind{rq::SymbolKind::NONE};
   rq::ValueKind _debug_value_kind{rq::ValueKind::NONE};
-  rq::Opcode _debug_opcode{rq::Opcode::NONE};
 #endif
 
   explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {
@@ -2517,8 +2454,6 @@ struct Entity {
       this->_debug_symbol_kind = rq::getSymbolKind(id);
     } else if (rq::getIsValueKind(id)) {
       this->_debug_value_kind = rq::getValueKind(id);
-    } else if (rq::getIsOpcode(id)) {
-      this->_debug_opcode = rq::getOpcode(id);
     }
 #endif
   }
@@ -2551,10 +2486,6 @@ struct Entity {
     return rq::getUnsafeValueKind(this->_id);
   }
 
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getUnsafeOpcode() const {
-    return rq::getUnsafeOpcode(this->_id);
-  }
-
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
     return rq::getKeyword(this->_id);
   }
@@ -2565,10 +2496,6 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ValueKind getValueKind() const {
     return rq::getValueKind(this->_id);
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Opcode getOpcode() const {
-    return rq::getOpcode(this->_id);
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolInfoFlags
@@ -2650,27 +2577,6 @@ struct Entity {
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsObjectScope() const {
     return rq::getIsObjectScope(this->getUnsafeSymbolKind());
-  }
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::DottedInstructionIterator>
-  getDottedSubrange(rq::Opcode opcode) {
-    return rq::Subrange<rq::DottedInstructionIterator>(
-        rq::DottedInstructionIterator(this, opcode),
-        rq::DottedInstructionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstDottedInstructionIterator>
-      getDottedSubrange(rq::Opcode opcode) const {
-    return rq::Subrange<rq::ConstDottedInstructionIterator>(
-        rq::ConstDottedInstructionIterator(this, opcode),
-        rq::ConstDottedInstructionIterator());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::Subrange<rq::ConstDottedInstructionIterator>
-      getConstDottedSubrange(rq::Opcode opcode) const {
-    return rq::Subrange<rq::ConstDottedInstructionIterator>(
-        rq::ConstDottedInstructionIterator(this, opcode),
-        rq::ConstDottedInstructionIterator());
   }
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {

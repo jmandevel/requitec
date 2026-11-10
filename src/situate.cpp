@@ -57,6 +57,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::IDENTIFIER_LITERAL:
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     break;
+  case K::SEMANTIC_LITERAL:
+    RQ_ASSERT(expression.getHasSemantic(), "missing semantic");
+    break;
 
   // ERRORS
   case K::ERROR:
@@ -331,9 +334,10 @@ bool Situator::situateTree(rq::Situation situation,
 
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
-    is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
-    break;
-  case K::APPEND:
+    [[fallthrough]];
+  case K::JUXT:
+    [[fallthrough]];
+  case K::INSTANTIATE_TRIP:
     is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
     break;
 
@@ -422,6 +426,15 @@ bool Situator::situateTree(rq::Situation situation,
   // MEMORY
   case K::ASSIGN:
     is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
+    break;
+  case K::INDETERMINATE_ASSIGN:
+    is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
+    break;
+  case K::SPLIT:
+    is_ok = this->situateNaryTag(situation, expression, 1, S::STATEMENT);
+    break;
+  case K::RVALUE_LABEL:
+    is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::RVALUE);
     break;
   case K::POLYADIC_PARAMETER:
     is_ok = this->situateUnaryTag(situation, expression, S::PARAMETER);
@@ -535,13 +548,15 @@ bool Situator::situateTree(rq::Situation situation,
       expression.setBranch(inference);
     }
     break;
-  case K::REFERENCE_SUBTYPE:
+  case K::REF_SUBTYPE:
     [[fallthrough]];
   case K::PTR_SUBTYPE:
     [[fallthrough]];
   case K::SLICE_SUBTYPE:
     [[fallthrough]];
   case K::SPLIT_SUBTYPE:
+    [[fallthrough]];
+  case K::GENERIC_SUBTYPE:
     is_ok = this->situateNullary(situation, expression);
     break;
 
@@ -551,8 +566,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NONPOSITIONAL_PARAMETERS_BEGIN:
     [[fallthrough]];
   case K::LOCKED_PARAMETERS_BEGIN:
-    [[fallthrough]];
-  case K::NONAME:
     is_ok = this->situateNullary(situation, expression);
     break;
 
@@ -627,6 +640,9 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ADAPTER:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
+  case K::VARIANT:
+    is_ok = this->situateNameStatementTagStatement(situation, expression);
+    break;
 
   // VALUES
   case K::ARRAY:
@@ -647,8 +663,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // BUILTIN TYPES
-  case K::SYMBOL:
-    [[fallthrough]];
   case K::INFERENCE:
     [[fallthrough]];
   case K::EXPRESSION:
@@ -738,6 +752,16 @@ bool Situator::situateTree(rq::Situation situation,
         situation, expression, S::STARTING_SWITCH_CHAINLINK,
         S::CONTINUING_SWITCH_CHAINLINK, S::FINISHING_SWITCH_CHAINLINK);
     break;
+  case K::MATCH_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_MATCH_CHAINLINK,
+        S::CONTINUING_MATCH_CHAINLINK, S::FINISHING_MATCH_CHAINLINK);
+    break;
+  case K::TRY_CHAIN:
+    is_ok = this->situateChainBranches(
+        situation, expression, S::STARTING_TRY_CHAINLINK,
+        S::CONTINUING_TRY_CHAINLINK, S::FINISHING_TRY_CHAINLINK);
+    break;
   case K::IF:
     [[fallthrough]];
   case K::ELSE_IF:
@@ -750,11 +774,19 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementTagStatement(situation, expression);
     break;
   case K::CASE:
-    is_ok = this->situateStatementMultiTagStatement(situation, S::RVALUE,
-                                                    expression);
+    is_ok = this->situateStatementTagStatement(situation, expression);
     break;
-  case K::DEFAULT:
+  case K::MATCH:
+    is_ok = this->situateStatementTagStatement(situation, expression);
+    break;
+  case K::ARM:
+    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
+    break;
+  case K::TRY:
     is_ok = this->situateStatement(expression);
+    break;
+  case K::CATCH:
+    is_ok = this->situateStatementVignetteStatement(situation, expression);
     break;
   case K::FOR:
     is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
@@ -768,6 +800,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::FOLD:
     is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING,
                                                     expression);
+    break;
+  case K::CHECK_GLOBAL:
+    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
+    break;
+  case K::CHECK_FRAME:
+    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
     break;
   case K::VALIDATE:
     is_ok = this->situateStatementTagStatement(situation, expression);
@@ -826,7 +864,10 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
-  // TABLE GRAPH
+  // ENTITY GRAPH
+  case K::SEMANTIC_ADDRESS:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
   case K::IMPORT:
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
                                                S::RVALUE, S::PORTAL);
@@ -899,6 +940,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::NO_MODIFIER:
     [[fallthrough]];
   case K::ANCHOR:
+    [[fallthrough]];
+  case K::INITS:
     [[fallthrough]];
   case K::RESIDENT:
     [[fallthrough]];
@@ -976,9 +1019,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::EXPERIMENTAL:
     [[fallthrough]];
-  case K::UNSTABLE_ADDRESS:
+  case K::MOVEABLE:
     [[fallthrough]];
-  case K::STABLE_ADDRESS:
+  case K::COPYABLE:
     [[fallthrough]];
   case K::INVARIADIC:
     [[fallthrough]];
@@ -993,10 +1036,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::OVERLOAD:
     [[fallthrough]];
   case K::CONSTRAINT:
-    [[fallthrough]];
-  case K::DEFAULT_WEIGHT:
-    [[fallthrough]];
-  case K::WEIGHT:
     [[fallthrough]];
   case K::MANUAL:
     [[fallthrough]];
@@ -1034,13 +1073,21 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NULL_TERMINATE:
     [[fallthrough]];
-  case K::NO_DETATCH:
+  case K::NO_DETACH:
     [[fallthrough]];
   case K::DETACH:
     [[fallthrough]];
   case K::NO_MARGIN:
     [[fallthrough]];
-  case K::MARGIN: {
+  case K::MARGIN:
+    [[fallthrough]];
+  case K::NO_THROWS:
+    [[fallthrough]];
+  case K::THROWS:
+    [[fallthrough]];
+  case K::NO_UNINIT:
+    [[fallthrough]];
+  case K::UNINIT: {
     if (!this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE)) {
       is_ok = false;
       break;
@@ -1055,14 +1102,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   }
 
-  // MODIFIER TYPES
-  case K::MODIFIER:
-    [[fallthrough]];
-  case K::QUALIFIER:
-    is_ok = this->situateNullary(situation, expression);
-    break;
-
-    // REFLECTIONS
+  // REFLECTIONS
   case K::MEMBER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
@@ -1208,6 +1248,19 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNDERLYING_TYPE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
+  case K::THROW:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::THROW_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PASS:
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PASS_OF:
+    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
+                                          S::RVALUE);
+    break;
   case K::REFLECT:
     is_ok = this->situateNullary(situation, expression);
     break;
@@ -1227,9 +1280,6 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::SPECIALIZATION_RANGE_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
-  case K::WEIGHT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::TEMPLATE_OF:
@@ -1264,6 +1314,308 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::RESOLVE_ADAPTER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+
+  case K::ANY_CONCEPT:
+    [[fallthrough]];
+  case K::TYPE_CONCEPT:
+    [[fallthrough]];
+  case K::COMTIME_CONCEPT:
+    [[fallthrough]];
+  case K::RUNTIME_CONCEPT:
+    [[fallthrough]];
+  case K::ANYTIME_CONCEPT:
+    [[fallthrough]];
+  case K::RANGE_CONCEPT:
+    [[fallthrough]];
+  case K::ROUTE_CONCEPT:
+    [[fallthrough]];
+  case K::FIGURATIVE_CONCEPT:
+    [[fallthrough]];
+  case K::REFLECTION_CONCEPT:
+    [[fallthrough]];
+  case K::PRIMITIVE_CONCEPT:
+    [[fallthrough]];
+  case K::FITTING_PRIMITIVE_CONCEPT:
+    [[fallthrough]];
+  case K::PLATFORM_PRIMITIVE_CONCEPT:
+    [[fallthrough]];
+  case K::STANDARD_PRIMITIVE_CONCEPT:
+    [[fallthrough]];
+  case K::SCALED_PRIMITIVE_CONCEPT:
+    [[fallthrough]];
+  case K::SIGNED_CONCEPT:
+    [[fallthrough]];
+  case K::UNSIGNED_CONCEPT:
+    [[fallthrough]];
+  case K::INT_CONCEPT:
+    [[fallthrough]];
+  case K::EXACT_INT_CONCEPT:
+    [[fallthrough]];
+  case K::FAST_INT_CONCEPT:
+    [[fallthrough]];
+  case K::LEAST_INT_CONCEPT:
+    [[fallthrough]];
+  case K::FLOAT_CONCEPT:
+    [[fallthrough]];
+  case K::BINARY_CONCEPT:
+    [[fallthrough]];
+  case K::BFLOAT_CONCEPT:
+    [[fallthrough]];
+  case K::CONCEPT_CONCEPT:
+    [[fallthrough]];
+  case K::SUBTYPE_CONCEPT:
+    [[fallthrough]];
+  case K::ARRAY_CONCEPT:
+    [[fallthrough]];
+  case K::REF_CONCEPT:
+    [[fallthrough]];
+  case K::PTR_CONCEPT:
+    [[fallthrough]];
+  case K::SLICE_CONCEPT:
+    [[fallthrough]];
+  case K::SPLIT_CONCEPT:
+    [[fallthrough]];
+  case K::MODULE_CONCEPT:
+    [[fallthrough]];
+  case K::IMPORT_CONCEPT:
+    [[fallthrough]];
+  case K::PORTAL_CONCEPT:
+    [[fallthrough]];
+  case K::REALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::CONFORMITY_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTION_CONCEPT:
+    [[fallthrough]];
+  case K::TRIP_CONCEPT:
+    [[fallthrough]];
+  case K::JUXT_CONCEPT:
+    [[fallthrough]];
+  case K::SPECIALIZATION_SET_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTER_SPECIALIZATION_SET_CONCEPT:
+    [[fallthrough]];
+  case K::PROC_SPECIALIZATION_SET_CONCEPT:
+    [[fallthrough]];
+  case K::ARITHMETIC_SEQUENCE_CONCEPT:
+    [[fallthrough]];
+  case K::ARITHMETIC_INTERVAL_CONCEPT:
+    [[fallthrough]];
+  case K::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    [[fallthrough]];
+  case K::FINITE_ARITHMETIC_SEQUENCE_CONCEPT:
+    [[fallthrough]];
+  case K::EAGER_DECLARATION_CONCEPT:
+    [[fallthrough]];
+  case K::ANCHOR_CONCEPT:
+    [[fallthrough]];
+  case K::ENUMERATOR_CONCEPT:
+    [[fallthrough]];
+  case K::VARIABLE_CONCEPT:
+    [[fallthrough]];
+  case K::EAGER_VARIABLE_CONCEPT:
+    [[fallthrough]];
+  case K::POST_EAGER_VARIABLE_CONCEPT:
+    [[fallthrough]];
+  case K::PRE_EAGER_VARIABLE_CONCEPT:
+    [[fallthrough]];
+  case K::PARAMETER_CONCEPT:
+    [[fallthrough]];
+  case K::SIGNATURE_PARAMETER_CONCEPT:
+    [[fallthrough]];
+  case K::LAYOUT_PARAMETER_CONCEPT:
+    [[fallthrough]];
+  case K::PARAMETER_LIST_CONCEPT:
+    [[fallthrough]];
+  case K::SIGNATURE_CONCEPT:
+    [[fallthrough]];
+  case K::LAYOUT_CONCEPT:
+    [[fallthrough]];
+  case K::PLACEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::COMPOSITION_CONCEPT:
+    [[fallthrough]];
+  case K::SYNONYM_CONCEPT:
+    [[fallthrough]];
+  case K::SYMBOL_TABLE_CONCEPT:
+    [[fallthrough]];
+  case K::NAMESPACE_CONCEPT:
+    [[fallthrough]];
+  case K::EAGER_SCOPING_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::IF_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::ELSE_IF_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::ELSE_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::SWITCH_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::CASE_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::DEFAULT_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::FOR_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::WHILE_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::SCOPE_STATEMENT_CONCEPT:
+    [[fallthrough]];
+  case K::IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::CLASS_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::CLASS_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::CLASS_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::CLASS_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::ENUM_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::ENUM_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::ENUM_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::ENUM_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::INTERFACE_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::INTERFACE_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::INTERFACE_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::INTERFACE_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTER_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTER_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTER_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::ADAPTER_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::PROC_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::PROC_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::PROC_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::PROC_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::LAZY_VARIABLE_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::LAZY_VARIABLE_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::LAZY_VARIABLE_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::LAZY_VARIABLE_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::ALIAS_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::ALIAS_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::ALIAS_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::ALIAS_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::CONCEPT_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::CONCEPT_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::CONCEPT_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::CONCEPT_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::VARIANT_IMPLEMENTATION_CONCEPT:
+    [[fallthrough]];
+  case K::VARIANT_OVERLOAD_CONCEPT:
+    [[fallthrough]];
+  case K::VARIANT_SPECIALIZATION_CONCEPT:
+    [[fallthrough]];
+  case K::VARIANT_TEMPLATE_CONCEPT:
+    [[fallthrough]];
+  case K::ATTRIBUTE_CONCEPT:
+    [[fallthrough]];
+  case K::MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::ANCHOR_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::FORKED_INITIALIZATION_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::CONTAINER_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::VISIBILITY_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::ACCESS_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::MUTABILITY_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::EVALUATION_TIME_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::DIALECT_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::TENURE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::INITIALIZATION_TIME_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::CLOSURE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::LINKAGE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::SIDE_EFFECTS_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::MANGLE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::PACK_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::BRANCH_TREND_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::SUPPORT_NOTICE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::ADDRESS_STABILITY_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::VARIADIC_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::OFFSET_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::LAZY_DECLARATION_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::CONSTRAINT_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::DEDUCTION_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::VIRTUALITY_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::RANGER_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::REQUIRE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::ENSURE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::MUT_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::VOLATILE_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::ATOMIC_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::NULL_TERMINATE_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::DETACH_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::MARGIN_QUALIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::THROWS_QUALIFIER_CONCEPT:
+    is_ok = this->situateNullary(situation, expression);
     break;
 
   case K::LAST:

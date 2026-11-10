@@ -42,6 +42,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "__codeunit_literal";
   case K::IDENTIFIER_LITERAL:
     return "__identifier_literal";
+  case K::SEMANTIC_LITERAL:
+    return "__semantic_literal";
 
   // ERRORS
   case K::ERROR:
@@ -442,8 +444,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "try";
   case K::CATCH:
     return "catch";
-  case K::FINALLY:
-    return "finally";
   case K::FOR:
     return "for";
   case K::WHILE:
@@ -505,7 +505,9 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY:
     return "_arithmetic_sequence_step_saturating_multiply";
 
-  // TABLE GRAPH
+  // ENTITY GRAPH
+  case K::SEMANTIC_ADDRESS:
+    return "_semantic_address";
   case K::IMPORT:
     return "import";
   case K::NAMESPACE:
@@ -1192,10 +1194,13 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
            KIF::PATH | KIF::ROUTE | KIF::PORTAL;
+  case K::SEMANTIC_LITERAL:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::STATEMENT | KIF::ARGUMENT |
+           KIF::PARAMETER | KIF::LVALUE | KIF::RVALUE | KIF::TUPLE_ELEMENT;
 
   // ERRORS
   case K::ERROR:
-    return KIF::INTERNAL;
+    return KIF::NONE;
 
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP:
@@ -1594,7 +1599,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::IF_CHAINLINK;
   case K::ELSE:
-    return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK | KIF::MATCH_CHAINLINK | KIF::SWITCH_CHAINLINK | KIF::TRY_CHAINLINK;
+    return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK | KIF::MATCH_CHAINLINK |
+           KIF::SWITCH_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::SWITCH:
     return KIF::STARTING_CHAINLINK | KIF::SWITCH_CHAINLINK;
   case K::CASE:
@@ -1610,8 +1616,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CATCH:
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::TRY_CHAINLINK;
-  case K::FINALLY:
-    return KIF::FINISHING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::FOR:
     return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::WHILE:
@@ -1673,7 +1677,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ARITHMETIC_SEQUENCE_STEP_SATURATING_MULTIPLY:
     return KIF::ARITHMETIC_SEQUENCE_STEP;
 
-  // TABLE GRAPH
+  // ENTITY GRAPH
+  case K::SEMANTIC_ADDRESS:
+    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::LVALUE |
+           KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::IMPORT:
     return KIF::STATEMENT;
   case K::NAMESPACE:
@@ -4786,7 +4793,7 @@ struct Expression final : public rq::Entity {
 
   rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextInfoFlags>
       _next_ptr_flags{};
-  rq::Expression *_branch_ptr{nullptr};
+  rq::Entity *_branch_ptr{nullptr};
   rq::PtrWithFlags<const char, 2, rq::ExpressionSourceInfoFlags>
       _source_ptr_flags{};
   unsigned _source_text_length{0};
@@ -5099,9 +5106,15 @@ struct Expression final : public rq::Entity {
   }
   // NOTE: no getBranchCount and getNextCount because bad performance!
   RQ_ALWAYS_INLINE rq::Expression *getBranchPtr() {
+    if (this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL) {
+      return nullptr;
+    }
     return static_cast<rq::Expression *>(this->_branch_ptr);
   }
   RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
+    if (this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL) {
+      return nullptr;
+    }
     return static_cast<rq::Expression *>(this->_branch_ptr);
   }
   RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
@@ -5154,13 +5167,27 @@ struct Expression final : public rq::Entity {
     }
     return rq::dereferencePtr(expression_ptr);
   }
+  RQ_ALWAYS_INLINE void setSemantic(rq::Entity &semantic) {
+    RQ_ASSERT(this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL,
+              "not semantic literal");
+    rq::assignSingleValue(this->_branch_ptr, &semantic);
+  }
   RQ_ALWAYS_INLINE void setBranch(rq::Expression &branch) {
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
     rq::assignSingleValue(this->_branch_ptr, &branch);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
     rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
   }
+  RQ_ALWAYS_INLINE void setSemantic(rq::Entity *semantic_ptr) {
+    RQ_ASSERT(this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL,
+              "not semantic literal");
+    rq::assignSingleValue(this->_branch_ptr, semantic_ptr);
+  }
   RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
     rq::assignSingleValue(this->_branch_ptr, branch_ptr);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
@@ -5168,7 +5195,10 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression &branch) {
-    return rq::replaceValue(this->_branch_ptr, &branch);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
+    rq::Entity &entity = rq::replaceValue(this->_branch_ptr, &branch);
+    return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceNext(rq::Expression &next) {
@@ -5178,7 +5208,10 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression *branch_ptr) {
-    return rq::replaceValue(this->_branch_ptr, branch_ptr);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
+    rq::Entity &entity = rq::replaceValue(this->_branch_ptr, branch_ptr);
+    return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceNext(rq::Expression *next_ptr) {
@@ -5188,7 +5221,10 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceBranchPtr(rq::Expression &branch) {
-    return rq::replaceValuePtr(this->_branch_ptr, &branch);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
+    rq::Entity *entity_ptr = rq::replaceValuePtr(this->_branch_ptr, &branch);
+    return llvm::cast<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression &next) {
@@ -5198,7 +5234,10 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceBranchPtr(rq::Expression *branch_ptr) {
-    return rq::replaceValuePtr(this->_branch_ptr, branch_ptr);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "semantic literal has no branches");
+    rq::Entity *entity_ptr = rq::replaceValuePtr(this->_branch_ptr, branch_ptr);
+    return llvm::cast<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression *next_ptr) {
@@ -5206,17 +5245,28 @@ struct Expression final : public rq::Entity {
     this->_next_ptr_flags.setPtr(next_ptr);
     return replaced_next_ptr;
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSemantic() const {
+    return this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL &&
+           this->_branch_ptr != nullptr;
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
-    return this->_branch_ptr != nullptr;
+    return this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL &&
+           this->_branch_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
     return this->_next_ptr_flags.getPtr() != nullptr;
   }
   [[nodiscard]] inline rq::Expression &popBranch() {
-    return rq::popValue(this->_branch_ptr);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "is semantic literal");
+    rq::Entity &entity = rq::popValue(this->_branch_ptr);
+    return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] inline rq::Expression *popBranchPtr() {
-    return rq::popValuePtr(this->_branch_ptr);
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "is semantic literal");
+    rq::Entity *entity_ptr = rq::popValuePtr(this->_branch_ptr);
+    return llvm::cast<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] inline rq::Expression &popNext() {
     RQ_ASSERT(this->getHasNext(), "does not have next");
@@ -5230,6 +5280,8 @@ struct Expression final : public rq::Entity {
     return old_next_ptr;
   }
   [[nodiscard]] inline rq::Expression &mergeAndPopBranch() {
+    RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
+              "is semantic literal");
     rq::Expression &branch = this->popBranch();
     if (this->getHasNext()) {
       rq::Expression &branch_last_next = branch.getLastNext();
@@ -5269,6 +5321,12 @@ struct Expression final : public rq::Entity {
     }
     next.clearData();
     return next;
+  }
+  [[nodiscard]] inline rq::Expression* resolve(rq::Entity& semantic) {
+    rq::Expression* branch_ptr = this->popBranchPtr();
+    this->changeKeyword(rq::Keyword::SEMANTIC_LITERAL);
+    this->setSemantic(semantic);
+    return branch_ptr;
   }
   [[nodiscard]] inline rq::Expression &getUnascribed() {
     if (this->getCanBeAscription()) {
@@ -5321,7 +5379,8 @@ struct Expression final : public rq::Entity {
         rq::ConstExpressionIterator());
   }
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
