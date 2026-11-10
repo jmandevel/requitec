@@ -1202,12 +1202,24 @@ getUnsafeOpcode(rq::EntityId id) {
   return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
 }
 
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::Keyword keyword) {
+  return rq::getUnderlyingValue(keyword) < rq::getUnderlyingValue(rq::Keyword::LAST);
+}
+
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsSymbolKind(rq::EntityId id) {
   return id >= rq::SYMBOL_OFFSET && id < rq::VALUE_OFFSET;
 }
 
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::SymbolKind kind) {
+  return rq::getUnderlyingValue(kind) < rq::getUnderlyingValue(rq::SymbolKind::LAST);
+}
+
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
   return id >= rq::VALUE_OFFSET && id < rq::OPCODE_OFFSET;
+}
+
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::ValueKind kind) {
+  return rq::getUnderlyingValue(kind) < rq::getUnderlyingValue(rq::ValueKind::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsOpcode(rq::EntityId id) {
@@ -1989,7 +2001,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
            SIF::IS_COMTIME_TYPE;
   case S::GENERIC_SUBSYMBOL:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_COMTIME_TYPE;
+    return SIF::SUBSYMBOL | SIF::IS_COMTIME_TYPE;
 
   // MODULES
   case S::MODULE:
@@ -2258,6 +2270,13 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsScaledPrimitiveType(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SCALED_PRIMITIVE_TYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
 getIsStandardPrimitiveType(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
@@ -2275,6 +2294,16 @@ getIsPlatformPrimitiveType(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::SUBTYPE);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubsymbol(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::SUBSYMBOL);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubentity(rq::SymbolKind kind) {
+  return rq::getIsSubtype(kind) || rq::getIsSubsymbol(kind);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype(rq::SymbolKind kind) {
@@ -2357,7 +2386,7 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasAll(flags, SIF::NAMED_TABLE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclarataion(rq::SymbolKind kind) {
+[[nodiscard]] RQ_ALWAYS_INLINE bool getIsLazyDeclaration(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::LAZY_DECLARATION);
@@ -2369,7 +2398,9 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   return rq::getHasSome(
       flags, SIF::CLASS_IMPLEMENTATION | SIF::ENUM_IMPLEMENTATION |
                  SIF::INTERFACE_IMPLEMENTATION | SIF::ADAPTER_IMPLEMENTATION |
-                 SIF::PROC_IMPLEMENTATION);
+                 SIF::PROC_IMPLEMENTATION | SIF::LAZY_VARIABLE_IMPLEMENTATION |
+                 SIF::ALIAS_IMPLEMENTATION | SIF::CONCEPT_IMPLEMENTATION |
+                 SIF::VARIANT_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -2412,6 +2443,27 @@ getIsLazyVariableImplementation(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::LAZY_VARIABLE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsAliasImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ALIAS_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsConceptImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::CONCEPT_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsVariantImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::VARIANT_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsType(rq::SymbolKind kind) {

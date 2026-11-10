@@ -20,6 +20,8 @@
 #include <llvm/Support/MemoryBufferRef.h>
 
 #include <compare>
+#include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <vector>
 
@@ -78,8 +80,8 @@ struct Symbol;
   using FittingPrimitiveType = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::FITTING_PRIMITIVE_TYPE>;
     using FittingFSIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FSINT_TYPE>;
     using FittingFUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FUINT_TYPE>;
-    using FittingLSIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
-    using SymbolRangeType = rq::SimpleLeaf<rq::ReflectionType, rq::SymbolKind::SYMBOL_RANGE_TYPE>;
+    using FittingLUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
+    using FittingLUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
   using PlatformPrimitiveType = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE>;
     using BooleanType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::BOOLEAN_TYPE>;
     using HalfType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::HALF_TYPE>;
@@ -91,11 +93,13 @@ struct Symbol;
     using SSizeType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SSIZE_TYPE>;
     using USizeType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::USIZE_TYPE>;
     using SIndexType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::SINDEX_TYPE>;
+    using UIndexType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::UINDEX_TYPE>;
     using CharType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::CHAR_TYPE>;
   using StandardPrimitiveType = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::STANDARD_PRIMITIVE_TYPE>;
     using Binary16Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY16_TYPE>;
     using Binary32Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY32_TYPE>;
-    using Binary64Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY128_TYPE>;
+    using Binary64Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY64_TYPE>;
+    using Binary128Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BINARY128_TYPE>;
     using BFloat16Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BFLOAT16_TYPE>;
     using AsciiType = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ASCII_TYPE>;
     using Utf8Type = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::UTF8_TYPE>;
@@ -107,77 +111,81 @@ struct Symbol;
     using ScaledLSIntType = rq::SimpleLeaf<rq::ScaledPrimitiveType, rq::SymbolKind::SCALED_LSINT_TYPE>;
     using ScaledLUIntType = rq::SimpleLeaf<rq::ScaledPrimitiveType, rq::SymbolKind::SCALED_LUINT_TYPE>;
   using ModifierValue = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::MODIFIER>;
-    using NoModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::NO_MODIFIER>;
-    using AnchorModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ANCHOR_MODIFIER>;
-    using ResidentModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RESIDENT_MODIFIER>;
-    using FlankModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::FLANK_MODIFIER>;
-    using TransparentModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::TRANSPARENT_MODIFIER>;
-    using OpaqueModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::OPAQUE_MODIFIER>;
-    using PrivateModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRIVATE_MODIFIER>;
-    using PublicModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PUBLIC_MODIFIER>;
-    using ExportModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EXPORT_MODIFIER>;
-    using MutableModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MUTABLE_MODIFIER>;
-    using PartiallyMutableModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PARTIALLY_MUTABLE_MODIFIER>;
-    using ConstantModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONSTANT_MODIFIER>;
-    using EagerModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EAGER_MODIFIER>;
-    using LazyModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LAZY_MODIFIER>;
-    using PostModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::POST_MODIFIER>;
-    using PreModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRE_MODIFIER>;
-    using AliasModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ALIAS_MODIFIER>;
-    using EnumeratorModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ENUMERATOR_MODIFIER>;
-    using ConceptModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONCEPT_MODIFIER>;
-    using SplitModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SPLIT_MODIFIER>;
-    using RuntimeModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RUNTIME_MODIFIER>;
-    using ComtimeModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::COMTIME_MODIFIER>;
-    using AnytimeModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ANYTIME_MODIFIER>;
-    using PresetModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PRESET_MODIFIER>;
-    using SingletonModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SINGLETON_MODIFIER>;
-    using CaptureModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CAPTURE_MODIFIER>;
-    using StatelessModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::STATELESS_MODIFIER>;
-    using LinkedModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LINKED_MODIFIER>;
-    using InlineModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::INLINE_MODIFIER>;
-    using PureModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PURE_MODIFIER>;
-    using ImpureModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::IMPURE_MODIFIER>;
-    using StandardMangleModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::STANDARD_MANGLE_MODIFIER>;
-    using MangleModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MANGLE_MODIFIER>;
-    using PadModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PAD_MODIFIER>;
-    using PackModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::PACK_MODIFIER>;
-    using EquivocalModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EQUIVOCAL_MODIFIER>;
-    using LikelyModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LIKELY_MODIFIER>;
-    using UnlikelyModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::UNLIKELY_MODIFIER>;
-    using SupportedModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::SUPPORTED_MODIFIER>;
-    using DepreciatedModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::DEPRECIATED_MODIFIER>;
-    using ExperimentalModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::EXPERIMENTAL_MODIFIER>;
-    using MovableModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MOVABLE_MODIFIER>;
-    using CopyableModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::COPYABLE_MODIFIER>;
-    using InvariadicModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::INVARIADIC_MODIFIER>;
-    using VariadicModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::VARIADIC_MODIFIER>;
-    using BestLocationModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::BEST_LOCATION_MODIFIER>;
-    using LocationModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::LOCATION_MODIFIER>;
-    using TemplateModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::TEMPLATE_MODIFIER>;
-    using OverloadModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::OVERLOAD_MODIFIER>;
-    using ConstraintModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::CONSTRAINT_MODIFIER>;
-    using ManualModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::MANUAL_MODIFIER>;
-    using AutoModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::AUTO_MODIFIER>;
-    using DirectModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::DIRECT_MODIFIER>;
-    using VirualModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::VIRTUAL_MODIFIER>;
-    using RangerModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::RANGER_MODIFIER>;
-    using RequireModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::REQUIRE_MODIFIER>;
-    using EnsureModifier = rq::SimpleLeaf<rq::StandardPrimitiveType, rq::SymbolKind::ENSURE_MODIFIER>;
+    using NoModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::NO_MODIFIER>;
+    using AnchorModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ANCHOR_MODIFIER>;
+    using InitsModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INITS_MODIFIER>;
+    using ResidentModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RESIDENT_MODIFIER>;
+    using FlankModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::FLANK_MODIFIER>;
+    using TransparentModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::TRANSPARENT_MODIFIER>;
+    using OpaqueModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::OPAQUE_MODIFIER>;
+    using PrivateModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRIVATE_MODIFIER>;
+    using PublicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PUBLIC_MODIFIER>;
+    using ExportModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EXPORT_MODIFIER>;
+    using MutableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MUTABLE_MODIFIER>;
+    using PartiallyMutableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PARTIALLY_MUTABLE_MODIFIER>;
+    using ConstantModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONSTANT_MODIFIER>;
+    using EagerModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EAGER_MODIFIER>;
+    using LazyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LAZY_MODIFIER>;
+    using PostModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::POST_MODIFIER>;
+    using PreModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRE_MODIFIER>;
+    using AliasModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ALIAS_MODIFIER>;
+    using EnumeratorModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ENUMERATOR_MODIFIER>;
+    using ConceptModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONCEPT_MODIFIER>;
+    using SplitModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SPLIT_MODIFIER>;
+    using RuntimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RUNTIME_MODIFIER>;
+    using ComtimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::COMTIME_MODIFIER>;
+    using AnytimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ANYTIME_MODIFIER>;
+    using PresetModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRESET_MODIFIER>;
+    using SingletonModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SINGLETON_MODIFIER>;
+    using CaptureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CAPTURE_MODIFIER>;
+    using StatelessModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::STATELESS_MODIFIER>;
+    using LinkedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LINKED_MODIFIER>;
+    using InlineModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INLINE_MODIFIER>;
+    using PureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PURE_MODIFIER>;
+    using ImpureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::IMPURE_MODIFIER>;
+    using StandardMangleModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::STANDARD_MANGLE_MODIFIER>;
+    using MangleModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MANGLE_MODIFIER>;
+    using PadModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PAD_MODIFIER>;
+    using PackModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PACK_MODIFIER>;
+    using EquivocalModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EQUIVOCAL_MODIFIER>;
+    using LikelyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LIKELY_MODIFIER>;
+    using UnlikelyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::UNLIKELY_MODIFIER>;
+    using SupportedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SUPPORTED_MODIFIER>;
+    using DepreciatedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::DEPRECIATED_MODIFIER>;
+    using ExperimentalModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EXPERIMENTAL_MODIFIER>;
+    using MovableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MOVABLE_MODIFIER>;
+    using CopyableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::COPYABLE_MODIFIER>;
+    using InvariadicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INVARIADIC_MODIFIER>;
+    using VariadicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::VARIADIC_MODIFIER>;
+    using BestLocationModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::BEST_LOCATION_MODIFIER>;
+    using LocationModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LOCATION_MODIFIER>;
+    using TemplateModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::TEMPLATE_MODIFIER>;
+    using OverloadModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::OVERLOAD_MODIFIER>;
+    using ConstraintModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONSTRAINT_MODIFIER>;
+    using ManualModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MANUAL_MODIFIER>;
+    using AutoModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::AUTO_MODIFIER>;
+    using DirectModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::DIRECT_MODIFIER>;
+    using VirtualModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::VIRTUAL_MODIFIER>;
+    using VirualModifier = rq::VirtualModifier;
+    using RangerModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RANGER_MODIFIER>;
+    using RequireModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::REQUIRE_MODIFIER>;
+    using EnsureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ENSURE_MODIFIER>;
   using QualifierValue = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::QUALIFIER>;
-    using NoMutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_MUT_QUALIFIER>;
-    using PartialMutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::PARTIAL_MUT_QUALIFIER>;
-    using MutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::MUT_QUALIFIER>;
-    using NoVolatileQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_VOLATILE_QUALIFIER>;
-    using VolatileQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::VOLATILE_QUALIFIER>;
-    using NoAtomicQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_ATOMIC_QUALIFIER>;
-    using AtomicQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::ATOMIC_QUALIFIER>;
-    using NoNullTerminateQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_NULL_TERMINATE_QUALIFIER>;
-    using NullTerminateQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NULL_TERMINATE_QUALIFIER>;
-    using NoMarginQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_MARGIN_QUALIFIER>;
-    using MarginQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::MARGIN_QUALIFIER>;
-    using NoThrowsQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_THROWS_QUALIFIER>;
-    using ThrowsQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::THROWS_QUALIFIER>;
+    using NoMutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_MUT_QUALIFIER>;
+    using PartialMutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::PARTIAL_MUT_QUALIFIER>;
+    using MutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::MUT_QUALIFIER>;
+    using NoVolatileQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_VOLATILE_QUALIFIER>;
+    using VolatileQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::VOLATILE_QUALIFIER>;
+    using NoAtomicQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_ATOMIC_QUALIFIER>;
+    using AtomicQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::ATOMIC_QUALIFIER>;
+    using NoNullTerminateQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_NULL_TERMINATE_QUALIFIER>;
+    using NullTerminateQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NULL_TERMINATE_QUALIFIER>;
+    using NoMarginQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_MARGIN_QUALIFIER>;
+    using MarginQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::MARGIN_QUALIFIER>;
+    using NoDetachQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_DETACH_QUALIFIER>;
+    using DetachQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::DETACH_QUALIFIER>;
+    using NoThrowsQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_THROWS_QUALIFIER>;
+    using ThrowsQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::THROWS_QUALIFIER>;
   struct BuiltinConcept;
     using AnyConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ANY_CONCEPT>;
     using TypeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::TYPE_CONCEPT>;
@@ -201,11 +209,13 @@ struct Symbol;
     using LeastIntConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::LEAST_INT_CONCEPT>;
     using FloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FLOAT_CONCEPT>;
     using BinaryConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BINARY_CONCEPT>;
-    using BfloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BFLOAT_CONCEPT>;
+    using BFloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BFLOAT_CONCEPT>;
+    using BfloatConcept = rq::BFloatConcept;
     using ConceptConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_CONCEPT>;
     using SubtypeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SUBTYPE_CONCEPT>;
     using ArrayConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARRAY_CONCEPT>;
     using RefConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::REF_CONCEPT>;
+    using PtrConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PTR_CONCEPT>;
     using SliceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SLICE_CONCEPT>;
     using SplitConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SPLIT_CONCEPT>;
     using ModuleConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::MODULE_CONCEPT>;
@@ -221,7 +231,8 @@ struct Symbol;
     using ProcSpecializationSetConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PROC_SPECIALIZATION_SET_CONCEPT>;
     using ArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_SEQUENCE_CONCEPT>;
     using ArithmeticIntervalConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_INTERVAL_CONCEPT>;
-    using InfiniteARithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
+    using InfiniteArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
+    using InfiniteARithmeticSequenceConcept = rq::InfiniteArithmeticSequenceConcept;
     using FiniteArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
     using EagerDeclarationConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::EAGER_DECLARATION_CONCEPT>;
     using AnchorConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ANCHOR_CONCEPT>;
@@ -232,9 +243,6 @@ struct Symbol;
     using PreEagerVariableConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PRE_EAGER_VARIABLE_CONCEPT>;
     using ParameterConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PARAMETER_CONCEPT>;
     using SignatureParameterConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNATURE_PARAMETER_CONCEPT>;
-    using LayoutParameterConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::LAYOUT_PARAMETER_CONCEPT>;
-    using ParameterListConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PARAMETER_LIST_CONCEPT>;
-    using SignatureConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNATURE_CONCEPT>;
     using LayoutParameterConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::LAYOUT_PARAMETER_CONCEPT>;
     using ParameterListConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PARAMETER_LIST_CONCEPT>;
     using SignatureConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SIGNATURE_CONCEPT>;
@@ -297,6 +305,7 @@ struct Symbol;
     using AttributeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ATTRIBUTE_CONCEPT>;
     using ModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::MODIFIER_CONCEPT>;
     using AnchorModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ANCHOR_MODIFIER_CONCEPT>;
+    using ForkedInitializationModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FORKED_INITIALIZATION_MODIFIER_CONCEPT>;
     using ContainerModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::CONTAINER_MODIFIER_CONCEPT>;
     using VisibilityModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::VISIBILITY_MODIFIER_CONCEPT>;
     using AccessModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ACCESS_MODIFIER_CONCEPT>;
@@ -395,7 +404,7 @@ struct Symbol;
         struct ElseIfStatement;
         struct ElseStatement;
       struct NamedTable;
-        struct Node;
+        struct Namespace;
         struct LazyDeclaration;
           struct Implementation;
             struct EnumImplementation;
@@ -488,7 +497,7 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
                              rq::SymbolKind kind, unsigned depth);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
 struct BuiltinConcept : public rq::Symbol {
@@ -506,7 +515,7 @@ struct BuiltinConcept : public rq::Symbol {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct QualifiedType final : public rq::Symbol {
+struct QualifiedType final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::QualifiedType;
 
   rq::Symbol *_type_ptr;
@@ -529,7 +538,7 @@ struct QualifiedType final : public rq::Symbol {
                              const rq::Symbol &type,
                              rq::QualifierFuseFlags qualifiers,
                              unsigned margin);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
 struct Subentity : public rq::Symbol {
@@ -547,7 +556,7 @@ struct Subentity : public rq::Symbol {
 };
 
 struct Subtype : public rq::Subentity {
-  using Self = rq::Subentity;
+  using Self = rq::Subtype;
 
   explicit RQ_ALWAYS_INLINE Subtype(rq::SymbolKind kind,
                                     rq::QualifiedType &child);
@@ -574,10 +583,10 @@ struct ArraySubtype : public rq::Subtype, public llvm::FoldingSetNode {
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
                              const rq::QualifiedType &child, std::size_t count);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct SimpleSubtype : public rq::Subtype {
+struct SimpleSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   using Self = rq::SimpleSubtype;
 
   explicit RQ_ALWAYS_INLINE SimpleSubtype(rq::SymbolKind kind,
@@ -588,10 +597,10 @@ struct SimpleSubtype : public rq::Subtype {
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
                              const rq::QualifiedType &child);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct Subsymbol : public rq::Subentity {
+struct Subsymbol : public rq::Subentity, public llvm::FoldingSetNode {
   using Self = rq::Subsymbol;
 
   explicit RQ_ALWAYS_INLINE Subsymbol(rq::SymbolKind kind, rq::Symbol &child);
@@ -604,7 +613,7 @@ struct Subsymbol : public rq::Subentity {
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
                              const rq::Symbol &child);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
 struct Adaption final : public rq::Symbol, public llvm::FoldingSetNode {
@@ -654,9 +663,9 @@ struct Realization final : public rq::Symbol, public llvm::FoldingSetNode {
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                      const rq::QualifiedType &reciever,
-                      const rq::InterfaceImplementation &interface);
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::QualifiedType &reciever,
+                             const rq::InterfaceImplementation &interface);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
@@ -948,24 +957,6 @@ struct Parameter final : public rq::Symbol, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct CompositionType final : public rq::Symbol {
-  using Self = rq::CompositionType;
-
-  rq::NodeList<rq::InterfaceImplementation> _interface_list;
-
-  explicit RQ_ALWAYS_INLINE
-  CompositionType(rq::NodeList<rq::InterfaceImplementation> &&interface_list);
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-
-  static inline void
-  Profile(llvm::FoldingSetNodeID &inout_id,
-          rq::ConstNodeListRef<rq::InterfaceImplementation> interface_list);
-
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
 struct ParameterListDetail final {
   using Self = ParameterListDetail;
 
@@ -986,7 +977,7 @@ struct ParameterListDetail final {
   appendParameter(rq::Name name, rq::QualifiedType &type,
                   rq::ModifierFuseFlags modifier_fuse_flags,
                   rq::Entity *default_ptr);
-  [[nodiscard]] RQ_ALWAYS_INLINE std::span<const rq::ParameterDetail>
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::ParameterDetail>
   getParameterDetailSpan() const;
 };
 
@@ -1025,13 +1016,14 @@ struct SignatureType final : public rq::ParameterList,
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                      const rq::Parameter *first_parameter_ptr,
-                      const rq::QualifiedType &return_type);
+                             const rq::Parameter *first_parameter_ptr,
+                             const rq::QualifiedType &return_type);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct LayoutType final : public rq::ParameterList {
+struct LayoutType final : public rq::ParameterList,
+                          public llvm::FoldingSetNode {
   using Self = rq::LayoutType;
 
   explicit RQ_ALWAYS_INLINE LayoutType(rq::Parameter *first_parameter_ptr);
@@ -1064,303 +1056,6 @@ struct PlacementType final : public rq::Symbol, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct Polymorph : public rq::Symbol {
-  using Self = rq::Polymorph;
-
-  rq::Implementation *_first_overload_ptr{nullptr};
-  rq::Template *_first_template_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Implementation>
-  getOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
-  getOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
-  getConstOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Template>
-  getTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
-  getTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
-  getConstTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct ClassPolymorph final : public rq::Polymorph {
-  using Self = rq::ClassPolymorph;
-
-  explicit RQ_ALWAYS_INLINE ClassPolymorph();
-
-  RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &class_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::ClassOverload>
-      getClassOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
-      getClassOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
-      getConstClassOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::ClassTemplate>
-      getClassTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
-      getClassTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
-      getConstClassTemplateSubrang() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct EnumPolymorph final : public rq::Polymorph {
-  using Self = rq::EnumPolymorph;
-
-  explicit RQ_ALWAYS_INLINE EnumPolymorph();
-
-  RQ_ALWAYS_INLINE void addEnumOverload(rq::EnumOverload &enum_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::EnumOverload>
-      getEnumOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
-      getEnumOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
-      getConstEnumOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::EnumTemplate>
-      getEnumTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
-      getEnumTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
-      getConstEnumTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct InterfacePolymorph final : public rq::Polymorph {
-  using Self = rq::InterfacePolymorph;
-
-  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
-
-  RQ_ALWAYS_INLINE void addInterfaceOverload(rq::InterfaceOverload &interface);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::InterfaceOverload>
-      getInterfaceOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
-      getInterfaceOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
-      getConstInterfaceOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addInterfaceTemplate(rq::InterfaceTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::InterfaceTemplate>
-      getInterfaceTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
-      getInterfaceTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
-      getConstInterfaceTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct AdapterPolymorph final : public rq::Polymorph {
-  using Self = rq::AdapterPolymorph;
-
-  explicit RQ_ALWAYS_INLINE AdapterPolymorph();
-
-  RQ_ALWAYS_INLINE void addAdapterOverload(rq::AdapterOverload &adapter);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::AdapterOverload>
-      getAdapterOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
-      getAdapterOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
-      getConstAdapterOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addAdapterTemplate(rq::AdapterTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::AdapterTemplate>
-      getAdapterTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
-      getAdapterTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
-      getConstAdapterTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct ProcPolymorph final : public rq::Polymorph {
-  using Self = rq::ProcPolymorph;
-
-  explicit RQ_ALWAYS_INLINE ProcPolymorph();
-
-  RQ_ALWAYS_INLINE void addProcOverload(rq::ProcOverload &function);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::ProcOverload>
-      getProcOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
-      getProcOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
-      getConstProcOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addProcTemplate(rq::ProcTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::ProcTemplate>
-      getProcTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
-      getProcTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
-      getConstProcTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct LazyVariablePolymorph final : public rq::Polymorph {
-  using Self = rq::LazyVariablePolymorph;
-
-  explicit RQ_ALWAYS_INLINE LazyVariablePolymorph();
-
-  RQ_ALWAYS_INLINE void
-  addLazyVariableOverload(rq::LazyVariableOverload &variable);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getLazyVariableOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getLazyVariableOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
-      getConstLazyVariableOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void
-  addLazyVariableTemplate(rq::LazyVariableTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getLazyVariableTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getLazyVariableTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
-      getConstLazyVariableTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct AliasPolymorph final : public rq::Polymorph {
-  using Self = rq::AliasPolymorph;
-
-  explicit RQ_ALWAYS_INLINE AliasPolymorph();
-
-  RQ_ALWAYS_INLINE void addAliasOverload(rq::AliasOverload &alias);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::AliasOverload>
-      getAliasOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
-      getAliasOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
-      getConstAliasOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addAliasTemplate(rq::AliasTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::AliasTemplate>
-      getAliasTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
-      getAliasTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
-      getConstAliasTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct VariantPolymorph final : public rq::Polymorph {
-  using Self = rq::VariantPolymorph;
-
-  explicit RQ_ALWAYS_INLINE VariantPolymorph();
-
-  RQ_ALWAYS_INLINE void addConceptOverload(rq::VariantOverload &concept_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::VariantOverload>
-      getVariantOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
-      getVariantOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
-      getConstVariantOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addVariantTemplate(rq::VariantTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::VariantTemplate>
-      getVariantTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
-      getVariantTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
-      getConstVariantTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct ConceptPolymorph final : public rq::Polymorph {
-  using Self = rq::ConceptPolymorph;
-
-  explicit RQ_ALWAYS_INLINE ConceptPolymorph();
-
-  RQ_ALWAYS_INLINE void addConceptOverload(rq::ConceptOverload &concept_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Implementation, rq::ConceptOverload>
-      getConceptOverloadSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
-      getConceptOverloadSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
-      getConstConceptOverloadSubrange() const;
-  RQ_ALWAYS_INLINE void addConceptTemplate(rq::ConceptTemplate &template_);
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::NextSubrange<rq::Template, rq::ConceptTemplate>
-      getConceptTemplateSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
-      getConceptTemplateSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE
-      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
-      getConceptConceptTemplateSubrange() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
 struct TableMember : public rq::Symbol {
   using Self = rq::TableMember;
 
@@ -1372,32 +1067,6 @@ struct TableMember : public rq::Symbol {
   RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct Portal final : public rq::TableMember {
-  using Self = rq::Portal;
-
-  rq::SymbolTable *_dest_ptr{nullptr};
-  rq::NodeList<rq::SymbolTable> _without_list{};
-  rq::Expression *_expression_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Portal();
-
-  RQ_ALWAYS_INLINE void setDest(rq::SymbolTable &dest);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getDest() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getDest();
-  RQ_ALWAYS_INLINE void
-  setWithoutList(rq::NodeList<rq::SymbolTable> &&without_list);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::SymbolTable>
-  getWithoutList() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::SymbolTable>
-  getWithoutList();
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1501,67 +1170,45 @@ struct PreEagerVariable : public rq::EagerVariable {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct SymbolTableIterator final {
-  using Self = rq::SymbolTableIterator;
-  using value_type = rq::SymbolTable;
-  using reference = rq::SymbolTable &;
-  using pointer = rq::SymbolTable *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct ContainingTableIteratorPolicy final {
+  using State = rq::SymbolTable;
 
-  rq::SymbolTable *_symbol_table_ptr{nullptr};
+  RQ_ALWAYS_INLINE void next(State *&inout_state_ptr) const;
 
-  explicit SymbolTableIterator() = default;
-  explicit RQ_ALWAYS_INLINE
-  SymbolTableIterator(rq::SymbolTable *symbol_table_ptr);
-  SymbolTableIterator(const Self &) = default;
-  SymbolTableIterator(Self &&) = default;
-  ~SymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &operator*();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *operator->();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE State &
+  value(State *const &inout_state_ptr) const;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(State *const &inout_state_ptr) const;
 };
 
-struct ConstSymbolTableIterator final {
-  using Self = rq::ConstSymbolTableIterator;
-  using value_type = const rq::SymbolTable;
-  using reference = const rq::SymbolTable &;
-  using pointer = const rq::SymbolTable *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct ConstContainingTableIteratorPolicy final {
+  using State = rq::SymbolTable;
 
-  const rq::SymbolTable *_symbol_table_ptr{nullptr};
+  RQ_ALWAYS_INLINE void next(const State *&inout_state_ptr) const;
 
-  explicit ConstSymbolTableIterator() = default;
-  explicit RQ_ALWAYS_INLINE
-  ConstSymbolTableIterator(const rq::SymbolTable *symbol_table_ptr);
-  ConstSymbolTableIterator(const Self &) = default;
-  ConstSymbolTableIterator(Self &&) = default;
-  ~ConstSymbolTableIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &operator*() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *operator->() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const State &
+  value(const State *const &inout_state_ptr) const;
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(const State *const &inout_state_ptr) const;
 };
+
+using ContainingTableIterator =
+    rq::Iterator<rq::SymbolTable *, rq::ContainingTableIteratorPolicy,
+                 rq::SymbolTable>;
+
+using ConstContainingTableIterator =
+    rq::Iterator<const rq::SymbolTable *,
+                 rq::ConstContainingTableIteratorPolicy,
+                 const rq::SymbolTable>;
 
 struct SymbolTable : public rq::TableMember {
   using Self = rq::SymbolTable;
+  using InclusiveAscendingIterator = rq::ContainingTableIterator;
+  using ConstInclusiveAscendingIterator = rq::ConstContainingTableIterator;
 
   llvm::DenseMap<rq::Name, rq::NodeList<rq::TableMember>> _member_map{};
-  rq::SymbolTable *_conatiner_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE SymbolTable(rq::SymbolKind kind);
 
@@ -1572,12 +1219,39 @@ struct SymbolTable : public rq::TableMember {
                         rq::TableMember &member);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
   lookupList(rq::Name name) const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::SymbolTableIterator>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<InclusiveAscendingIterator>
   getInclusiveAscendingSubrange();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<ConstInclusiveAscendingIterator>
   getInclusiveAscendingSubrange() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<rq::ConstSymbolTableIterator>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<ConstInclusiveAscendingIterator>
   getConstInclusiveAscendingSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct Portal final : public rq::TableMember {
+  using Self = rq::Portal;
+
+  rq::Portal *_next_ptr{nullptr};
+  rq::SymbolTable *_dest_ptr{nullptr};
+  rq::NodeList<rq::SymbolTable> _without_list{};
+  rq::Expression *_expression_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Portal();
+
+  RQ_ALWAYS_INLINE void setDest(rq::SymbolTable &dest);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getDest() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getDest();
+  RQ_ALWAYS_INLINE void
+  setWithoutList(rq::NodeList<rq::SymbolTable> &&without_list);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::SymbolTable>
+  getWithoutList() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::SymbolTable>
+  getWithoutList();
+  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1997,6 +1671,24 @@ struct InterfaceImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
+struct CompositionType final : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::CompositionType;
+
+  rq::NodeList<rq::InterfaceImplementation> _interface_list;
+
+  explicit RQ_ALWAYS_INLINE
+  CompositionType(rq::NodeList<rq::InterfaceImplementation> &&interface_list);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+
+  static inline void
+  Profile(llvm::FoldingSetNodeID &inout_id,
+          rq::ConstNodeListRef<rq::InterfaceImplementation> interface_list);
+
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
 struct InterfaceOverload final : public rq::InterfaceImplementation {
   using Self = rq::InterfaceOverload;
 
@@ -2120,6 +1812,135 @@ struct ProcSpecialization final : public rq::ProcImplementation {
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE ProcSpecialization();
+
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
+  getTemplateTuplePtr() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasImplementation : public rq::Implementation {
+  using Self = rq::AliasImplementation;
+
+  explicit RQ_ALWAYS_INLINE AliasImplementation(rq::SymbolKind kind);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasOverload final : public rq::AliasImplementation {
+  using Self = rq::AliasOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE AliasOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasSpecialization final : public rq::AliasImplementation {
+  using Self = rq::AliasSpecialization;
+
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE AliasSpecialization();
+
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
+  getTemplateTuplePtr() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptImplementation : public rq::Implementation {
+  using Self = rq::ConceptImplementation;
+
+  explicit RQ_ALWAYS_INLINE ConceptImplementation(rq::SymbolKind kind);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptOverload final : public rq::ConceptImplementation {
+  using Self = rq::ConceptOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE ConceptOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptSpecialization final : public rq::ConceptImplementation {
+  using Self = rq::ConceptSpecialization;
+
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE ConceptSpecialization();
+
+  RQ_ALWAYS_INLINE void
+  setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArray *
+  getTemplateTuplePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
+  getTemplateTuplePtr() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantImplementation : public rq::Implementation {
+  using Self = rq::VariantImplementation;
+
+  explicit RQ_ALWAYS_INLINE VariantImplementation(rq::SymbolKind kind);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantOverload final : public rq::VariantImplementation {
+  using Self = rq::VariantOverload;
+
+  rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
+
+  explicit RQ_ALWAYS_INLINE VariantOverload();
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
+  getPrototypeExpressionPtrList();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::Expression *>
+  getPrototypeExpressionPtrList() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantSpecialization final : public rq::VariantImplementation {
+  using Self = rq::VariantSpecialization;
+
+  rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE VariantSpecialization();
 
   RQ_ALWAYS_INLINE void
   setTemplateTuple(rq::ConstantDetachedArray &template_tuple);
@@ -2260,6 +2081,360 @@ struct ProcTemplate final : public rq::Template {
   [[nodiscard]] rq::ConstNextSubrange<rq::Implementation,
                                       rq::ProcSpecialization>
   getConstProcSpecializationSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasTemplate final : public rq::Template {
+  using Self = rq::AliasTemplate;
+
+  explicit RQ_ALWAYS_INLINE AliasTemplate();
+
+  [[nodiscard]] inline rq::NextSubrange<rq::Implementation,
+                                        rq::AliasSpecialization>
+  getAliasSpecializationSubrange();
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::AliasSpecialization>
+  getAliasSpecializationSubrange() const;
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::AliasSpecialization>
+  getConstAliasSpecializationSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptTemplate final : public rq::Template {
+  using Self = rq::ConceptTemplate;
+
+  explicit RQ_ALWAYS_INLINE ConceptTemplate();
+
+  [[nodiscard]] inline rq::NextSubrange<rq::Implementation,
+                                        rq::ConceptSpecialization>
+  getConceptSpecializationSubrange();
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::ConceptSpecialization>
+  getConceptSpecializationSubrange() const;
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::ConceptSpecialization>
+  getConstConceptSpecializationSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantTemplate final : public rq::Template {
+  using Self = rq::VariantTemplate;
+
+  explicit RQ_ALWAYS_INLINE VariantTemplate();
+
+  [[nodiscard]] inline rq::NextSubrange<rq::Implementation,
+                                        rq::VariantSpecialization>
+  getVariantSpecializationSubrange();
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::VariantSpecialization>
+  getVariantSpecializationSubrange() const;
+  [[nodiscard]] inline rq::ConstNextSubrange<rq::Implementation,
+                                             rq::VariantSpecialization>
+  getConstVariantSpecializationSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct Polymorph : public rq::Symbol {
+  using Self = rq::Polymorph;
+
+  rq::Implementation *_first_overload_ptr{nullptr};
+  rq::Template *_first_template_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Polymorph(rq::SymbolKind kind);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Implementation>
+  getOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+  getOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Implementation>
+  getConstOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::Template>
+  getTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
+  getTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::Template>
+  getConstTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ClassPolymorph final : public rq::Polymorph {
+  using Self = rq::ClassPolymorph;
+
+  explicit RQ_ALWAYS_INLINE ClassPolymorph();
+
+  RQ_ALWAYS_INLINE void addClassOverload(rq::ClassOverload &class_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::ClassOverload>
+      getClassOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
+      getClassOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ClassOverload>
+      getConstClassOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addClassTemplate(rq::ClassTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::ClassTemplate>
+      getClassTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+      getClassTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ClassTemplate>
+      getConstClassTemplateSubrang() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct EnumPolymorph final : public rq::Polymorph {
+  using Self = rq::EnumPolymorph;
+
+  explicit RQ_ALWAYS_INLINE EnumPolymorph();
+
+  RQ_ALWAYS_INLINE void addEnumOverload(rq::EnumOverload &enum_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::EnumOverload>
+      getEnumOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
+      getEnumOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::EnumOverload>
+      getConstEnumOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addEnumTemplate(rq::EnumTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::EnumTemplate>
+      getEnumTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+      getEnumTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::EnumTemplate>
+      getConstEnumTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct InterfacePolymorph final : public rq::Polymorph {
+  using Self = rq::InterfacePolymorph;
+
+  explicit RQ_ALWAYS_INLINE InterfacePolymorph();
+
+  RQ_ALWAYS_INLINE void addInterfaceOverload(rq::InterfaceOverload &interface);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::InterfaceOverload>
+      getInterfaceOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
+      getInterfaceOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::InterfaceOverload>
+      getConstInterfaceOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addInterfaceTemplate(rq::InterfaceTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::InterfaceTemplate>
+      getInterfaceTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+      getInterfaceTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::InterfaceTemplate>
+      getConstInterfaceTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AdapterPolymorph final : public rq::Polymorph {
+  using Self = rq::AdapterPolymorph;
+
+  explicit RQ_ALWAYS_INLINE AdapterPolymorph();
+
+  RQ_ALWAYS_INLINE void addAdapterOverload(rq::AdapterOverload &adapter);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::AdapterOverload>
+      getAdapterOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
+      getAdapterOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AdapterOverload>
+      getConstAdapterOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addAdapterTemplate(rq::AdapterTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::AdapterTemplate>
+      getAdapterTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+      getAdapterTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AdapterTemplate>
+      getConstAdapterTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ProcPolymorph final : public rq::Polymorph {
+  using Self = rq::ProcPolymorph;
+
+  explicit RQ_ALWAYS_INLINE ProcPolymorph();
+
+  RQ_ALWAYS_INLINE void addProcOverload(rq::ProcOverload &function);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::ProcOverload>
+      getProcOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
+      getProcOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ProcOverload>
+      getConstProcOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addProcTemplate(rq::ProcTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::ProcTemplate>
+      getProcTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
+      getProcTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ProcTemplate>
+      getConstProcTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct LazyVariablePolymorph final : public rq::Polymorph {
+  using Self = rq::LazyVariablePolymorph;
+
+  explicit RQ_ALWAYS_INLINE LazyVariablePolymorph();
+
+  RQ_ALWAYS_INLINE void
+  addLazyVariableOverload(rq::LazyVariableOverload &variable);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getLazyVariableOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getLazyVariableOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::LazyVariableOverload>
+      getConstLazyVariableOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void
+  addLazyVariableTemplate(rq::LazyVariableTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getLazyVariableTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getLazyVariableTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::LazyVariableTemplate>
+      getConstLazyVariableTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasPolymorph final : public rq::Polymorph {
+  using Self = rq::AliasPolymorph;
+
+  explicit RQ_ALWAYS_INLINE AliasPolymorph();
+
+  RQ_ALWAYS_INLINE void addAliasOverload(rq::AliasOverload &alias);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::AliasOverload>
+      getAliasOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
+      getAliasOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::AliasOverload>
+      getConstAliasOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addAliasTemplate(rq::AliasTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::AliasTemplate>
+      getAliasTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
+      getAliasTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::AliasTemplate>
+      getConstAliasTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct VariantPolymorph final : public rq::Polymorph {
+  using Self = rq::VariantPolymorph;
+
+  explicit RQ_ALWAYS_INLINE VariantPolymorph();
+
+  RQ_ALWAYS_INLINE void addConceptOverload(rq::VariantOverload &concept_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::VariantOverload>
+      getVariantOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
+      getVariantOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::VariantOverload>
+      getConstVariantOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addVariantTemplate(rq::VariantTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::VariantTemplate>
+      getVariantTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
+      getVariantTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::VariantTemplate>
+      getConstVariantTemplateSubrange() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConceptPolymorph final : public rq::Polymorph {
+  using Self = rq::ConceptPolymorph;
+
+  explicit RQ_ALWAYS_INLINE ConceptPolymorph();
+
+  RQ_ALWAYS_INLINE void addConceptOverload(rq::ConceptOverload &concept_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConceptOverloadSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConceptOverloadSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Implementation, rq::ConceptOverload>
+      getConstConceptOverloadSubrange() const;
+  RQ_ALWAYS_INLINE void addConceptTemplate(rq::ConceptTemplate &template_);
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::NextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptTemplateSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptTemplateSubrange() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE
+      rq::ConstNextSubrange<rq::Template, rq::ConceptTemplate>
+      getConceptConceptTemplateSubrange() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
