@@ -18,10 +18,10 @@ pure
     [try
         intermediate := divide(10, 2).[pass 0];
         result ?= divide(5, 0).[pass 1];
-    ][catch (0, 1), message:Slice@Utf8,
+    ][catch (0, 1), message:Slice@Utf8=value,
         std.print(line=message);
         result ?= 0;
-    ][catch (0, 1), number:SInt,
+    ][catch (0, 1), number:SInt=value,
         result ?= number;
     ];
 ];
