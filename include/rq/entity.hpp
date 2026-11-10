@@ -944,9 +944,6 @@ enum class SymbolKind : rq::EntityId {
   // IMPORTS
   IMPORT,
 
-  // PORTAL
-  PORTAL,
-
   // REALIZATION
   REALIZATION,
 
@@ -974,6 +971,9 @@ enum class SymbolKind : rq::EntityId {
   ARITHMETIC_INTERVAL_TYPE,
   INFINITE_ARITHMETIC_SEQUENCE_TYPE,
   FINITE_ARITHMETIC_SEQUENCE_TYPE,
+
+  // PORTAL
+  PORTAL,
 
   // EAGER DECLARATIONS
   ANCHOR,
@@ -2703,7 +2703,7 @@ struct Entity {
         rq::ConstDottedInstructionIterator());
   }
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {
     RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
     return true;
   }
@@ -2715,7 +2715,7 @@ struct Tombstone final : public rq::Entity {
   RQ_ALWAYS_INLINE Tombstone() 
     : rq::Entity(rq::TOMBSTONE_ID) {}
 
-  [[nodiscard]] static inline bool classof(const rq::Entity* entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity* entity_ptr) {
     const rq::Entity& entity = rq::dereferencePtr(entity_ptr);
     return entity.getId() == rq::TOMBSTONE_ID;
   }

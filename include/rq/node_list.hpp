@@ -82,6 +82,12 @@ using ConstNodeListIterator =
     rq::Iterator<rq::ConstNodeListRef<ItemParam>,
                  rq::ConstNodeListIteratorPolicy<ItemParam>, const ItemParam>;
 
+template <typename ItemParam>
+using NodeListSubrange = rq::Subrange<rq::NodeListIterator<ItemParam>>;
+
+template <typename ItemParam>
+using ConstNodeListSubrange = rq::Subrange<rq::ConstNodeListIterator<ItemParam>>;
+
 template <typename ItemParam> struct NodeList final {
   using Item = ItemParam;
   using Allocated = rq::NodeListItem;

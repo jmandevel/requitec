@@ -18,7 +18,7 @@ struct Value : public rq::Entity {
 
   explicit RQ_ALWAYS_INLINE Value(rq::ValueKind kind);
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Int : public rq::Value {
@@ -30,7 +30,7 @@ struct Int : public rq::Value {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APInt &getInt() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ConstantInt final : public rq::Int {
@@ -38,7 +38,7 @@ struct ConstantInt final : public rq::Int {
 
   explicit RQ_ALWAYS_INLINE ConstantInt();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct MutableInt final : public rq::Int {
@@ -48,7 +48,7 @@ struct MutableInt final : public rq::Int {
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt &getInt();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct Float : public rq::Value {
@@ -60,7 +60,7 @@ struct Float : public rq::Value {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const llvm::APFloat &getFloat() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ConstantFloat final : public rq::Float {
@@ -68,7 +68,7 @@ struct ConstantFloat final : public rq::Float {
 
   explicit RQ_ALWAYS_INLINE ConstantFloat();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct MutableFloat final : public rq::Float {
@@ -78,7 +78,7 @@ struct MutableFloat final : public rq::Float {
 
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat &getFloat();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct DetachedArray : public rq::Value {
@@ -86,7 +86,7 @@ struct DetachedArray : public rq::Value {
 
   explicit RQ_ALWAYS_INLINE DetachedArray();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct MutableDetachedArray final : public rq::DetachedArray {
@@ -100,7 +100,7 @@ struct MutableDetachedArray final : public rq::DetachedArray {
   getDataArray() const;
   [[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Entity *> &getDataArray();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 };
 
 struct ConstantDetachedArrayElement final : public llvm::FoldingSetNode {
@@ -119,15 +119,15 @@ struct ConstantDetachedArrayElement final : public llvm::FoldingSetNode {
   getNext() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantDetachedArrayElement &getNext();
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id);
-};
-
-inline void
-profileConstantDetachedArrayElement(llvm::FoldingSetNodeID &id,
+static inline void
+Profile(llvm::FoldingSetNodeID &id,
                                     const rq::Entity &entity,
                                     const rq::ConstantDetachedArray *next_ptr);
+
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id);
+};
 
 struct ConstantDetachedArray final : public rq::DetachedArray,
                                      public llvm::FoldingSetNode {
@@ -148,14 +148,15 @@ struct ConstantDetachedArray final : public rq::DetachedArray,
       rq::ConstNextSubrange<rq::ConstantDetachedArrayElement>
       getConstElementSubrange() const;
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr);
 
-  inline void Profile(llvm::FoldingSetNodeID &id);
+  static inline void
+Profile(llvm::FoldingSetNodeID &id,
+                             const rq::ConstantDetachedArrayElement *first_ptr);
+
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id);
 };
 
-inline void
-profileConstantDetachedArray(llvm::FoldingSetNodeID &id,
-                             const rq::ConstantDetachedArrayElement *first_ptr);
 
 } // namespace rq
 

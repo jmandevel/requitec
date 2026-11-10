@@ -13,7 +13,7 @@ struct CfgBlock final : public rq::Entity {
 
   
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id == rq::CFG_BLOCK_ID;

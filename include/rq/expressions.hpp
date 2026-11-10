@@ -5321,7 +5321,7 @@ struct Expression final : public rq::Entity {
         rq::ConstExpressionIterator());
   }
 
-  [[nodiscard]] static inline bool classof(const rq::Entity *entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {
     const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     const rq::EntityId id = entity.getId();
     return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
