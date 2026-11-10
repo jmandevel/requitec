@@ -1,3 +1,5 @@
+[import "std", std];
+
 pure
 [proc multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <},
     result <:=;
@@ -12,13 +14,13 @@ mangle::main
     [split divided:= in.div, multiplied:= in.mul ] =in\\ multiReturn(0, 1);
 
     // by index
-    [split divided = in.0, multiplied = in.1 ] =in\\ multiReturn(0, 1);
+    [split divided = in->std.at(0), multiplied = in->std.at(1) ] =in\\ multiReturn(0, 1);
 
     // as tuple
     tuple := multiReturn(0, 1);
 
     // as split tuple
-    [split { a:=in.0, b:=in.mul, c:=3 }] =in\\ multiReturn(0, 1);
+    [split { a:=in->std.at(0), b:=in.mul, c:=3 }] =in\\ multiReturn(0, 1);
 
     result <:= 0;
 ];
