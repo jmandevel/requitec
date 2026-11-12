@@ -186,6 +186,7 @@ struct Context final : public rq::BumpPtrAllocator {
     }
 #endif
   }
+  // source file errors
   void logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c);
   void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur,
                                        char c);
@@ -207,6 +208,7 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorFailedToOpenIntermediateFile(llvm::StringRef path,
                                             const std::error_code &ec);
   void logErrorFailedToAddPassesToEmitFile(llvm::StringRef path);
+  // parse errors
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
@@ -218,10 +220,6 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorSoloRightToken(const rq::Token &token);
   void logErrorUnterminatedStringLiteral(const rq::Token &token);
   void logErrorUnmatchedLeftToken(const rq::Token &token);
-  void logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
-                                    const rq::Token &front_token,
-                                    const rq::Expression &expression);
-  void logErrorUnterminatedInterpolatedString(const rq::Token &token);
   void logErrorMustHaveParameterMark(rq::Situation situation,
                                      const rq::Expression &expression);
   void logErrorIsFirst(const rq::Expression &mark);
@@ -237,6 +235,7 @@ struct Context final : public rq::BumpPtrAllocator {
   void
   logErrorNonpositionalBeginAfterLockedBegin(const rq::Expression &named_begin);
   void logErrorPositionalEndAfterLockedBegin(const rq::Expression &named_begin);
+  // situator errors
   void logErrorNotExactBranchCount(rq::Situation situation,
                                    const rq::Expression &expression,
                                    unsigned count);
@@ -250,8 +249,9 @@ struct Context final : public rq::BumpPtrAllocator {
                                       const rq::Expression &branch);
   void logErrorExpectedTagBranch(const rq::Expression &expresison);
   void logErrorExpectedTagExpression(const rq::Expression &expresison);
+  // generation errors
   void logErrorExpectedStatementExpression(const rq::Expression &expresison);
-  void logErrorNotDeterminateStaticValue(const rq::Expression &expression);
+  void logErrorNotDeterminateComtimeValue(const rq::Expression &expression);
   void logErrorInvalidModifier(const rq::Expression &unascribed,
                                    const rq::Expression &instantiation_ex,
                                    rq::Modifier modifier);
@@ -259,14 +259,11 @@ struct Context final : public rq::BumpPtrAllocator {
                                          const rq::Expression &modifier);
   void logErrorNotSymbol(const rq::Expression &expression);
   void logErrorNotLabel(const rq::Expression &expression);
-  void logErrorLabelSubjectNotTable(const rq::Expression &expression);
   void logErrorNotInTop(const rq::Expression &expression);
   void logErrorUnableToEvaluateName(const rq::Expression &expression);
   void logErrorUnableToEvaluateUtf8Cstr(const rq::Expression &expression);
   void logErrorFailedToImportModule(const rq::Expression &expression,
                                     llvm::StringRef path);
-  void logErrorFlankNotInFrame(const rq::Expression &flank_expression);
-  void logErrorFlankNotAncestor(const rq::Expression &flank_expression);
   void logErrorNumeric(const rq::Expression &expression,
                        rq::NumericResultCode code);
   void logErrorNameCollision(const rq::Expression &expression);

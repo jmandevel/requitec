@@ -791,26 +791,6 @@ void Context::logErrorUnmatchedLeftToken(const rq::Token &token) {
                    {token.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorTrailerTokenMismatch(const rq::Token &trailer_token,
-                                           const rq::Token &front_token,
-                                           const rq::Expression &expression) {
-  this->logMessage(
-      trailer_token.getLlvmSourceBegin(), rq::LogType::ERROR,
-      "trailer token does not match token from start of expression",
-      {trailer_token.getLlvmSourceRange()}, {});
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   "for expression", {expression.getLlvmSourceRange()}, {});
-  this->logMessage(front_token.getLlvmSourceBegin(), rq::LogType::NOTE,
-                   "for token from start of expression",
-                   {front_token.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorUnterminatedInterpolatedString(const rq::Token &token) {
-  this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "found unterminated interpolated string",
-                   {token.getLlvmSourceRange()}, {});
-}
-
 void Context::logErrorMustHaveParameterMark(rq::Situation situation,
                                             const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
@@ -949,10 +929,10 @@ void Context::logErrorExpectedStatementExpression(
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorNotDeterminateStaticValue(
+void Context::logErrorNotDeterminateComtimeValue(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is not determinate static value",
+                   expression.getName() + " is not determinate comtime value",
                    {expression.getLlvmSourceRange()}, {});
 }
 
@@ -986,12 +966,6 @@ void Context::logErrorNotLabel(const rq::Expression &expression) {
                    {expression.getLlvmSourceRange()}, {});
 }
 
-void Context::logErrorLabelSubjectNotTable(const rq::Expression &expression) {
-  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   "label does not refer to symbol table",
-                   {expression.getLlvmSourceRange()}, {});
-}
-
 void Context::logErrorNotInTop(const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expression.getName() + " must be in top",
@@ -1016,21 +990,6 @@ void Context::logErrorFailedToImportModule(const rq::Expression &expression,
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("failed to import ") + path,
                    {expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorFlankNotInFrame(const rq::Expression &flank_expression) {
-  this->logMessage(
-      flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine(
-          "flank modifier refeers to symbol table that is not in frame"),
-      {flank_expression.getLlvmSourceRange()}, {});
-}
-
-void Context::logErrorFlankNotAncestor(const rq::Expression &flank_expression) {
-  this->logMessage(
-      flank_expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-      llvm::Twine("flank modifier refeers to symbol table is not ancestor"),
-      {flank_expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorNumeric(const rq::Expression &expression,
