@@ -2,7 +2,7 @@
 // importing false will import the single symbol false.
 // importing namespace A will import everything in namespace A that was exported.
 
-alias A = "safe_export".[import];
+[import "safe_export", A];
 
 mangle::main
 [proc , ()SInt,

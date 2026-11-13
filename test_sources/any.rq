@@ -1,7 +1,5 @@
 // ANY is a concept that can fit any symbol
 
-alias std = "std".[import];
-
 pure template::{ Symbol:ANY <}
 [function isType, ()Bool,
     results <:= Symbol.[is TYPE];

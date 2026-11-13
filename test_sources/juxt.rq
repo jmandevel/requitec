@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 template::{> auto List:ANY <}
 [proc printList, (> list:List <)Void,

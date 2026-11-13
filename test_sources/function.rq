@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 [proc myFunc, (>a:SInt32, b:SInt32<)SInt32,
     [if a > b,

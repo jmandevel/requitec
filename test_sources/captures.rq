@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 // requite common declarations are lazily evaluated.
 // first time they are seen, they are surveyed:

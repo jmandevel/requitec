@@ -1,15 +1,13 @@
 // see this stuff imported in importing.rq
 
-export
-[proc printHelloWorld, ()Void,
-    std.print(line = "Hello, world!");
-];
-[namespace detail,
-    export comtime NO_EXPORT_VAR := 0;    
+[namespace my_stuff,
+    export
+    [proc printHelloWorld, ()Void,
+        std.print(line = "Hello, world!");
+    ];
+    [namespace detail,
+        export comtime NO_EXPORT_VAR := 0;    
+    ]
 ];
 
-// reexported alias of import are special. reexport aliases must be in top.
-// in this file, you access the import with the name provided in files that 
-// import this file, the module members of the reexported module are 
-// treated as if they are members of this module.
-reexport alias std = "std".[import];
+[import "std", export std];

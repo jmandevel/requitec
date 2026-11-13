@@ -1,3 +1,3 @@
-alias std = "std".[import];
+[import "std", std];
 
 std.print(line="Hello, world!");

@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 [enum Fruit, FUInt32,
 	// pre statements in enum need to be explicitly marked as pre

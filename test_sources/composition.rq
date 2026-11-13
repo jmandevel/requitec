@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 [interface ISpeak,
     // this proc is virtual so can be overriden by adapters

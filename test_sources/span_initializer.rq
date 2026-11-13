@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 mangle::main
 [proc , ()SInt, 

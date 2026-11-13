@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 // a trip is a list of values surrounded by parenthesis and seperated by commas.
 my_trip := (1, 2, 3);

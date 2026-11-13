@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 // concepts are ranked according to a poset that starts at ANY. Its a directed acyclic graph.
 // concepts have one or more predecessor concepts. if compiler is choosing between template overloads between concepts, then

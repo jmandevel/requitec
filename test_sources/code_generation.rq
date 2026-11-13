@@ -1,4 +1,4 @@
-alias std = "std".[import];
+[import "std", std];
 
 anchor::A
 [for 0.<=10, num:=value,
