@@ -14,7 +14,7 @@
     ]
 ];
 
-[import "std", std];
+alias std = "std".[import];
 
 template::{ auto ...Types:TYPE <}
 [proc printAll, ( ...values:Types <)Void,

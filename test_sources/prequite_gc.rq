@@ -24,7 +24,7 @@ var4 :Ref@SInt= var3.[ref];
 var3.[take].[destroy];
 var5 :SInt= var5; // this is a compiler error!
 
-[import "std", std];
+alias std = "std".[import];
 
 // std.List is both postquite and prequite
 // detach is a type qualifier applied to the data array.

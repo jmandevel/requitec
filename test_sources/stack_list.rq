@@ -1,4 +1,4 @@
-[import "std", std];
+alias std = "std".[import];
 
 copyable movable
 [class MyClass, 

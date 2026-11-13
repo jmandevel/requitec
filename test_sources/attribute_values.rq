@@ -1,3 +1,5 @@
+alias std = "std".[import];
+
 mangle::main
 [proc , ()SInt,
     // high and modifiers are compile time values

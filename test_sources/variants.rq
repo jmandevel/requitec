@@ -5,7 +5,7 @@
     quad : Binary128
 ];
 
-[import "std", std];
+alias std = "std".[import];
 
 mangle::main
 [proc , ()SInt,

@@ -1,4 +1,4 @@
-[import "std", std];
+alias std = "std".[import];
 
 // pure and impure modifiers are applied to functions to notate if they have side effects.
 // this is used to do compile time optimizations.

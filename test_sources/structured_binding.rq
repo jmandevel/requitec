@@ -1,4 +1,4 @@
-[import "std", std];
+alias std = "std".[import];
 
 pure
 [proc multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <},

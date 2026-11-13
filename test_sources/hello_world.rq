@@ -1,8 +1,7 @@
-[import "std", std];
+alias std = "std".[import];
 
 mangle::main
 [proc , ()SInt,
     std.print(line="Hello, world!");
-
     result <:= 0;
 ];

@@ -1,4 +1,4 @@
-[import "std", std];
+alias std = "std".[import];
 
 [proc , ()SInt,
     result <:= 0;
