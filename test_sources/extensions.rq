@@ -19,10 +19,10 @@ mangle::main
 [proc , ()SInt,
     my_array :Array::5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
-    // call extension function
+    # call extension function
     my_array.[ref]->example.getElementCount().[ignore];
     
-    // construct variable of type declared in same table as extension functions
+    # construct variable of type declared in same table as extension functions
     foo := example.Foo();
 
     result <:= 0;

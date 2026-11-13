@@ -39,10 +39,10 @@ pure
 
 mangle::main
 [proc , ()SInt,
-    // calling directly from myProc
-    // default values are used
-    // locked parameters cannot be set
-    // parameter marks apply
+    # calling directly from myProc
+    # default values are used
+    # locked parameters cannot be set
+    # parameter marks apply
     a := myProc();
     b := myProc(1.0);
     b := myProc(1.0, 2.0);
@@ -52,9 +52,9 @@ mangle::main
     f := myProc(1.0, 2.0, named=3.0);
     g := myProc(1.0, positional_and_named=2.0, named=3.0);
 
-    // call from a pointer to myProc
+    # call from a pointer to myProc
     ptr :\mut= myProc.[proc_address];
-    // you can call from ptr just like myProc
+    # you can call from ptr just like myProc
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();
     j := ptr(1.0);
@@ -65,20 +65,20 @@ mangle::main
     o := ptr(1.0, 2.0, named=3.0);
     p := ptr(1.0, positional_and_named=2.0, named=3.0);
 
-    // can assign different function to variable if its [mut] and has EXACTLY the same signature.
-    // the default values need to have identical expressions when situated.
+    # can assign different function to variable if its [mut] and has EXACTLY the same signature.
+    # the default values need to have identical expressions when situated.
     ptr = myOtherProc.[proc_address];
     ptr();
 
-    // type is different even if default value evaluates to the same result.
-    // ptr = myThirdProc.[proc_address]; 
-    // this would result in compile error because named parameter's default value is wrong.
-    // its wrong even though it still evaluates to 0.
-    // need to use signature_cast
+    # type is different even if default value evaluates to the same result.
+    # ptr = myThirdProc.[proc_address]; 
+    # this would result in compile error because named parameter's default value is wrong.
+    # its wrong even though it still evaluates to 0.
+    # need to use signature_cast
     ptr = myThirdProc.[proc_address].[signature_cast];
     ptr();
     
-    // need to cast if parameters are named differently
+    # need to cast if parameters are named differently
     ptr = myFourthProc.[proc_address].[signature_cast];
     ptr();
 

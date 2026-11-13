@@ -1,6 +1,6 @@
-// can use .[import] railcar to import a module directly.
-// this is a feature to help with outputing intermediate files from stage 5
-// of the requite compiler.
+# can use .[import] railcar to import a module directly.
+# this is a feature to help with outputing intermediate files from stage 5
+# of the requite compiler.
 alias std = "std".[import];
 
 [proc , ()SInt,

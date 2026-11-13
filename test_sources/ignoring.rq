@@ -1,4 +1,4 @@
-// all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
+# all function returns must be handled at least with an ignore. there is no way to mark a return as automatically ignorable in a function signature.
 
 pure
 [proc nodiscard, ()FSInt32,
@@ -7,7 +7,7 @@ pure
 
 mangle::main
 [proc , ()SInt32,
-    // function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
+    # function returns must be used or this will cause compile error. however, ignore reflection can be used to ignore it.
     nodiscard().[ignore]; 
 
     result <:= 0;

@@ -14,32 +14,32 @@ mangle::main
 
 pure
 [proc doMath, (>int:SInt<)SInt,
-    // `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
+    # `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
     other_int :mut\= 2; 
 
-    // upbinding in frame scope sets return value of the proc
-    result <:=; // the result is indeterminate (not set yet)
+    # upbinding in frame scope sets return value of the proc
+    result <:=; # the result is indeterminate (not set yet)
 
-    other_int = 3; // to reassign to existing variable dont add the binding.
+    other_int = 3; # to reassign to existing variable dont add the binding.
 
-    // folded variables must be initialized exactly once in each control flow path of fold or function must return before fold is done.
-    // for functions that return, result must have upbinding exactly once for each control flow path.
+    # folded variables must be initialized exactly once in each control flow path of fold or function must return before fold is done.
+    # for functions that return, result must have upbinding exactly once for each control flow path.
 
-    // binding to variable more than once in any control flow path (upbinding or otherwise) is compiler error.
-    // upbinding to variable in loops is not allowed because this counts as multiple paths.
-    // (maybe can allow variables without destructors to be upbound in loops somehow...)
+    # binding to variable more than once in any control flow path (upbinding or otherwise) is compiler error.
+    # upbinding to variable in loops is not allowed because this counts as multiple paths.
+    # (maybe can allow variables without destructors to be upbound in loops somehow...)
 
     [fold var:SInt,
-        // this var is mutable within the fold, constant after its done
-        // also, its indeterminate so not set yet.
+        # this var is mutable within the fold, constant after its done
+        # also, its indeterminate so not set yet.
         var <:mut\SInt=;
 
         inits::var.[reflect]
         [if int < 7,
             var ?= 7;
         ][else_if int > 9,
-            result ?= 0; // result must be set before return
-            return; // dont need to set var because function returns before the fold ends
+            result ?= 0; # result must be set before return
+            return; # dont need to set var because function returns before the fold ends
         ][else
             var ?= 1;
         ];

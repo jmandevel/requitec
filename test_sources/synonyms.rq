@@ -5,7 +5,7 @@ mangle::main
 
     var0 :i32= 30;
     var1 :mut\other_i32= 30;
-    var1 = var0; // compile error! no implicit casting between types.
+    var1 = var0; # compile error! no implicit casting between types.
 
     result <:SInt= 0.[cast];
 ];

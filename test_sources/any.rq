@@ -1,16 +1,16 @@
-// ANY is a concept that can fit any symbol
+# ANY is a concept that can fit any symbol
 
 pure template::{ Symbol:ANY <}
 [function isType, ()Bool,
     results <:= Symbol.[is TYPE];
 ];
 
-// putting Generic@ in front of a concept allows storing values of any type that fits the concept
-// Generic@ is only usable in prequite (not postquite) or vignettes of unrolled postquite loops
-// This variable can contain any type. set it to a SInt value first.
+# putting Generic@ in front of a concept allows storing values of any type that fits the concept
+# Generic@ is only usable in prequite (not postquite) or vignettes of unrolled postquite loops
+# This variable can contain any type. set it to a SInt value first.
 my_any :mut\Generic@ANY=0;
-my_any = 3.14; // Now it contains a Single
-my_any = true; // now it contains a Bool
+my_any = 3.14; # Now it contains a Single
+my_any = true; # now it contains a Bool
 is_boolean := my_any.[type].[is Bool]; 
 
 mangle::main

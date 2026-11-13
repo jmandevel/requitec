@@ -2,19 +2,19 @@
 
 mangle::main
 [proc , ()SInt,
-    // an array and its elements share mutiability
+    # an array and its elements share mutiability
     arr :mut\= [array 0, 1, 2, 3];
     arr.mut\[ref]->std.at{0}() = 2;
 
-    // a tuple and its elements have different mutiability
+    # a tuple and its elements have different mutiability
     vector4 :mut\= { x:=0, y:mut\=1, z:=2, w:=3 };
     vector4.y = 3;
 
-    // mutiability of tuple uses mutiability of its elements
+    # mutiability of tuple uses mutiability of its elements
     vector4_b := vector4;
-    // y cannot be set again
+    # y cannot be set again
 
-    // y can still be accessed
+    # y can still be accessed
     y := vector4_b.y;
 
     result <:= 0;

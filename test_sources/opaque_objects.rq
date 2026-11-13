@@ -1,5 +1,5 @@
 
-// the layout of this prototype is unknown. it can be defined later if the class is fully implemented.
+# the layout of this prototype is unknown. it can be defined later if the class is fully implemented.
 copyable movable
 opaque mangle::MyClass
 [class MyClass, Unknown];
@@ -7,7 +7,7 @@ opaque mangle::MyClass
 opaque mangle::getInstanceRef
 [proc getInstance, ()Ref@MyClass];
 
-// when this class fully implemented, it can be a maximum of 64 bits in size
+# when this class fully implemented, it can be a maximum of 64 bits in size
 copyable movable
 opaque mangle::SizedClass
 [class SizedClass, margin::64\Unknown,
@@ -23,9 +23,9 @@ mangle::main
 [proc , ()SInt,
     ref := getInstanceRef().[ref];
     sized := getSized(); 
-    // Sized uses 64 bits of memory in the stack.
-    // However, the class layout is unknown.
-    // Its not possible to access members directly.
+    # Sized uses 64 bits of memory in the stack.
+    # However, the class layout is unknown.
+    # Its not possible to access members directly.
     sized.mut\[ref].doSomething();
     result <:= ref.[address].[cast];
 ];

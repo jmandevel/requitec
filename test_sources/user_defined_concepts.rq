@@ -1,10 +1,10 @@
-// this concept only passes for float types of SInt32
-// Subject is the name of the symbol we are going to test.
-// the symbol in binding is the "predecessor" used when subsuming (see concept_subsumption.rq)
-// the earliest "predecessor" is of all concepts is ANY (the minimum of the poset)
+# this concept only passes for float types of SInt32
+# Subject is the name of the symbol we are going to test.
+# the symbol in binding is the "predecessor" used when subsuming (see concept_subsumption.rq)
+# the earliest "predecessor" is of all concepts is ANY (the minimum of the poset)
 concept FLOAT_OR_SINT32 :SIGNED=Subject\\ Subject.[is FLOAT] || Subject.[is SInt32];
 
-// this template has constraints on the parameter, only accepting types that match the concept
+# this template has constraints on the parameter, only accepting types that match the concept
 pure template::{ auto Type:FLOAT_OR_SINT32 <}
 [proc addOne, ( num:Type <)Type,
     result <:= num + 1;
@@ -31,12 +31,12 @@ concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate
         result ?= true;
     ];
 
-// this is an opaque function. it exists nowhere, but we can still perform substitution checking against it.
-// however, actually calling it is a bad idea because it will cause a linking error.
+# this is an opaque function. it exists nowhere, but we can still perform substitution checking against it.
+# however, actually calling it is a bad idea because it will cause a linking error.
 opaque mangle:myFunc
 [proc myFunc, ( in:SInt <)Void ];
 
-// with [check_frame] you can perform substitution checking as if in proc frame scope
+# with [check_frame] you can perform substitution checking as if in proc frame scope
 concept MY_FUNC_ARG_TYPE :TYPE=Subject\\ [check_frame val:Subject, 
         myFunc(val);
     ];

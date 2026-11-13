@@ -9,17 +9,17 @@ pure
 
 mangle::main
 [proc , ()SInt,
-    // by name
-    // in is a name for the returned value. since it is a split tuple, can store members in seperate local variables
+    # by name
+    # in is a name for the returned value. since it is a split tuple, can store members in seperate local variables
     [split divided:= in.div, multiplied:= in.mul ] =in\\ multiReturn(0, 1);
 
-    // by index
+    # by index
     [split divided = in->std.at(0), multiplied = in->std.at(1) ] =in\\ multiReturn(0, 1);
 
-    // as tuple
+    # as tuple
     tuple := multiReturn(0, 1);
 
-    // as split tuple
+    # as split tuple
     [split { a:=in->std.at(0), b:=in.mul, c:=3 }] =in\\ multiReturn(0, 1);
 
     result <:= 0;

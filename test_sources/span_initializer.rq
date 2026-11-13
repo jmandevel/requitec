@@ -4,7 +4,7 @@ mangle::main
 [proc , ()SInt, 
     list := std.List{SInt}();
     [for 
-        SInt index := 0; // this is created before first loop iteration and exists for all iterations.
+        SInt index := 0; # this is created before first loop iteration and exists for all iterations.
 
         list.pushBackSpan(5).[take],
         uninit:=value.uninit\mut\[ref],
@@ -15,7 +15,7 @@ mangle::main
 
     other_list := std.List{SInt}();
 
-    // move items over manually
+    # move items over manually
     [for
         span:=other_list.pushBackSpan(list.count());
         span.[take]->std.reverse(),

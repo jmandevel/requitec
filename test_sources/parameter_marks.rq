@@ -1,12 +1,12 @@
-// parameter marks are ways of declaring rules for how functions can be called
+# parameter marks are ways of declaring rules for how functions can be called
 
-// > mark before a parameter means that parameter and every parameter after may be named
-// < mark after a parameter means that parameter and every parameter before may be positional
-// | mark before a parameter means that parameter and every parameter after may not be set (and will use default value)
+# > mark before a parameter means that parameter and every parameter after may be named
+# < mark after a parameter means that parameter and every parameter before may be positional
+# | mark before a parameter means that parameter and every parameter after may not be set (and will use default value)
 
-// > must come before < if both exist. If | exists, it must be after all other parameter marks that exist.
+# > must come before < if both exist. If | exists, it must be after all other parameter marks that exist.
 
-// when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
+# when parameters must be named and never positional, you can overload function by parameter name alone (types can be the same)
 
 [import "std", std];
 
@@ -18,13 +18,13 @@
 
 [proc nonSettable, (| a:=0, b:=1 )Void];
 
-// a must be positional
-// b can be either named or positional
-// c must be named
-// d can not be set and will use default value (3)
+# a must be positional
+# b can be either named or positional
+# c must be named
+# d can not be set and will use default value (3)
 [proc mix, (a:=0,> b:=1 <, c:=2, | d:=3)Void];
 
-// parameter marks work the same way for template layouts and class layouts
+# parameter marks work the same way for template layouts and class layouts
 copyable movable
 template::{a:=0, > b:=1 <, c:=2, | d:=3}
 [class MyTemplateClass,     

@@ -97,8 +97,35 @@ void Tokenizer::_tokenizeSourceText() {
                                   T::ERROR_UNTERMINATED_STRING_LITERAL>();
       continue;
     case '#':
-      this->tokenizeLengthToken(T::HASH_OPERATOR, 1);
-      continue;
+        this->getRanger().incrementChar(1);
+        {
+          bool found_newline = false;
+          while (!found_newline) {
+            switch (this->getRanger().getChar(0)) {
+            case '\x00':
+              return;
+            case '\n':
+              [[fallthrough]];
+            case '\v':
+              this->getRanger().incrementChar(1);
+              found_newline = true;
+              break;
+            case '\r':
+              switch (this->getRanger().getChar(1)) {
+              case '\n':
+                this->getRanger().incrementChar(2);
+                break;
+              default:
+                this->getRanger().incrementChar(1);
+              }
+              found_newline = true;
+              break;
+            default:
+              this->getRanger().incrementChar(1);
+            }
+          }
+        }
+        continue;
     case '$':
       this->tokenizeLengthToken(T::DOLLAR_OPERATOR, 1);
       continue;
@@ -271,69 +298,6 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '/':
       switch (this->getRanger().getChar(1)) {
-      case '/':
-        this->getRanger().incrementChar(2);
-        {
-          bool found_newline = false;
-          while (!found_newline) {
-            switch (this->getRanger().getChar(0)) {
-            case '\x00':
-              return;
-            case '\n':
-              [[fallthrough]];
-            case '\v':
-              this->getRanger().incrementChar(1);
-              found_newline = true;
-              break;
-            case '\r':
-              switch (this->getRanger().getChar(1)) {
-              case '\n':
-                this->getRanger().incrementChar(2);
-                break;
-              default:
-                this->getRanger().incrementChar(1);
-              }
-              found_newline = true;
-              break;
-            default:
-              this->getRanger().incrementChar(1);
-            }
-          }
-        }
-        break;
-      case '*':
-        this->getRanger().incrementChar(2);
-        while (true) {
-          switch (this->getRanger().getChar(0)) {
-          case '\x00':
-            return;
-          case '*':
-            switch (this->getRanger().getChar(1)) {
-            case '/':
-              this->getRanger().incrementChar(2);
-              break;
-            default:
-              this->getRanger().incrementChar(1);
-            }
-            break;
-          case '\n':
-            [[fallthrough]];
-          case '\v':
-            this->getRanger().incrementChar(1);
-            break;
-          case '\r':
-            switch (this->getRanger().getChar(1)) {
-            case '\n':
-              this->getRanger().incrementChar(2);
-              break;
-            default:
-              this->getRanger().incrementChar(1);
-            }
-            break;
-          default:
-            this->getRanger().incrementChar(1);
-          }
-        }
       case '\\':
         this->tokenizeLengthToken(T::UP_ARROW_OPERATOR, 2);
         break;

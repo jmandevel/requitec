@@ -1,14 +1,14 @@
 copyable movable
 template::{> auto Element:NUMERIC <}
 [class Vector4,
-    // everything before layout is surveyed (not evaluated) at class survey time.
-    // constructors before signature can use auto template parameters.
+    # everything before layout is surveyed (not evaluated) at class survey time.
+    # constructors before signature can use auto template parameters.
 
-    // layout constructor:
+    # layout constructor:
     public pure
     [layout_constructor];
 
-    // scalar constructor:
+    # scalar constructor:
     public pure
     [constructor {> scalar:Element <},
         result <:= Vector4.[init x=scalar, y=scalar, z=scalar, w=scalar];
@@ -16,8 +16,8 @@ template::{> auto Element:NUMERIC <}
 
     {> x:Element, y:Element, z:Element, w:Element <},
 
-    // NOTE: auto parameters in constructors after layout do not work.
-    // split constructor:
+    # NOTE: auto parameters in constructors after layout do not work.
+    # split constructor:
     [constructor {> xy:Element, zw:Element <},
         result <:= Vector4.[init x=xy, y=xy, z=zw, w=zw];
     ];
@@ -26,23 +26,23 @@ template::{> auto Element:NUMERIC <}
 mangle::main
 [proc , ()SInt,
 
-    // using explicit parameter and layout constructor
+    # using explicit parameter and layout constructor
     var0 := Vector4{Single}(0, 1, 2, 3);
 
-    // using auto parameter and layout constructor
+    # using auto parameter and layout constructor
     var1 := Vector4(0, 1, 2, 3);
 
-    // using explicit parameter with scalar constructor
+    # using explicit parameter with scalar constructor
     var2 := Vector4{Single}(0);
 
-    // using auto parameter and scalar constructor
+    # using auto parameter and scalar constructor
     var3 := Vector4(0);
 
-    // using explicit parameter with split constructor
+    # using explicit parameter with split constructor
     var4 := Vector4{Single}(0, 1);
 
-    // NOTE: using auto parameters with split constructor will not work!
-    // var5 := Vector4(0, 1); // COMPILER ERROR!
+    # NOTE: using auto parameters with split constructor will not work!
+    # var5 := Vector4(0, 1); # COMPILER ERROR!
 
     result <:= 0;
 ];

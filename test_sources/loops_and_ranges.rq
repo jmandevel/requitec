@@ -3,25 +3,25 @@
 mangle::main
 [proc , ()SInt,
 
-    // all of these loops are equivalent
+    # all of these loops are equivalent
 
-    // equal limit interval
+    # equal limit interval
     [for 0.!=9, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
-    // less limit interval
+    # less limit interval
     [for 0.<10, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
-    // interval
+    # interval
     [for 0.<10.+1, value:=value, 
         std.print(line="value is " +> value);    
     ];
 
     [scope
-        // while loop    
+        # while loop    
         value : mut\ = 0;
         [while value < 10,
             std.print(line="value is " +> value);   
@@ -29,7 +29,7 @@ mangle::main
         ];
     ];
 
-    // array element range
+    # array element range
     [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:=value,     
         std.print(line="value is " +> value);
     ];

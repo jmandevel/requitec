@@ -11,7 +11,6 @@ enum class TokenKind : std::uint_fast8_t {
   NONE,
 
   // OPERATORS
-  HASH_OPERATOR,               // #
   GREATER_OPERATOR,            // >
   DOUBLE_GREATER_OPERATOR,     // >>
   GREATER_EQUAL_OPERATOR,      // >=
@@ -131,8 +130,6 @@ getName(rq::TokenKind kind) {
     return "none";
 
   // OPERATORS
-  case T::HASH_OPERATOR:
-    return "hash_operator";
   case T::GREATER_OPERATOR:
     return "greater_operator";
   case T::DOUBLE_GREATER_OPERATOR:
@@ -330,8 +327,6 @@ getInfoFlags(rq::TokenKind kind) {
   switch (kind) {
   case T::NONE:
     return TF::ERROR;
-  case T::HASH_OPERATOR:
-    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::GREATER_OPERATOR:
     return TF::OPERATOR | TF::MARK;
   case T::DOUBLE_GREATER_OPERATOR:

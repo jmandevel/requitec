@@ -1,62 +1,62 @@
-// prequite uses a memory safe mixture of garbage collection and RAII.
-// this code executes at compile time and is used to generate runtime code.
-// prequite also can be used as a scripting language.
-// the model is fundamentally RAII, but it uses GC to keep it memory safe.
+# prequite uses a memory safe mixture of garbage collection and RAII.
+# this code executes at compile time and is used to generate runtime code.
+# prequite also can be used as a scripting language.
+# the model is fundamentally RAII, but it uses GC to keep it memory safe.
 
-// values in prequite code are garbage collected under the hood.
-// might use generational references in future. will do benchmarks to see if they are better.
+# values in prequite code are garbage collected under the hood.
+# might use generational references in future. will do benchmarks to see if they are better.
 
 val0 :SInt= 0;
 
-// referencing a value in prequite will just reuse the same gc value.
+# referencing a value in prequite will just reuse the same gc value.
 
 val1 :Ref@SInt= val0.[ref];
 
-// writing without ref will copy and create a new gc value
+# writing without ref will copy and create a new gc value
 
 val2 :SInt= val1;
 
-// the gc value is owned by the initial variable it is assigned to, and it gets destroyed with raii
-// if other variables access a gc ref that was destroyed, this is a compiler error
+# the gc value is owned by the initial variable it is assigned to, and it gets destroyed with raii
+# if other variables access a gc ref that was destroyed, this is a compiler error
 
 var3 :SInt= 0;
 var4 :Ref@SInt= var3.[ref];
 var3.[take].[destroy];
-var5 :SInt= var5; // this is a compiler error!
+var5 :SInt= var5; # this is a compiler error!
 
 [import "std", std];
 
-// std.List is both postquite and prequite
-// detach is a type qualifier applied to the data array.
-// it means that the list data will physically be an array of pointers to garbage collected elements.
-// detach qualifier is only valid in comtime. its a compiler error to use it at all in runtime code.
+# std.List is both postquite and prequite
+# detach is a type qualifier applied to the data array.
+# it means that the list data will physically be an array of pointers to garbage collected elements.
+# detach qualifier is only valid in comtime. its a compiler error to use it at all in runtime code.
 
 list :std.List{SInt}= std.List{SInt, detach}();
-list.mut\[ref].pushBack(0).[pass]; // passing in top scope crashes the script if something was thrown!
+list.mut\[ref].pushBack(0).[pass]; # passing in top scope crashes the script if something was thrown!
 list.mut\[ref].pushBack(1).[pass];
 list.mut\[ref].pushBack(2).[pass];
 list.mut\[ref].pushBack(3).[pass];
 
-// can copy value out of the list into a prequite variable.
+# can copy value out of the list into a prequite variable.
 var9 :SInt= list.[ref].at(0);
 
-// can reference as well
+# can reference as well
 var10 :Ref@SInt= list.[ref].at(1).[ref];
 
-// with detached lists, you can use generic types
-// as you can see here, this list can contain any type for each element
+# with detached lists, you can use generic types
+# as you can see here, this list can contain any type for each element
 generic_list :std.List{Generic@ANY, detach}();
 generic_list.mut\[ref].pushBack(0.[as SInt]);
 generic_list.mut\[ref].pushBack(3.14.[as Single]);
 nested_list :mut\= std.List{SInt, detach}([list 0, 1, 2, 3, 4]);
 generic_list.mut\[ref].pushBack(nested_list.[move]);
 
-// no_detach lists are special, will use contiguous memory in native format.
-// the adjoin qualifier is applied to the data array pointer.
-// std.List is no_detach by default, detach only if specified.
-// specifying here explicitly for this example.
-// in prequite, no_detach can only be used for primitive types.
-// in postquite, it can be used for any type.
+# no_detach lists are special, will use contiguous memory in native format.
+# the adjoin qualifier is applied to the data array pointer.
+# std.List is no_detach by default, detach only if specified.
+# specifying here explicitly for this example.
+# in prequite, no_detach can only be used for primitive types.
+# in postquite, it can be used for any type.
 
 adjoined_list :std.List{SInt, no_detach}= std.List{SInt, no_detach}();
 adjoined_list.mut\[ref].pushBack(0).[pass];
@@ -64,9 +64,9 @@ adjoined_list.mut\[ref].pushBack(1).[pass];
 adjoined_list.mut\[ref].pushBack(2).[pass];
 adjoined_list.mut\[ref].pushBack(3).[pass];
 
-// can copy elements out of adjoined lists
+# can copy elements out of adjoined lists
 var11 :SInt= adjoined_list.[ref].at(0);
 
-// cannot reference elements from adjoined lists in comtime code.
-// its ok to do this in runtime postquite.
-var12 :Ref@SInt= adjoined_list.[ref].at(0).[ref]; // compiler error!
+# cannot reference elements from adjoined lists in comtime code.
+# its ok to do this in runtime postquite.
+var12 :Ref@SInt= adjoined_list.[ref].at(0).[ref]; # compiler error!

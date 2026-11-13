@@ -1,10 +1,10 @@
 mangle::main
 [proc , ()SInt,
-    // high and modifiers are compile time values
+    # high and modifiers are compile time values
 
     pre modifier := pre;
 
-    // the modifier stored in modifier is ascribed to the variable qualifier
+    # the modifier stored in modifier is ascribed to the variable qualifier
     modifier qualifier := mut;
 
     my_mut_variable :qualifier\= 0;
@@ -13,7 +13,7 @@ mangle::main
     result <:= my_mut_variable;
 ];
 
-// equivalent to deducing this in c++
+# equivalent to deducing this in c++
 
 copyable movable
 [class NumContainer,
@@ -21,7 +21,7 @@ copyable movable
 
     public [layout_constructor];
 
-    // if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
+    # if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
     public template::{| auto mut0:MUT }
     pure
     [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\,

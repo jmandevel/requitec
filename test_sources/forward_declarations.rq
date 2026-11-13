@@ -1,7 +1,7 @@
 opaque mangle::myForwardedAdd pure
 [proc myForwardedAdd, (> a:Single, b:Single <)Single];
 
-// you have to write the signature again, and it has to be identical
+# you have to write the signature again, and it has to be identical
 [implement_proc myForwardedAdd.[resolve_proc (> a:Single, b:Single <)Single],
     result <:= a + b;
 ];

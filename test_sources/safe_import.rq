@@ -1,12 +1,12 @@
-// you have to specify what you want to import!
-// importing false will import the single symbol false.
-// importing namespace A will import everything in namespace A that was exported.
+# you have to specify what you want to import!
+# importing false will import the single symbol false.
+# importing namespace A will import everything in namespace A that was exported.
 
 [import "safe_export", A];
 
 mangle::main
 [proc , ()SInt,
-    // things in top table are not exportable in requite, so the false from safe_export.rq
+    # things in top table are not exportable in requite, so the false from safe_export.rq
     does not override the _SneakyMacro.
     still_false := false;
     result <:= 0;
@@ -15,15 +15,15 @@ mangle::main
 [namespace A,
     pure
     [proc getBool, ()Bool,
-        // lazy symbols in same namespace have to be specified with whole path!
+        # lazy symbols in same namespace have to be specified with whole path!
 
-        // this still uses the _SneakyMacro so it expands to [true].
+        # this still uses the _SneakyMacro so it expands to [true].
         this_is_true := true;
     
-        // from this, its clear something funny is going on here since its in a namespace.
+        # from this, its clear something funny is going on here since its in a namespace.
         this_is_actually_false := A.true;
 
-        // this is in the same file, but still have to specify full path
+        # this is in the same file, but still have to specify full path
         this_is_false := A.VAR;
 
         result <:= this_is_still_true && this_is_actually_false;
@@ -31,14 +31,14 @@ mangle::main
 
     my_pre_var := false;
 
-    // note that full paths are not required for eager symbols even in namespaces
+    # note that full paths are not required for eager symbols even in namespaces
     lazy comtime VAR := my_pre_var;
 
-    // note that full paths are not required for eager symbols even in namespaces
+    # note that full paths are not required for eager symbols even in namespaces
     lazy comtime VAR := my_pre_var;
 
-    // NOTE: comtime are always lazy, static are always eager. Writing it
-    // here explicitly to make it more clear, but you can leave out the eager
-    // and lazy modifiers.
+    # NOTE: comtime are always lazy, static are always eager. Writing it
+    # here explicitly to make it more clear, but you can leave out the eager
+    # and lazy modifiers.
 ];
 

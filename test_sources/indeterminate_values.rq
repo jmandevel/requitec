@@ -3,21 +3,21 @@
 [proc , ()SInt,
     result <:= 0;
 
-    // notice how rvalue is nothing. compiler parses inference and interprets this as an indeterminate value. 
+    # notice how rvalue is nothing. compiler parses inference and interprets this as an indeterminate value. 
     indeterminate :SInt=;
 
-    // if try accessing indeterminate value, this is a compiler error
-    // value := indeterminate; // uncomment for a compiler error
+    # if try accessing indeterminate value, this is a compiler error
+    # value := indeterminate; # uncomment for a compiler error
 
-    // when you set an indeterminate value for the first time, you use ?= operator
-    // you can do this even if the type is no_mut.
+    # when you set an indeterminate value for the first time, you use ?= operator
+    # you can do this even if the type is no_mut.
     indeterminate ?= 0;
 
-    // other is an indeterminate platform dependent typed float
+    # other is an indeterminate platform dependent typed float
     other :Single=;
 
-    // using inits modifier before a scope or chain of scopes to specify that indeterminate values must be initialized within
-    // this means that all branches must either set the value or return if in function frame
+    # using inits modifier before a scope or chain of scopes to specify that indeterminate values must be initialized within
+    # this means that all branches must either set the value or return if in function frame
     inits::other.[reflect]
     [if indeterminate==0,
         other ?= 3.14;
@@ -29,8 +29,8 @@
 
     uninit :mut\SInt=;
 
-    // mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
-    // with an else where its also set.
+    # mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
+    # with an else where its also set.
     inits::uninit.[reflect]
     [for 0.<10, var:=value,
         uninit ?= var;
@@ -38,9 +38,9 @@
         uninit ?= 0;
     ];
 
-    // doing the same for types with a destructor is a compiler error!
+    # doing the same for types with a destructor is a compiler error!
 
-    // tuples can have indeterminate elements
+    # tuples can have indeterminate elements
     three_ints := {
             :SInt=,
             :SInt=,

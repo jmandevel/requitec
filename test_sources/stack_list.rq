@@ -14,14 +14,14 @@ copyable movable
 
 mangle::main
 [proc , ()SInt,
-    // create stack
+    # create stack
     my_stack :mut\= std.StackList{MyClass}();
     
-    // push back one element
-    // emplace will call the function in the future with the given arguments forwarded
+    # push back one element
+    # emplace will call the function in the future with the given arguments forwarded
     my_stack.pushBack(MyClass(1, 2).[emplace]);
 
-    // forget the last element
+    # forget the last element
     my_stack.popBack().[ignore];
     
     result <:= 0;

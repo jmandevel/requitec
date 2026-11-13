@@ -2,7 +2,7 @@ copyable movable
 [class MyClass, {}];
 comtime VAR := MyClass;
 
-// use .[reflect] to reflect on the variable itself
+# use .[reflect] to reflect on the variable itself
 comtime the_variable := VAR.[reflect];
-// use the variable alone to retrieve the reflected symbol stored in it (MyClass).
+# use the variable alone to retrieve the reflected symbol stored in it (MyClass).
 comtime the_class := VAR;

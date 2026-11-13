@@ -1,23 +1,23 @@
 mangle::main
 [proc , ()SInt,
-    // the type of this variable is inferenced, but type modifier applied to inferenced
-    // note that \ and = are binary operators, but there is nothing between them!
-    // compiler sees two binary operators next to each other, its inserts [_inference] between them
-    // in the case of types, it means that the type is inferred from the initial rvalue
+    # the type of this variable is inferenced, but type modifier applied to inferenced
+    # note that \ and = are binary operators, but there is nothing between them!
+    # compiler sees two binary operators next to each other, its inserts [_inference] between them
+    # in the case of types, it means that the type is inferred from the initial rvalue
 
     variable :mut\ = 0;
 
-    // in descriptive requite (square bracket form), line 7 is 
-    // [_assign
-    //     [_binding
-    //         variable,
-    //         [_ascribe_qualifiers
-    //             [_inference],
-    //             [mut]
-    //         ]
-    //     ],
-    //     0
-    // ];
+    # in descriptive requite (square bracket form), line 7 is 
+    # [_assign
+    #     [_binding
+    #         variable,
+    #         [_ascribe_qualifiers
+    #             [_inference],
+    #             [mut]
+    #         ]
+    #     ],
+    #     0
+    # ];
 
     result <:= 0;
 ];
