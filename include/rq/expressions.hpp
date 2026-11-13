@@ -506,8 +506,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_arithmetic_sequence_step_saturating_multiply";
 
   // ENTITY GRAPH
-  case K::SEMANTIC_ADDRESS:
-    return "_semantic_address";
   case K::IMPORT:
     return "import";
   case K::NAMESPACE:
@@ -1678,9 +1676,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::ARITHMETIC_SEQUENCE_STEP;
 
   // ENTITY GRAPH
-  case K::SEMANTIC_ADDRESS:
-    return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER | KIF::LVALUE |
-           KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::IMPORT:
     return KIF::STATEMENT;
   case K::NAMESPACE:

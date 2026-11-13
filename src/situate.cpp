@@ -865,9 +865,6 @@ bool Situator::situateTree(rq::Situation situation,
     break;
 
   // ENTITY GRAPH
-  case K::SEMANTIC_ADDRESS:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
-    break;
   case K::IMPORT:
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
                                                S::RVALUE, S::PORTAL);
