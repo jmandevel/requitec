@@ -680,6 +680,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "uninit";
 
   // REFLECTIONS
+  case K::IMPORT_OF:
+    return "_import_of";
   case K::MEMBER_OF:
     return "_member_of";
   case K::WITHOUT:
@@ -1677,7 +1679,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // ENTITY GRAPH
   case K::IMPORT:
-    return KIF::STATEMENT;
+    return KIF::STATEMENT | KIF::RAILCAR;
   case K::NAMESPACE:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::RVALUE | KIF::TUPLE_ELEMENT;
   case K::C:
@@ -1852,6 +1854,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::QUALIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // REFLECTIONS
+  case K::IMPORT_OF:
+    return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MEMBER_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::WITHOUT:
@@ -2698,6 +2702,8 @@ getDescription(rq::Situation situation) {
     return K::BREAK_OF;
   case K::CONTINUE:
     return K::CONTINUE_OF;
+  case K::IMPORT:
+    return K::IMPORT_OF;
   case K::WITHOUT:
     return K::WITHOUT_OF;
   case K::BAKE:

@@ -410,6 +410,7 @@ enum class Keyword : rq::EntityId {
   UNINIT,
 
   // REFLECTIONS
+  IMPORT_OF,
   MEMBER_OF,
   WITHOUT,
   WITHOUT_OF,
