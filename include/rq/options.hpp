@@ -1,21 +1,21 @@
 #pragma once
 
-#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/StringRef.h>
 
 namespace rq {
 
 enum Emit {
-    EMIT_TOKENS,
-    EMIT_PARSED,
-    EMIT_SITUATED,
-    EMIT_SYMBOLS,
-    EMIT_IR,
-    EMIT_ASSEMBLY,
-    EMIT_OBJECT
+  EMIT_TOKENS,
+  EMIT_PARSED,
+  EMIT_SITUATED,
+  EMIT_GENERATED,
+  EMIT_IR,
+  EMIT_ASSEMBLY,
+  EMIT_OBJECT
 };
 
-[[nodiscard]] bool parseCommandLineOptions(int argc, const char** argv);
+[[nodiscard]] bool parseCommandLineOptions(int argc, const char **argv);
 
 [[nodiscard]] llvm::StringRef getInputFilePath();
 
@@ -27,4 +27,4 @@ enum Emit {
 
 [[nodiscard]] bool getNoComment();
 
-}
+} // namespace rq

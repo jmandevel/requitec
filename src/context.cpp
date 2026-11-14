@@ -294,12 +294,8 @@ bool Context::run() {
   if (!this->generateSourceModule()) {
     return false;
   }
-  if (rq::getEmitMode() == rq::EMIT_SYMBOLS) {
+  if (rq::getEmitMode() == rq::EMIT_GENERATED) {
     RQ_TODO_IMPLEMENTATION();
-    // if (!this->emitSymbol(rq::getOutputFilePath(), this->getTop())) {
-    //   return false;
-    // }
-    // return true;
   }
   if (!this->buildLlvmIr()) {
     return false;
@@ -461,107 +457,6 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
       }
     }
   }
-  fout.close();
-  return true;
-}
-
-static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
-                       const rq::Symbol &symbol);
-
-// static void emitLocation(rq::Context &context, rq::JsonEmitter &json,
-//                          const rq::Expression &expression) {
-//   if (!expression.getHasSourceText()) {
-//     json.emitNull("location");
-//   } else if (expression.getSourceTextLength() == 0) {
-//     rq::SourceLocation location =
-//         context.getSourceLocation(expression.getLlvmSourceBegin());
-//     json.beginObject("location");
-//     json.emitString("file", location.file);
-//     json.emit("line", location.line);
-//     json.emit("column", location.column);
-//     json.endObject();
-//   } else {
-//     rq::SourceRange range = context.getSourceRange(expression);
-//     json.beginObject("location");
-//     json.beginObject("start");
-//     json.emitString("file", range.start.file);
-//     json.emit("line", range.start.line);
-//     json.emit("column", range.start.column);
-//     json.endObject();
-//     json.beginObject("end");
-//     json.emitString("file", range.end.file);
-//     json.emit("line", range.end.line);
-//     json.emit("column", range.end.column);
-//     json.endObject();
-//     json.endObject();
-//   }
-// }
-
-// static void emitModifiers(rq::JsonEmitter &json, const rq::Symbol &symbol) {
-//   json.beginArray("modifiers");
-//   using LA = rq::Modifier;
-//   using EF = rq::LowFuseFlags;
-//   EF flags = symbol.getDerivedLowFuseFlags();
-//   for (unsigned modifier_i = static_cast<unsigned>(M::NONE) + 1;
-//        modifier_i < static_cast<unsigned>(M::LAST); modifier_i++) {
-//     LA modifier = static_cast<LA>(modifier_i);
-//     EF modifier_flags = rq::getInfoFlags(modifier);
-//     if (rq::getHasAll(flags, modifier_flags)) {
-//       json.emitString(rq::getName(modifier));
-//     }
-//   }
-//   json.endArray();
-// }
-
-// template <typename SymbolType>
-// static void emitModuleMemberSymbol(rq::Context &context, rq::JsonEmitter
-// &json,
-//                                    const SymbolType &symbol) {
-//   json.emitString("module", symbol.getContainingModule().getPath());
-//   rq::emitModifiers(json, symbol);
-//   rq::emitLocation(context, json, symbol.getExpression());
-// }
-
-// static void emiSymboltTable(rq::Context &context, rq::JsonEmitter &json,
-//                             const rq::SymbolTable &table) {
-//   json.beginArray("named");
-//   for (const auto &[name, list] : table.getNamedMemberMap()) {
-//     json.beginObject();
-//     json.emitString("name", name);
-//     json.beginArray("symbols");
-//     for (const rq::Symbol &symbol : list) {
-//       rq::emitSymbol(context, json, symbol);
-//     }
-//     json.endArray();
-//     json.endObject();
-//   }
-//   json.endArray();
-//   json.beginArray("unnamed");
-//   for (const rq::Symbol &symbol : table.getUnamedMemberList()) {
-//     rq::emitSymbol(context, json, symbol);
-//   }
-//   json.endArray();
-// }
-
-static void emitSymbol(rq::Context &context, rq::JsonEmitter &json,
-                       const rq::Symbol &symbol) {
-  json.beginObject();
-  json.emitString("kind", rq::getName(symbol.getKind()));
-  std::ignore = context;
-  RQ_TODO_IMPLEMENTATION();
-  json.endObject();
-}
-
-bool Context::emitSymbol(llvm::StringRef path, const rq::Symbol &symbol) {
-  std::error_code ec;
-  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  if (ec) {
-    this->logErrorFailedToOpenIntermediateFile(path, ec);
-    return false;
-  }
-  rq::JsonEmitter json(fout);
-  rq::emitSymbol(*this, json, symbol);
-  fout << "\n";
   fout.close();
   return true;
 }
@@ -1010,7 +905,7 @@ void Context::logInfoNameCollisionDeclaration(rq::Symbol &symbol) {
       rq::dereferencePtr(symbol.getDerivedExpressionPtr());
   this->logMessage(decl_expression.getLlvmSourceBegin(), rq::LogType::NOTE,
                    llvm::Twine("name collision with ") +
-                       rq::getName(symbol.getKind()),
+                       rq::getName(symbol.getSymbolKind()),
                    decl_expression.getLlvmSourceRange(), {});
 }
 
@@ -1018,7 +913,7 @@ void Context::logErrorInvalidValueSymbol(const rq::Expression &expression,
                                          rq::Symbol &symbol) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("invalid value symbol of kind ") +
-                       rq::getName(symbol.getKind()),
+                       rq::getName(symbol.getSymbolKind()),
                    expression.getLlvmSourceRange(), {});
   const rq::Expression *decl_expression_ptr = symbol.getDerivedExpressionPtr();
   if (decl_expression_ptr == nullptr) {
@@ -1035,7 +930,7 @@ void Context::logErrorIndeterminateVariableValue(
     const rq::Expression &expression, rq::Symbol &symbol) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("indeterminate variable value of kind ") +
-                       rq::getName(symbol.getKind()),
+                       rq::getName(symbol.getSymbolKind()),
                    expression.getLlvmSourceRange(), {});
   const rq::Expression *decl_expression_ptr = symbol.getDerivedExpressionPtr();
   if (decl_expression_ptr == nullptr) {

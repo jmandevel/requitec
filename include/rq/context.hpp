@@ -3,6 +3,7 @@
 #include <rq/bump_ptr_allocator.hpp>
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
+#include <rq/values.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/FoldingSet.h>
@@ -353,6 +354,12 @@ struct Context final : public rq::BumpPtrAllocator {
   llvm::FoldingSet<rq::LayoutType> _layout_type_set{};
   llvm::FoldingSet<rq::PlacementType> _placement_type_set{};
 
+  llvm::FoldingSet<rq::ConstantInt> _constant_int_set{};
+  llvm::FoldingSet<rq::ConstantFloat> _constant_float_set{};
+  llvm::FoldingSet<rq::ConstantDetachedArrayElement>
+      _constant_detached_array_element_set{};
+  llvm::FoldingSet<rq::ConstantDetachedArray> _constant_detached_array_set{};
+
   Context(std::string &&executable_path)
       : _executable_path(std::move(executable_path)) {}
   Context(const Self &) = delete;
@@ -429,7 +436,6 @@ struct Context final : public rq::BumpPtrAllocator {
                                 llvm::ArrayRef<rq::Token> tokens);
   [[nodiscard]] bool emitRequite(llvm::StringRef path,
                                  const rq::Expression *top_ptr);
-  [[nodiscard]] bool emitSymbol(llvm::StringRef path, const rq::Symbol &symbol);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
@@ -556,7 +562,594 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_free_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
-  [[nodiscard]] rq::Module &acquireModule(rq::ModuleDetail &&detail);
+  // Singleton symbols.
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntegerLiteralType &
+  acquireIntegerLiteralType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatLiteralType &
+  acquireFloatLiteralType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StringLiteralType &
+  acquireStringLiteralType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CodeunitLiteralType &
+  acquireCodeunitLiteralType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnknownType &acquireUnknownType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InferenceType &acquireInferenceType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VoidType &acquireVoidType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoReturnType &acquireNoReturnType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionType &acquireExpressionType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExpressionRangeType &
+  acquireExpressionRangeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolRangeType &acquireSymbolRangeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FittingFSIntType &
+  acquireFittingFSIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FittingFUIntType &
+  acquireFittingFUIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FittingLSIntType &
+  acquireFittingLSIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FittingLUIntType &
+  acquireFittingLUIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BooleanType &acquireBooleanType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::HalfType &acquireHalfType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingleType &acquireSingleType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DoubleType &acquireDoubleType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QuadrupleType &acquireQuadrupleType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SIntType &acquireSIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UIntType &acquireUIntType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SSizeType &acquireSSizeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::USizeType &acquireUSizeType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SIndexType &acquireSIndexType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UIndexType &acquireUIndexType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CharType &acquireCharType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary16Type &acquireBinary16Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary32Type &acquireBinary32Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary64Type &acquireBinary64Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Binary128Type &acquireBinary128Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BFloat16Type &acquireBFloat16Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AsciiType &acquireAsciiType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Utf8Type &acquireUtf8Type();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoModifier &acquireNoModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorModifier &acquireAnchorModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InitsModifier &acquireInitsModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ResidentModifier &
+  acquireResidentModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FlankModifier &acquireFlankModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TransparentModifier &
+  acquireTransparentModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueModifier &acquireOpaqueModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PrivateModifier &acquirePrivateModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicModifier &acquirePublicModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExportModifier &acquireExportModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutableModifier &acquireMutableModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartiallyMutableModifier &
+  acquirePartiallyMutableModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstantModifier &
+  acquireConstantModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EagerModifier &acquireEagerModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyModifier &acquireLazyModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PostModifier &acquirePostModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PreModifier &acquirePreModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AliasModifier &acquireAliasModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumeratorModifier &
+  acquireEnumeratorModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConceptModifier &acquireConceptModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SplitModifier &acquireSplitModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RuntimeModifier &acquireRuntimeModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ComtimeModifier &acquireComtimeModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnytimeModifier &acquireAnytimeModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PresetModifier &acquirePresetModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SingletonModifier &
+  acquireSingletonModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureModifier &acquireCaptureModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StatelessModifier &
+  acquireStatelessModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LinkedModifier &acquireLinkedModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineModifier &acquireInlineModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PureModifier &acquirePureModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ImpureModifier &acquireImpureModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StandardMangleModifier &
+  acquireStandardMangleModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleModifier &acquireMangleModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PadModifier &acquirePadModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackModifier &acquirePackModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EquivocalModifier &
+  acquireEquivocalModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LikelyModifier &acquireLikelyModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnlikelyModifier &
+  acquireUnlikelyModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportedModifier &
+  acquireSupportedModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DepreciatedModifier &
+  acquireDepreciatedModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExperimentalModifier &
+  acquireExperimentalModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MovableModifier &acquireMovableModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CopyableModifier &
+  acquireCopyableModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InvariadicModifier &
+  acquireInvariadicModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicModifier &
+  acquireVariadicModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BestLocationModifier &
+  acquireBestLocationModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationModifier &
+  acquireLocationModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateModifier &
+  acquireTemplateModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OverloadModifier &
+  acquireOverloadModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintModifier &
+  acquireConstraintModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ManualModifier &acquireManualModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AutoModifier &acquireAutoModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DirectModifier &acquireDirectModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VirtualModifier &acquireVirtualModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifier &acquireRangerModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifier &acquireRequireModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureModifier &acquireEnsureModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoMutQualifier &acquireNoMutQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PartialMutQualifier &
+  acquirePartialMutQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutQualifier &acquireMutQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoVolatileQualifier &
+  acquireNoVolatileQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileQualifier &
+  acquireVolatileQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoAtomicQualifier &
+  acquireNoAtomicQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicQualifier &acquireAtomicQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoNullTerminateQualifier &
+  acquireNoNullTerminateQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateQualifier &
+  acquireNullTerminateQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoMarginQualifier &
+  acquireNoMarginQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MarginQualifier &acquireMarginQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoDetachQualifier &
+  acquireNoDetachQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DetachQualifier &acquireDetachQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NoThrowsQualifier &
+  acquireNoThrowsQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThrowsQualifier &acquireThrowsQualifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnyConcept &acquireAnyConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TypeConcept &acquireTypeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ComtimeConcept &acquireComtimeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RuntimeConcept &acquireRuntimeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnytimeConcept &acquireAnytimeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangeConcept &acquireRangeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RouteConcept &acquireRouteConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FigurativeConcept &
+  acquireFigurativeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ReflectionConcept &
+  acquireReflectionConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PrimitiveConcept &
+  acquirePrimitiveConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FittingPrimitiveConcept &
+  acquireFittingPrimitiveConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PlatformPrimitiveConcept &
+  acquirePlatformPrimitiveConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::StandardPrimitiveConcept &
+  acquireStandardPrimitiveConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScaledPrimitiveConcept &
+  acquireScaledPrimitiveConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignedConcept &acquireSignedConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::UnsignedConcept &acquireUnsignedConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IntConcept &acquireIntConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ExactIntConcept &acquireExactIntConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FastIntConcept &acquireFastIntConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LeastIntConcept &acquireLeastIntConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FloatConcept &acquireFloatConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BinaryConcept &acquireBinaryConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BFloatConcept &acquireBFloatConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConceptConcept &acquireConceptConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SubtypeConcept &acquireSubtypeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConcept &acquireArrayConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RefConcept &acquireRefConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PtrConcept &acquirePtrConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SliceConcept &acquireSliceConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SplitConcept &acquireSplitConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModuleConcept &acquireModuleConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ImportConcept &acquireImportConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PortalConcept &acquirePortalConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RealizationConcept &
+  acquireRealizationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConformityConcept &
+  acquireConformityConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdaptionConcept &acquireAdaptionConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TripConcept &acquireTripConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::JuxtConcept &acquireJuxtConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SpecializationSetConcept &
+  acquireSpecializationSetConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterSpecializationSetConcept &
+  acquireAdapterSpecializationSetConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcSpecializationSetConcept &
+  acquireProcSpecializationSetConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticSequenceConcept &
+  acquireArithmeticSequenceConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ArithmeticIntervalConcept &
+  acquireArithmeticIntervalConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InfiniteArithmeticSequenceConcept &
+  acquireInfiniteArithmeticSequenceConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::FiniteArithmeticSequenceConcept &
+  acquireFiniteArithmeticSequenceConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EagerDeclarationConcept &
+  acquireEagerDeclarationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorConcept &acquireAnchorConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumeratorConcept &
+  acquireEnumeratorConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariableConcept &acquireVariableConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EagerVariableConcept &
+  acquireEagerVariableConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PostEagerVariableConcept &
+  acquirePostEagerVariableConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PreEagerVariableConcept &
+  acquirePreEagerVariableConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ParameterConcept &
+  acquireParameterConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureConcept &
+  acquireSignatureConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LayoutConcept &acquireLayoutConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PlacementConcept &
+  acquirePlacementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CompositionConcept &
+  acquireCompositionConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SynonymConcept &acquireSynonymConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTableConcept &
+  acquireSymbolTableConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NamespaceConcept &
+  acquireNamespaceConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EagerScopingStatementConcept &
+  acquireEagerScopingStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::IfStatementConcept &
+  acquireIfStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseIfStatementConcept &
+  acquireElseIfStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ElseStatementConcept &
+  acquireElseStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SwitchStatementConcept &
+  acquireSwitchStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CaseStatementConcept &
+  acquireCaseStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ForStatementConcept &
+  acquireForStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::WhileStatementConcept &
+  acquireWhileStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ScopeStatementConcept &
+  acquireScopeStatementConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ImplementationConcept &
+  acquireImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OverloadConcept &acquireOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SpecializationConcept &
+  acquireSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TemplateConcept &acquireTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassImplementationConcept &
+  acquireClassImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassOverloadConcept &
+  acquireClassOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassSpecializationConcept &
+  acquireClassSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClassTemplateConcept &
+  acquireClassTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumImplementationConcept &
+  acquireEnumImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnumOverloadConcept &
+  acquireEnumOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementationConcept &
+  acquireInterfaceImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceOverloadConcept &
+  acquireInterfaceOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceSpecializationConcept &
+  acquireInterfaceSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementationConcept &
+  acquireAdapterImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterOverloadConcept &
+  acquireAdapterOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterSpecializationConcept &
+  acquireAdapterSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterTemplateConcept &
+  acquireAdapterTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcImplementationConcept &
+  acquireProcImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcOverloadConcept &
+  acquireProcOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcSpecializationConcept &
+  acquireProcSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ProcTemplateConcept &
+  acquireProcTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariableImplementationConcept &
+  acquireLazyVariableImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariableSpecializationConcept &
+  acquireLazyVariableSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyVariableTemplateConcept &
+  acquireLazyVariableTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AliasImplementationConcept &
+  acquireAliasImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AliasOverloadConcept &
+  acquireAliasOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AliasSpecializationConcept &
+  acquireAliasSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AliasTemplateConcept &
+  acquireAliasTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConceptImplementationConcept &
+  acquireConceptImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariantImplementationConcept &
+  acquireVariantImplementationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariantOverloadConcept &
+  acquireVariantOverloadConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariantSpecializationConcept &
+  acquireVariantSpecializationConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariantTemplateConcept &
+  acquireVariantTemplateConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AttributeConcept &
+  acquireAttributeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierConcept &acquireModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AnchorModifierConcept &
+  acquireAnchorModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ContainerModifierConcept &
+  acquireContainerModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VisibilityModifierConcept &
+  acquireVisibilityModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AccessModifierConcept &
+  acquireAccessModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutabilityModifierConcept &
+  acquireMutabilityModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EvaluationTimeModifierConcept &
+  acquireEvaluationTimeModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DialectModifierConcept &
+  acquireDialectModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::TenureModifierConcept &
+  acquireTenureModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InitializationTimeModifierConcept &
+  acquireInitializationTimeModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ClosureModifierConcept &
+  acquireClosureModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LinkageModifierConcept &
+  acquireLinkageModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SideEffectsModifierConcept &
+  acquireSideEffectsModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MangleModifierConcept &
+  acquireMangleModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PackModifierConcept &
+  acquirePackModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::BranchTrendModifierConcept &
+  acquireBranchTrendModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SupportNoticeModifierConcept &
+  acquireSupportNoticeModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MovableModifierConcept &
+  acquireMovableModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::CopyableModifierConcept &
+  acquireCopyableModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicModifierConcept &
+  acquireVariadicModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::OffsetModifierConcept &
+  acquireOffsetModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyDeclarationModifierConcept &
+  acquireLazyDeclarationModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstraintModifierConcept &
+  acquireConstraintModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DeductionModifierConcept &
+  acquireDeductionModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VirtualityModifierConcept &
+  acquireVirtualityModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifierConcept &
+  acquireRangerModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifierConcept &
+  acquireRequireModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureModifierConcept &
+  acquireEnsureModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifierConcept &
+  acquireQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MutQualifierConcept &
+  acquireMutQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::VolatileQualifierConcept &
+  acquireVolatileQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::AtomicQualifierConcept &
+  acquireAtomicQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NullTerminateQualifierConcept &
+  acquireNullTerminateQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::DetachQualifierConcept &
+  acquireDetachQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::MarginQualifierConcept &
+  acquireMarginQualifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ThrowsQualifierConcept &
+  acquireThrowsQualifierConcept();
+
+  // Structurally unique symbols.
+  [[nodiscard]] inline rq::ScaledSIntType &
+  acquireScaledSIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledUIntType &
+  acquireScaledUIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledFSIntType &
+  acquireScaledFSIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledFUIntType &
+  acquireScaledFUIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledLSIntType &
+  acquireScaledLSIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledLUIntType &
+  acquireScaledLUIntType(unsigned depth);
+  [[nodiscard]] inline rq::ScaledPrimitiveType &
+  acquireScaledPrimitiveType(rq::SymbolKind kind, unsigned depth);
+  [[nodiscard]] inline rq::RefSubtype &
+  acquireRefSubtype(rq::QualifiedType &child);
+  [[nodiscard]] inline rq::PtrSubtype &
+  acquirePtrSubtype(rq::QualifiedType &child);
+  [[nodiscard]] inline rq::SliceSubtype &
+  acquireSliceSubtype(rq::QualifiedType &child);
+  [[nodiscard]] inline rq::SplitSubtype &
+  acquireSplitSubtype(rq::QualifiedType &child);
+  [[nodiscard]] inline rq::InferenceCountArraySubtype &
+  acquireInferenceCountArraySubtype(rq::QualifiedType &child);
+  [[nodiscard]] inline rq::SimpleSubtype &
+  acquireSimpleSubtype(rq::SymbolKind kind, rq::QualifiedType &child);
+  [[nodiscard]] inline rq::GenericSubsymbol &
+  acquireGenericSubsymbol(rq::Symbol &child);
+  [[nodiscard]] inline rq::Subsymbol &acquireSubsymbol(rq::SymbolKind kind,
+                                                       rq::Symbol &child);
+  [[nodiscard]] inline rq::ArithmeticIntervalType &
+  acquireArithmeticIntervalType(rq::QualifiedType &child,
+                                rq::ArithmeticCondition condition,
+                                rq::ArithmeticStep step);
+  [[nodiscard]] inline rq::InfiniteArithmeticSequenceType &
+  acquireInfiniteArithmeticSequenceType(rq::QualifiedType &child,
+                                        rq::ArithmeticCondition condition,
+                                        rq::ArithmeticStep step);
+  [[nodiscard]] inline rq::FiniteArithmeticSequenceType &
+  acquireFiniteArithmeticSequenceType(rq::QualifiedType &child,
+                                      rq::ArithmeticCondition condition,
+                                      rq::ArithmeticStep step);
+  [[nodiscard]] inline rq::ArithmeticSequenceType &
+  acquireArithmeticSequenceType(rq::SymbolKind kind, rq::QualifiedType &child,
+                                rq::ArithmeticCondition condition,
+                                rq::ArithmeticStep step);
+  [[nodiscard]] inline rq::QualifiedType &
+  acquireQualifiedType(rq::Symbol &type, rq::QualifierFuseFlags qualifiers,
+                       unsigned margin);
+  [[nodiscard]] inline rq::ArraySubtype &
+  acquireArraySubtype(rq::QualifiedType &child, std::size_t count);
+  [[nodiscard]] inline rq::Adaption &
+  acquireAdaption(rq::QualifiedType &reciever,
+                  rq::InterfaceImplementation &interface,
+                  rq::AdapterImplementation &adapter);
+  [[nodiscard]] inline rq::Realization &
+  acquireRealization(rq::QualifiedType &reciever,
+                     rq::InterfaceImplementation &interface);
+  [[nodiscard]] inline rq::Conformity &
+  acquireConformity(rq::InterfaceImplementation &interface,
+                    rq::AdapterImplementation &adapter);
+  [[nodiscard]] inline rq::JuxtListType &
+  acquireJuxtListType(rq::NodeList<rq::QualifiedType> &&type_list);
+  [[nodiscard]] inline rq::Trip &
+  acquireTrip(llvm::SmallVector<rq::Entity *, 8> &entities);
+  [[nodiscard]] inline rq::SpecializationSetArgument &
+  acquireSpecializationSetArgument(rq::Name name, rq::Entity &value,
+                                   rq::SpecializationSetArgument *next_ptr);
+  [[nodiscard]] inline rq::SpecializationSet &
+  acquireSpecializationSet(rq::SymbolKind kind,
+                           rq::SpecializationSetArgument *first_ptr);
+  [[nodiscard]] inline rq::ProcSpecializationSet &
+  acquireProcSpecializationSet(rq::SpecializationSetArgument *first_ptr);
+  [[nodiscard]] inline rq::AdapterSpecializationSet &
+  acquireAdapterSpecializationSet(rq::SpecializationSetArgument *first_ptr);
+  [[nodiscard]] inline rq::Parameter &
+  acquireParameter(rq::Parameter *next_ptr, rq::Name name,
+                   rq::QualifiedType &type,
+                   rq::ModifierFuseFlags modifier_flags,
+                   rq::ParameterInfoFlags param_flags, rq::Entity *default_ptr);
+  [[nodiscard]] inline rq::CompositionType &acquireCompositionType(
+      rq::NodeList<rq::InterfaceImplementation> &&interface_list);
+  [[nodiscard]] inline rq::SignatureType &
+  acquireSignatureType(rq::Parameter *first_parameter_ptr,
+                       rq::QualifiedType &return_type);
+  [[nodiscard]] inline rq::LayoutType &
+  acquireLayoutType(rq::Parameter *first_parameter_ptr);
+  [[nodiscard]] inline rq::PlacementType &
+  acquirePlacementType(rq::ProcImplementation &function);
+
+  // Each declaration, scope, overload, specialization and template has
+  // identity.
+  [[nodiscard]] inline rq::PreEagerVariable &acquirePrequitePreEagerVariable();
+  [[nodiscard]] inline rq::PreEagerVariable &acquirePostquitePreEagerVariable();
+  [[nodiscard]] inline rq::PostEagerVariable &
+  acquirePrequitePostEagerVariable();
+  [[nodiscard]] inline rq::PostEagerVariable &
+  acquirePostquitePostEagerVariable();
+  [[nodiscard]] inline rq::LazyVariableOverload &acquireLazyVariableOverload();
+  [[nodiscard]] inline rq::LazyVariableSpecialization &
+  acquireLazyVariableSpecialization();
+  [[nodiscard]] inline rq::EagerVariable &
+  acquirePrequiteEagerVariable(rq::SymbolKind kind);
+  [[nodiscard]] inline rq::EagerScope &
+  acquirePrequiteEagerScope(rq::SymbolKind kind);
+  [[nodiscard]] inline rq::EagerVariable &
+  acquirePostquiteEagerVariable(rq::SymbolKind kind);
+  [[nodiscard]] inline rq::EagerScope &
+  acquirePostquiteEagerScope(rq::SymbolKind kind);
+  [[nodiscard]] inline rq::Import &acquireImport();
+  [[nodiscard]] inline rq::Anchor &acquireAnchor();
+  [[nodiscard]] inline rq::Enumerator &acquireEnumerator();
+  [[nodiscard]] inline rq::Portal &acquirePortal();
+  [[nodiscard]] inline rq::CTable &acquireCTable();
+  [[nodiscard]] inline rq::ScopeStatement &acquirePrequiteScopeStatement();
+  [[nodiscard]] inline rq::ScopeStatement &acquirePostquiteScopeStatement();
+  [[nodiscard]] inline rq::WhileStatement &acquirePrequiteWhileStatement();
+  [[nodiscard]] inline rq::WhileStatement &acquirePostquiteWhileStatement();
+  [[nodiscard]] inline rq::ForStatement &acquirePrequiteForStatement();
+  [[nodiscard]] inline rq::ForStatement &acquirePostquiteForStatement();
+  [[nodiscard]] inline rq::CaseStatement &acquirePrequiteCaseStatement();
+  [[nodiscard]] inline rq::CaseStatement &acquirePostquiteCaseStatement();
+  [[nodiscard]] inline rq::SwitchStatement &acquirePrequiteSwitchStatement();
+  [[nodiscard]] inline rq::SwitchStatement &acquirePostquiteSwitchStatement();
+  [[nodiscard]] inline rq::IfStatement &acquirePrequiteIfStatement();
+  [[nodiscard]] inline rq::IfStatement &acquirePostquiteIfStatement();
+  [[nodiscard]] inline rq::ElseIfStatement &acquirePrequiteElseIfStatement();
+  [[nodiscard]] inline rq::ElseIfStatement &acquirePostquiteElseIfStatement();
+  [[nodiscard]] inline rq::ElseStatement &acquirePrequiteElseStatement();
+  [[nodiscard]] inline rq::ElseStatement &acquirePostquiteElseStatement();
+  [[nodiscard]] inline rq::Namespace &acquireNamespace();
+  [[nodiscard]] inline rq::EnumOverload &acquireEnumOverload();
+  [[nodiscard]] inline rq::EnumSpecialization &acquireEnumSpecialization();
+  [[nodiscard]] inline rq::AdapterOverload &acquireAdapterOverload();
+  [[nodiscard]] inline rq::AdapterSpecialization &
+  acquireAdapterSpecialization();
+  [[nodiscard]] inline rq::InterfaceOverload &acquireInterfaceOverload();
+  [[nodiscard]] inline rq::InterfaceSpecialization &
+  acquireInterfaceSpecialization();
+  [[nodiscard]] inline rq::ClassOverload &acquireClassOverload();
+  [[nodiscard]] inline rq::ClassSpecialization &acquireClassSpecialization();
+  [[nodiscard]] inline rq::ProcOverload &acquireProcOverload();
+  [[nodiscard]] inline rq::ProcSpecialization &acquireProcSpecialization();
+  [[nodiscard]] inline rq::AliasOverload &acquireAliasOverload();
+  [[nodiscard]] inline rq::AliasSpecialization &acquireAliasSpecialization();
+  [[nodiscard]] inline rq::ConceptOverload &acquireConceptOverload();
+  [[nodiscard]] inline rq::ConceptSpecialization &
+  acquireConceptSpecialization();
+  [[nodiscard]] inline rq::VariantOverload &acquireVariantOverload();
+  [[nodiscard]] inline rq::VariantSpecialization &
+  acquireVariantSpecialization();
+  [[nodiscard]] inline rq::EnumTemplate &acquireEnumTemplate();
+  [[nodiscard]] inline rq::ClassTemplate &acquireClassTemplate();
+  [[nodiscard]] inline rq::InterfaceTemplate &acquireInterfaceTemplate();
+  [[nodiscard]] inline rq::LazyVariableTemplate &acquireLazyVariableTemplate();
+  [[nodiscard]] inline rq::AdapterTemplate &acquireAdapterTemplate();
+  [[nodiscard]] inline rq::ProcTemplate &acquireProcTemplate();
+  [[nodiscard]] inline rq::AliasTemplate &acquireAliasTemplate();
+  [[nodiscard]] inline rq::ConceptTemplate &acquireConceptTemplate();
+  [[nodiscard]] inline rq::VariantTemplate &acquireVariantTemplate();
+  [[nodiscard]] inline rq::ClassPolymorph &acquireClassPolymorph();
+  [[nodiscard]] inline rq::EnumPolymorph &acquireEnumPolymorph();
+  [[nodiscard]] inline rq::InterfacePolymorph &acquireInterfacePolymorph();
+  [[nodiscard]] inline rq::AdapterPolymorph &acquireAdapterPolymorph();
+  [[nodiscard]] inline rq::ProcPolymorph &acquireProcPolymorph();
+  [[nodiscard]] inline rq::LazyVariablePolymorph &
+  acquireLazyVariablePolymorph();
+  [[nodiscard]] inline rq::AliasPolymorph &acquireAliasPolymorph();
+  [[nodiscard]] inline rq::VariantPolymorph &acquireVariantPolymorph();
+  [[nodiscard]] inline rq::ConceptPolymorph &acquireConceptPolymorph();
+  [[nodiscard]] inline rq::SynonymType &
+  acquireSynonymType(rq::Symbol &original);
+  [[nodiscard]] inline rq::Module &acquireModule(rq::ModuleDetail &&detail);
+
+  // Constant values are interned; mutable values are collectible.
+  [[nodiscard]] inline rq::ConstantInt &
+  acquireConstantInt(rq::QualifiedType &type, const llvm::APInt &value);
+  [[nodiscard]] inline rq::ConstantFloat &
+  acquireConstantFloat(rq::QualifiedType &type, const llvm::APFloat &value);
+  [[nodiscard]] inline rq::ConstantDetachedArrayElement &
+  acquireConstantDetachedArrayElement(
+      rq::Entity &entity, rq::ConstantDetachedArrayElement *next_ptr);
+  [[nodiscard]] inline rq::ConstantDetachedArray &
+  acquireConstantDetachedArray(rq::QualifiedType &type,
+                               rq::ConstantDetachedArrayElement *first_ptr);
+  [[nodiscard]] inline rq::ConstantDetachedArray &
+  acquireConstantDetachedArray(rq::QualifiedType &type,
+                               llvm::ArrayRef<rq::Entity *> elements);
+  [[nodiscard]] inline rq::MutableInt &
+  acquireMutableInt(rq::QualifiedType &type, const llvm::APInt &value);
+  [[nodiscard]] inline rq::MutableFloat &
+  acquireMutableFloat(rq::QualifiedType &type, const llvm::APFloat &value);
+  [[nodiscard]] inline rq::MutableDetachedArray &
+  acquireMutableDetachedArray(rq::QualifiedType &type,
+                              llvm::ArrayRef<rq::Entity *> data = {});
 };
 
 } // namespace rq
+
+#include <rq/detail/context.hpp>

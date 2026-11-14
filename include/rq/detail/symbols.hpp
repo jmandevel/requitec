@@ -726,6 +726,26 @@ RQ_ALWAYS_INLINE Symbol::Symbol(rq::SymbolKind kind) : Entity(rq::getId(kind)) {
   RQ_ASSERT(rq::getIsInRange(kind), "symbol kind out of range");
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Symbol::getDerivedExpressionPtr() const {
+  if (const auto *derived_ptr = llvm::dyn_cast<rq::Import>(this)) {
+    return derived_ptr->_expression_ptr;
+  }
+  if (const auto *derived_ptr = llvm::dyn_cast<rq::Portal>(this)) {
+    return derived_ptr->_expression_ptr;
+  }
+  if (const auto *derived_ptr = llvm::dyn_cast<rq::Module>(this)) {
+    return derived_ptr->_expression_ptr;
+  }
+  if (const auto *derived_ptr = llvm::dyn_cast<rq::EagerScope>(this)) {
+    return derived_ptr->_expression_ptr;
+  }
+  if (const auto *derived_ptr = llvm::dyn_cast<rq::LazyDeclaration>(this)) {
+    return derived_ptr->_expression_ptr;
+  }
+  return nullptr;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Symbol::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -787,6 +807,13 @@ RQ_ALWAYS_INLINE void
 ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   ScaledPrimitiveType::Profile(inout_id, this->getSymbolKind(),
                                this->getDepth());
+}
+
+RQ_ALWAYS_INLINE BuiltinConcept::BuiltinConcept(rq::SymbolKind kind)
+    : Symbol(kind), _predecessor_ptr(nullptr) {
+  RQ_ASSERT(rq::getHasAll(rq::getInfoFlags(kind),
+                          rq::SymbolInfoFlags::BUILTIN_CONCEPT),
+            "not builtin concept");
 }
 
 RQ_ALWAYS_INLINE BuiltinConcept::BuiltinConcept(rq::SymbolKind kind,
@@ -901,11 +928,11 @@ Subtype::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(rq::QualifiedType &child,
-                                            std::size_t &count)
-    : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(&count) {}
+                                            std::size_t count)
+    : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(count) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE std::size_t ArraySubtype::getCount() const {
-  return rq::dereferencePtr(this->_count);
+  return this->_count;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -939,11 +966,13 @@ SimpleSubtype::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  SimpleSubtype::Profile(inout_id, this->getChildType());
+  SimpleSubtype::Profile(inout_id, this->getSymbolKind(), this->getChildType());
 }
 
 RQ_ALWAYS_INLINE void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id,
+                                             rq::SymbolKind kind,
                                              const rq::QualifiedType &child) {
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
   inout_id.AddPointer(&child);
 }
 
@@ -968,13 +997,14 @@ Subsymbol::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void Subsymbol::Profile(llvm::FoldingSetNodeID &inout_id,
-                               const rq::Symbol &child) {
+                               rq::SymbolKind kind, const rq::Symbol &child) {
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
   inout_id.AddPointer(&child);
 }
 
 RQ_ALWAYS_INLINE void
 Subsymbol::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  Subsymbol::Profile(inout_id, this->getChildSymbol());
+  Subsymbol::Profile(inout_id, this->getSymbolKind(), this->getChildSymbol());
 }
 
 RQ_ALWAYS_INLINE Adaption::Adaption(rq::QualifiedType &reciever,
@@ -1019,13 +1049,16 @@ Adaption::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void Adaption::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  Adaption::Profile(inout_id, this->getInterface(), this->getAdapter());
+  Adaption::Profile(inout_id, this->getReciever(), this->getInterface(),
+                    this->getAdapter());
 }
 
 RQ_ALWAYS_INLINE void
 Adaption::Profile(llvm::FoldingSetNodeID &inout_id,
+                  const rq::QualifiedType &reciever,
                   const rq::InterfaceImplementation &interface,
                   const rq::AdapterImplementation &adapter) {
+  inout_id.AddPointer(&reciever);
   inout_id.AddPointer(&interface);
   inout_id.AddPointer(&adapter);
 }
@@ -1143,9 +1176,8 @@ JuxtListType::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::JUXT_LIST_TYPE);
 }
 
-inline void
-JuxtListType::Profile(llvm::FoldingSetNodeID &inout_id,
-                      rq::ConstNodeListRef<rq::QualifiedType> list) {
+inline void JuxtListType::Profile(llvm::FoldingSetNodeID &inout_id,
+                                  const rq::NodeList<rq::QualifiedType> &list) {
   list.Profile(inout_id);
 }
 
@@ -1181,7 +1213,7 @@ Trip::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void Trip::Profile(llvm::FoldingSetNodeID &inout_id,
-                          rq::ConstNodeListRef<rq::Entity> list) {
+                          const rq::NodeList<rq::Entity> &list) {
   list.Profile(inout_id);
 }
 
@@ -1249,13 +1281,16 @@ ArithmeticSequenceType::classof(const rq::Entity *entity_ptr) {
 
 inline void
 ArithmeticSequenceType::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  ArithmeticSequenceType::Profile(inout_id, this->getChild(),
-                                  this->getCondition(), this->getStep());
+  ArithmeticSequenceType::Profile(inout_id, this->getSymbolKind(),
+                                  this->getChild(), this->getCondition(),
+                                  this->getStep());
 }
 
 RQ_ALWAYS_INLINE void ArithmeticSequenceType::Profile(
-    llvm::FoldingSetNodeID &inout_id, const rq::QualifiedType &child,
-    rq::ArithmeticCondition condition, rq::ArithmeticStep step) {
+    llvm::FoldingSetNodeID &inout_id, rq::SymbolKind kind,
+    const rq::QualifiedType &child, rq::ArithmeticCondition condition,
+    rq::ArithmeticStep step) {
+  inout_id.AddInteger(rq::getUnderlyingValue(kind));
   inout_id.AddPointer(&child);
   inout_id.AddInteger(rq::getUnderlyingValue(condition));
   inout_id.AddInteger(rq::getUnderlyingValue(step));
@@ -1264,8 +1299,7 @@ RQ_ALWAYS_INLINE void ArithmeticSequenceType::Profile(
 RQ_ALWAYS_INLINE
 SpecializationSetArgument::SpecializationSetArgument(
     rq::Name name, rq::Entity &value, rq::SpecializationSetArgument *next_ptr)
-    : _name(name),
-      _value_ptr(&value), _next_ptr(next_ptr) {}
+    : _name(name), _value_ptr(&value), _next_ptr(next_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Name
 SpecializationSetArgument::getName() const {
@@ -1349,6 +1383,39 @@ SpecializationSet::Profile(llvm::FoldingSetNodeID &inout_id,
 ProcSpecializationSet::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_SPECIALIZATION_SET);
+}
+
+RQ_ALWAYS_INLINE ProcSpecializationSet::ProcSpecializationSet(
+    rq::SpecializationSetArgument *first_ptr)
+    : SpecializationSet(rq::SymbolKind::PROC_SPECIALIZATION_SET, first_ptr) {}
+
+inline void
+ProcSpecializationSet::Profile(llvm::FoldingSetNodeID &inout_id,
+                               const rq::SpecializationSetArgument *first_ptr) {
+  SpecializationSet::Profile(inout_id, rq::SymbolKind::PROC_SPECIALIZATION_SET,
+                             first_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+ProcSpecializationSet::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  Self::Profile(inout_id, this->_first_ptr);
+}
+
+RQ_ALWAYS_INLINE AdapterSpecializationSet::AdapterSpecializationSet(
+    rq::SpecializationSetArgument *first_ptr)
+    : SpecializationSet(rq::SymbolKind::ADAPTER_SPECIALIZATION_SET, first_ptr) {
+}
+
+inline void AdapterSpecializationSet::Profile(
+    llvm::FoldingSetNodeID &inout_id,
+    const rq::SpecializationSetArgument *first_ptr) {
+  SpecializationSet::Profile(
+      inout_id, rq::SymbolKind::ADAPTER_SPECIALIZATION_SET, first_ptr);
+}
+
+RQ_ALWAYS_INLINE void
+AdapterSpecializationSet::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  Self::Profile(inout_id, this->_first_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
@@ -1477,7 +1544,7 @@ CompositionType::classof(const rq::Entity *entity_ptr) {
 
 inline void CompositionType::Profile(
     llvm::FoldingSetNodeID &inout_id,
-    rq::ConstNodeListRef<rq::InterfaceImplementation> interface_list) {
+    const rq::NodeList<rq::InterfaceImplementation> &interface_list) {
   interface_list.Profile(inout_id);
 }
 
@@ -2698,26 +2765,24 @@ SymbolTable::lookupList(rq::Name name) const {
   return found->getSecond();
 }
 
-RQ_ALWAYS_INLINE void ContainingTableIteratorPolicy::next(
-    State *&inout_state_ptr) const {
+RQ_ALWAYS_INLINE void
+ContainingTableIteratorPolicy::next(State *&inout_state_ptr) const {
   State &state = rq::dereferencePtr(inout_state_ptr);
   inout_state_ptr = state.getContainerPtr();
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE ContainingTableIteratorPolicy::State &
-ContainingTableIteratorPolicy::value(
-    State *const &inout_state_ptr) const {
+ContainingTableIteratorPolicy::value(State *const &inout_state_ptr) const {
   return rq::dereferencePtr(inout_state_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ContainingTableIteratorPolicy::getIsDone(
-    State *const &inout_state_ptr) const {
+ContainingTableIteratorPolicy::getIsDone(State *const &inout_state_ptr) const {
   return inout_state_ptr == nullptr;
 }
 
-RQ_ALWAYS_INLINE void ConstContainingTableIteratorPolicy::next(
-    const State *&inout_state_ptr) const {
+RQ_ALWAYS_INLINE void
+ConstContainingTableIteratorPolicy::next(const State *&inout_state_ptr) const {
   const State &state = rq::dereferencePtr(inout_state_ptr);
   inout_state_ptr = state.getContainerPtr();
 }
@@ -2736,7 +2801,7 @@ ConstContainingTableIteratorPolicy::getIsDone(
 
 [[nodiscard]] RQ_ALWAYS_INLINE
     rq::Subrange<rq::SymbolTable::InclusiveAscendingIterator>
-SymbolTable::getInclusiveAscendingSubrange() {
+    SymbolTable::getInclusiveAscendingSubrange() {
   return rq::Subrange<rq::SymbolTable::InclusiveAscendingIterator>(
       rq::SymbolTable::InclusiveAscendingIterator(this),
       rq::SymbolTable::InclusiveAscendingIterator());
@@ -2744,7 +2809,7 @@ SymbolTable::getInclusiveAscendingSubrange() {
 
 [[nodiscard]] RQ_ALWAYS_INLINE
     rq::Subrange<rq::SymbolTable::ConstInclusiveAscendingIterator>
-SymbolTable::getInclusiveAscendingSubrange() const {
+    SymbolTable::getInclusiveAscendingSubrange() const {
   return rq::Subrange<rq::SymbolTable::ConstInclusiveAscendingIterator>(
       rq::SymbolTable::ConstInclusiveAscendingIterator(this),
       rq::SymbolTable::ConstInclusiveAscendingIterator());
@@ -2752,7 +2817,7 @@ SymbolTable::getInclusiveAscendingSubrange() const {
 
 [[nodiscard]] RQ_ALWAYS_INLINE
     rq::Subrange<rq::SymbolTable::ConstInclusiveAscendingIterator>
-SymbolTable::getConstInclusiveAscendingSubrange() const {
+    SymbolTable::getConstInclusiveAscendingSubrange() const {
   return rq::Subrange<rq::SymbolTable::ConstInclusiveAscendingIterator>(
       rq::SymbolTable::ConstInclusiveAscendingIterator(this),
       rq::SymbolTable::ConstInclusiveAscendingIterator());

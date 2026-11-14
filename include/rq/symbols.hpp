@@ -394,7 +394,6 @@ struct Symbol;
         struct ScopeStatement;
         struct WhileStatement;
         struct ForStatement;
-        struct DefaultStatement;
         struct CaseStatement;
         struct SwitchStatement;
         struct IfStatement;
@@ -448,6 +447,9 @@ struct Symbol : public rq::Entity {
 
   explicit RQ_ALWAYS_INLINE Symbol(rq::SymbolKind kind);
 
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+  getDerivedExpressionPtr() const;
+
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 };
@@ -477,6 +479,15 @@ struct SimpleLeaf final : public ParentParam {
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
+
+  template <typename... ArgNParam>
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const ArgNParam &...arg_n) {
+    Parent::Profile(inout_id, KIND, arg_n...);
+  }
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const {
+    Parent::Profile(inout_id);
+  }
 };
 
 struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
@@ -502,6 +513,7 @@ struct BuiltinConcept : public rq::Symbol {
 
   rq::Entity *_predecessor_ptr;
 
+  explicit RQ_ALWAYS_INLINE BuiltinConcept(rq::SymbolKind kind);
   explicit RQ_ALWAYS_INLINE BuiltinConcept(rq::SymbolKind kind,
                                            rq::Entity &predecessors);
 
@@ -568,10 +580,10 @@ struct Subtype : public rq::Subentity {
 struct ArraySubtype : public rq::Subtype, public llvm::FoldingSetNode {
   using Self = rq::ArraySubtype;
 
-  std::size_t *_count;
+  std::size_t _count;
 
   explicit RQ_ALWAYS_INLINE ArraySubtype(rq::QualifiedType &child,
-                                         std::size_t &count);
+                                         std::size_t count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const;
 
@@ -593,6 +605,7 @@ struct SimpleSubtype : public rq::Subtype, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             rq::SymbolKind kind,
                              const rq::QualifiedType &child);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
@@ -609,7 +622,7 @@ struct Subsymbol : public rq::Subentity, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             const rq::Symbol &child);
+                             rq::SymbolKind kind, const rq::Symbol &child);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
@@ -637,6 +650,7 @@ struct Adaption final : public rq::Symbol, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::QualifiedType &reciever,
                              const rq::InterfaceImplementation &interface,
                              const rq::AdapterImplementation &adapter);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
@@ -710,7 +724,7 @@ struct JuxtListType final : public rq::Symbol, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             rq::ConstNodeListRef<rq::QualifiedType> type_list);
+                             const rq::NodeList<rq::QualifiedType> &type_list);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
@@ -732,7 +746,7 @@ struct Trip final : public rq::Symbol, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             rq::ConstNodeListRef<rq::Entity> entity_list);
+                             const rq::NodeList<rq::Entity> &entity_list);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
@@ -771,6 +785,7 @@ struct ArithmeticSequenceType : public rq::Symbol, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             rq::SymbolKind kind,
                              const rq::QualifiedType &child,
                              rq::ArithmeticCondition condition,
                              rq::ArithmeticStep step);
@@ -864,12 +879,24 @@ struct SpecializationSet : public rq::Symbol, public llvm::FoldingSetNode {
 struct ProcSpecializationSet final : public rq::SpecializationSet {
   using Self = rq::ProcSpecializationSet;
 
+  explicit RQ_ALWAYS_INLINE
+  ProcSpecializationSet(rq::SpecializationSetArgument *first_ptr);
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::SpecializationSetArgument *first_ptr);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
+
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 };
 
 struct AdapterSpecializationSet final : public rq::SpecializationSet {
   using Self = rq::AdapterSpecializationSet;
+
+  explicit RQ_ALWAYS_INLINE
+  AdapterSpecializationSet(rq::SpecializationSetArgument *first_ptr);
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::SpecializationSetArgument *first_ptr);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1363,15 +1390,6 @@ struct ForStatement final : public rq::EagerScope {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct DefaultStatement final : public rq::EagerScope {
-  using Self = rq::DefaultStatement;
-
-  explicit RQ_ALWAYS_INLINE DefaultStatement();
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
 struct CaseStatement final : public rq::EagerScope {
   using Self = rq::CaseStatement;
 
@@ -1676,7 +1694,7 @@ struct CompositionType final : public rq::Symbol, public llvm::FoldingSetNode {
 
   static inline void
   Profile(llvm::FoldingSetNodeID &inout_id,
-          rq::ConstNodeListRef<rq::InterfaceImplementation> interface_list);
+          const rq::NodeList<rq::InterfaceImplementation> &interface_list);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };

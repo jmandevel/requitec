@@ -1120,16 +1120,20 @@ getUnsafeValueKind(rq::EntityId id) {
   return id >= rq::KEYWORD_OFFSET && id < rq::SYMBOL_OFFSET;
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::Keyword keyword) {
-  return rq::getUnderlyingValue(keyword) < rq::getUnderlyingValue(rq::Keyword::LAST);
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool
+getIsInRange(rq::Keyword keyword) {
+  return rq::getUnderlyingValue(keyword) <
+         rq::getUnderlyingValue(rq::Keyword::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsSymbolKind(rq::EntityId id) {
   return id >= rq::SYMBOL_OFFSET && id < rq::VALUE_OFFSET;
 }
 
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::SymbolKind kind) {
-  return rq::getUnderlyingValue(kind) < rq::getUnderlyingValue(rq::SymbolKind::LAST);
+[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool
+getIsInRange(rq::SymbolKind kind) {
+  return rq::getUnderlyingValue(kind) <
+         rq::getUnderlyingValue(rq::SymbolKind::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
@@ -1137,7 +1141,8 @@ getUnsafeValueKind(rq::EntityId id) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::ValueKind kind) {
-  return rq::getUnderlyingValue(kind) < rq::getUnderlyingValue(rq::ValueKind::LAST);
+  return rq::getUnderlyingValue(kind) <
+         rq::getUnderlyingValue(rq::ValueKind::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsCfgBlock(rq::EntityId id) {
@@ -1889,11 +1894,11 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
 
   // SPECIALIZATION SET
   case S::SPECIALIATION_SET:
-    return SIF::NONE;
+    return SIF::SPECIALIZATION_SET;
   case S::ADAPTER_SPECIALIZATION_SET:
-    return SIF::NONE;
+    return SIF::SPECIALIZATION_SET;
   case S::PROC_SPECIALIZATION_SET:
-    return SIF::NONE;
+    return SIF::SPECIALIZATION_SET;
 
   // ARITHMETIC SEQUENCES
   case S::ARITHMETIC_INTERVAL_TYPE:
@@ -1942,25 +1947,25 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::C_TABLE:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
   case S::NAMESPACE:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE;
 
   // EAGER STATEMENTS
   case S::IF_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::ELSE_IF_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::ELSE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::SWITCH_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::CASE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::FOR_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::WHILE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
   case S::SCOPE_STATEMENT:
-    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_DECLARATION;
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::EAGER_SCOPE;
 
   // OVERLOADS
   case S::CLASS_OVERLOAD:
@@ -2569,7 +2574,8 @@ struct Entity {
     return rq::getIsObjectScope(this->getUnsafeSymbolKind());
   }
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity *entity_ptr) {
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr) {
     RQ_ASSERT(entity_ptr != nullptr, "nullptr entity");
     return true;
   }
@@ -2578,11 +2584,11 @@ struct Entity {
 struct Tombstone final : public rq::Entity {
   using Self = rq::Tombstone;
 
-  RQ_ALWAYS_INLINE Tombstone() 
-    : rq::Entity(rq::TOMBSTONE_ID) {}
+  RQ_ALWAYS_INLINE Tombstone() : rq::Entity(rq::TOMBSTONE_ID) {}
 
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool classof(const rq::Entity* entity_ptr) {
-    const rq::Entity& entity = rq::dereferencePtr(entity_ptr);
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr) {
+    const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
     return entity.getId() == rq::TOMBSTONE_ID;
   }
 };

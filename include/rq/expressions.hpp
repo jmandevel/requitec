@@ -5031,6 +5031,11 @@ struct Expression final : public rq::Entity {
   }
   RQ_ALWAYS_INLINE void clearData() {
     this->_id = rq::getUnderlyingValue(rq::Keyword::NONE);
+#if !defined(_NDEBUG)
+    this->_debug_keyword = rq::Keyword::NONE;
+    this->_debug_symbol_kind = rq::SymbolKind::NONE;
+    this->_debug_value_kind = rq::ValueKind::NONE;
+#endif
     this->_next_ptr_flags = {};
     this->_branch_ptr = nullptr;
     this->_source_ptr_flags = {};
@@ -5323,8 +5328,8 @@ struct Expression final : public rq::Entity {
     next.clearData();
     return next;
   }
-  [[nodiscard]] inline rq::Expression* resolve(rq::Entity& semantic) {
-    rq::Expression* branch_ptr = this->popBranchPtr();
+  [[nodiscard]] inline rq::Expression *resolve(rq::Entity &semantic) {
+    rq::Expression *branch_ptr = this->popBranchPtr();
     this->changeKeyword(rq::Keyword::SEMANTIC_LITERAL);
     this->setSemantic(semantic);
     return branch_ptr;

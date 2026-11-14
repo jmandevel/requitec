@@ -75,7 +75,7 @@ struct NextIteratorPolicy final {
 
   RQ_ALWAYS_INLINE void next(Base *&inout_state_ptr) const {
     Base &state = rq::dereferencePtr(inout_state_ptr);
-    inout_state_ptr = state->_next_ptr;
+    inout_state_ptr = state._next_ptr;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE Derived &
@@ -99,7 +99,7 @@ struct ConstNextIteratorPolicy final {
 
   RQ_ALWAYS_INLINE void next(const Base *&inout_state_ptr) const {
     const Base &state = rq::dereferencePtr(inout_state_ptr);
-    inout_state_ptr = state->_next_ptr;
+    inout_state_ptr = state._next_ptr;
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE const Derived &
