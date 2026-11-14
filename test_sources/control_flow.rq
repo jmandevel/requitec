@@ -26,7 +26,7 @@ mangle::main
     [switch result,
         ][case 20, 21,
             result = 2
-        ][default
+        ][else
             result = 3;
         ];    
 

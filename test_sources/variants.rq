@@ -23,7 +23,7 @@ mangle::main
             str ?= "its a float";
         ][arm Number.double, out:=value,
             str ?= "its a double";
-        ][default
+        ][else
             str ?= "its something else";
         ];
 
