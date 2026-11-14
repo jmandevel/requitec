@@ -2,6 +2,7 @@
 
 #include <rq/entity.hpp>
 
+#include <llvm/ADT/DenseMapInfo.h>
 #include <llvm/ADT/FoldingSet.h>
 
 namespace rq {
@@ -49,4 +50,29 @@ struct Name final {
   }
 };
 
-}
+} // namespace rq
+
+namespace llvm {
+
+template <> struct DenseMapInfo<rq::Name> {
+  [[nodiscard]] static RQ_ALWAYS_INLINE rq::Name getEmptyKey() {
+    return rq::Name(rq::Name::DENSE_MAP_KEY_EMPTY);
+  }
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE rq::Name getTombstoneKey() {
+    return rq::Name(rq::Name::DENSE_MAP_KEY_TOMBSTONE);
+  }
+
+  [[nodiscard]] static inline unsigned getHashValue(const rq::Name &name) {
+    llvm::FoldingSetNodeID id;
+    name.Profile(id);
+    return id.ComputeHash();
+  }
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool isEqual(const rq::Name &lhs,
+                                                     const rq::Name &rhs) {
+    return lhs == rhs;
+  }
+};
+
+} // namespace llvm
