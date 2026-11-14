@@ -137,4 +137,21 @@ struct BumpPtrAllocator {
   }
 };
 
+template <typename TypeParam, typename... ArgNParam>
+[[nodiscard]] inline TypeParam &acquire(rq::BumpPtrAllocator &allocator,
+                                        llvm::FoldingSet<TypeParam> &set,
+                                        ArgNParam &&...arg_n) {
+  llvm::FoldingSetNodeID id;
+  TypeParam::Profile(id, arg_n...);
+  void *insert_pos = nullptr;
+  TypeParam *existing_ptr = set.FindNodeOrInsertPos(id, insert_pos);
+  if (existing_ptr != nullptr) {
+    return rq::dereferencePtr(existing_ptr);
+  }
+  TypeParam &node =
+      context.allocateValue<TypeParam>(std::forward<ArgNParam>(arg_n)...);
+  set.InsertNode(&node, insert_pos);
+  return node;
+}
+
 } // namespace rq
