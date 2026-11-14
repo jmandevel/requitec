@@ -80,7 +80,7 @@ struct Symbol;
   using FittingPrimitiveType = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::FITTING_PRIMITIVE_TYPE>;
     using FittingFSIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FSINT_TYPE>;
     using FittingFUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_FUINT_TYPE>;
-    using FittingLUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
+    using FittingLSIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LSINT_TYPE>;
     using FittingLUIntType = rq::SimpleLeaf<rq::FittingPrimitiveType, rq::SymbolKind::FITTING_LUINT_TYPE>;
   using PlatformPrimitiveType = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::PLATFORM_PRIMITIVE_TYPE>;
     using BooleanType = rq::SimpleLeaf<rq::PlatformPrimitiveType, rq::SymbolKind::BOOLEAN_TYPE>;
@@ -210,7 +210,6 @@ struct Symbol;
     using FloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FLOAT_CONCEPT>;
     using BinaryConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BINARY_CONCEPT>;
     using BFloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BFLOAT_CONCEPT>;
-    using BfloatConcept = rq::BFloatConcept;
     using ConceptConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_CONCEPT>;
     using SubtypeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SUBTYPE_CONCEPT>;
     using ArrayConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARRAY_CONCEPT>;
@@ -232,7 +231,6 @@ struct Symbol;
     using ArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_SEQUENCE_CONCEPT>;
     using ArithmeticIntervalConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARITHMETIC_INTERVAL_CONCEPT>;
     using InfiniteArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
-    using InfiniteARithmeticSequenceConcept = rq::InfiniteArithmeticSequenceConcept;
     using FiniteArithmeticSequenceConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_CONCEPT>;
     using EagerDeclarationConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::EAGER_DECLARATION_CONCEPT>;
     using AnchorConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ANCHOR_CONCEPT>;
@@ -258,7 +256,6 @@ struct Symbol;
     using ElseStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ELSE_STATEMENT_CONCEPT>;
     using SwitchStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SWITCH_STATEMENT_CONCEPT>;
     using CaseStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::CASE_STATEMENT_CONCEPT>;
-    using DefaultStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::DEFAULT_STATEMENT_CONCEPT>;
     using ForStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::FOR_STATEMENT_CONCEPT>;
     using WhileStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::WHILE_STATEMENT_CONCEPT>;
     using ScopeStatementConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SCOPE_STATEMENT_CONCEPT>;
@@ -321,7 +318,8 @@ struct Symbol;
     using PackModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PACK_MODIFIER_CONCEPT>;
     using BranchTrendModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BRANCH_TREND_MODIFIER_CONCEPT>;
     using SupportNoticeModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SUPPORT_NOTICE_MODIFIER_CONCEPT>;
-    using AddressStabilityModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ADDRESS_STABILITY_MODIFIER_CONCEPT>;
+    using MovableModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::MOVABLE_MODIFIER_CONCEPT>;
+    using CopyableModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::COPYABLE_MODIFIER_CONCEPT>;
     using VariadicModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::VARIADIC_MODIFIER_CONCEPT>;
     using OffsetModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::OFFSET_MODIFIER_CONCEPT>;
     using LazyDeclarationModifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::LAZY_DECLARATION_MODIFIER_CONCEPT>;
@@ -336,7 +334,7 @@ struct Symbol;
     using VolatileQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::VOLATILE_QUALIFIER_CONCEPT>;
     using AtomicQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ATOMIC_QUALIFIER_CONCEPT>;
     using NullTerminateQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::NULL_TERMINATE_QUALIFIER_CONCEPT>;
-    using DetatchQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::DETATCH_QUALIFIER_CONCEPT>;
+    using DetachQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::DETACH_QUALIFIER_CONCEPT>;
     using MarginQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::MARGIN_QUALIFIER_CONCEPT>;
     using ThrowsQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::THROWS_QUALIFIER_CONCEPT>;
   struct QualifiedType;
@@ -362,7 +360,6 @@ struct Symbol;
     using InfiniteArithmeticSequenceType = rq::SimpleLeaf<rq::ArithmeticSequenceType, rq::SymbolKind::INFINITE_ARITHMETIC_SEQUENCE_TYPE>;
     using FiniteArithmeticSequenceType = rq::SimpleLeaf<rq::ArithmeticSequenceType, rq::SymbolKind::FINITE_ARITHMETIC_SEQUENCE_TYPE>;
   struct Import;
-  struct SpecializationSetArgument;
   struct SpecializationSet;
     struct ProcSpecializationSet;
     struct AdapterSpecializationSet;
@@ -814,8 +811,7 @@ struct Import final : public rq::Symbol {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct SpecializationSetArgument final : public rq::Symbol,
-                                         public llvm::FoldingSetNode {
+struct SpecializationSetArgument final : public llvm::FoldingSetNode {
   using Self = rq::SpecializationSetArgument;
 
   rq::Name _name;
@@ -829,9 +825,6 @@ struct SpecializationSetArgument final : public rq::Symbol,
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getValue() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getValue();
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id, rq::Name name,
                              const rq::Entity &value,
@@ -1200,8 +1193,7 @@ using ContainingTableIterator =
 
 using ConstContainingTableIterator =
     rq::Iterator<const rq::SymbolTable *,
-                 rq::ConstContainingTableIteratorPolicy,
-                 const rq::SymbolTable>;
+                 rq::ConstContainingTableIteratorPolicy, const rq::SymbolTable>;
 
 struct SymbolTable : public rq::TableMember {
   using Self = rq::SymbolTable;

@@ -1100,6 +1100,9 @@ bool Situator::situateTree(rq::Situation situation,
   }
 
   // REFLECTIONS
+  case K::IMPORT_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
   case K::MEMBER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
@@ -1451,8 +1454,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::CASE_STATEMENT_CONCEPT:
     [[fallthrough]];
-  case K::DEFAULT_STATEMENT_CONCEPT:
-    [[fallthrough]];
   case K::FOR_STATEMENT_CONCEPT:
     [[fallthrough]];
   case K::WHILE_STATEMENT_CONCEPT:
@@ -1577,7 +1578,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::SUPPORT_NOTICE_MODIFIER_CONCEPT:
     [[fallthrough]];
-  case K::ADDRESS_STABILITY_MODIFIER_CONCEPT:
+  case K::MOVABLE_MODIFIER_CONCEPT:
+    [[fallthrough]];
+  case K::COPYABLE_MODIFIER_CONCEPT:
     [[fallthrough]];
   case K::VARIADIC_MODIFIER_CONCEPT:
     [[fallthrough]];

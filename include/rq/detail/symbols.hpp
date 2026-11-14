@@ -375,8 +375,6 @@ namespace rq {
     return "SwitchStatementConcept";
   case S::CASE_STATEMENT_CONCEPT:
     return "CaseStatementConcept";
-  case S::DEFAULT_STATEMENT_CONCEPT:
-    return "DefaultStatementConcept";
   case S::FOR_STATEMENT_CONCEPT:
     return "ForStatementConcept";
   case S::WHILE_STATEMENT_CONCEPT:
@@ -501,8 +499,10 @@ namespace rq {
     return "BranchTrendModifierConcept";
   case S::SUPPORT_NOTICE_MODIFIER_CONCEPT:
     return "SupportNoticeModifierConcept";
-  case S::ADDRESS_STABILITY_MODIFIER_CONCEPT:
-    return "AddressStabilityModifierConcept";
+  case S::MOVABLE_MODIFIER_CONCEPT:
+    return "MovableModifierConcept";
+  case S::COPYABLE_MODIFIER_CONCEPT:
+    return "CopyableModifierConcept";
   case S::VARIADIC_MODIFIER_CONCEPT:
     return "VariadicModifierConcept";
   case S::OFFSET_MODIFIER_CONCEPT:
@@ -531,8 +531,8 @@ namespace rq {
     return "AtomicQualifierConcept";
   case S::NULL_TERMINATE_QUALIFIER_CONCEPT:
     return "NullTerminateQualifierConcept";
-  case S::DETATCH_QUALIFIER_CONCEPT:
-    return "DetatchQualifierConcept";
+  case S::DETACH_QUALIFIER_CONCEPT:
+    return "DetachQualifierConcept";
   case S::MARGIN_QUALIFIER_CONCEPT:
     return "MarginQualifierConcept";
   case S::THROWS_QUALIFIER_CONCEPT:
@@ -571,8 +571,6 @@ namespace rq {
     return "JuxtListType";
   case S::TRIP:
     return "Trip";
-  case S::SPECIALIZATION_SET_ARGUMENT:
-    return "SpecializationSetArgument";
   case S::SPECIALIATION_SET:
     return "SpecializationSet";
   case S::ADAPTER_SPECIALIZATION_SET:
@@ -619,8 +617,6 @@ namespace rq {
     return "SwitchStatement";
   case S::CASE_STATEMENT:
     return "CaseStatement";
-  case S::DEFAULT_STATEMENT:
-    return "DefaultStatement";
   case S::FOR_STATEMENT:
     return "ForStatement";
   case S::WHILE_STATEMENT:
@@ -1268,7 +1264,7 @@ RQ_ALWAYS_INLINE void ArithmeticSequenceType::Profile(
 RQ_ALWAYS_INLINE
 SpecializationSetArgument::SpecializationSetArgument(
     rq::Name name, rq::Entity &value, rq::SpecializationSetArgument *next_ptr)
-    : Symbol(rq::SymbolKind::SPECIALIZATION_SET_ARGUMENT), _name(name),
+    : _name(name),
       _value_ptr(&value), _next_ptr(next_ptr) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Name
@@ -1284,13 +1280,6 @@ SpecializationSetArgument::getValue() const {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &
 SpecializationSetArgument::getValue() {
   return rq::dereferencePtr(this->_value_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SpecializationSetArgument::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() ==
-         rq::getId(rq::SymbolKind::SPECIALIZATION_SET_ARGUMENT);
 }
 
 inline void
@@ -2958,15 +2947,6 @@ RQ_ALWAYS_INLINE ForStatement::ForStatement()
 ForStatement::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return entity.getId() == rq::getId(rq::SymbolKind::FOR_STATEMENT);
-}
-
-RQ_ALWAYS_INLINE DefaultStatement::DefaultStatement()
-    : EagerScope(rq::SymbolKind::DEFAULT_STATEMENT) {}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-DefaultStatement::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::DEFAULT_STATEMENT);
 }
 
 RQ_ALWAYS_INLINE CaseStatement::CaseStatement()
