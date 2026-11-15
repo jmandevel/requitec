@@ -220,8 +220,7 @@ rq::Expression &RequiteParser::parsePrecedence10() {
       continue;
     case rq::TokenKind::WHAT_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token,
-                                     rq::Keyword::INDETERMINATE_ASSIGN);
+      precedence_factory.parseBinary(token, rq::Keyword::INDETERMINATE_ASSIGN);
       precedence_factory.setRecent(this->parsePrecedence9());
       continue;
     case rq::TokenKind::ELIPSIS_OPERATOR:
@@ -729,7 +728,18 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       precedence_factory.parseAscribe(
           post_token.getSourceText(),
           rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER);
-      precedence_factory.appendRecent();
+      rq::Expression &recent = precedence_factory.popRecent();
+      if (recent.getKeyword() == rq::Keyword::INSTANTIATE_QUALIFIER) {
+        precedence_factory.appendBranch(recent);
+      } else {
+        rq::Expression &qualifier_instantiation =
+            this->getContext().acquireExpression();
+        qualifier_instantiation.setSource(recent);
+        qualifier_instantiation.setKeyword(rq::Keyword::INSTANTIATE_QUALIFIER);
+        qualifier_instantiation.setIsInserted();
+        qualifier_instantiation.setBranch(recent);
+        precedence_factory.appendBranch(qualifier_instantiation);
+      }
       continue;
     }
     case rq::TokenKind::AT_OPERATOR:
@@ -748,7 +758,7 @@ rq::Expression &RequiteParser::parsePrecedence1() {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
-                                          rq::Keyword::INSTANTIATE_ADAPTION);
+                                          rq::Keyword::INSTANTIATE_REALIZATION);
       continue;
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
@@ -833,7 +843,6 @@ RequiteParser::parseBranches(rq::TokenKind end) {
     this->getRanger().incrementToken(1);
     return rq::ParseBranchesResult(nullptr, first_token, false);
   }
-  rq::ForestFactory chain_factory;
   bool parameter_mark_found = false;
   while (true) {
     const rq::Token next_token = this->getRanger().getToken();
@@ -873,32 +882,19 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       mark.setKeyword(rq::Keyword::POSITIONAL_PARAMETERS_END);
       factory.appendTree(branch);
       factory.appendTree(mark);
-      continue;
     } else if (after_token.getKind() == end) {
       factory.appendTree(branch);
-      continue;
     } else if (after_token.getKind() == rq::TokenKind::COMMA_SEPARATOR) {
       this->getRanger().incrementToken(1);
       factory.appendTree(branch);
-      continue;
     } else if (after_token.getKind() == rq::TokenKind::SEMICOLON_SEPARATOR) {
       this->getRanger().incrementToken(1);
-      if (!chain_factory.getHasExpression()) {
-        branch.setIsStatement();
-        factory.appendTree(branch);
-        continue;
-      }
-      chain_factory.appendTree(branch);
-      rq::Expression &chain_first = rq::dereferencePtr(chain_factory.build());
-      rq::Expression &chain = this->getContext().acquireExpression();
-      chain.setSource(chain_first, after_token);
-      chain.setKeyword(rq::Keyword::UNSITUATED_CHAIN);
-      chain.setBranch(chain_first);
-      chain.setIsStatement();
-      factory.appendTree(chain);
-      continue;
+      branch.setIsStatement();
+      factory.appendTree(branch);
+    } else {
+      branch.setIsChain();
+      factory.appendTree(branch);
     }
-    chain_factory.appendTree(branch);
   }
   RQ_UNREACHABLE();
 }

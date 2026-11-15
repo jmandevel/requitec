@@ -1,7 +1,7 @@
 # ANY is a concept that can fit any symbol
 
 pure template::{ Symbol:ANY <}
-[function isType, ()Bool,
+[proc isType, ()Bool,
     results <:= Symbol.[is TYPE];
 ];
 
@@ -23,7 +23,7 @@ mangle::main
             std.print(line="float");
         ] pre [else
             std.print(line="something else");
-        ]
+        ];
     ];
     result <:= 0;
 ];

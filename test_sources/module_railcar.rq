@@ -1,9 +1,8 @@
-# can use .[import] railcar to import a module directly.
+# can use .[module] railcar to get a module directly.
 # this is a feature to help with outputing intermediate files from stage 5
 # of the requite compiler.
-alias std = "std".[import];
 
 [proc , ()SInt,
-    std.print(line="Hello, world!");
+    "std".[module].std.print(line="Hello, world!");
     result <:= 0;
 ];

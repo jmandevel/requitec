@@ -68,8 +68,7 @@ bool Context::tokenizeSourceText(rq::ModuleDetail &detail) {
 
 void Context::initializeKeywordMap() {
   RQ_ASSERT(this->_keyword_map.empty(), "keyword map not empty");
-  for (std::underlying_type_t<rq::Keyword> keyword_i = 0;
-       keyword_i <= rq::KEYWORD_COUNT; keyword_i++) {
+  for (unsigned keyword_i = 0; keyword_i < rq::KEYWORD_COUNT; keyword_i++) {
     const rq::Keyword keyword = static_cast<rq::Keyword>(keyword_i);
     std::string_view name = rq::getName(keyword);
     this->_keyword_map.insert({name, keyword});
@@ -408,9 +407,7 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
   }
   rq::emitIndent(fout, indent);
   if (top.getIsLiteral()) {
-    fout << "\"";
     fout << top.getSourceText();
-    fout << "\"";
     return;
   }
   fout << "[" << top.getName();
@@ -420,12 +417,14 @@ static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
       rq::emitRequiteBranch(context, fout, branch, indent + 1);
       if (branch.getIsStatement()) {
         fout << ";\n";
-      } else {
+      } else if (branch.getIsTag()) {
         if (branch.getHasNext()) {
           fout << ",\n";
         } else {
           fout << "\n";
         }
+      } else {
+        fout << '\n';
       }
     }
     rq::emitIndent(fout, indent);
@@ -449,12 +448,14 @@ bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
     rq::emitRequiteBranch(*this, fout, branch, 0);
     if (branch.getIsStatement()) {
       fout << ";\n";
-    } else {
+    } else if (branch.getIsTag()) {
       if (branch.getHasNext()) {
         fout << ",\n";
       } else {
         fout << "\n";
       }
+    } else {
+      fout << "\n";
     }
   }
   fout.close();
@@ -797,6 +798,13 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
                    {expression.getLlvmSourceRange()}, {});
 }
 
+void Context::logErrorUnexpectedNextBranch(const rq::Expression &next) {
+  this->logMessage(next.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   next.getName() +
+                       " is unexpected after previous branch",
+                   {next.getLlvmSourceRange()}, {});
+}
+
 void Context::logErrorInvalidBranchSituation(rq::Situation situation,
                                              const rq::Expression &branch) {
   this->logMessage(branch.getLlvmSourceBegin(), rq::LogType::ERROR,
@@ -821,6 +829,28 @@ void Context::logErrorExpectedStatementExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
                    expression.getName() + " is not statement expression",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedChainExpression(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is not chain expression",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorUnexpectedTagExpressionInChain(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() + " is a tag expression in a chain",
+                   {expression.getLlvmSourceRange()}, {});
+}
+
+void Context::logErrorExpectedStartingChainlinkExpression(
+    const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   expression.getName() +
+                       " is not starting chainlink expression",
                    {expression.getLlvmSourceRange()}, {});
 }
 

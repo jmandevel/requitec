@@ -58,8 +58,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_unsituated_ascribe_modifier";
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return "_unsituated_ascribe_qualifier";
-  case K::UNSITUATED_CHAIN:
-    return "_unsituated_chain";
   case K::UNSITUATED_TRAIN:
     return "_unsituated_train";
 
@@ -92,8 +90,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_instantiate_extension";
   case K::INSTANTIATE_CONFORMITY:
     return "_instantiate_conformity";
-  case K::INSTANTIATE_ADAPTION:
-    return "_instantiate_adaption";
+  case K::INSTANTIATE_REALIZATION:
+    return "_instantiate_realization";
+  case K::ADAPTION:
+    return "adaption";
   case K::BINDING:
     return "_binding";
   case K::UPBINDING:
@@ -248,6 +248,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "decompose";
   case K::DECOMPOSE_OF:
     return "_decompose_of";
+  case K::ADAPT:
+    return "adapt";
+  case K::ADAPT_OF:
+    return "_adapt_of";
   case K::INPLACE_DESTROY:
     return "inplace_destroy";
   case K::INPLACE_DESTROY_OF:
@@ -310,6 +314,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "proc";
   case K::IMPLEMENT_PROC:
     return "implement_proc";
+  case K::USE_PROC:
+    return "use_proc";
   case K::CONSTRUCTOR:
     return "constructor";
   case K::LAYOUT_CONSTRUCTOR:
@@ -418,14 +424,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "variadic_arguments";
 
   // SCOPES
-  case K::IF_CHAIN:
-    return "_if_chain";
-  case K::SWITCH_CHAIN:
-    return "_switch_chain";
-  case K::MATCH_CHAIN:
-    return "_match_chain";
-  case K::TRY_CHAIN:
-    return "_try_chain";
   case K::IF:
     return "if";
   case K::ELSE_IF:
@@ -1165,6 +1163,9 @@ enum class KeywordInfoFlags : std::uint32_t {
       PARAMETER | BINDING | NAME | PATH | ROUTE | PORTAL | ASCRIPTION |
       MODIFIER | QUALIFIER | ARITHMETIC_SEQUENCE_STEP |
       ARITHMETIC_SEQUENCE_CONDITION,
+  ALL_CHAINLINKS = STARTING_CHAINLINK | CONTINUING_CHAINLINK |
+      FINISHING_CHAINLINK | IF_CHAINLINK | SWITCH_CHAINLINK | MATCH_CHAINLINK |
+      TRY_CHAINLINK
 };
 
 RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
@@ -1214,12 +1215,11 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::TUPLE_ELEMENT | KIF::PORTAL;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE;
+           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE |
+           KIF::ALL_CHAINLINKS;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
-  case K::UNSITUATED_CHAIN:
-    return KIF::STATEMENT;
   case K::UNSITUATED_TRAIN:
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
@@ -1255,7 +1255,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_CONFORMITY:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::INSTANTIATE_ADAPTION:
+  case K::INSTANTIATE_REALIZATION:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ADAPTION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BINDING:
     return KIF::LVALUE | KIF::PARAMETER | KIF::ARGUMENT | KIF::BINDING |
@@ -1266,7 +1268,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
   case K::ASCRIBE_MODIFIER:
-    return KIF::STATEMENT | KIF::PARAMETER;
+    return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION | KIF::ALL_CHAINLINKS;
   case K::ASCRIBE_RECIEVER_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_MODIFIER:
@@ -1415,6 +1417,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::DECOMPOSE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ADAPT:
+    return KIF::RAILCAR;
+  case K::ADAPT_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INIT:
     return KIF::RAILCAR;
   case K::INIT_OF:
@@ -1477,6 +1483,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::STATEMENT;
   case K::IMPLEMENT_PROC:
     return KIF::STATEMENT;
+  case K::USE_PROC:
+    return KIF::STATEMENT;
   case K::CONSTRUCTOR:
     return KIF::STATEMENT;
   case K::LAYOUT_CONSTRUCTOR:
@@ -1516,7 +1524,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // BUILTIN TYPES
   case K::INFERENCE:
-    return KIF::RVALUE | KIF::ARGUMENT;
+    return KIF::NAME | KIF::RVALUE | KIF::ARGUMENT;
   case K::EXPRESSION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VOID:
@@ -1585,22 +1593,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // SCOPES
-  case K::IF_CHAIN:
-    return KIF::STATEMENT;
-  case K::SWITCH_CHAIN:
-    return KIF::STATEMENT;
-  case K::MATCH_CHAIN:
-    return KIF::STATEMENT;
-  case K::TRY_CHAIN:
-    return KIF::STATEMENT;
   case K::IF:
     return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::ELSE_IF:
-    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::IF_CHAINLINK;
+    return KIF::STATEMENT | KIF::CONTINUING_CHAINLINK |
+           KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::ELSE:
-    return KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK | KIF::MATCH_CHAINLINK |
-           KIF::SWITCH_CHAINLINK | KIF::TRY_CHAINLINK;
+    return KIF::STATEMENT | KIF::FINISHING_CHAINLINK | KIF::IF_CHAINLINK |
+           KIF::MATCH_CHAINLINK | KIF::SWITCH_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::SWITCH:
     return KIF::STARTING_CHAINLINK | KIF::SWITCH_CHAINLINK;
   case K::CASE:
@@ -1612,14 +1612,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
            KIF::MATCH_CHAINLINK;
   case K::TRY:
-    return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::TRY_CHAINLINK;
+    return KIF::STARTING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::CATCH:
-    return KIF::CONTINUING_CHAINLINK | KIF::FINISHING_CHAINLINK |
-           KIF::TRY_CHAINLINK;
+    return KIF::STATEMENT | KIF::CONTINUING_CHAINLINK |
+           KIF::FINISHING_CHAINLINK | KIF::TRY_CHAINLINK;
   case K::FOR:
-    return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
+    return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::WHILE:
-    return KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
+    return KIF::STATEMENT | KIF::STARTING_CHAINLINK | KIF::IF_CHAINLINK;
   case K::SCOPE:
     return KIF::STATEMENT;
   case K::FOLD:
@@ -2656,6 +2656,8 @@ getDescription(rq::Situation situation) {
   using namespace rq;
   using K = Keyword;
   switch (keyword) {
+  case K::REF:
+    return K::REF_OF;
   case K::IDENTIFY:
     return K::IDENTIFY_OF;
   case K::AS:
@@ -2688,6 +2690,8 @@ getDescription(rq::Situation situation) {
     return K::COMPOSE_OF;
   case K::DECOMPOSE:
     return K::DECOMPOSE_OF;
+  case K::ADAPT:
+    return K::ADAPT_OF;
   case K::INIT:
     return K::INIT_OF;
   case K::INPLACE_DESTROY:
@@ -4656,10 +4660,18 @@ getArithmeticCondition(rq::Keyword keyword) {
   RQ_UNREACHABLE();
 }
 
-enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH, MATCH, TRY };
+enum class ChainKind : std::uint_fast8_t {
+  NONE,
+  IF,
+  SWITCH,
+  MATCH,
+  TRY,
+  INVALID
+};
 
-[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getDescription(rq::Chain chain) {
-  using C = rq::Chain;
+[[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
+getDescription(rq::ChainKind chain) {
+  using C = rq::ChainKind;
   switch (chain) {
   case C::NONE:
     return "no chain";
@@ -4671,6 +4683,94 @@ enum class Chain : std::uint_fast8_t { NONE, IF, SWITCH, MATCH, TRY };
     return "match arm chain";
   case C::TRY:
     return "try catch chain";
+  case C::INVALID:
+    return "invalid chain";
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind
+getStartingChainKind(rq::Keyword keyword) {
+  using K = rq::Keyword;
+  using C = rq::ChainKind;
+  switch (keyword) {
+  case K::IF:
+    [[fallthrough]];
+  case K::FOR:
+    [[fallthrough]];
+  case K::WHILE:
+    return C::IF;
+  case K::SWITCH:
+    return C::SWITCH;
+  case K::MATCH:
+    return C::MATCH;
+  case K::TRY:
+    return C::TRY;
+  default:
+    break;
+  }
+  return C::NONE;
+}
+
+[[nodiscard]] inline rq::Situation
+getStartingChainSituation(rq::ChainKind chain) {
+  using C = rq::ChainKind;
+  using S = rq::Situation;
+  switch (chain) {
+  case C::NONE:
+    break;
+  case C::IF:
+    return S::STARTING_IF_CHAINLINK;
+  case C::SWITCH:
+    return S::STARTING_SWITCH_CHAINLINK;
+  case C::MATCH:
+    return S::STARTING_MATCH_CHAINLINK;
+  case C::TRY:
+    return S::STARTING_TRY_CHAINLINK;
+  case C::INVALID:
+    return S::STARTING_CHAINLINK;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::Situation
+getContinuingChainSituation(rq::ChainKind chain) {
+  using C = rq::ChainKind;
+  using S = rq::Situation;
+  switch (chain) {
+  case C::NONE:
+    break;
+  case C::IF:
+    return S::CONTINUING_IF_CHAINLINK;
+  case C::SWITCH:
+    return S::CONTINUING_SWITCH_CHAINLINK;
+  case C::MATCH:
+    return S::CONTINUING_MATCH_CHAINLINK;
+  case C::TRY:
+    return S::CONTINUING_TRY_CHAINLINK;
+  case C::INVALID:
+    return S::CONTINUING_CHAINLINK;
+  }
+  RQ_UNREACHABLE();
+}
+
+[[nodiscard]] inline rq::Situation
+getFinishingChainSituation(rq::ChainKind chain) {
+  using C = rq::ChainKind;
+  using S = rq::Situation;
+  switch (chain) {
+  case C::NONE:
+    break;
+  case C::IF:
+    return S::FINISHING_IF_CHAINLINK;
+  case C::SWITCH:
+    return S::FINISHING_SWITCH_CHAINLINK;
+  case C::MATCH:
+    return S::FINISHING_MATCH_CHAINLINK;
+  case C::TRY:
+    return S::FINISHING_TRY_CHAINLINK;
+  case C::INVALID:
+    return S::FINISHING_CHAINLINK;
   }
   RQ_UNREACHABLE();
 }
@@ -4693,7 +4793,10 @@ struct Expression;
 enum class ExpressionNextInfoFlags : std::uint8_t {
   NONE = 0,
   // NOTE: a "statement" expression is one that terminates with a semicolon
-  STATEMENT = rq::getBit(0)
+  STATEMENT = rq::getBit(0),
+  // NOTE: a "chain" is an expression with no terminator seperating it from
+  // the next
+  CHAIN = rq::getBit(1)
 };
 
 RQ_DEFINE_FLAGS(rq::ExpressionNextInfoFlags);
@@ -4967,6 +5070,10 @@ struct Expression final : public rq::Entity {
   getCanBeSituation(rq::Situation situation) const {
     return rq::getCanBeSituation(this->getKeyword(), situation);
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ChainKind getStartingChainKind() const {
+    const rq::Expression &unascribed = this->getUnascribed();
+    return rq::getStartingChainKind(unascribed.getKeyword());
+  }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
     return rq::getIsEvaluatableName(this->getKeyword());
   }
@@ -4991,7 +5098,12 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsTag() const {
     return rq::getHasNone(this->_next_ptr_flags.getFlags(),
-                          rq::ExpressionNextInfoFlags::STATEMENT);
+                          rq::ExpressionNextInfoFlags::STATEMENT |
+                              rq::ExpressionNextInfoFlags::CHAIN);
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsChain() const {
+    return rq::getHasAll(this->_next_ptr_flags.getFlags(),
+                         rq::ExpressionNextInfoFlags::CHAIN);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
     return this->_source_ptr_flags.getPtr() != nullptr;
@@ -5066,6 +5178,9 @@ struct Expression final : public rq::Entity {
   }
   void RQ_ALWAYS_INLINE setIsStatement() {
     this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::STATEMENT);
+  }
+  void RQ_ALWAYS_INLINE setIsChain() {
+    this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::CHAIN);
   }
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
@@ -5230,7 +5345,7 @@ struct Expression final : public rq::Entity {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
     rq::Entity *entity_ptr = rq::replaceValuePtr(this->_branch_ptr, &branch);
-    return llvm::cast<rq::Expression>(entity_ptr);
+    return llvm::cast_or_null<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression &next) {

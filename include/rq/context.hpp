@@ -521,12 +521,16 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorTooManyBranchCount(rq::Situation situation,
                                   const rq::Expression &expression,
                                   unsigned max_count);
+  void logErrorUnexpectedNextBranch(const rq::Expression& next);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
   void logErrorExpectedTagBranch(const rq::Expression &expresison);
   void logErrorExpectedTagExpression(const rq::Expression &expresison);
   // generation errors
   void logErrorExpectedStatementExpression(const rq::Expression &expresison);
+  void logErrorExpectedChainExpression(const rq::Expression &expresison);
+  void logErrorUnexpectedTagExpressionInChain(const rq::Expression &expresison);
+  void logErrorExpectedStartingChainlinkExpression(const rq::Expression &expresison);
   void logErrorNotDeterminateComtimeValue(const rq::Expression &expression);
   void logErrorInvalidModifier(const rq::Expression &unascribed,
                                const rq::Expression &instantiation_ex,

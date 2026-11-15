@@ -32,37 +32,42 @@ struct Situator final {
                                  rq::Expression &expression);
   [[nodiscard]] bool situateTagBranch(rq::Situation branch_situation,
                                       rq::Expression &branch);
-  [[nodiscard]] bool situateStatementBranch(rq::Expression &branch);
-  [[nodiscard]] bool situateChainLinkBranch(rq::Expression &branch);
+  [[nodiscard]] bool situateStatementBranch(rq::Situation situation,
+                                            rq::Expression &branch);
+  [[nodiscard]] bool situateChainBranch(rq::Situation situation,
+                                        rq::Expression &branch);
   [[nodiscard]] bool situateVignetteBranch(rq::Expression &branch);
   [[nodiscard]] bool situateVignetteOrRvalueBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullary(rq::Situation situation,
-                                              rq::Expression &expression);
-  [[nodiscard]] bool
-  situateNullaryOrUnaryTag(rq::Situation situation,
+                                    rq::Expression &expression);
+  [[nodiscard]] bool situateNullaryOrUnaryTag(rq::Situation situation,
+                                              rq::Expression &expression,
+                                              rq::Situation branch0_situation);
+  [[nodiscard]] bool situateUnaryTag(rq::Situation situation,
                                      rq::Expression &expression,
                                      rq::Situation branch0_situation);
-  [[nodiscard]] bool situateUnaryTag(rq::Situation situation,
+  [[nodiscard]] bool situateUnaryOrBinaryTag(rq::Situation situation,
+                                             rq::Expression &expression,
+                                             rq::Situation branch0_situation,
+                                             rq::Situation branch1_situation);
+  [[nodiscard]] bool situateBinaryTag(rq::Situation situation,
+                                      rq::Expression &expression,
+                                      rq::Situation branch0_situation,
+                                      rq::Situation branch1_situation);
+  [[nodiscard]] bool situateBinaryOrTernaryTag(rq::Situation situation,
                                                rq::Expression &expression,
-                                               rq::Situation branch0_situation);
-  [[nodiscard]] bool situateUnaryOrBinaryTag(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation);
-  [[nodiscard]] bool situateBinaryTag(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation);
-  [[nodiscard]] bool situateBinaryOrTernaryTag(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation,
-      rq::Situation branch2_situation);
-  [[nodiscard]] bool situateTernaryTag(
-      rq::Situation situation, rq::Expression &expression,
-      rq::Situation branch0_situation, rq::Situation branch1_situation,
-      rq::Situation branch2_situation);
+                                               rq::Situation branch0_situation,
+                                               rq::Situation branch1_situation,
+                                               rq::Situation branch2_situation);
+  [[nodiscard]] bool situateTernaryTag(rq::Situation situation,
+                                       rq::Expression &expression,
+                                       rq::Situation branch0_situation,
+                                       rq::Situation branch1_situation,
+                                       rq::Situation branch2_situation);
   [[nodiscard]] bool situateNaryTag(rq::Situation situation,
-                                              rq::Expression &expression,
-                                              unsigned minimum_branch_count,
-                                              rq::Situation branchn_situation);
+                                    rq::Expression &expression,
+                                    unsigned minimum_branch_count,
+                                    rq::Situation branchn_situation);
   [[nodiscard]] bool situateNaryDifferentFirstTag(
       rq::Situation situation, rq::Expression &expression,
       unsigned minimum_branch_count, rq::Situation branch0_situation,
@@ -94,34 +99,30 @@ struct Situator final {
   // function, function, implement_function, class, enum, adapter
   [[nodiscard]] bool
   situateNameStatementTagStatement(rq::Situation situation,
-                                           rq::Expression &expression);
-  // switch, match, if, else_if, while, constructor
+                                   rq::Expression &expression);
   [[nodiscard]] bool
-  situateStatementTagStatement(rq::Situation situation,
-                                       rq::Expression &expression);
+  situateNameStatementTag(rq::Situation situation,
+                                   rq::Expression &expression);
+  // switch, match, if, else_if, while, constructor
+  [[nodiscard]] bool situateStatementTagStatement(rq::Situation situation,
+                                                  rq::Expression &expression);
   // case, fold
   [[nodiscard]] bool
   situateStatementMultiTagStatement(rq::Situation situation,
-                                            rq::Situation tag_situation,
-                                            rq::Expression &expression);
-  // if_chainlink, swtich_chainlink, match_chainlink, spin_chainlink
-  [[nodiscard]] bool situateChainBranches(rq::Situation situation,
-                                          rq::Expression &expression,
-                                          rq::Situation start_chainlink,
-                                          rq::Situation continue_chainlink,
-                                          rq::Situation finish_chainlink);
+                                    rq::Situation tag_situation,
+                                    rq::Expression &expression);
   // weave
   [[nodiscard]] bool
   situateStatementVignetteStatement(rq::Situation situation,
-                                            rq::Expression &expression);
+                                    rq::Expression &expression);
   // for
   [[nodiscard]] bool
   situateStatementMultiVignetteStatement(rq::Situation situation,
-                                                 rq::Expression &expression);
+                                         rq::Expression &expression);
   // interface, namespace
   [[nodiscard]] bool stiuateNameStatement(rq::Situation situation,
-                                                  rq::Expression &expression,
-                                                  rq::Situation name_situation);
+                                          rq::Expression &expression,
+                                          rq::Situation name_situation);
 };
 
 } // namespace rq

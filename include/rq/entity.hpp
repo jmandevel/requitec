@@ -16,7 +16,7 @@ static constexpr rq::EntityId TOMBSTONE_ID = 0;
 enum class Keyword : rq::EntityId {
   // this is the initial keyword set for expressions. it must be overwritten
   // later!
-  NONE = 1,
+  NONE,
 
   // LITERALS
   INTEGER_LITERAL,
@@ -34,7 +34,6 @@ enum class Keyword : rq::EntityId {
   UNSITUATED_EQUAL_OPERATOR,
   UNSITUATED_ASCRIBE_MODIFIER,
   UNSITUATED_ASCRIBE_QUALIFIER,
-  UNSITUATED_CHAIN,
   UNSITUATED_TRAIN,
 
   // LOGICAL
@@ -54,7 +53,8 @@ enum class Keyword : rq::EntityId {
   EXTEND,
   INSTANTIATE_EXTENSION,
   INSTANTIATE_CONFORMITY,
-  INSTANTIATE_ADAPTION,
+  INSTANTIATE_REALIZATION,
+  ADAPTION,
   BINDING,
   UPBINDING,
   ASCRIBE_QUALIFIER,
@@ -138,6 +138,8 @@ enum class Keyword : rq::EntityId {
   COMPOSE_OF,
   DECOMPOSE,
   DECOMPOSE_OF,
+  ADAPT,
+  ADAPT_OF,
   INIT,
   INIT_OF,
   INPLACE_DESTROY,
@@ -173,6 +175,7 @@ enum class Keyword : rq::EntityId {
   DEFAULT_VALUE_PARAMETER,
   PROC,
   IMPLEMENT_PROC,
+  USE_PROC,
   CONSTRUCTOR,
   LAYOUT_CONSTRUCTOR,
 
@@ -237,10 +240,6 @@ enum class Keyword : rq::EntityId {
   VARIADIC_ARGUMENTS,
 
   // SCOPES
-  IF_CHAIN,
-  SWITCH_CHAIN,
-  MATCH_CHAIN,
-  TRY_CHAIN,
   IF,
   ELSE_IF,
   ELSE,

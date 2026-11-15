@@ -26,7 +26,7 @@ copyable movable
 
     # note that Element is [auto], so its still possible to map arguments for deduction at declaration time
     # the value of count cannot be determined until specialization, but this does not stop the mapping during declaration!
-    {> data:[array count]::Element <},
+    {> data:[array count, Element] <},
 
 ];
 
