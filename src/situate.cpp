@@ -1047,7 +1047,10 @@ bool Situator::situateTree(rq::Situation situation,
   }
 
   // REFLECTIONS
-  case K::IMPORT_OF:
+  case K::MODULE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::MODULE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::MEMBER_OF:
