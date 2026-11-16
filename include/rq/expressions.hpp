@@ -106,8 +106,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_reciever_qualifier";
   case K::INSTANTIATE_MODIFIER:
     return "_instantiate_modifier";
-  case K::INSTANTIATE_QUALIFIER:
-    return "instantiate_qualifier";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -1275,8 +1273,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_MODIFIER:
     return KIF::NONE; // MODIFIER_INSTANTIATION
-  case K::INSTANTIATE_QUALIFIER:
-    return KIF::NONE; // QUALIFIER_INSTANTIATION
   case K::IDENTIFY:
     return KIF::RAILCAR | KIF::ASCRIPTION;
   case K::IDENTIFY_OF:
@@ -2550,7 +2546,6 @@ enum class Situation : std::uint_fast8_t {
   PORTAL,
   ASCRIPTION,
   MODIFIER_INSTANTIATION,
-  QUALIFIER_INSTANTIATION,
   ARITHMETIC_SEQUENCE_STAGE,
   STARTING_CHAINLINK,
   CONTINUING_CHAINLINK,
@@ -2610,8 +2605,6 @@ getDescription(rq::Situation situation) {
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
     return "modifier instantiation";
-  case S::QUALIFIER_INSTANTIATION:
-    return "qualifier instantiation";
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return "sequence stage expression";
   case S::STARTING_CHAINLINK:
@@ -2863,11 +2856,6 @@ getCanBeModifierInstantiation(rq::Keyword keyword) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getCanBeQualifierInstantiation(rq::Keyword keyword) {
-  return keyword == rq::Keyword::INSTANTIATE_QUALIFIER;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
 getCanBeArithmeticSequenceStage(rq::Keyword keyword) {
   const rq::KeywordInfoFlags flags = rq::getInfoFlags(keyword);
   return rq::getHasSome(flags,
@@ -3063,8 +3051,6 @@ getIsChainlinkPosition(rq::Situation situation) {
     return rq::getCanBeAscription(keyword);
   case S::MODIFIER_INSTANTIATION:
     return rq::getCanBeModifierInstantiation(keyword);
-  case S::QUALIFIER_INSTANTIATION:
-    return rq::getCanBeQualifierInstantiation(keyword);
   case S::ARITHMETIC_SEQUENCE_STAGE:
     return rq::getCanBeArithmeticSequenceStage(keyword);
   case S::STARTING_CHAINLINK:
@@ -4999,9 +4985,6 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeModifierInstantiation() const {
     return rq::getCanBeModifierInstantiation(this->getKeyword());
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeQualifierInstantiation() const {
-    return rq::getCanBeQualifierInstantiation(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getCanBeArithmeticSequenceStage() const {
     return rq::getCanBeArithmeticSequenceStage(this->getKeyword());

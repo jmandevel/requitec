@@ -150,7 +150,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
         situation, expression, 2, K::ASCRIBE_QUALIFIER,
-        S::QUALIFIER_INSTANTIATION, situation);
+        S::RVALUE, situation);
     break;
   case K::UNSITUATED_TRAIN: {
     if (situation == S::PATH) {
@@ -277,8 +277,6 @@ bool Situator::situateTree(rq::Situation situation,
                                                situation, S::RVALUE);
     break;
   case K::INSTANTIATE_MODIFIER:
-    [[fallthrough]];
-  case K::INSTANTIATE_QUALIFIER:
     is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
                                           S::RVALUE);
     break;
@@ -1031,20 +1029,9 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::NO_UNINIT:
     [[fallthrough]];
-  case K::UNINIT: {
-    if (!this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE)) {
-      is_ok = false;
-      break;
-    }
-    if (situation == S::QUALIFIER_INSTANTIATION) {
-      rq::Expression &modifier_value = this->getContext().acquireExpression();
-      modifier_value.setKeyword(expression.getKeyword());
-      modifier_value.setSource(expression);
-      expression.changeKeyword(K::INSTANTIATE_QUALIFIER);
-      modifier_value.setNext(expression.popBranchPtr());
-    }
+  case K::UNINIT:
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
-  }
 
   // REFLECTIONS
   case K::MODULE:

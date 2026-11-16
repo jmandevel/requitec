@@ -61,7 +61,6 @@ enum class Keyword : rq::EntityId {
   ASCRIBE_MODIFIER,
   ASCRIBE_RECIEVER_QUALIFIER,
   INSTANTIATE_MODIFIER,
-  INSTANTIATE_QUALIFIER,
   // turn a string into an identifier
   IDENTIFY,
   IDENTIFY_OF,

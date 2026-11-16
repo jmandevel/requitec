@@ -98,7 +98,7 @@ mangle::main
     result <:= 0;
 ];
 
-[proc speakAndGreet, (> animal:margin(64)\[composition ISpeak, IGreet] <)Void,
+[proc speakAndGreet, (> animal:margin{64}\[composition ISpeak, IGreet] <)Void,
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];
