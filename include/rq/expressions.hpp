@@ -4805,85 +4805,34 @@ enum class ExpressionSourceInfoFlags : std::uint8_t {
 
 RQ_DEFINE_FLAGS(rq::ExpressionSourceInfoFlags);
 
-struct ExpressionIterator final {
-  using Self = rq::ExpressionIterator;
-  using value_type = rq::Expression;
-  using reference = rq::Expression &;
-  using pointer = rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct ExpressionIteratorPolicy final {
+  using Self = ExpressionIteratorPolicy;
 
-  rq::Expression *_expression_ptr = nullptr;
-
-  ExpressionIterator() = default;
-  explicit ExpressionIterator(rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ExpressionIterator(const Self &) = default;
-  ExpressionIterator(Self &&) = default;
-  ~ExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &operator*() {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *operator->() {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
+  RQ_ALWAYS_INLINE void next(rq::Expression *&inout_state_ptr) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+  value(rq::Expression *&state) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  value(const rq::Expression *&state) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(const rq::Expression *&state) const;
 };
 
-struct ConstExpressionIterator final {
-  using Self = rq::ConstExpressionIterator;
-  using value_type = const rq::Expression;
-  using reference = const rq::Expression &;
-  using pointer = const rq::Expression *;
-  using difference_type = std::ptrdiff_t;
-  using iterator_category = std::forward_iterator_tag;
+struct ConstExpressionIteratorPolicy final {
+  using Self = ConstExpressionIteratorPolicy;
 
-  const rq::Expression *_expression_ptr = nullptr;
-
-  ConstExpressionIterator() = default;
-  explicit ConstExpressionIterator(const rq::Expression *expression_ptr)
-      : _expression_ptr(expression_ptr) {}
-  ConstExpressionIterator(const Self &) = default;
-  ConstExpressionIterator(Self &&) = default;
-  ~ConstExpressionIterator() = default;
-  Self &operator=(const Self &) = default;
-  Self &operator=(Self &&) = default;
-  RQ_ALWAYS_INLINE Self &operator++();
-  RQ_ALWAYS_INLINE Self operator++(int);
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator==(const Self &it) const {
-    return this->_expression_ptr == it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const Self &it) const {
-    return this->_expression_ptr != it._expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &operator*() const {
-    return rq::dereferencePtr(this->_expression_ptr);
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *operator->() const {
-    return this->_expression_ptr;
-  }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsDone() const {
-    return this->_expression_ptr == nullptr;
-  }
+  RQ_ALWAYS_INLINE void next(const rq::Expression *&inout_state_ptr) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+  value(const rq::Expression *&state) const;
+  [[nodiscard]] RQ_ALWAYS_INLINE bool
+  getIsDone(const rq::Expression *&state) const;
 };
+
+using ExpressionIterator =
+    rq::Iterator<rq::Expression *, rq::ExpressionIteratorPolicy,
+                 rq::Expression>;
+using ConstExpressionIterator =
+    rq::Iterator<const rq::Expression *, rq::ConstExpressionIteratorPolicy,
+                 const rq::Expression>;
 
 struct Expression final : public rq::Entity {
   using Self = rq::Expression;
@@ -5522,22 +5471,39 @@ struct Expression final : public rq::Entity {
   }
 };
 
-rq::ExpressionIterator &ExpressionIterator::operator++() {
-  this->_expression_ptr =
-      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
-  return *this;
+RQ_ALWAYS_INLINE void
+ExpressionIteratorPolicy::next(rq::Expression *&inout_state_ptr) const {
+  inout_state_ptr = rq::dereferencePtr(inout_state_ptr).getNextPtr();
 }
 
-rq::ExpressionIterator ExpressionIterator::operator++(int) { return ++*this; }
-
-rq::ConstExpressionIterator &ConstExpressionIterator::operator++() {
-  this->_expression_ptr =
-      rq::dereferencePtr(this->_expression_ptr).getNextPtr();
-  return *this;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
+ExpressionIteratorPolicy::value(rq::Expression *&state) const {
+  return rq::dereferencePtr(state);
 }
 
-rq::ConstExpressionIterator ConstExpressionIterator::operator++(int) {
-  return ++*this;
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+ExpressionIteratorPolicy::value(const rq::Expression *&state) const {
+  return rq::dereferencePtr(state);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ExpressionIteratorPolicy::getIsDone(const rq::Expression *&state) const {
+  return state == nullptr;
+}
+
+RQ_ALWAYS_INLINE void
+ConstExpressionIteratorPolicy::next(const rq::Expression *&inout_state_ptr) const {
+  inout_state_ptr = rq::dereferencePtr(inout_state_ptr).getNextPtr();
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+ConstExpressionIteratorPolicy::value(const rq::Expression *&state) const {
+  return rq::dereferencePtr(state);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+ConstExpressionIteratorPolicy::getIsDone(const rq::Expression *&state) const {
+  return state == nullptr;
 }
 
 } // namespace rq
