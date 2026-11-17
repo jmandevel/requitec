@@ -1082,9 +1082,6 @@ constexpr rq::EntityId SYMBOL_OFFSET =
 constexpr rq::EntityId VALUE_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
 
-constexpr rq::EntityId CFG_BLOCK_ID =
-    VALUE_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
-
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::EntityId
 getId(rq::Keyword keyword) {
   return static_cast<rq::EntityId>(keyword) + rq::KEYWORD_OFFSET;
@@ -1140,16 +1137,13 @@ getIsInRange(rq::SymbolKind kind) {
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
-  return id >= rq::VALUE_OFFSET && id < rq::CFG_BLOCK_ID;
+  return id >= rq::VALUE_OFFSET &&
+         id < rq::getUnderlyingValue(rq::ValueKind::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::ValueKind kind) {
   return rq::getUnderlyingValue(kind) <
          rq::getUnderlyingValue(rq::ValueKind::LAST);
-}
-
-[[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsCfgBlock(rq::EntityId id) {
-  return id == rq::CFG_BLOCK_ID;
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword

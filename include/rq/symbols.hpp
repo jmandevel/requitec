@@ -31,7 +31,6 @@ class Value;
 
 namespace rq {
 
-struct CfgBlock;
 struct Instruction;
 struct BumpPtrAllocator;
 struct ConstantInt;
