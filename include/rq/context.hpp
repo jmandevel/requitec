@@ -188,6 +188,8 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::NullTerminateQualifier _null_terminate_qualifier{};
   rq::NoMarginQualifier _no_margin_qualifier{};
   rq::MarginQualifier _margin_qualifier{};
+  llvm::FoldingSet<rq::SpecializedMarginQualifier>
+      _specialized_margin_qualifier_set{};
   rq::NoDetachQualifier _no_detach_qualifier{};
   rq::DetachQualifier _detach_qualifier{};
   rq::NoThrowsQualifier _no_throws_qualifier{};
@@ -216,7 +218,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::BinaryConcept _binary_concept{};
   rq::BFloatConcept _bfloat_concept{};
   rq::ConceptConcept _concept_concept{};
-  rq::SubtypeConcept _subtype_concept{};
+  rq::SubsymbolConcept _subsymbol_concept{};
   rq::ArrayConcept _array_concept{};
   rq::RefConcept _ref_concept{};
   rq::PtrConcept _ptr_concept{};
@@ -334,9 +336,15 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::MarginQualifierConcept _margin_qualifier_concept{};
   rq::ThrowsQualifierConcept _throws_qualifier_concept{};
   llvm::FoldingSet<rq::QualifiedType> _qualified_type_set{};
-  llvm::FoldingSet<rq::ArraySubtype> _array_set{};
-  llvm::FoldingSet<rq::SimpleSubtype> _simple_subtype_set{};
-  llvm::FoldingSet<rq::GenericSubsymbol> _generic_subsymbol_set{};
+  llvm::FoldingSet<rq::Wrap> _wrap_set{};
+  rq::Array _array_subsymbol{};
+  llvm::FoldingSet<rq::SpecializedArraySubsymbol>
+      _specialized_array_subsymbol_set{};
+  rq::Ref _ref_subsymbol{};
+  rq::Ptr _ptr_subsymbol{};
+  rq::Slice _slice_subsymbol{};
+  rq::Split _split_subsymbol{};
+  rq::Generic _generic_subsymbol{};
   llvm::FoldingSet<rq::Adaption> _adaption_set{};
   llvm::FoldingSet<rq::Realization> _realization_set{};
   llvm::FoldingSet<rq::Conformity> _conformity_set{};
@@ -521,7 +529,7 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorTooManyBranchCount(rq::Situation situation,
                                   const rq::Expression &expression,
                                   unsigned max_count);
-  void logErrorUnexpectedNextBranch(const rq::Expression& next);
+  void logErrorUnexpectedNextBranch(const rq::Expression &next);
   void logErrorInvalidBranchSituation(rq::Situation situation,
                                       const rq::Expression &branch);
   void logErrorExpectedTagBranch(const rq::Expression &expresison);
@@ -530,11 +538,12 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorExpectedStatementExpression(const rq::Expression &expresison);
   void logErrorExpectedChainExpression(const rq::Expression &expresison);
   void logErrorUnexpectedTagExpressionInChain(const rq::Expression &expresison);
-  void logErrorExpectedStartingChainlinkExpression(const rq::Expression &expresison);
+  void
+  logErrorExpectedStartingChainlinkExpression(const rq::Expression &expresison);
   void logErrorNotDeterminateComtimeValue(const rq::Expression &expression);
   void logErrorInvalidModifier(const rq::Expression &unascribed,
                                const rq::Expression &instantiation_ex,
-                               rq::Modifier modifier);
+                               rq::ModifierKind modifier);
   void logErrorFailedToAscribeExpression(const rq::Expression &unascribed,
                                          const rq::Expression &modifier);
   void logErrorNotSymbol(const rq::Expression &expression);
@@ -707,6 +716,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoMarginQualifier &
   acquireNoMarginQualifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::MarginQualifier &acquireMarginQualifier();
+  [[nodiscard]] inline rq::SpecializedMarginQualifier &
+  acquireSpecializedMarginQualifier(std::size_t depth);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoDetachQualifier &
   acquireNoDetachQualifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::DetachQualifier &acquireDetachQualifier();
@@ -744,7 +755,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BinaryConcept &acquireBinaryConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BFloatConcept &acquireBFloatConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ConceptConcept &acquireConceptConcept();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SubtypeConcept &acquireSubtypeConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SubsymbolConcept &
+  acquireSubsymbolConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConcept &acquireArrayConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RefConcept &acquireRefConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PtrConcept &acquirePtrConcept();
@@ -971,22 +983,17 @@ struct Context final : public rq::BumpPtrAllocator {
   acquireScaledLUIntType(unsigned depth);
   [[nodiscard]] inline rq::ScaledPrimitiveType &
   acquireScaledPrimitiveType(rq::SymbolKind kind, unsigned depth);
-  [[nodiscard]] inline rq::RefSubtype &
-  acquireRefSubtype(rq::QualifiedType &child);
-  [[nodiscard]] inline rq::PtrSubtype &
-  acquirePtrSubtype(rq::QualifiedType &child);
-  [[nodiscard]] inline rq::SliceSubtype &
-  acquireSliceSubtype(rq::QualifiedType &child);
-  [[nodiscard]] inline rq::SplitSubtype &
-  acquireSplitSubtype(rq::QualifiedType &child);
-  [[nodiscard]] inline rq::InferenceCountArraySubtype &
-  acquireInferenceCountArraySubtype(rq::QualifiedType &child);
-  [[nodiscard]] inline rq::SimpleSubtype &
-  acquireSimpleSubtype(rq::SymbolKind kind, rq::QualifiedType &child);
-  [[nodiscard]] inline rq::GenericSubsymbol &
-  acquireGenericSubsymbol(rq::Symbol &child);
-  [[nodiscard]] inline rq::Subsymbol &acquireSubsymbol(rq::SymbolKind kind,
-                                                       rq::Symbol &child);
+  [[nodiscard]] inline rq::Wrap &acquireWrap(rq::Subsymbol &subsymbol,
+                                             rq::Symbol &symbol);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Array &acquireArray();
+  [[nodiscard]] inline rq::SpecializedArraySubsymbol &
+  acquireSpecializedArraySubsymbol(std::size_t count);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Ref &acquireRef();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Ptr &acquirePtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Slice &acquireSlice();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Split &acquireSplit();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Generic &acquireGeneric();
+  [[nodiscard]] inline rq::Subsymbol &acquireSubsymbol(rq::SymbolKind kind);
   [[nodiscard]] inline rq::ArithmeticIntervalType &
   acquireArithmeticIntervalType(rq::QualifiedType &child,
                                 rq::ArithmeticCondition condition,
@@ -1006,8 +1013,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] inline rq::QualifiedType &
   acquireQualifiedType(rq::Symbol &type, rq::QualifierFuseFlags qualifiers,
                        unsigned margin);
-  [[nodiscard]] inline rq::ArraySubtype &
-  acquireArraySubtype(rq::QualifiedType &child, std::size_t count);
   [[nodiscard]] inline rq::Adaption &
   acquireAdaption(rq::QualifiedType &reciever,
                   rq::InterfaceImplementation &interface,

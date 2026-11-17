@@ -146,14 +146,14 @@ enum class Keyword : rq::EntityId {
   INPLACE_INIT,
   INPLACE_INIT_OF,
 
-  // SUBTYPE
-  INSTANTIATE_SUBTYPE,
-  ARRAY_SUBTYPE,
-  REF_SUBTYPE,
-  PTR_SUBTYPE,
-  SLICE_SUBTYPE,
-  SPLIT_SUBTYPE,
-  GENERIC_SUBTYPE,
+  // SUBSYMBOL
+  INSTANTIATE_WRAP,
+  ARRAY_SUBSYMBOL,
+  REF_SUBSYMBOL,
+  PTR_SUBSYMBOL,
+  SLICE_SUBSYMBOL,
+  SPLIT_SUBSYMBOL,
+  GENERIC_SUBSYMBOL,
 
   // PARAMETER RULES
   POSITIONAL_PARAMETERS_END,
@@ -507,7 +507,7 @@ enum class Keyword : rq::EntityId {
   BINARY_CONCEPT,
   BFLOAT_CONCEPT,
   CONCEPT_CONCEPT,
-  SUBTYPE_CONCEPT,
+  SUBSYMBOL_CONCEPT,
   ARRAY_CONCEPT,
   REF_CONCEPT,
   PTR_CONCEPT,
@@ -766,6 +766,7 @@ enum class SymbolKind : rq::EntityId {
   NULL_TERMINATE_QUALIFIER,
   NO_MARGIN_QUALIFIER,
   MARGIN_QUALIFIER,
+  SPECIALIZED_MARGIN_QUALIFIER,
   NO_DETACH_QUALIFIER,
   DETACH_QUALIFIER,
   NO_THROWS_QUALIFIER,
@@ -796,7 +797,7 @@ enum class SymbolKind : rq::EntityId {
   BINARY_CONCEPT,
   BFLOAT_CONCEPT,
   CONCEPT_CONCEPT,
-  SUBTYPE_CONCEPT,
+  SUBSYMBOL_CONCEPT,
   ARRAY_CONCEPT,
   REF_CONCEPT,
   PTR_CONCEPT,
@@ -929,13 +930,16 @@ enum class SymbolKind : rq::EntityId {
   // QUALIFIED TYPE
   QUALIFIED_TYPE,
 
-  // SUBENTITIES
-  ARRAY_SUBTYPE,
-  REF_SUBTYPE,
-  PTR_SUBTYPE,
-  SLICE_SUBTYPE,
-  SPLIT_SUBTYPE,
-  INFERENCE_COUNT_ARRAY_SUBTYPE,
+  // WRAP
+  WRAP,
+
+  // SUBSYMBOLS
+  ARRAY_SUBSYMBOL,
+  SPECIALIZED_ARRAY_SUBSYMBOL,
+  REF_SUBSYMBOL,
+  PTR_SUBSYMBOL,
+  SLICE_SUBSYMBOL,
+  SPLIT_SUBSYMBOL,
   GENERIC_SUBSYMBOL,
 
   // MODULES
@@ -1183,9 +1187,6 @@ enum class SymbolInfoFlags : std::uint64_t {
   STANDARD_PRIMITIVE_TYPE = rq::getBit(8),
   SCALED_PRIMITIVE_TYPE = rq::getBit(9),
   SUBSYMBOL = rq::getBit(10),
-  SUBTYPE = rq::getBit(11),
-  SIMPLE_SUBTYPE = rq::getBit(12),
-  SUBCONCEPT = rq::getBit(13),
   ARITHMETIC_SEQUENCE_TYPE = rq::getBit(14),
   SPECIALIZATION_SET = rq::getBit(15),
   PARAMETER_LIST = rq::getBit(16),
@@ -1297,9 +1298,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
            SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
   case S::QUADRUPLE_TYPE:
-    return SIF::SIMPLE_SUBTYPE | SIF::PLATFORM_PRIMITIVE_TYPE |
-           SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT |
-           SIF::IS_SIGNED;
+    return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
+           SIF::IS_COMTIME_TYPE | SIF::IS_FLOAT | SIF::IS_SIGNED;
   case S::SINT_TYPE:
     return SIF::PLATFORM_PRIMITIVE_TYPE | SIF::IS_RUNTIME_TYPE |
            SIF::IS_COMTIME_TYPE | SIF::IS_INTEGER | SIF::IS_SIGNED;
@@ -1523,6 +1523,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::QUALIFIER;
   case S::MARGIN_QUALIFIER:
     return SIF::QUALIFIER;
+  case S::SPECIALIZED_MARGIN_QUALIFIER:
+    return SIF::QUALIFIER;
   case S::NO_THROWS_QUALIFIER:
     return SIF::QUALIFIER;
   case S::THROWS_QUALIFIER:
@@ -1577,7 +1579,7 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::BUILTIN_CONCEPT;
   case S::CONCEPT_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
-  case S::SUBTYPE_CONCEPT:
+  case S::SUBSYMBOL_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
   case S::ARRAY_CONCEPT:
     return SIF::BUILTIN_CONCEPT;
@@ -1838,26 +1840,25 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::QUALIFIED_TYPE:
     return SIF::IS_COMTIME_TYPE;
 
-  // SUBENTITIES
-  case S::ARRAY_SUBTYPE:
-    return SIF::SUBTYPE | SIF::IS_RUNTIME_TYPE | SIF::IS_COMTIME_TYPE;
-  case S::REF_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_COMTIME_TYPE;
-  case S::PTR_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_COMTIME_TYPE;
-  case S::SLICE_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_COMTIME_TYPE;
-  case S::SPLIT_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_COMTIME_TYPE;
-  case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
-    return SIF::SUBTYPE | SIF::SIMPLE_SUBTYPE | SIF::IS_RUNTIME_TYPE |
-           SIF::IS_COMTIME_TYPE;
+  // WRAP
+  case S::WRAP:
+    return SIF::IS_COMTIME_TYPE | SIF::IS_RUNTIME_TYPE;
+
+  // SUBSYMBOLS
+  case S::ARRAY_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
+  case S::SPECIALIZED_ARRAY_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
+  case S::REF_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
+  case S::PTR_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
+  case S::SLICE_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
+  case S::SPLIT_SUBSYMBOL:
+    return SIF::SUBSYMBOL;
   case S::GENERIC_SUBSYMBOL:
-    return SIF::SUBSYMBOL | SIF::IS_COMTIME_TYPE;
+    return SIF::SUBSYMBOL;
 
   // MODULES
   case S::MODULE:
@@ -2140,26 +2141,10 @@ getIsPlatformPrimitiveType(rq::SymbolKind kind) {
   return rq::getHasAll(flags, SIF::PLATFORM_PRIMITIVE_TYPE);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubtype(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::SUBTYPE);
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubsymbol(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::SUBSYMBOL);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSubentity(rq::SymbolKind kind) {
-  return rq::getIsSubtype(kind) || rq::getIsSubsymbol(kind);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsSimpleSubtype(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::SIMPLE_SUBTYPE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool

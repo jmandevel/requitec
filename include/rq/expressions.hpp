@@ -263,20 +263,20 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::INPLACE_INIT_OF:
     return "_inplace_init_of";
 
-  // SUBTYPE
-  case K::INSTANTIATE_SUBTYPE:
-    return "_instantiate_subtype";
-  case K::ARRAY_SUBTYPE:
+  // SUBSYMBOL
+  case K::INSTANTIATE_WRAP:
+    return "_instantiate_wrap";
+  case K::ARRAY_SUBSYMBOL:
     return "Array";
-  case K::REF_SUBTYPE:
+  case K::REF_SUBSYMBOL:
     return "Ref";
-  case K::PTR_SUBTYPE:
+  case K::PTR_SUBSYMBOL:
     return "Ptr";
-  case K::SLICE_SUBTYPE:
+  case K::SLICE_SUBSYMBOL:
     return "Slice";
-  case K::SPLIT_SUBTYPE:
+  case K::SPLIT_SUBSYMBOL:
     return "Split";
-  case K::GENERIC_SUBTYPE:
+  case K::GENERIC_SUBSYMBOL:
     return "Generic";
 
   // PARAMETER RULES
@@ -868,8 +868,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "BFLOAT";
   case K::CONCEPT_CONCEPT:
     return "CONCEPT";
-  case K::SUBTYPE_CONCEPT:
-    return "SUBTYPE";
+  case K::SUBSYMBOL_CONCEPT:
+    return "SUBSYMBOL";
   case K::ARRAY_CONCEPT:
     return "ARRAY";
   case K::REF_CONCEPT:
@@ -1268,7 +1268,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
   case K::ASCRIBE_MODIFIER:
-    return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION | KIF::ALL_CHAINLINKS;
+    return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION |
+           KIF::ALL_CHAINLINKS;
   case K::ASCRIBE_RECIEVER_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_MODIFIER:
@@ -1432,21 +1433,21 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::INPLACE_INIT_OF:
     return KIF::STATEMENT;
 
-  // SUBTYPE
-  case K::INSTANTIATE_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ARRAY_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::REF_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PTR_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SLICE_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::SPLIT_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::GENERIC_SUBTYPE:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  // SUBSYMBOL
+  case K::INSTANTIATE_WRAP:
+    return KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ARRAY_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::REF_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PTR_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SLICE_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::SPLIT_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::GENERIC_SUBSYMBOL:
+    return KIF::LITERAL | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
 
   // PARAMETER RULES
   case K::POSITIONAL_PARAMETERS_END:
@@ -2067,7 +2068,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::CONCEPT_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::SUBTYPE_CONCEPT:
+  case K::SUBSYMBOL_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
   case K::ARRAY_CONCEPT:
@@ -3100,7 +3101,7 @@ getIsChainlinkPosition(rq::Situation situation) {
          keyword == rq::Keyword::IDENTIFIER_LITERAL;
 }
 
-enum class Modifier : std::uint_fast8_t {
+enum class ModifierKind : std::uint_fast8_t {
   NO_MODIFIER,
   // anchor
   ANCHOR,
@@ -3189,9 +3190,9 @@ enum class Modifier : std::uint_fast8_t {
   LAST
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::Modifier modifier) {
+[[nodiscard]] inline llvm::StringRef getName(rq::ModifierKind modifier) {
   using namespace rq;
-  using M = Modifier;
+  using M = ModifierKind;
   switch (modifier) {
   case M::NO_MODIFIER:
     return "no_modifier";
@@ -3313,10 +3314,10 @@ enum class Modifier : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::Modifier getModifier(rq::Keyword keyword) {
+[[nodiscard]] inline rq::ModifierKind getModifierKind(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using M = Modifier;
+  using M = ModifierKind;
   switch (keyword) {
   case K::NO_MODIFIER:
     return M::NO_MODIFIER;
@@ -3554,9 +3555,10 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
 
 RQ_DEFINE_FLAGS(rq::ModifierFuseFlags);
 
-[[nodiscard]] inline rq::ModifierFuseFlags getFuseFlags(rq::Modifier modifier) {
+[[nodiscard]] inline rq::ModifierFuseFlags
+getFuseFlags(rq::ModifierKind modifier) {
   using namespace rq;
-  using M = Modifier;
+  using M = ModifierKind;
   using MFF = ModifierFuseFlags;
   switch (modifier) {
   case M::NO_MODIFIER:
@@ -3689,8 +3691,8 @@ enum class ModifierInfoFlags : std::uint_fast8_t {
 RQ_DEFINE_FLAGS(rq::ModifierInfoFlags);
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierInfoFlags
-getInfoFlags(rq::Modifier modifier) {
-  using M = rq::Modifier;
+getInfoFlags(rq::ModifierKind modifier) {
+  using M = rq::ModifierKind;
   using MIF = rq::ModifierInfoFlags;
   switch (modifier) {
   case M::NO_MODIFIER:
@@ -3814,25 +3816,25 @@ getInfoFlags(rq::Modifier modifier) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getMustHaveAttachment(rq::Modifier modifier) {
+getMustHaveAttachment(rq::ModifierKind modifier) {
   rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
   return rq::getHasAll(flags, rq::ModifierInfoFlags::ATTACHMENT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getMustNotHaveAttachment(rq::Modifier modifier) {
+getMustNotHaveAttachment(rq::ModifierKind modifier) {
   rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
   return rq::getHasAll(flags, rq::ModifierInfoFlags::NO_ATTACHMENT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-getMayOrMayNotHaveAttachment(rq::Modifier modifier) {
+getMayOrMayNotHaveAttachment(rq::ModifierKind modifier) {
   rq::ModifierInfoFlags flags = rq::getInfoFlags(modifier);
   return rq::getHasNone(flags, rq::ModifierInfoFlags::ATTACHMENT |
                                    rq::ModifierInfoFlags::NO_ATTACHMENT);
 }
 
-enum class ModifierKind : std::uint_fast8_t {
+enum class ModifierCategory : std::uint_fast8_t {
   NONE,
   ANCHOR,
   FORKED_INITIALIZER,
@@ -3865,171 +3867,174 @@ enum class ModifierKind : std::uint_fast8_t {
   LAST
 };
 
-[[nodiscard]] inline llvm::StringRef getDescription(rq::ModifierKind kind) {
-  using MK = rq::ModifierKind;
-  switch (kind) {
-  case MK::NONE:
+[[nodiscard]] inline llvm::StringRef
+getDescription(rq::ModifierCategory category) {
+  using MC = rq::ModifierCategory;
+  switch (category) {
+  case MC::NONE:
     return "no modifier";
-  case MK::ANCHOR:
+  case MC::ANCHOR:
     return "anchor modifier";
-  case MK::FORKED_INITIALIZER:
+  case MC::FORKED_INITIALIZER:
     return "forked initializer modifier";
-  case MK::CONTAINER:
+  case MC::CONTAINER:
     return "container modifier";
-  case MK::VISIBIITY:
+  case MC::VISIBIITY:
     return "visibility modifier";
-  case MK::ACCESS:
+  case MC::ACCESS:
     return "access modifier";
-  case MK::MUTABILITY:
+  case MC::MUTABILITY:
     return "mutability modifier";
-  case MK::EVALUATION_TIME:
+  case MC::EVALUATION_TIME:
     return "evaluation time modifier";
-  case MK::DIALECT:
+  case MC::DIALECT:
     return "dialect modifier";
-  case MK::TENURE:
+  case MC::TENURE:
     return "execution time modifier";
-  case MK::INITIALIZATION_TIME:
+  case MC::INITIALIZATION_TIME:
     return "initialization time modifier";
-  case MK::CLOSURE:
+  case MC::CLOSURE:
     return "static closure modifier";
-  case MK::LINKAGE:
+  case MC::LINKAGE:
     return "linkage modifier";
-  case MK::SIDE_EFFECTS:
+  case MC::SIDE_EFFECTS:
     return "side effects modifier";
-  case MK::MANGLE:
+  case MC::MANGLE:
     return "mangle modifier";
-  case MK::PACK:
+  case MC::PACK:
     return "pack modifier";
-  case MK::BRANCH_TREND:
+  case MC::BRANCH_TREND:
     return "branch trend modifier";
-  case MK::SUPPORT_NOTICE:
+  case MC::SUPPORT_NOTICE:
     return "support modifier";
-  case MK::MOVING:
+  case MC::MOVING:
     return "moving modifier";
-  case MK::COPYING:
+  case MC::COPYING:
     return "copying modifier";
-  case MK::VARIADIC:
+  case MC::VARIADIC:
     return "variadic modifier";
-  case MK::OFFSET:
+  case MC::OFFSET:
     return "offset modifier";
-  case MK::LAZY_DECLARATION_KIND:
+  case MC::LAZY_DECLARATION_KIND:
     return "lazy declaration kind modifier";
-  case MK::CONSTRAINT:
+  case MC::CONSTRAINT:
     return "constraint modifier";
-  case MK::DEDUCTION:
+  case MC::DEDUCTION:
     return "deduction modifier";
-  case MK::VIRTUALITY:
+  case MC::VIRTUALITY:
     return "virtuality modifier";
-  case MK::RANGER:
+  case MC::RANGER:
     return "ranger modifier";
-  case MK::REQUIRE:
+  case MC::REQUIRE:
     return "require modifier";
-  case MK::ENSURE:
+  case MC::ENSURE:
     return "ensure modifier";
-  case MK::LAST:
+  case MC::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ModifierFuseFlags getMask(rq::ModifierKind kind) {
-  using MK = rq::ModifierKind;
+[[nodiscard]] inline rq::ModifierFuseFlags
+getMask(rq::ModifierCategory category) {
+  using MC = rq::ModifierCategory;
   using MFF = rq::ModifierFuseFlags;
-  switch (kind) {
-  case MK::NONE:
+  switch (category) {
+  case MC::NONE:
     return MFF::NO_MODIFIER;
-  case MK::ANCHOR:
+  case MC::ANCHOR:
     return MFF::ANCHOR_MODIFIER_MASK;
-  case MK::FORKED_INITIALIZER:
+  case MC::FORKED_INITIALIZER:
     return MFF::FORKED_INITIALIZER_MODIFIER_MASK;
-  case MK::CONTAINER:
+  case MC::CONTAINER:
     return MFF::CONTAINER_MODIFIER_MASK;
-  case MK::VISIBIITY:
+  case MC::VISIBIITY:
     return MFF::VISIBILITY_MODIFIER_MASK;
-  case MK::ACCESS:
+  case MC::ACCESS:
     return MFF::ACCESS_MODIFIER_MASK;
-  case MK::MUTABILITY:
+  case MC::MUTABILITY:
     return MFF::MUTATE_MODIFIER_MASK;
-  case MK::EVALUATION_TIME:
+  case MC::EVALUATION_TIME:
     return MFF::EVALUATION_TIME_MASK;
-  case MK::DIALECT:
+  case MC::DIALECT:
     return MFF::DIALECT_MODIFIER_MASK;
-  case MK::TENURE:
+  case MC::TENURE:
     return MFF::TENURE_MODIFIER_MASK;
-  case MK::INITIALIZATION_TIME:
+  case MC::INITIALIZATION_TIME:
     return MFF::INITIALIZATION_TIME_MASK;
-  case MK::CLOSURE:
+  case MC::CLOSURE:
     return MFF::CLOSURE_MODIFIER_MASK;
-  case MK::LINKAGE:
+  case MC::LINKAGE:
     return MFF::LINKAGE_MODIFIER_MASK;
-  case MK::SIDE_EFFECTS:
+  case MC::SIDE_EFFECTS:
     return MFF::SIDE_EFFECTS_MODIFIER_MASK;
-  case MK::MANGLE:
+  case MC::MANGLE:
     return MFF::MANGLE_MODIFIER_MASK;
-  case MK::PACK:
+  case MC::PACK:
     return MFF::PACK_MODIFIER_MASK;
-  case MK::BRANCH_TREND:
+  case MC::BRANCH_TREND:
     return MFF::BRANCH_TREND_MODIFIER_MASK;
-  case MK::SUPPORT_NOTICE:
+  case MC::SUPPORT_NOTICE:
     return MFF::SUPPORT_NOTICE_MODIFIER_MASK;
-  case MK::MOVING:
+  case MC::MOVING:
     return MFF::MOVING_MODIFIER_MASK;
-  case MK::COPYING:
+  case MC::COPYING:
     return MFF::COPYING_MODIFIER_MASK;
-  case MK::VARIADIC:
+  case MC::VARIADIC:
     return MFF::VARIADIC_MODIFIER_MASK;
-  case MK::OFFSET:
+  case MC::OFFSET:
     return MFF::OFFSET_MODIFIER_MASK;
-  case MK::LAZY_DECLARATION_KIND:
+  case MC::LAZY_DECLARATION_KIND:
     return MFF::LAZY_DECLARATION_KIND_MODIFIER_MASK;
-  case MK::CONSTRAINT:
+  case MC::CONSTRAINT:
     return MFF::CONSTRAINT_MODIFIER_MASK;
-  case MK::DEDUCTION:
+  case MC::DEDUCTION:
     return MFF::DEDUCTION_MODIFIER_MASK;
-  case MK::VIRTUALITY:
+  case MC::VIRTUALITY:
     return MFF::VIRTUALITY_MODIFIER_MASK;
-  case MK::RANGER:
+  case MC::RANGER:
     return MFF::RANGER_MODIFIER_MASK;
-  case MK::REQUIRE:
+  case MC::REQUIRE:
     return MFF::REQUIRE_MODIFIER_MASK;
-  case MK::ENSURE:
+  case MC::ENSURE:
     return MFF::ENSURE_MODIFIER_MASK;
-  case MK::LAST:
+  case MC::LAST:
     break;
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::ModifierKind getKind(rq::Modifier modifier) {
-  using M = rq::Modifier;
-  using MK = rq::ModifierKind;
+[[nodiscard]] inline rq::ModifierCategory
+getCategory(rq::ModifierKind modifier) {
+  using M = rq::ModifierKind;
+  using MC = rq::ModifierCategory;
   switch (modifier) {
   case M::NO_MODIFIER:
-    return MK::NONE;
+    return MC::NONE;
   case M::ANCHOR:
-    return MK::ANCHOR;
+    return MC::ANCHOR;
   case M::INITS:
-    return MK::FORKED_INITIALIZER;
+    return MC::FORKED_INITIALIZER;
   case M::RESIDENT:
     [[fallthrough]];
   case M::FLANK:
-    return MK::CONTAINER;
+    return MC::CONTAINER;
   case M::TRANSPARENT:
     [[fallthrough]];
   case M::OPAQUE:
-    return MK::VISIBIITY;
+    return MC::VISIBIITY;
   case M::PRIVATE:
     [[fallthrough]];
   case M::PUBLIC:
     [[fallthrough]];
   case M::EXPORT:
-    return MK::ACCESS;
+    return MC::ACCESS;
   case M::MUTABLE:
     [[fallthrough]];
   case M::PARTIALLY_MUTABLE:
     [[fallthrough]];
   case M::CONSTANT:
-    return MK::MUTABILITY;
+    return MC::MUTABILITY;
   case M::PRE:
     [[fallthrough]];
   case M::POST:
@@ -4039,85 +4044,85 @@ enum class ModifierKind : std::uint_fast8_t {
   case M::ENUMERATOR:
     [[fallthrough]];
   case M::CONCEPT:
-    return MK::DIALECT;
+    return MC::DIALECT;
   case M::RUNTIME:
     [[fallthrough]];
   case M::COMTIME:
     [[fallthrough]];
   case M::ANYTIME:
-    return MK::TENURE;
+    return MC::TENURE;
   case M::EAGER:
     [[fallthrough]];
   case M::LAZY:
-    return MK::EVALUATION_TIME;
+    return MC::EVALUATION_TIME;
   case M::PRESET:
     [[fallthrough]];
   case M::SINGLETON:
-    return MK::INITIALIZATION_TIME;
+    return MC::INITIALIZATION_TIME;
   case M::CAPTURE:
     [[fallthrough]];
   case M::STATELESS:
-    return MK::CLOSURE;
+    return MC::CLOSURE;
   case M::LINKED:
     [[fallthrough]];
   case M::INLINE:
-    return MK::LINKAGE;
+    return MC::LINKAGE;
   case M::PURE:
     [[fallthrough]];
   case M::IMPURE:
-    return MK::SIDE_EFFECTS;
+    return MC::SIDE_EFFECTS;
   case M::STANDARD_MANGLE:
     [[fallthrough]];
   case M::MANGLE:
-    return MK::MANGLE;
+    return MC::MANGLE;
   case M::PAD:
     [[fallthrough]];
   case M::PACK:
-    return MK::PACK;
+    return MC::PACK;
   case M::EQUIVOCAL:
     [[fallthrough]];
   case M::LIKELY:
     [[fallthrough]];
   case M::UNLIKELY:
-    return MK::BRANCH_TREND;
+    return MC::BRANCH_TREND;
   case M::SUPPORTED:
     [[fallthrough]];
   case M::DEPRECIATED:
     [[fallthrough]];
   case M::EXPERIMENTAL:
-    return MK::SUPPORT_NOTICE;
+    return MC::SUPPORT_NOTICE;
   case M::MOVEABLE:
-    return MK::MOVING;
+    return MC::MOVING;
   case M::COPYABLE:
-    return MK::COPYING;
+    return MC::COPYING;
   case M::INVARIADIC:
     [[fallthrough]];
   case M::VARIADIC:
-    return MK::VARIADIC;
+    return MC::VARIADIC;
   case M::BEST_LOCATION:
     [[fallthrough]];
   case M::LOCATION:
-    return MK::OFFSET;
+    return MC::OFFSET;
   case M::TEMPLATE:
     [[fallthrough]];
   case M::OVERLOAD:
-    return MK::LAZY_DECLARATION_KIND;
+    return MC::LAZY_DECLARATION_KIND;
   case M::CONSTRAINT:
-    return MK::CONSTRAINT;
+    return MC::CONSTRAINT;
   case M::MANUAL:
     [[fallthrough]];
   case M::AUTO:
-    return MK::DEDUCTION;
+    return MC::DEDUCTION;
   case M::DIRECT:
     [[fallthrough]];
   case M::VIRTUAL:
-    return MK::VIRTUALITY;
+    return MC::VIRTUALITY;
   case M::RANGER:
-    return MK::RANGER;
+    return MC::RANGER;
   case M::REQUIRE:
-    return MK::REQUIRE;
+    return MC::REQUIRE;
   case M::ENSURE:
-    return MK::ENSURE;
+    return MC::ENSURE;
   case M::LAST:
     break;
   }
@@ -4160,7 +4165,7 @@ struct ModifierExpressionPair final {
 struct ModifierFactory final {
   using Self = rq::ModifierFactory;
   using PtrMap =
-      llvm::SmallDenseMap<rq::ModifierKind, rq::ModifierExpressionPair>;
+      llvm::SmallDenseMap<rq::ModifierCategory, rq::ModifierExpressionPair>;
 
   rq::ModifierFuseFlags _flags{};
   PtrMap _ptr_map{};
@@ -4194,23 +4199,23 @@ struct ModifierFactory final {
     return this->_ptr_map;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierExpressionPair
-  getExpressionPair(rq::ModifierKind kind) const {
-    auto it = this->_ptr_map.find(kind);
+  getExpressionPair(rq::ModifierCategory category) const {
+    auto it = this->_ptr_map.find(category);
     if (it == this->_ptr_map.end()) {
       return rq::ModifierExpressionPair();
     }
     return it->getSecond();
   }
-  [[nodiscard]] inline bool addFlag(rq::Modifier modifier,
+  [[nodiscard]] inline bool addFlag(rq::ModifierKind modifier,
                                     rq::Expression &instantiation_ex,
                                     rq::Expression *attachment_ex_ptr) {
     const rq::ModifierFuseFlags flag = rq::getFuseFlags(modifier);
     this->_flags |= flag;
-    const rq::ModifierKind kind = rq::getKind(modifier);
-    auto it = this->_ptr_map.find(kind);
+    const rq::ModifierCategory category = rq::getCategory(modifier);
+    auto it = this->_ptr_map.find(category);
     if (it == this->_ptr_map.end()) {
       this->_ptr_map.emplace_or_assign(
-          kind,
+          category,
           rq::ModifierExpressionPair(instantiation_ex, attachment_ex_ptr));
     } else {
       return false;
@@ -4219,7 +4224,7 @@ struct ModifierFactory final {
   }
 };
 
-enum class Qualifier : std::uint_fast8_t {
+enum class QualifierKind : std::uint_fast8_t {
   NONE,
   NO_MUT,
   MUT,
@@ -4238,10 +4243,10 @@ enum class Qualifier : std::uint_fast8_t {
   THROWS
 };
 
-[[nodiscard]] inline llvm::StringRef getName(rq::Qualifier modifier) {
+[[nodiscard]] inline llvm::StringRef getName(rq::QualifierKind qualifier) {
   using namespace rq;
-  using Q = Qualifier;
-  switch (modifier) {
+  using Q = QualifierKind;
+  switch (qualifier) {
   case Q::NONE:
     return "none";
   case Q::NO_MUT:
@@ -4278,10 +4283,10 @@ enum class Qualifier : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::Qualifier getQualifier(rq::Keyword keyword) {
+[[nodiscard]] inline rq::QualifierKind getQualifierKind(rq::Keyword keyword) {
   using namespace rq;
   using K = Keyword;
-  using Q = Qualifier;
+  using Q = QualifierKind;
   switch (keyword) {
   case K::NO_MUT:
     return Q::NO_MUT;
@@ -4355,11 +4360,11 @@ enum class QualifierFuseFlags : std::uint_fast16_t {
 RQ_DEFINE_FLAGS(rq::QualifierFuseFlags);
 
 [[nodiscard]] inline rq::QualifierFuseFlags
-getFuseFlags(rq::Qualifier modifier) {
+getFuseFlags(rq::QualifierKind qualifier) {
   using namespace rq;
-  using Q = Qualifier;
+  using Q = QualifierKind;
   using QFF = QualifierFuseFlags;
-  switch (modifier) {
+  switch (qualifier) {
   case Q::NONE:
     return QFF::NONE;
   case Q::NO_MUT:
@@ -4396,7 +4401,7 @@ getFuseFlags(rq::Qualifier modifier) {
   RQ_UNREACHABLE();
 }
 
-enum class QualifierKind : std::uint_fast8_t {
+enum class QualifierCategory : std::uint_fast8_t {
   NONE,
   MUT,
   VOLATILE,
@@ -4407,72 +4412,74 @@ enum class QualifierKind : std::uint_fast8_t {
   THROWS
 };
 
-[[nodiscard]] inline llvm::StringRef getDescription(rq::QualifierKind kind) {
-  using HAK = rq::QualifierKind;
-  switch (kind) {
-  case HAK::NONE:
+[[nodiscard]] inline llvm::StringRef
+getDescription(rq::QualifierCategory category) {
+  using QC = rq::QualifierCategory;
+  switch (category) {
+  case QC::NONE:
     return "no qualifier";
-  case HAK::MUT:
+  case QC::MUT:
     return "mut qualifier";
-  case HAK::VOLATILE:
+  case QC::VOLATILE:
     return "volatile qualifier";
-  case HAK::ATOMIC:
+  case QC::ATOMIC:
     return "atomic qualifier";
-  case HAK::NULL_TERMINATE:
+  case QC::NULL_TERMINATE:
     return "null terminate qualifier";
-  case HAK::DETACH:
+  case QC::DETACH:
     return "detach qualifier";
-  case HAK::MARGIN:
+  case QC::MARGIN:
     return "margin qualifier";
-  case HAK::THROWS:
+  case QC::THROWS:
     return "throws qualifier";
   }
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline rq::QualifierKind getKind(rq::Qualifier modifier) {
-  using Q = rq::Qualifier;
-  using QK = rq::QualifierKind;
-  switch (modifier) {
+[[nodiscard]] inline rq::QualifierCategory
+getCategory(rq::QualifierKind qualifier) {
+  using Q = rq::QualifierKind;
+  using QC = rq::QualifierCategory;
+  switch (qualifier) {
   case Q::NONE:
-    return QK::NONE;
+    return QC::NONE;
   case Q::NO_MUT:
     [[fallthrough]];
   case Q::MUT:
     [[fallthrough]];
   case Q::PARTIAL_MUT:
-    return QK::MUT;
+    return QC::MUT;
   case Q::NO_VOLATILE:
     [[fallthrough]];
   case Q::VOLATILE:
-    return QK::VOLATILE;
+    return QC::VOLATILE;
   case Q::NO_ATOMIC:
     [[fallthrough]];
   case Q::ATOMIC:
-    return QK::ATOMIC;
+    return QC::ATOMIC;
   case Q::NO_NULL_TERMINATE:
     [[fallthrough]];
   case Q::NULL_TERMINATE:
-    return QK::NULL_TERMINATE;
+    return QC::NULL_TERMINATE;
   case Q::NO_DETACH:
     [[fallthrough]];
   case Q::DETACH:
-    return QK::DETACH;
+    return QC::DETACH;
   case Q::NO_MARGIN:
     [[fallthrough]];
   case Q::MARGIN:
-    return QK::MARGIN;
+    return QC::MARGIN;
   case Q::NO_THROWS:
     [[fallthrough]];
   case Q::THROWS:
-    return QK::THROWS;
+    return QC::THROWS;
   }
   RQ_UNREACHABLE();
 }
 
 struct QualifierFactory final {
   using Self = rq::QualifierFactory;
-  using PtrMap = llvm::SmallDenseMap<rq::QualifierKind, rq::Expression *>;
+  using PtrMap = llvm::SmallDenseMap<rq::QualifierCategory, rq::Expression *>;
 
   rq::QualifierFuseFlags _flags{};
   PtrMap _ptr_map{};
@@ -4491,21 +4498,21 @@ struct QualifierFactory final {
     return this->_ptr_map;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
-  getExpressionPtr(rq::QualifierKind kind) {
-    auto it = this->_ptr_map.find(kind);
+  getExpressionPtr(rq::QualifierCategory category) {
+    auto it = this->_ptr_map.find(category);
     if (it == this->_ptr_map.end()) {
       return nullptr;
     }
     return it->getSecond();
   }
-  [[nodiscard]] inline bool addFlag(rq::Qualifier modifier,
+  [[nodiscard]] inline bool addFlag(rq::QualifierKind qualifier,
                                     rq::Expression *expression_ptr) {
-    const rq::QualifierFuseFlags flag = rq::getFuseFlags(modifier);
+    const rq::QualifierFuseFlags flag = rq::getFuseFlags(qualifier);
     this->_flags |= flag;
-    const rq::QualifierKind kind = rq::getKind(modifier);
-    auto it = this->_ptr_map.find(kind);
+    const rq::QualifierCategory category = rq::getCategory(qualifier);
+    auto it = this->_ptr_map.find(category);
     if (it == this->_ptr_map.end()) {
-      this->_ptr_map.emplace_or_assign(kind, expression_ptr);
+      this->_ptr_map.emplace_or_assign(category, expression_ptr);
     } else {
       return false;
     }
@@ -5064,11 +5071,11 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
     return rq::getIsEvaluatableName(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Modifier getModifier() const {
-    return rq::getModifier(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierKind getModifier() const {
+    return rq::getModifierKind(this->getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Qualifier getQualifier() const {
-    return rq::getQualifier(this->getKeyword());
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifierKind getQualifier() const {
+    return rq::getQualifierKind(this->getKeyword());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");

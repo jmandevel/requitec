@@ -229,6 +229,8 @@ namespace rq {
     return "NoMarginQualifier";
   case S::MARGIN_QUALIFIER:
     return "MarginQualifier";
+  case S::SPECIALIZED_MARGIN_QUALIFIER:
+    return "SpecializedMarginQualifier";
   case S::NO_DETACH_QUALIFIER:
     return "NoDetachQualifier";
   case S::DETACH_QUALIFIER:
@@ -285,8 +287,8 @@ namespace rq {
     return "BFloatConcept";
   case S::CONCEPT_CONCEPT:
     return "ConceptConcept";
-  case S::SUBTYPE_CONCEPT:
-    return "SubtypeConcept";
+  case S::SUBSYMBOL_CONCEPT:
+    return "SubsymbolConcept";
   case S::ARRAY_CONCEPT:
     return "ArrayConcept";
   case S::REF_CONCEPT:
@@ -541,18 +543,20 @@ namespace rq {
     return "VariadicArguments";
   case S::QUALIFIED_TYPE:
     return "QualifiedType";
-  case S::ARRAY_SUBTYPE:
-    return "Array";
-  case S::REF_SUBTYPE:
-    return "Ref";
-  case S::PTR_SUBTYPE:
-    return "Ptr";
-  case S::SLICE_SUBTYPE:
-    return "Slice";
-  case S::SPLIT_SUBTYPE:
-    return "Split";
-  case S::INFERENCE_COUNT_ARRAY_SUBTYPE:
-    return "InferenceCountArray";
+  case S::WRAP:
+    return "Wrap";
+  case S::ARRAY_SUBSYMBOL:
+    return "ArraySubsymbol";
+  case S::SPECIALIZED_ARRAY_SUBSYMBOL:
+    return "SpecializedArraySubsymbol";
+  case S::REF_SUBSYMBOL:
+    return "RefSubsymbol";
+  case S::PTR_SUBSYMBOL:
+    return "PtrSubsymbol";
+  case S::SLICE_SUBSYMBOL:
+    return "SliceSubsymbol";
+  case S::SPLIT_SUBSYMBOL:
+    return "SplitSubsymbol";
   case S::GENERIC_SUBSYMBOL:
     return "GenericSubsymbol";
   case S::MODULE:
@@ -809,6 +813,33 @@ ScaledPrimitiveType::Profile(llvm::FoldingSetNodeID &inout_id) const {
                                this->getDepth());
 }
 
+RQ_ALWAYS_INLINE
+SpecializedMarginQualifier::SpecializedMarginQualifier(std::size_t depth)
+    : Qualifier(rq::SymbolKind::SPECIALIZED_MARGIN_QUALIFIER), _depth(depth) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::size_t
+SpecializedMarginQualifier::getBitDepth() const {
+  return this->_depth;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+SpecializedMarginQualifier::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() ==
+         rq::getId(rq::SymbolKind::SPECIALIZED_MARGIN_QUALIFIER);
+}
+
+inline void
+SpecializedMarginQualifier::Profile(llvm::FoldingSetNodeID &inout_id,
+                                    std::size_t depth) {
+  inout_id.AddInteger(depth);
+}
+
+RQ_ALWAYS_INLINE void
+SpecializedMarginQualifier::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  SpecializedMarginQualifier::Profile(inout_id, this->getBitDepth());
+}
+
 RQ_ALWAYS_INLINE BuiltinConcept::BuiltinConcept(rq::SymbolKind kind)
     : Symbol(kind), _predecessor_ptr(nullptr) {
   RQ_ASSERT(rq::getHasAll(rq::getInfoFlags(kind),
@@ -888,123 +919,67 @@ QualifiedType::Profile(llvm::FoldingSetNodeID &inout_id) const {
                          this->getMargin());
 }
 
-RQ_ALWAYS_INLINE Subentity::Subentity(rq::SymbolKind kind, rq::Entity &child)
-    : Symbol(kind), _child_ptr(&child) {
-  RQ_ASSERT(Subentity::classof(this), "not subentity");
+RQ_ALWAYS_INLINE Wrap::Wrap(rq::Subsymbol &subsymbol, rq::Symbol &symbol)
+    : Symbol(rq::SymbolKind::WRAP), _subsymbol_ptr(&subsymbol),
+      _symbol_ptr(&symbol) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Subsymbol &Wrap::getSubsymbol() {
+  return rq::dereferencePtr(this->_subsymbol_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &Subentity::getChild() const {
-  return rq::dereferencePtr(this->_child_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Subsymbol &Wrap::getSubsymbol() const {
+  return rq::dereferencePtr(this->_subsymbol_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &Subentity::getChild() {
-  return rq::dereferencePtr(this->_child_ptr);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &Wrap::getSymbol() {
+  return rq::dereferencePtr(this->_symbol_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Subentity::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return rq::getIsSubentity(entity.getUnsafeSymbolKind());
-}
-
-RQ_ALWAYS_INLINE Subtype::Subtype(rq::SymbolKind kind, rq::QualifiedType &child)
-    : Subentity(kind, child) {
-  RQ_ASSERT(Subtype::classof(this), "not subtype");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType &
-Subtype::getChildType() const {
-  return llvm::cast<rq::QualifiedType>(this->getChild());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType &Subtype::getChildType() {
-  return llvm::cast<rq::QualifiedType>(this->getChild());
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &Wrap::getSymbol() const {
+  return rq::dereferencePtr(this->_symbol_ptr);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-Subtype::classof(const rq::Entity *entity_ptr) {
+Wrap::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return rq::getIsSubtype(entity.getUnsafeSymbolKind());
+  return entity.getId() == rq::getId(rq::SymbolKind::WRAP);
 }
 
-RQ_ALWAYS_INLINE ArraySubtype::ArraySubtype(rq::QualifiedType &child,
-                                            std::size_t count)
-    : Subtype(rq::SymbolKind::ARRAY_SUBTYPE, child), _count(count) {}
+inline void Wrap::Profile(llvm::FoldingSetNodeID &inout_id,
+                          const rq::Subsymbol &subsymbol,
+                          const rq::Symbol &symbol) {
+  inout_id.AddPointer(&subsymbol);
+  inout_id.AddPointer(&symbol);
+}
 
-[[nodiscard]] RQ_ALWAYS_INLINE std::size_t ArraySubtype::getCount() const {
-  return this->_count;
+RQ_ALWAYS_INLINE void Wrap::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  Wrap::Profile(inout_id, this->getSubsymbol(), this->getSymbol());
+}
+
+RQ_ALWAYS_INLINE
+SpecializedArraySubsymbol::SpecializedArraySubsymbol(std::size_t count)
+    : Subsymbol(rq::SymbolKind::SPECIALIZED_ARRAY_SUBSYMBOL), count(count) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE std::size_t
+SpecializedArraySubsymbol::getCount() const {
+  return this->count;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ArraySubtype::classof(const rq::Entity *entity_ptr) {
+SpecializedArraySubsymbol::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::ARRAY_SUBTYPE);
+  return entity.getId() ==
+         rq::getId(rq::SymbolKind::SPECIALIZED_ARRAY_SUBSYMBOL);
 }
 
-inline void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  ArraySubtype::Profile(inout_id, this->getChildType(), this->getCount());
-}
-
-RQ_ALWAYS_INLINE void ArraySubtype::Profile(llvm::FoldingSetNodeID &inout_id,
-                                            const rq::QualifiedType &child,
-                                            std::size_t count) {
-  inout_id.AddPointer(&child);
+inline void SpecializedArraySubsymbol::Profile(llvm::FoldingSetNodeID &inout_id,
+                                               std::size_t count) {
   inout_id.AddInteger(count);
 }
 
-RQ_ALWAYS_INLINE SimpleSubtype::SimpleSubtype(rq::SymbolKind kind,
-                                              rq::QualifiedType &child)
-    : Subtype(kind, child) {
-  RQ_ASSERT(SimpleSubtype::classof(this), "not simple subtype");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-SimpleSubtype::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return Subtype::classof(entity_ptr) &&
-         entity.getId() != rq::getId(rq::SymbolKind::ARRAY_SUBTYPE);
-}
-
-inline void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  SimpleSubtype::Profile(inout_id, this->getSymbolKind(), this->getChildType());
-}
-
-RQ_ALWAYS_INLINE void SimpleSubtype::Profile(llvm::FoldingSetNodeID &inout_id,
-                                             rq::SymbolKind kind,
-                                             const rq::QualifiedType &child) {
-  inout_id.AddInteger(rq::getUnderlyingValue(kind));
-  inout_id.AddPointer(&child);
-}
-
-RQ_ALWAYS_INLINE Subsymbol::Subsymbol(rq::SymbolKind kind, rq::Symbol &child)
-    : Subentity(kind, child) {
-  RQ_ASSERT(Subsymbol::classof(this), "not subsymbol");
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &
-Subsymbol::getChildSymbol() const {
-  return llvm::cast<rq::Symbol>(this->getChild());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &Subsymbol::getChildSymbol() {
-  return llvm::cast<rq::Symbol>(this->getChild());
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Subsymbol::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return rq::getIsSubsymbol(entity.getUnsafeSymbolKind());
-}
-
-inline void Subsymbol::Profile(llvm::FoldingSetNodeID &inout_id,
-                               rq::SymbolKind kind, const rq::Symbol &child) {
-  inout_id.AddInteger(rq::getUnderlyingValue(kind));
-  inout_id.AddPointer(&child);
-}
-
 RQ_ALWAYS_INLINE void
-Subsymbol::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  Subsymbol::Profile(inout_id, this->getSymbolKind(), this->getChildSymbol());
+SpecializedArraySubsymbol::Profile(llvm::FoldingSetNodeID &inout_id) const {
+  SpecializedArraySubsymbol::Profile(inout_id, this->getCount());
 }
 
 RQ_ALWAYS_INLINE Adaption::Adaption(rq::QualifiedType &reciever,

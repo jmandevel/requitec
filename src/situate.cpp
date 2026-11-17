@@ -149,8 +149,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_QUALIFIER,
-        S::RVALUE, situation);
+        situation, expression, 2, K::ASCRIBE_QUALIFIER, S::RVALUE, situation);
     break;
   case K::UNSITUATED_TRAIN: {
     if (situation == S::PATH) {
@@ -462,7 +461,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNaryTag(situation, expression, 1, S::ARGUMENT);
     break;
   case K::COMPOSE_OF:
-    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2, S::RVALUE, S::ARGUMENT);
+    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2,
+                                               S::RVALUE, S::ARGUMENT);
     break;
   case K::DECOMPOSE:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
@@ -496,28 +496,26 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
 
-  // SUBTYPE
-  case K::INSTANTIATE_SUBTYPE:
+  // SUBSYMBOL
+  case K::INSTANTIATE_WRAP:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::ARRAY_SUBTYPE:
-    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
-    if (!expression.getHasBranch()) {
-      rq::Expression &inference = this->getContext().acquireExpression();
-      inference.setSourceAtEnd(expression);
-      inference.setKeyword(K::INFERENCE);
-      expression.setBranch(inference);
-    }
+  case K::ARRAY_SUBSYMBOL:
+    is_ok = this->situateNullary(situation, expression);
     break;
-  case K::REF_SUBTYPE:
-    [[fallthrough]];
-  case K::PTR_SUBTYPE:
-    [[fallthrough]];
-  case K::SLICE_SUBTYPE:
-    [[fallthrough]];
-  case K::SPLIT_SUBTYPE:
-    [[fallthrough]];
-  case K::GENERIC_SUBTYPE:
+  case K::REF_SUBSYMBOL:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::PTR_SUBSYMBOL:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::SLICE_SUBSYMBOL:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::SPLIT_SUBSYMBOL:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::GENERIC_SUBSYMBOL:
     is_ok = this->situateNullary(situation, expression);
     break;
 
@@ -574,8 +572,8 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNameStatementTagStatement(situation, expression);
     break;
   case K::USE_PROC:
-      is_ok = this->situateNameStatementTag(situation, expression);
-      break;
+    is_ok = this->situateNameStatementTag(situation, expression);
+    break;
   case K::CONSTRUCTOR:
     is_ok = this->situateStatementTagStatement(situation, expression);
     break;
@@ -1301,7 +1299,7 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::CONCEPT_CONCEPT:
     [[fallthrough]];
-  case K::SUBTYPE_CONCEPT:
+  case K::SUBSYMBOL_CONCEPT:
     [[fallthrough]];
   case K::ARRAY_CONCEPT:
     [[fallthrough]];
@@ -2173,9 +2171,8 @@ bool Situator::situateNameStatementTagStatement(rq::Situation situation,
   return is_ok;
 }
 
-
 bool Situator::situateNameStatementTag(rq::Situation situation,
-                                                rq::Expression &expression) {
+                                       rq::Expression &expression) {
   using S = rq::Situation;
   bool is_ok = true;
   if (!expression.getHasBranch()) {

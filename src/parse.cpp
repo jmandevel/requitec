@@ -727,7 +727,7 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token,
-                                          rq::Keyword::INSTANTIATE_SUBTYPE);
+                                          rq::Keyword::INSTANTIATE_WRAP);
       continue;
     case rq::TokenKind::DOUBLE_THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);

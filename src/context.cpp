@@ -800,8 +800,7 @@ void Context::logErrorTooManyBranchCount(rq::Situation situation,
 
 void Context::logErrorUnexpectedNextBranch(const rq::Expression &next) {
   this->logMessage(next.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   next.getName() +
-                       " is unexpected after previous branch",
+                   next.getName() + " is unexpected after previous branch",
                    {next.getLlvmSourceRange()}, {});
 }
 
@@ -863,7 +862,7 @@ void Context::logErrorNotDeterminateComtimeValue(
 
 void Context::logErrorInvalidModifier(const rq::Expression &unascribed,
                                       const rq::Expression &instantiation_ex,
-                                      rq::Modifier modifier) {
+                                      rq::ModifierKind modifier) {
   this->logMessage(instantiation_ex.getLlvmSourceBegin(), rq::LogType::ERROR,
                    rq::getName(modifier) +
                        " is is not a valid modifier for expression " +

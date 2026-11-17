@@ -502,6 +502,11 @@ Context::acquireMarginQualifier() {
   return this->_margin_qualifier;
 }
 
+[[nodiscard]] inline rq::SpecializedMarginQualifier &
+Context::acquireSpecializedMarginQualifier(std::size_t depth) {
+  return rq::acquire(*this, this->_specialized_margin_qualifier_set, depth);
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NoDetachQualifier &
 Context::acquireNoDetachQualifier() {
   return this->_no_detach_qualifier;
@@ -639,9 +644,9 @@ Context::acquireConceptConcept() {
   return this->_concept_concept;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SubtypeConcept &
-Context::acquireSubtypeConcept() {
-  return this->_subtype_concept;
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SubsymbolConcept &
+Context::acquireSubsymbolConcept() {
+  return this->_subsymbol_concept;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ArrayConcept &
@@ -1266,61 +1271,55 @@ Context::acquireScaledPrimitiveType(rq::SymbolKind kind, unsigned depth) {
   }
 }
 
-[[nodiscard]] inline rq::RefSubtype &
-Context::acquireRefSubtype(rq::QualifiedType &child) {
-  return rq::acquire<rq::RefSubtype>(*this, this->_simple_subtype_set, child);
+[[nodiscard]] inline rq::Wrap &Context::acquireWrap(rq::Subsymbol &subsymbol,
+                                                    rq::Symbol &symbol) {
+  return rq::acquire(*this, this->_wrap_set, subsymbol, symbol);
 }
 
-[[nodiscard]] inline rq::PtrSubtype &
-Context::acquirePtrSubtype(rq::QualifiedType &child) {
-  return rq::acquire<rq::PtrSubtype>(*this, this->_simple_subtype_set, child);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Array &Context::acquireArray() {
+  return this->_array_subsymbol;
 }
 
-[[nodiscard]] inline rq::SliceSubtype &
-Context::acquireSliceSubtype(rq::QualifiedType &child) {
-  return rq::acquire<rq::SliceSubtype>(*this, this->_simple_subtype_set, child);
+[[nodiscard]] inline rq::SpecializedArraySubsymbol &
+Context::acquireSpecializedArraySubsymbol(std::size_t count) {
+  return rq::acquire(*this, this->_specialized_array_subsymbol_set, count);
 }
 
-[[nodiscard]] inline rq::SplitSubtype &
-Context::acquireSplitSubtype(rq::QualifiedType &child) {
-  return rq::acquire<rq::SplitSubtype>(*this, this->_simple_subtype_set, child);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Ref &Context::acquireRef() {
+  return this->_ref_subsymbol;
 }
 
-[[nodiscard]] inline rq::InferenceCountArraySubtype &
-Context::acquireInferenceCountArraySubtype(rq::QualifiedType &child) {
-  return rq::acquire<rq::InferenceCountArraySubtype>(
-      *this, this->_simple_subtype_set, child);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Ptr &Context::acquirePtr() {
+  return this->_ptr_subsymbol;
 }
 
-[[nodiscard]] inline rq::SimpleSubtype &
-Context::acquireSimpleSubtype(rq::SymbolKind kind, rq::QualifiedType &child) {
-  switch (kind) {
-  case rq::SymbolKind::REF_SUBTYPE:
-    return this->acquireRefSubtype(child);
-  case rq::SymbolKind::PTR_SUBTYPE:
-    return this->acquirePtrSubtype(child);
-  case rq::SymbolKind::SLICE_SUBTYPE:
-    return this->acquireSliceSubtype(child);
-  case rq::SymbolKind::SPLIT_SUBTYPE:
-    return this->acquireSplitSubtype(child);
-  case rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE:
-    return this->acquireInferenceCountArraySubtype(child);
-  default:
-    RQ_UNREACHABLE();
-  }
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Slice &Context::acquireSlice() {
+  return this->_slice_subsymbol;
 }
 
-[[nodiscard]] inline rq::GenericSubsymbol &
-Context::acquireGenericSubsymbol(rq::Symbol &child) {
-  return rq::acquire<rq::GenericSubsymbol>(*this, this->_generic_subsymbol_set,
-                                           child);
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Split &Context::acquireSplit() {
+  return this->_split_subsymbol;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Generic &Context::acquireGeneric() {
+  return this->_generic_subsymbol;
 }
 
 [[nodiscard]] inline rq::Subsymbol &
-Context::acquireSubsymbol(rq::SymbolKind kind, rq::Symbol &child) {
+Context::acquireSubsymbol(rq::SymbolKind kind) {
   switch (kind) {
+  case rq::SymbolKind::ARRAY_SUBSYMBOL:
+    return this->acquireArray();
+  case rq::SymbolKind::REF_SUBSYMBOL:
+    return this->acquireRef();
+  case rq::SymbolKind::PTR_SUBSYMBOL:
+    return this->acquirePtr();
+  case rq::SymbolKind::SLICE_SUBSYMBOL:
+    return this->acquireSlice();
+  case rq::SymbolKind::SPLIT_SUBSYMBOL:
+    return this->acquireSplit();
   case rq::SymbolKind::GENERIC_SUBSYMBOL:
-    return this->acquireGenericSubsymbol(child);
+    return this->acquireGeneric();
   default:
     RQ_UNREACHABLE();
   }
@@ -1371,11 +1370,6 @@ Context::acquireArithmeticSequenceType(rq::SymbolKind kind,
     rq::Symbol &type, rq::QualifierFuseFlags qualifiers, unsigned margin) {
   return rq::acquire(*this, this->_qualified_type_set, type, qualifiers,
                      margin);
-}
-
-[[nodiscard]] inline rq::ArraySubtype &
-Context::acquireArraySubtype(rq::QualifiedType &child, std::size_t count) {
-  return rq::acquire(*this, this->_array_set, child, count);
 }
 
 [[nodiscard]] inline rq::Adaption &

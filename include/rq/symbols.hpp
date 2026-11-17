@@ -110,82 +110,83 @@ struct Symbol;
     using ScaledFUIntType = rq::SimpleLeaf<rq::ScaledPrimitiveType, rq::SymbolKind::SCALED_FUINT_TYPE>;
     using ScaledLSIntType = rq::SimpleLeaf<rq::ScaledPrimitiveType, rq::SymbolKind::SCALED_LSINT_TYPE>;
     using ScaledLUIntType = rq::SimpleLeaf<rq::ScaledPrimitiveType, rq::SymbolKind::SCALED_LUINT_TYPE>;
-  using ModifierValue = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::MODIFIER>;
-    using NoModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::NO_MODIFIER>;
-    using AnchorModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ANCHOR_MODIFIER>;
-    using InitsModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INITS_MODIFIER>;
-    using ResidentModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RESIDENT_MODIFIER>;
-    using FlankModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::FLANK_MODIFIER>;
-    using TransparentModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::TRANSPARENT_MODIFIER>;
-    using OpaqueModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::OPAQUE_MODIFIER>;
-    using PrivateModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRIVATE_MODIFIER>;
-    using PublicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PUBLIC_MODIFIER>;
-    using ExportModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EXPORT_MODIFIER>;
-    using MutableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MUTABLE_MODIFIER>;
-    using PartiallyMutableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PARTIALLY_MUTABLE_MODIFIER>;
-    using ConstantModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONSTANT_MODIFIER>;
-    using EagerModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EAGER_MODIFIER>;
-    using LazyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LAZY_MODIFIER>;
-    using PostModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::POST_MODIFIER>;
-    using PreModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRE_MODIFIER>;
-    using AliasModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ALIAS_MODIFIER>;
-    using EnumeratorModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ENUMERATOR_MODIFIER>;
-    using ConceptModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONCEPT_MODIFIER>;
-    using SplitModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SPLIT_MODIFIER>;
-    using RuntimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RUNTIME_MODIFIER>;
-    using ComtimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::COMTIME_MODIFIER>;
-    using AnytimeModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ANYTIME_MODIFIER>;
-    using PresetModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PRESET_MODIFIER>;
-    using SingletonModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SINGLETON_MODIFIER>;
-    using CaptureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CAPTURE_MODIFIER>;
-    using StatelessModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::STATELESS_MODIFIER>;
-    using LinkedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LINKED_MODIFIER>;
-    using InlineModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INLINE_MODIFIER>;
-    using PureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PURE_MODIFIER>;
-    using ImpureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::IMPURE_MODIFIER>;
-    using StandardMangleModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::STANDARD_MANGLE_MODIFIER>;
-    using MangleModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MANGLE_MODIFIER>;
-    using PadModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PAD_MODIFIER>;
-    using PackModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::PACK_MODIFIER>;
-    using EquivocalModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EQUIVOCAL_MODIFIER>;
-    using LikelyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LIKELY_MODIFIER>;
-    using UnlikelyModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::UNLIKELY_MODIFIER>;
-    using SupportedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::SUPPORTED_MODIFIER>;
-    using DepreciatedModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::DEPRECIATED_MODIFIER>;
-    using ExperimentalModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::EXPERIMENTAL_MODIFIER>;
-    using MovableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MOVABLE_MODIFIER>;
-    using CopyableModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::COPYABLE_MODIFIER>;
-    using InvariadicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::INVARIADIC_MODIFIER>;
-    using VariadicModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::VARIADIC_MODIFIER>;
-    using BestLocationModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::BEST_LOCATION_MODIFIER>;
-    using LocationModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::LOCATION_MODIFIER>;
-    using TemplateModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::TEMPLATE_MODIFIER>;
-    using OverloadModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::OVERLOAD_MODIFIER>;
-    using ConstraintModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::CONSTRAINT_MODIFIER>;
-    using ManualModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::MANUAL_MODIFIER>;
-    using AutoModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::AUTO_MODIFIER>;
-    using DirectModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::DIRECT_MODIFIER>;
-    using VirtualModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::VIRTUAL_MODIFIER>;
+  using Modifier = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::MODIFIER>;
+    using NoModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::NO_MODIFIER>;
+    using AnchorModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::ANCHOR_MODIFIER>;
+    using InitsModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::INITS_MODIFIER>;
+    using ResidentModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::RESIDENT_MODIFIER>;
+    using FlankModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::FLANK_MODIFIER>;
+    using TransparentModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::TRANSPARENT_MODIFIER>;
+    using OpaqueModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::OPAQUE_MODIFIER>;
+    using PrivateModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PRIVATE_MODIFIER>;
+    using PublicModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PUBLIC_MODIFIER>;
+    using ExportModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::EXPORT_MODIFIER>;
+    using MutableModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::MUTABLE_MODIFIER>;
+    using PartiallyMutableModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PARTIALLY_MUTABLE_MODIFIER>;
+    using ConstantModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::CONSTANT_MODIFIER>;
+    using EagerModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::EAGER_MODIFIER>;
+    using LazyModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::LAZY_MODIFIER>;
+    using PostModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::POST_MODIFIER>;
+    using PreModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PRE_MODIFIER>;
+    using AliasModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::ALIAS_MODIFIER>;
+    using EnumeratorModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::ENUMERATOR_MODIFIER>;
+    using ConceptModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::CONCEPT_MODIFIER>;
+    using SplitModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::SPLIT_MODIFIER>;
+    using RuntimeModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::RUNTIME_MODIFIER>;
+    using ComtimeModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::COMTIME_MODIFIER>;
+    using AnytimeModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::ANYTIME_MODIFIER>;
+    using PresetModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PRESET_MODIFIER>;
+    using SingletonModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::SINGLETON_MODIFIER>;
+    using CaptureModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::CAPTURE_MODIFIER>;
+    using StatelessModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::STATELESS_MODIFIER>;
+    using LinkedModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::LINKED_MODIFIER>;
+    using InlineModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::INLINE_MODIFIER>;
+    using PureModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PURE_MODIFIER>;
+    using ImpureModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::IMPURE_MODIFIER>;
+    using StandardMangleModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::STANDARD_MANGLE_MODIFIER>;
+    using MangleModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::MANGLE_MODIFIER>;
+    using PadModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PAD_MODIFIER>;
+    using PackModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::PACK_MODIFIER>;
+    using EquivocalModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::EQUIVOCAL_MODIFIER>;
+    using LikelyModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::LIKELY_MODIFIER>;
+    using UnlikelyModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::UNLIKELY_MODIFIER>;
+    using SupportedModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::SUPPORTED_MODIFIER>;
+    using DepreciatedModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::DEPRECIATED_MODIFIER>;
+    using ExperimentalModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::EXPERIMENTAL_MODIFIER>;
+    using MovableModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::MOVABLE_MODIFIER>;
+    using CopyableModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::COPYABLE_MODIFIER>;
+    using InvariadicModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::INVARIADIC_MODIFIER>;
+    using VariadicModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::VARIADIC_MODIFIER>;
+    using BestLocationModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::BEST_LOCATION_MODIFIER>;
+    using LocationModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::LOCATION_MODIFIER>;
+    using TemplateModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::TEMPLATE_MODIFIER>;
+    using OverloadModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::OVERLOAD_MODIFIER>;
+    using ConstraintModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::CONSTRAINT_MODIFIER>;
+    using ManualModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::MANUAL_MODIFIER>;
+    using AutoModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::AUTO_MODIFIER>;
+    using DirectModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::DIRECT_MODIFIER>;
+    using VirtualModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::VIRTUAL_MODIFIER>;
     using VirualModifier = rq::VirtualModifier;
-    using RangerModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::RANGER_MODIFIER>;
-    using RequireModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::REQUIRE_MODIFIER>;
-    using EnsureModifier = rq::SimpleLeaf<rq::ModifierValue, rq::SymbolKind::ENSURE_MODIFIER>;
-  using QualifierValue = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::QUALIFIER>;
-    using NoMutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_MUT_QUALIFIER>;
-    using PartialMutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::PARTIAL_MUT_QUALIFIER>;
-    using MutQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::MUT_QUALIFIER>;
-    using NoVolatileQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_VOLATILE_QUALIFIER>;
-    using VolatileQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::VOLATILE_QUALIFIER>;
-    using NoAtomicQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_ATOMIC_QUALIFIER>;
-    using AtomicQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::ATOMIC_QUALIFIER>;
-    using NoNullTerminateQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_NULL_TERMINATE_QUALIFIER>;
-    using NullTerminateQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NULL_TERMINATE_QUALIFIER>;
-    using NoMarginQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_MARGIN_QUALIFIER>;
-    using MarginQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::MARGIN_QUALIFIER>;
-    using NoDetachQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_DETACH_QUALIFIER>;
-    using DetachQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::DETACH_QUALIFIER>;
-    using NoThrowsQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::NO_THROWS_QUALIFIER>;
-    using ThrowsQualifier = rq::SimpleLeaf<rq::QualifierValue, rq::SymbolKind::THROWS_QUALIFIER>;
+    using RangerModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::RANGER_MODIFIER>;
+    using RequireModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::REQUIRE_MODIFIER>;
+    using EnsureModifier = rq::SimpleLeaf<rq::Modifier, rq::SymbolKind::ENSURE_MODIFIER>;
+  using Qualifier = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::QUALIFIER>;
+    using NoMutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_MUT_QUALIFIER>;
+    using PartialMutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::PARTIAL_MUT_QUALIFIER>;
+    using MutQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::MUT_QUALIFIER>;
+    using NoVolatileQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_VOLATILE_QUALIFIER>;
+    using VolatileQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::VOLATILE_QUALIFIER>;
+    using NoAtomicQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_ATOMIC_QUALIFIER>;
+    using AtomicQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::ATOMIC_QUALIFIER>;
+    using NoNullTerminateQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_NULL_TERMINATE_QUALIFIER>;
+    using NullTerminateQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NULL_TERMINATE_QUALIFIER>;
+    using NoMarginQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_MARGIN_QUALIFIER>;
+    using MarginQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::MARGIN_QUALIFIER>;
+    struct SpecializedMarginQualifier;
+    using NoDetachQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_DETACH_QUALIFIER>;
+    using DetachQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::DETACH_QUALIFIER>;
+    using NoThrowsQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::NO_THROWS_QUALIFIER>;
+    using ThrowsQualifier = rq::SimpleLeaf<rq::Qualifier, rq::SymbolKind::THROWS_QUALIFIER>;
   struct BuiltinConcept;
     using AnyConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ANY_CONCEPT>;
     using TypeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::TYPE_CONCEPT>;
@@ -211,7 +212,7 @@ struct Symbol;
     using BinaryConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BINARY_CONCEPT>;
     using BFloatConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::BFLOAT_CONCEPT>;
     using ConceptConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::CONCEPT_CONCEPT>;
-    using SubtypeConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SUBTYPE_CONCEPT>;
+    using SubsymbolConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::SUBSYMBOL_CONCEPT>;
     using ArrayConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::ARRAY_CONCEPT>;
     using RefConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::REF_CONCEPT>;
     using PtrConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::PTR_CONCEPT>;
@@ -338,17 +339,15 @@ struct Symbol;
     using MarginQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::MARGIN_QUALIFIER_CONCEPT>;
     using ThrowsQualifierConcept = rq::SimpleLeaf<rq::BuiltinConcept, rq::SymbolKind::THROWS_QUALIFIER_CONCEPT>;
   struct QualifiedType;
-  struct Subentity;
-    struct Subtype;
-      struct ArraySubtype;
-      struct SimpleSubtype;
-        using RefSubtype = rq::SimpleLeaf<rq::SimpleSubtype, rq::SymbolKind::REF_SUBTYPE>;
-        using PtrSubtype = rq::SimpleLeaf<rq::SimpleSubtype, rq::SymbolKind::PTR_SUBTYPE>;
-        using SliceSubtype = rq::SimpleLeaf<rq::SimpleSubtype, rq::SymbolKind::SLICE_SUBTYPE>;
-        using SplitSubtype = rq::SimpleLeaf<rq::SimpleSubtype, rq::SymbolKind::SPLIT_SUBTYPE>;
-        using InferenceCountArraySubtype = rq::SimpleLeaf<rq::SimpleSubtype, rq::SymbolKind::INFERENCE_COUNT_ARRAY_SUBTYPE>;
-    struct Subsymbol;
-      using GenericSubsymbol = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::GENERIC_SUBSYMBOL>;
+  struct Wrap;
+  using Subsymbol = rq::SimpleBranch<rq::Symbol, rq::SymbolInfoFlags::SUBSYMBOL>;
+    using Array = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::ARRAY_SUBSYMBOL>;
+    struct SpecializedArraySubsymbol;
+    using Ref = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::REF_SUBSYMBOL>;
+    using Ptr = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::PTR_SUBSYMBOL>;
+    using Slice = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::SLICE_SUBSYMBOL>;
+    using Split = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::SPLIT_SUBSYMBOL>;
+    using Generic = rq::SimpleLeaf<rq::Subsymbol, rq::SymbolKind::GENERIC_SUBSYMBOL>;
   struct Adaption;
   struct Realization;
   struct Conformity;
@@ -508,6 +507,24 @@ struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
+struct SpecializedMarginQualifier final : public rq::Qualifier,
+                                          public llvm::FoldingSetNode {
+  using Self = rq::SpecializedMarginQualifier;
+
+  std::size_t _depth;
+
+  explicit RQ_ALWAYS_INLINE SpecializedMarginQualifier(std::size_t depth);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getBitDepth() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             std::size_t depth);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
+};
+
 struct BuiltinConcept : public rq::Symbol {
   using Self = rq::BuiltinConcept;
 
@@ -550,40 +567,35 @@ struct QualifiedType final : public rq::Symbol, public llvm::FoldingSetNode {
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct Subentity : public rq::Symbol {
-  using Self = rq::Subentity;
+struct Wrap final : public rq::Symbol, public llvm::FoldingSetNode {
+  using Self = rq::Wrap;
 
-  rq::Entity *_child_ptr;
+  rq::Subsymbol *_subsymbol_ptr;
+  rq::Symbol *_symbol_ptr;
 
-  explicit RQ_ALWAYS_INLINE Subentity(rq::SymbolKind kind, rq::Entity &child);
+  explicit RQ_ALWAYS_INLINE Wrap(rq::Subsymbol &subsymbol, rq::Symbol &symbol);
 
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Entity &getChild() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Entity &getChild();
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-};
-
-struct Subtype : public rq::Subentity {
-  using Self = rq::Subtype;
-
-  explicit RQ_ALWAYS_INLINE Subtype(rq::SymbolKind kind,
-                                    rq::QualifiedType &child);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType &getChildType() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType &getChildType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Subsymbol &getSubsymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Subsymbol &getSubsymbol() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getSymbol();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getSymbol() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
+
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::Subsymbol &subsymbol,
+                             const rq::Symbol &symbol);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct ArraySubtype : public rq::Subtype, public llvm::FoldingSetNode {
-  using Self = rq::ArraySubtype;
+struct SpecializedArraySubsymbol final : public rq::Subsymbol,
+                                         public llvm::FoldingSetNode {
+  using Self = rq::SpecializedArraySubsymbol;
 
-  std::size_t _count;
+  std::size_t count;
 
-  explicit RQ_ALWAYS_INLINE ArraySubtype(rq::QualifiedType &child,
-                                         std::size_t count);
+  explicit RQ_ALWAYS_INLINE SpecializedArraySubsymbol(std::size_t count);
 
   [[nodiscard]] RQ_ALWAYS_INLINE std::size_t getCount() const;
 
@@ -591,38 +603,7 @@ struct ArraySubtype : public rq::Subtype, public llvm::FoldingSetNode {
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             const rq::QualifiedType &child, std::size_t count);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-struct SimpleSubtype : public rq::Subtype, public llvm::FoldingSetNode {
-  using Self = rq::SimpleSubtype;
-
-  explicit RQ_ALWAYS_INLINE SimpleSubtype(rq::SymbolKind kind,
-                                          rq::QualifiedType &child);
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-
-  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             rq::SymbolKind kind,
-                             const rq::QualifiedType &child);
-  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
-};
-
-struct Subsymbol : public rq::Subentity, public llvm::FoldingSetNode {
-  using Self = rq::Subsymbol;
-
-  explicit RQ_ALWAYS_INLINE Subsymbol(rq::SymbolKind kind, rq::Symbol &child);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Symbol &getChildSymbol() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Symbol &getChildSymbol();
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
-
-  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
-                             rq::SymbolKind kind, const rq::Symbol &child);
+                             std::size_t count);
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
