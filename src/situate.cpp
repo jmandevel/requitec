@@ -193,17 +193,6 @@ bool Situator::situateTree(rq::Situation situation,
         inner.setNext(next);
         inner_ptr = &member;
         continue;
-      } else if (next.getKeyword() == rq::Keyword::ASCRIBE_QUALIFIER) {
-        next.changeKeyword(rq::Keyword::ASCRIBE_RECIEVER_QUALIFIER);
-        rq::Expression &next_branch = next.getBranch();
-        if (!next_branch.getCanBeRailcar()) {
-          continue;
-        }
-        const rq::Keyword universalized = next_branch.getUniversalized();
-        next_branch.changeKeyword(universalized);
-        inner.setNext(next_branch.replaceBranchPtr(inner));
-        inner_ptr = &next;
-        continue;
       }
       if (!next.getCanBeRailcar()) {
         continue;
@@ -270,10 +259,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::ASCRIBE_MODIFIER:
     is_ok = this->situateNaryDifferentFirstTag(
         situation, expression, 2, situation, S::MODIFIER_INSTANTIATION);
-    break;
-  case K::ASCRIBE_RECIEVER_QUALIFIER:
-    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2,
-                                               situation, S::RVALUE);
     break;
   case K::INSTANTIATE_MODIFIER:
     is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
@@ -385,7 +370,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
     break;
   case K::SPLIT:
-    is_ok = this->situateNaryTag(situation, expression, 1, S::STATEMENT);
+    is_ok = this->situateNaryTag(situation, expression, 2, S::ARGUMENT);
     break;
   case K::RVALUE_LABEL:
     is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::RVALUE);
@@ -399,35 +384,39 @@ bool Situator::situateTree(rq::Situation situation,
   case K::CONTENT_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::ADDRESS:
-    is_ok = this->situateNullary(situation, expression);
+  case K::PTR:
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::ADDRESS_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+  case K::PTR_OF:
+    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
+                                          S::RVALUE);
     break;
   case K::SLICE:
-    is_ok = this->situateNaryTag(situation, expression, 0, S::RVALUE);
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::SLICE_OF:
-    is_ok = this->situateNaryTag(situation, expression, 1, S::RVALUE);
+    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
+                                          S::RVALUE);
     break;
-  case K::PROC_ADDRESS:
+  case K::PROC_PTR:
     is_ok = this->situateNullary(situation, expression);
     break;
-  case K::PROC_ADDRESS_OF:
+  case K::PROC_PTR_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::REF:
-    is_ok = this->situateNullary(situation, expression);
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::REF_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
+                                          S::RVALUE);
     break;
-  case K::DATA_ADDRESS:
-    is_ok = this->situateNullary(situation, expression);
+  case K::DATA_PTR:
+    is_ok = this->situateNullaryOrUnaryTag(situation, expression, S::RVALUE);
     break;
-  case K::DATA_ADDRESS_OF:
-    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+  case K::DATA_PTR_OF:
+    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
+                                          S::RVALUE);
     break;
   case K::MOVE:
     is_ok = this->situateNullary(situation, expression);

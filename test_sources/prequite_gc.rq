@@ -32,10 +32,10 @@ var5 :SInt= var5; # this is a compiler error!
 # detach qualifier is only valid in comtime. its a compiler error to use it at all in runtime code.
 
 list :std.List{SInt}= std.List{SInt, detach}();
-list.mut\[ref].pushBack(0).[pass]; # passing in top scope crashes the script if something was thrown!
-list.mut\[ref].pushBack(1).[pass];
-list.mut\[ref].pushBack(2).[pass];
-list.mut\[ref].pushBack(3).[pass];
+list.[ref mut\].pushBack(0).[pass]; # passing in top scope crashes the script if something was thrown!
+list.[ref mut\].pushBack(1).[pass];
+list.[ref mut\].pushBack(2).[pass];
+list.[ref mut\].pushBack(3).[pass];
 
 # can copy value out of the list into a prequite variable.
 var9 :SInt= list.[ref].at(0);
@@ -46,10 +46,10 @@ var10 :Ref@SInt= list.[ref].at(1).[ref];
 # with detached lists, you can use generic types
 # as you can see here, this list can contain any type for each element
 generic_list :std.List{Generic@ANY, detach}();
-generic_list.mut\[ref].pushBack(0.[as SInt]);
-generic_list.mut\[ref].pushBack(3.14.[as Single]);
+generic_list.[ref mut\].pushBack(0.[as SInt]);
+generic_list.[ref mut\].pushBack(3.14.[as Single]);
 nested_list :mut\= std.List{SInt, detach}([list 0, 1, 2, 3, 4]);
-generic_list.mut\[ref].pushBack(nested_list.[move]);
+generic_list.[ref mut\].pushBack(nested_list.[move]);
 
 # no_detach lists are special, will use contiguous memory in native format.
 # the adjoin qualifier is applied to the data array pointer.
@@ -59,10 +59,10 @@ generic_list.mut\[ref].pushBack(nested_list.[move]);
 # in postquite, it can be used for any type.
 
 adjoined_list :std.List{SInt, no_detach}= std.List{SInt, no_detach}();
-adjoined_list.mut\[ref].pushBack(0).[pass];
-adjoined_list.mut\[ref].pushBack(1).[pass];
-adjoined_list.mut\[ref].pushBack(2).[pass];
-adjoined_list.mut\[ref].pushBack(3).[pass];
+adjoined_list.[ref mut\].pushBack(0).[pass];
+adjoined_list.[ref mut\].pushBack(1).[pass];
+adjoined_list.[ref mut\].pushBack(2).[pass];
+adjoined_list.[ref mut\].pushBack(3).[pass];
 
 # can copy elements out of adjoined lists
 var11 :SInt= adjoined_list.[ref].at(0);

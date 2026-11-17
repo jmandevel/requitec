@@ -3,7 +3,7 @@ opaque mangle::puts
 
 mangle::main
 [proc , ()SInt,
-    c.puts("hello, world\n".[of Char].[data_address]);
+    c.puts("hello, world\n".[of Char].[data_ptr]);
 
     result <:= 0;
 ];

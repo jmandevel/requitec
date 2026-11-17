@@ -26,6 +26,6 @@ mangle::main
     # Sized uses 64 bits of memory in the stack.
     # However, the class layout is unknown.
     # Its not possible to access members directly.
-    sized.mut\[ref].doSomething();
-    result <:= ref.[address].[cast];
+    sized.[ref mut\].doSomething();
+    result <:= ref.[ptr].[cast];
 ];

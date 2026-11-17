@@ -3,7 +3,7 @@ opaque mangle::printf
 
 mangle::main
 [proc , ()SInt,
-    c.printf("Hello, %s! I am %d.".[of Char].[data_address], [variadic_arguments "world", 30]);
+    c.printf("Hello, %s! I am %d.".[of Char].[data_ptr], [variadic_arguments "world", 30]);
 
     result <:= 0;
 ];

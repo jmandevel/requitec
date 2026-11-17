@@ -4,7 +4,7 @@ mangle::main
     var :mut\Single= 0;
 
     # mut pointer to mut single float
-    var_ptr :mut\Ptr@mut\Single= var.mut\[address];
+    var_ptr :mut\Ptr@mut\Single= var.[ptr mut\];
 
     var_ptr.[content] = 1;
 

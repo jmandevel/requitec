@@ -27,11 +27,11 @@ mangle::main
   class :mut\= MyClass();
   copy := class;
   reference := class.[ref];
-  reference_to_mut := class.mut\[ref];
-  pointer := class.[address];
-  pointer_to_mut := class.mut\[address];
+  reference_to_mut := class.[ref mut\];
+  pointer := class.[ptr];
+  pointer_to_mut := class.[ptr mut\];
   copy_value_at_pointer := pointer.[content];
-  non_destructive_move := class.mut\[ref]->std.extract();
+  non_destructive_move := class.[ref mut\]->std.extract();
   destructive_move := class.[move];
   # class was ignored because it was moved out of
   class := destructive_move.[move]; #/ move it back!

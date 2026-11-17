@@ -102,8 +102,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_ascribe_qualifier";
   case K::ASCRIBE_MODIFIER:
     return "_ascribe_modifier";
-  case K::ASCRIBE_RECIEVER_QUALIFIER:
-    return "_ascribe_reciever_qualifier";
   case K::INSTANTIATE_MODIFIER:
     return "_instantiate_modifier";
   case K::IDENTIFY:
@@ -200,26 +198,26 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "content";
   case K::CONTENT_OF:
     return "_content_of";
-  case K::ADDRESS:
-    return "address";
-  case K::ADDRESS_OF:
-    return "_address_of";
+  case K::PTR:
+    return "ptr";
+  case K::PTR_OF:
+    return "_ptr_of";
   case K::SLICE:
     return "slice";
   case K::SLICE_OF:
     return "_slice_of";
-  case K::PROC_ADDRESS:
-    return "proc_address";
-  case K::PROC_ADDRESS_OF:
-    return "_proc_address_of";
+  case K::PROC_PTR:
+    return "proc_ptr";
+  case K::PROC_PTR_OF:
+    return "_proc_ptr_of";
   case K::REF:
     return "ref";
   case K::REF_OF:
     return "_ref_of";
-  case K::DATA_ADDRESS:
-    return "data_address";
-  case K::DATA_ADDRESS_OF:
-    return "_data_address_of";
+  case K::DATA_PTR:
+    return "data_ptr";
+  case K::DATA_PTR_OF:
+    return "_data_ptr_of";
   case K::MOVE:
     return "move";
   case K::MOVE_OF:
@@ -1208,8 +1206,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     // NOTE: not allowed in STATEMENT, PARAMETER, and ROUTE situations so that
     // modifiers do not get confused with _call.
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
-           KIF::LVALUE | KIF::NAME | KIF::PATH | KIF::ARITHMETIC_SEQUENCE_STEP |
-           KIF::ARITHMETIC_SEQUENCE_CONDITION;
+           KIF::RAILCAR | KIF::LVALUE | KIF::NAME | KIF::PATH |
+           KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION;
   case K::UNSITUATED_EQUAL_OPERATOR:
     return KIF::STATEMENT | KIF::ARGUMENT | KIF::PARAMETER |
            KIF::TUPLE_ELEMENT | KIF::PORTAL;
@@ -1270,8 +1268,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION |
            KIF::ALL_CHAINLINKS;
-  case K::ASCRIBE_RECIEVER_QUALIFIER:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::ASCRIPTION;
   case K::INSTANTIATE_MODIFIER:
     return KIF::NONE; // MODIFIER_INSTANTIATION
   case K::IDENTIFY:
@@ -1369,25 +1365,25 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RAILCAR;
   case K::CONTENT_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::ADDRESS:
+  case K::PTR:
     return KIF::RAILCAR;
-  case K::ADDRESS_OF:
+  case K::PTR_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::SLICE:
     return KIF::RAILCAR;
   case K::SLICE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::PROC_ADDRESS:
+  case K::PROC_PTR:
     return KIF::RAILCAR;
-  case K::PROC_ADDRESS_OF:
+  case K::PROC_PTR_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REF:
     return KIF::RAILCAR;
   case K::REF_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::DATA_ADDRESS:
+  case K::DATA_PTR:
     return KIF::RAILCAR;
-  case K::DATA_ADDRESS_OF:
+  case K::DATA_PTR_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MOVE:
     return KIF::RAILCAR;
@@ -2670,12 +2666,12 @@ getDescription(rq::Situation situation) {
     return K::SIGNATURE_CAST_OF;
   case K::CONTENT:
     return K::CONTENT_OF;
-  case K::ADDRESS:
-    return K::ADDRESS_OF;
-  case K::PROC_ADDRESS:
-    return K::PROC_ADDRESS_OF;
-  case K::DATA_ADDRESS:
-    return K::DATA_ADDRESS_OF;
+  case K::PTR:
+    return K::PTR_OF;
+  case K::PROC_PTR:
+    return K::PROC_PTR_OF;
+  case K::DATA_PTR:
+    return K::DATA_PTR_OF;
   case K::MOVE:
     return K::MOVE_OF;
   case K::TAKE:

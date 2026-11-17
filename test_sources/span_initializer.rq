@@ -7,7 +7,7 @@ mangle::main
         SInt index := 0; # this is created before first loop iteration and exists for all iterations.
 
         list.pushBackSpan(5).[take],
-        uninit:=value.uninit\mut\[ref],
+        uninit:=value.[ref uninit\mut\],
 
         uninit ?= index * 2;
         index = index + 1;
@@ -19,7 +19,7 @@ mangle::main
     [for
         span:=other_list.pushBackSpan(list.count());
         span.[take]->std.reverse(),
-        uninit:=value.uninit\mut\[ref],
+        uninit:=value.[ref uninit\mut\],
 
         uninit ?= list.popBack();
     ];  
