@@ -56,7 +56,7 @@ struct MutableInt final : public rq::Int {
 
   explicit RQ_ALWAYS_INLINE MutableInt(rq::QualifiedType &type,
                                        const llvm::APInt &value);
-  using Int::getInt;
+
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APInt &getInt();
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
