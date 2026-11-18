@@ -205,7 +205,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
         continue;
       } else {
         char lower_c = c;
-        if (base.ugt(min_upper_base)) {
+        if (base.ult(min_upper_base)) {
           lower_c = rq::getLowercaseLetter(c);
         }
         const llvm::APInt digit_base_multiplier =
