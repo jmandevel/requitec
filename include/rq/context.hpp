@@ -478,6 +478,7 @@ struct Context final : public rq::BumpPtrAllocator {
   void logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c);
   void logErrorInvalidUtf8Continuation(llvm::SMLoc start, llvm::SMLoc cur,
                                        char c);
+  void logErrorIncompleteUtf8Sequence(llvm::SMLoc start, llvm::SMLoc end);
   void logErrorSourceFileNoRqExtension(llvm::StringRef path);
   void logErrorFailedToCanonicalizePath(llvm::StringRef path,
                                         const std::error_code &ec);

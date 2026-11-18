@@ -63,6 +63,12 @@ bool Context::validateSourceText(const rq::ModuleDetail &detail) {
       continue_bytes = 0;
     }
   }
+  if (continue_bytes != 0) {
+    this->logErrorIncompleteUtf8Sequence(
+        extended_char_start,
+        llvm::SMLoc::getFromPointer(detail.getBuffer().end()));
+    is_ok = false;
+  }
   return is_ok;
 }
 
@@ -554,6 +560,13 @@ void Context::logErrorInvalidUtf8Continuation(llvm::SMLoc start,
                         rq::getUtf8Name(c) + "\"";
   this->logMessage(cur, rq::LogType::ERROR, message,
                    {llvm::SMRange(start, cur)}, {});
+}
+
+void Context::logErrorIncompleteUtf8Sequence(llvm::SMLoc start,
+                                             llvm::SMLoc end) {
+  this->logMessage(end, rq::LogType::ERROR,
+                   "incomplete utf-8 sequence before end of file",
+                   {llvm::SMRange(start, end)}, {});
 }
 
 void Context::logErrorSourceFileNoRqExtension(llvm::StringRef path) {
