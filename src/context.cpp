@@ -814,27 +814,27 @@ void Context::logErrorInvalidBranchSituation(rq::Situation situation,
 
 void Context::logErrorExpectedTagBranch(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is missing tag branch",
+                   expresison.getName() + " is missing comma terminated branch",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedTagExpression(const rq::Expression &expresison) {
   this->logMessage(expresison.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expresison.getName() + " is not tag expression",
+                   expresison.getName() + " is missing comma terminator",
                    {expresison.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedStatementExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is not statement expression",
+                   expression.getName() + " is missing semicolon terminator",
                    {expression.getLlvmSourceRange()}, {});
 }
 
 void Context::logErrorExpectedChainExpression(
     const rq::Expression &expression) {
   this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
-                   expression.getName() + " is not chain expression",
+                   expression.getName() + " has terminator",
                    {expression.getLlvmSourceRange()}, {});
 }
 
