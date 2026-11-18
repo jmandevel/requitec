@@ -24,7 +24,8 @@ enum class NumericResultCode : unsigned {
   ERROR_BASE_TOO_BIG,
   ERROR_MULTIPLE_DECIMAL_POINT,
   ERROR_INTEGER_WITH_DECIMAL_POINT,
-  ERROR_FLOAT_WITH_BASE
+  ERROR_FLOAT_WITH_BASE,
+  ERROR_BASE_TOO_SMALL
 };
 
 [[nodiscard]] constexpr inline llvm::StringRef
@@ -48,6 +49,8 @@ getDescription(rq::NumericResultCode result) {
     return "numeric literal Value is too big";
   case NR::ERROR_BASE_TOO_BIG:
     return "numeric literal base is too big";
+  case NR::ERROR_BASE_TOO_SMALL:
+    return "numeric literal base must be at least 2";
   case NR::ERROR_MULTIPLE_DECIMAL_POINT:
     return "numeric literal has multiple decimal points";
   case NR::ERROR_INTEGER_WITH_DECIMAL_POINT:
@@ -126,14 +129,16 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
       if (!explicit_base && c == 'x') {
         base = unsigned_term;
         unsigned_term = 0;
-        max_digit_multiplier = base - 1;
-        max_before_multiply = unsigned_max / max_digit_multiplier;
-        max_before_add = unsigned_max - max_digit_multiplier;
         if (base == 0) {
           return rq::NumericResultCode::ERROR_ZERO_BASE;
+        } else if (base == 1) {
+          return rq::NumericResultCode::ERROR_BASE_TOO_SMALL;
         } else if (base > rq::MAX_BASE) {
           return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
+        max_digit_multiplier = base - 1;
+        max_before_multiply = unsigned_max / max_digit_multiplier;
+        max_before_add = unsigned_max - max_digit_multiplier;
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
@@ -191,14 +196,16 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
       if (!explicit_base && c == 'x') {
         base = unsigned_term;
         unsigned_term = 0;
-        max_digit_multiplier = base - 1;
-        max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
-        max_before_add = unsigned_max - max_digit_multiplier;
         if (base == 0) {
           return rq::NumericResultCode::ERROR_ZERO_BASE;
+        } else if (base == 1) {
+          return rq::NumericResultCode::ERROR_BASE_TOO_SMALL;
         } else if (base.ugt(max_base)) {
           return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
+        max_digit_multiplier = base - 1;
+        max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
+        max_before_add = unsigned_max - max_digit_multiplier;
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
