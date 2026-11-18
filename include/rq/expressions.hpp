@@ -4855,7 +4855,7 @@ enum class ExpressionNextInfoFlags : std::uint8_t {
 
 RQ_DEFINE_FLAGS(rq::ExpressionNextInfoFlags);
 
-enum class ExpressionSourceInfoFlags : std::uint8_t {
+enum class ExpressionBranchInfoFlags : std::uint8_t {
   NONE = 0,
   // NOTE: an "inserted" node is one that was not present in the source
   // and was inserted into the AST by the compiler
@@ -4864,7 +4864,7 @@ enum class ExpressionSourceInfoFlags : std::uint8_t {
   SITUATOR_ERROR = rq::getBit(1)
 };
 
-RQ_DEFINE_FLAGS(rq::ExpressionSourceInfoFlags);
+RQ_DEFINE_FLAGS(rq::ExpressionBranchInfoFlags);
 
 struct ExpressionIteratorPolicy final {
   using Self = ExpressionIteratorPolicy;
@@ -4900,9 +4900,9 @@ struct Expression final : public rq::Entity {
 
   rq::PtrWithFlags<rq::Expression, 2, rq::ExpressionNextInfoFlags>
       _next_ptr_flags{};
-  rq::Entity *_branch_ptr{nullptr};
-  rq::PtrWithFlags<const char, 2, rq::ExpressionSourceInfoFlags>
-      _source_ptr_flags{};
+  rq::PtrWithFlags<rq::Entity, 2, rq::ExpressionBranchInfoFlags>
+      _branch_ptr_flags{};
+  const char *_source_ptr{nullptr};
   unsigned _source_text_length{0};
 
   explicit Expression() : Entity(rq::getId(rq::Keyword::NONE)) {}
@@ -5082,12 +5082,12 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsInserted() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
-                         rq::ExpressionSourceInfoFlags::INSERTED);
+    return rq::getHasAll(this->_branch_ptr_flags.getFlags(),
+                         rq::ExpressionBranchInfoFlags::INSERTED);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSituatorError() const {
-    return rq::getHasAll(this->_source_ptr_flags.getFlags(),
-                         rq::ExpressionSourceInfoFlags::SITUATOR_ERROR);
+    return rq::getHasAll(this->_branch_ptr_flags.getFlags(),
+                         rq::ExpressionBranchInfoFlags::SITUATOR_ERROR);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsStatement() const {
     return rq::getHasAll(this->_next_ptr_flags.getFlags(),
@@ -5103,24 +5103,23 @@ struct Expression final : public rq::Entity {
                          rq::ExpressionNextInfoFlags::CHAIN);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSourceText() const {
-    return this->_source_ptr_flags.getPtr() != nullptr;
+    return this->_source_ptr != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
     RQ_ASSERT(this->getHasSourceText(), "expression source was not set");
-    return llvm::StringRef(this->_source_ptr_flags.getPtr(),
-                           this->_source_text_length);
+    return llvm::StringRef(this->_source_ptr, this->_source_text_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const char *getSourceTextPtr() const {
-    return this->_source_ptr_flags.getPtr();
+    return this->_source_ptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE unsigned getSourceTextLength() const {
     return this->_source_text_length;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceBegin() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr());
+    return llvm::SMLoc::getFromPointer(this->_source_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMLoc getLlvmSourceEnd() const {
-    return llvm::SMLoc::getFromPointer(this->_source_ptr_flags.getPtr() +
+    return llvm::SMLoc::getFromPointer(this->_source_ptr +
                                        this->_source_text_length);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::SMRange getLlvmSourceRange() const {
@@ -5140,20 +5139,20 @@ struct Expression final : public rq::Entity {
   }
   RQ_ALWAYS_INLINE void clearData() {
     this->_id = rq::getId(rq::Keyword::NONE);
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
     this->_debug_keyword = rq::Keyword::NONE;
     this->_debug_symbol_kind = rq::SymbolKind::NONE;
     this->_debug_value_kind = rq::ValueKind::NONE;
 #endif
     this->_next_ptr_flags = {};
-    this->_branch_ptr = nullptr;
-    this->_source_ptr_flags = {};
+    this->_branch_ptr_flags = {};
+    this->_source_ptr = nullptr;
     this->_source_text_length = 0;
   }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_id == rq::getId(rq::Keyword::NONE),
               "keyword must not already be set");
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
     this->_debug_keyword = keyword;
 #endif
     this->_id = rq::getId(keyword);
@@ -5161,17 +5160,17 @@ struct Expression final : public rq::Entity {
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
     RQ_ASSERT(this->_id != rq::getId(rq::Keyword::NONE),
               "keyword must already be set");
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
     this->_debug_keyword = keyword;
 #endif
     this->_id = rq::getId(keyword);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
-    this->_source_ptr_flags.addFlags(rq::ExpressionSourceInfoFlags::INSERTED);
+    this->_branch_ptr_flags.addFlags(rq::ExpressionBranchInfoFlags::INSERTED);
   }
   RQ_ALWAYS_INLINE void setHasSituatorError() {
-    this->_source_ptr_flags.addFlags(
-        rq::ExpressionSourceInfoFlags::SITUATOR_ERROR);
+    this->_branch_ptr_flags.addFlags(
+        rq::ExpressionBranchInfoFlags::SITUATOR_ERROR);
   }
   void RQ_ALWAYS_INLINE setIsStatement() {
     this->_next_ptr_flags.addFlags(rq::ExpressionNextInfoFlags::STATEMENT);
@@ -5182,7 +5181,7 @@ struct Expression final : public rq::Entity {
   RQ_ALWAYS_INLINE void setSource(llvm::StringRef source) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
     RQ_ASSERT(!source.empty(), "source text is empty");
-    this->_source_ptr_flags.setPtr(source.data());
+    this->_source_ptr = source.data();
     this->_source_text_length = static_cast<unsigned>(source.size());
   }
   template <typename SourceParam>
@@ -5193,22 +5192,22 @@ struct Expression final : public rq::Entity {
   inline void setSource(const FirstSourceParam &first,
                         const LastSourceParam &last) {
     RQ_ASSERT(!this->getHasSourceText(), "expression source already set");
-    rq::assignSingleValue(this->_source_ptr_flags.getPtr(),
-                          first.getSourceTextPtr());
+    this->_source_ptr = first.getSourceTextPtr();
     this->_source_text_length = rq::getSourceLengthBetween(first, last);
   }
   template <typename SourceParam>
   inline void extendSourceOver(const SourceParam &source) {
     RQ_ASSERT(this->getHasSourceText(), "expression source not set");
-    if (source.getSourceTextPtr() >= this->_source_ptr_flags.getPtr()) {
+    if (source.getSourceTextPtr() >= this->_source_ptr) {
       this->_source_text_length = rq::getSourceLengthBetween(*this, source);
     } else {
-      this->_source_ptr_flags.setPtr(source.getSourceTextPtr());
+      this->_source_ptr = source.getSourceTextPtr();
       this->_source_text_length = rq::getSourceLengthBetween(source, *this);
     }
   }
   RQ_ALWAYS_INLINE void setSourceAt(const char *source_ptr) {
-    rq::assignSingleValue(this->_source_ptr_flags.getPtr(), source_ptr);
+    RQ_ASSERT(!this->getHasSourceText(), "source text already set");
+    this->_source_ptr = source_ptr;
   }
   template <typename SourceParam>
   RQ_ALWAYS_INLINE void setSourceBefore(const SourceParam &source) {
@@ -5227,13 +5226,13 @@ struct Expression final : public rq::Entity {
     if (this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL) {
       return nullptr;
     }
-    return static_cast<rq::Expression *>(this->_branch_ptr);
+    return static_cast<rq::Expression *>(this->_branch_ptr_flags.getPtr());
   }
   RQ_ALWAYS_INLINE const rq::Expression *getBranchPtr() const {
     if (this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL) {
       return nullptr;
     }
-    return static_cast<rq::Expression *>(this->_branch_ptr);
+    return static_cast<rq::Expression *>(this->_branch_ptr_flags.getPtr());
   }
   RQ_ALWAYS_INLINE rq::Expression *getNextPtr() {
     return static_cast<rq::Expression *>(this->_next_ptr_flags.getPtr());
@@ -5288,34 +5287,45 @@ struct Expression final : public rq::Entity {
   RQ_ALWAYS_INLINE void setSemantic(rq::Entity &semantic) {
     RQ_ASSERT(this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL,
               "not semantic literal");
-    rq::assignSingleValue(this->_branch_ptr, &semantic);
+    RQ_ASSERT(this->_branch_ptr_flags.getPtr() == nullptr,
+              "semantic already set");
+    this->_branch_ptr_flags.setPtr(&semantic);
   }
   RQ_ALWAYS_INLINE void setBranch(rq::Expression &branch) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::assignSingleValue(this->_branch_ptr, &branch);
+    RQ_ASSERT(this->_branch_ptr_flags.getPtr() == nullptr,
+              "branch already set");
+    this->_branch_ptr_flags.setPtr(&branch);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression &next) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), &next);
+    RQ_ASSERT(!this->getHasNext(), "next already set");
+    this->_next_ptr_flags.setPtr(&next);
   }
   RQ_ALWAYS_INLINE void setSemantic(rq::Entity *semantic_ptr) {
     RQ_ASSERT(this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL,
               "not semantic literal");
-    rq::assignSingleValue(this->_branch_ptr, semantic_ptr);
+    RQ_ASSERT(this->_branch_ptr_flags.getPtr() == nullptr,
+              "semantic already set");
+    this->_branch_ptr_flags.setPtr(semantic_ptr);
   }
   RQ_ALWAYS_INLINE void setBranch(rq::Expression *branch_ptr) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::assignSingleValue(this->_branch_ptr, branch_ptr);
+    RQ_ASSERT(this->_branch_ptr_flags.getPtr() == nullptr,
+              "branch already set");
+    this->_branch_ptr_flags.setPtr(branch_ptr);
   }
   RQ_ALWAYS_INLINE void setNext(rq::Expression *next_ptr) {
-    rq::assignSingleValue(this->_next_ptr_flags.getPtr(), next_ptr);
+    RQ_ASSERT(!this->getHasNext(), "next already set");
+    this->_next_ptr_flags.setPtr(next_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   replaceBranch(rq::Expression &branch) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::Entity &entity = rq::replaceValue(this->_branch_ptr, &branch);
+    rq::Entity &entity = rq::dereferencePtr(this->_branch_ptr_flags.getPtr());
+    this->_branch_ptr_flags.setPtr(&branch);
     return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
@@ -5328,7 +5338,8 @@ struct Expression final : public rq::Entity {
   replaceBranch(rq::Expression *branch_ptr) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::Entity &entity = rq::replaceValue(this->_branch_ptr, branch_ptr);
+    rq::Entity &entity = rq::dereferencePtr(this->_branch_ptr_flags.getPtr());
+    this->_branch_ptr_flags.setPtr(branch_ptr);
     return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
@@ -5341,7 +5352,8 @@ struct Expression final : public rq::Entity {
   replaceBranchPtr(rq::Expression &branch) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::Entity *entity_ptr = rq::replaceValuePtr(this->_branch_ptr, &branch);
+    rq::Entity *entity_ptr = this->_branch_ptr_flags.getPtr();
+    this->_branch_ptr_flags.setPtr(&branch);
     return llvm::cast_or_null<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
@@ -5354,7 +5366,8 @@ struct Expression final : public rq::Entity {
   replaceBranchPtr(rq::Expression *branch_ptr) {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "semantic literal has no branches");
-    rq::Entity *entity_ptr = rq::replaceValuePtr(this->_branch_ptr, branch_ptr);
+    rq::Entity *entity_ptr = this->_branch_ptr_flags.getPtr();
+    this->_branch_ptr_flags.setPtr(branch_ptr);
     return llvm::cast<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
@@ -5365,11 +5378,11 @@ struct Expression final : public rq::Entity {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasSemantic() const {
     return this->getKeyword() == rq::Keyword::SEMANTIC_LITERAL &&
-           this->_branch_ptr != nullptr;
+           this->_branch_ptr_flags.getPtr() != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasBranch() const {
     return this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL &&
-           this->_branch_ptr != nullptr;
+           this->_branch_ptr_flags.getPtr() != nullptr;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getHasNext() const {
     return this->_next_ptr_flags.getPtr() != nullptr;
@@ -5377,13 +5390,15 @@ struct Expression final : public rq::Entity {
   [[nodiscard]] inline rq::Expression &popBranch() {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "is semantic literal");
-    rq::Entity &entity = rq::popValue(this->_branch_ptr);
+    rq::Entity &entity = rq::dereferencePtr(this->_branch_ptr_flags.getPtr());
+    this->_branch_ptr_flags.setPtr(nullptr);
     return llvm::cast<rq::Expression>(entity);
   }
   [[nodiscard]] inline rq::Expression *popBranchPtr() {
     RQ_ASSERT(this->getKeyword() != rq::Keyword::SEMANTIC_LITERAL,
               "is semantic literal");
-    rq::Entity *entity_ptr = rq::popValuePtr(this->_branch_ptr);
+    rq::Entity *entity_ptr = this->_branch_ptr_flags.getPtr();
+    this->_branch_ptr_flags.setPtr(nullptr);
     return llvm::cast<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] inline rq::Expression &popNext() {
