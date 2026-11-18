@@ -2423,7 +2423,8 @@ getIsVariantImplementation(rq::SymbolKind kind) {
   return rq::getHasAll(flags, SIF::IS_OBJECT_SCOPE);
 }
 
-struct Entity {
+// alignas so that rq::PtrWithFlags can have enough bits to use.
+struct alignas(4) Entity {
   using Self = rq::Entity;
 
   rq::EntityId _id;
