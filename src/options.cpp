@@ -113,9 +113,7 @@ rq::Emit getEmitMode() { return rq::EMIT.getValue(); }
 bool getNoComment() { return rq::NO_COMMENT.getValue(); }
 
 #if !defined(_NDEBUG)
-bool getBreakOnError() {
-  return rq::BREAK_ON_ERROR.getValue();
-}
+bool getBreakOnError() { return rq::BREAK_ON_ERROR.getValue(); }
 #endif
 
 } // namespace rq
