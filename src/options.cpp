@@ -19,6 +19,16 @@ static llvm::cl::opt<bool>
                llvm::cl::value_desc("<boolean>"), llvm::cl::Optional,
                llvm::cl::init(false));
 
+#if !defined(_NDEBUG)
+static llvm::cl::opt<bool> BREAK_ON_ERROR(
+    "break-on-error",
+    llvm::cl::desc(
+        "Break into the debugger when an error is "
+        "reported (only valid when compiler built with debug flags enabled)."),
+    llvm::cl::value_desc("<boolean>"), llvm::cl::Optional,
+    llvm::cl::init(false));
+#endif
+
 static llvm::cl::opt<std::string>
     OUTPUT_FILE("o", llvm::cl::desc("Path to the output build file."),
                 llvm::cl::value_desc("<output file>"), llvm::cl::Required);
@@ -101,5 +111,13 @@ llvm::ArrayRef<std::string> getImportDirectories() {
 rq::Emit getEmitMode() { return rq::EMIT.getValue(); }
 
 bool getNoComment() { return rq::NO_COMMENT.getValue(); }
+
+bool getBreakOnError() {
+#if !defined(_NDEBUG)
+  return rq::BREAK_ON_ERROR.getValue();
+#else
+  return false;
+#endif
+}
 
 } // namespace rq

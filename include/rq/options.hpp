@@ -27,4 +27,6 @@ enum Emit {
 
 [[nodiscard]] bool getNoComment();
 
+[[nodiscard]] bool getBreakOnError();
+
 } // namespace rq

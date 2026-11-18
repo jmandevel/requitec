@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rq/bump_ptr_allocator.hpp>
+#include <rq/options.hpp>
 #include <rq/symbols.hpp>
 #include <rq/utility.hpp>
 #include <rq/values.hpp>
@@ -465,8 +466,9 @@ struct Context final : public rq::BumpPtrAllocator {
         llvm::outs(), location, static_cast<llvm::SourceMgr::DiagKind>(type),
         message, ranges, fixits, true);
 #if !defined(_NDEBUG)
-    if (type == rq::LogType::ERROR) {
+    if (type == rq::LogType::ERROR && rq::getBreakOnError()) {
 #if __has_builtin(__builtin_debugtrap)
+      llvm::outs().flush();
       __builtin_debugtrap();
 #endif
     }

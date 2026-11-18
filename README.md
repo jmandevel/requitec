@@ -45,6 +45,7 @@ The requitec compiler can be controlled from the command line. It is easy to set
 |---------------------- |----------------------------------------------------------------|----------|-----------|
 | `<input file>`        | Path to the input source file (positional argument)            | Yes      |           |
 | `--no-comment`        | Do not add comments to output files                            | No       | false     |
+| `--break-on-error`    | Break into the debugger on an error (only valid when compiler built with debug flags enabled)        | No       | false     |
 | `-o <output file>`    | Path to the output build file                                  | Yes      |           |
 | `-I <dir>`            | Import directories (can be specified multiple times)           | No       |           |
 | `--emit <mode>`       | Choose the type of target to build (see below)                 | No       | object    |
