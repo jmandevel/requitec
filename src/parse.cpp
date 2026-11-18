@@ -618,12 +618,12 @@ rq::Expression &RequiteParser::parsePrecedence4() {
     switch (token.getKind()) {
     case rq::TokenKind::DOUBLE_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_LEFT);
+      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_RIGHT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::DOUBLE_LESS_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_RIGHT);
+      precedence_factory.parseBinary(token, rq::Keyword::BITWISE_SHIFT_LEFT);
       precedence_factory.setRecent(this->parsePrecedence3());
       continue;
     case rq::TokenKind::PIPE_OPERATOR:
