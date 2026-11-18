@@ -43,9 +43,10 @@ mangle::main
 
     # integers can be written with any base from 2 to 64
     # bases above 35 are case sensitive
+    # : and $ represent digits 62 and 63
     var20 : UInt64 =2x101;
     var21 : UInt64 =16xDeadBeef;
-    var22 : UInt512 =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!;
+    var22 : UInt512 =64xabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:$;
 
     # underscores in integers are ignored
     var23 : UInt128 =16xBeef_Babe;

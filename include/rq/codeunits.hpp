@@ -641,13 +641,13 @@ getInfoFlags(char codeunit) {
   case 0x20: // ' '
     return HORIZONTAL_WHITESPACE;
   case 0x21: // '!'
-    return DIGIT_SYMBOL | 63;
+    return SYMBOL;
   case 0x22: // '\"'
     return SYMBOL;
   case 0x23: // '#'
     return SYMBOL;
   case 0x24: // '$'
-    return SYMBOL;
+    return DIGIT_SYMBOL | 63;
   case 0x25: // '%'
     return SYMBOL;
   case 0x26: // '&'
@@ -691,7 +691,7 @@ getInfoFlags(char codeunit) {
   case 0x39: // '9'
     return DECIMAL_DIGIT | 9;
   case 0x3A: // ':'
-    return SYMBOL;
+    return DIGIT_SYMBOL | 62;
   case 0x3B: // ';'
     return SYMBOL;
   case 0x3C: // '<'
@@ -701,7 +701,7 @@ getInfoFlags(char codeunit) {
   case 0x3E: // '>'
     return SYMBOL;
   case 0x3F: // '?'
-    return DIGIT_SYMBOL | 62;
+    return SYMBOL;
   case 0x40: // '@'
     return SYMBOL;
   case 0x41: // 'A'
