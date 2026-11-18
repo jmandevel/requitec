@@ -153,7 +153,8 @@ constexpr bool is_flags_v = rq::is_flags<FlagsParam>::value;
 template <typename FlagsParam>
 concept flags = rq::is_flags<FlagsParam>::value;
 
-#define RQ_DEFINE_FLAGS(FLAGS) template<> struct is_flags<typename FLAGS> final : std::true_type {}
+#define RQ_DEFINE_FLAGS(FLAGS)                                                 \
+  template <> struct is_flags<typename FLAGS> final : std::true_type {}
 
 template <typename FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<FlagsParam>
@@ -226,16 +227,16 @@ operator^(std::underlying_type_t<FlagsParam> lhs, FlagsParam rhs) {
 template <rq::flags FlagsParam>
 RQ_ALWAYS_INLINE constexpr FlagsParam &operator|=(FlagsParam &lhs,
                                                   FlagsParam rhs) {
-  lhs =
-      static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) | rq::getUnderlyingValue(rhs));
+  lhs = static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) |
+                                rq::getUnderlyingValue(rhs));
   return lhs;
 }
 
 template <rq::flags FlagsParam>
 RQ_ALWAYS_INLINE constexpr FlagsParam &operator&=(FlagsParam &lhs,
                                                   FlagsParam rhs) {
-  lhs =
-      static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) & rq::getUnderlyingValue(rhs));
+  lhs = static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) &
+                                rq::getUnderlyingValue(rhs));
   return lhs;
 }
 
@@ -286,6 +287,12 @@ template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getHasAll(FlagsParam flags,
                                                         FlagsParam has) {
   return (flags & has) == has;
+}
+
+template <rq::flags FlagsParam>
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
+getHasAllAndNone(FlagsParam flags, FlagsParam has, FlagsParam not_has) {
+  return (flags & has | not_has) == has;
 }
 
 template <rq::flags FlagsParam>
