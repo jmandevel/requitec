@@ -889,6 +889,10 @@ void Tokenizer::tokenizeLeftGrouping(rq::GroupingKind grouping_kind,
 void Tokenizer::tokenizeRightGrouping(rq::GroupingKind grouping_kind,
                                       rq::TokenKind token_kind,
                                       unsigned length) {
+  if (!this->getHasGrouping()) {
+    this->tokenizeUnmatchedLengthToken(token_kind, length);
+    return;
+  }
   rq::Token right_token = this->getRanger().getLengthToken(token_kind, length);
   this->getTokens().push_back(right_token);
   if (this->getHasGrouping()) {
