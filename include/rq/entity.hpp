@@ -1109,17 +1109,17 @@ getId(rq::ValueKind kind) {
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::Keyword
 getUnsafeKeyword(rq::EntityId id) {
-  return static_cast<rq::Keyword>(id + rq::KEYWORD_OFFSET);
+  return static_cast<rq::Keyword>(id - rq::KEYWORD_OFFSET);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::SymbolKind
 getUnsafeSymbolKind(rq::EntityId id) {
-  return static_cast<rq::SymbolKind>(id + rq::SYMBOL_OFFSET);
+  return static_cast<rq::SymbolKind>(id - rq::SYMBOL_OFFSET);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE rq::ValueKind
 getUnsafeValueKind(rq::EntityId id) {
-  return static_cast<rq::ValueKind>(id + rq::VALUE_OFFSET);
+  return static_cast<rq::ValueKind>(id - rq::VALUE_OFFSET);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsTombstone(rq::EntityId id) {
