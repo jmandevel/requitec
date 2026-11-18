@@ -958,10 +958,13 @@ getInfoFlags(char codeunit) {
     return CONTINUE;
   case 0xBF:
     return CONTINUE;
+  // the following three could be TWO_START but they can only ever be used
+  // to create overlong encodings.
+  // https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-3/#G27288
   case 0xC0:
-    return TWO_START;
+    return INVALID; // TWO_START but could only ever be overlong
   case 0xC1:
-    return TWO_START;
+    return INVALID; // TWO_START but could only ever be overlong
   case 0xC2:
     return TWO_START;
   case 0xC3:
@@ -1064,12 +1067,15 @@ getInfoFlags(char codeunit) {
     return FOUR_START;
   case 0xF4:
     return FOUR_START;
+  // the following three could be FOUR_START but they can only ever exceed the
+  // max Unicode codepoint U+10FFFF.
+  // https://www.rfc-editor.org/rfc/rfc3629.html#section-3
   case 0xF5:
-    return FOUR_START;
+    return INVALID; // FOUR_START but could only ever exceed U+10FFFF
   case 0xF6:
-    return FOUR_START;
+    return INVALID; // FOUR_START but could only ever exceed U+10FFFF
   case 0xF7:
-    return FOUR_START;
+    return INVALID; // FOUR_START but could only ever exceed U+10FFFF
   case 0xF8:
     return INVALID;
   case 0xF9:

@@ -24,6 +24,7 @@
 #include <llvm/TargetParser/Host.h>
 #include <llvm/TargetParser/Triple.h>
 
+#include <bit>
 #include <system_error>
 #include <utility>
 
@@ -32,6 +33,10 @@ namespace rq {
 bool Context::validateSourceText(const rq::ModuleDetail &detail) {
   bool is_ok = true;
   unsigned continue_bytes = 0;
+  // continue_min and continue_max are used to prevent overlong encodings.
+  // https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-3/#G27288
+  unsigned char continue_min = 0x80;
+  unsigned char continue_max = 0xBF;
   llvm::SMLoc extended_char_start;
   for (const char &c : detail.getBuffer()) {
     if (!rq::getIsValid(c)) {
@@ -49,7 +54,15 @@ bool Context::validateSourceText(const rq::ModuleDetail &detail) {
           extended_char_start = llvm::SMLoc();
           continue_bytes = 0;
         } else {
+          const unsigned char codeunit = std::bit_cast<unsigned char>(c);
+          if (codeunit < continue_min || codeunit > continue_max) {
+            this->logErrorInvalidUtf8Continuation(
+                extended_char_start, llvm::SMLoc::getFromPointer(&c), c);
+            is_ok = false;
+          }
           continue_bytes--;
+          continue_min = 0x80;
+          continue_max = 0xBF;
         }
       } else if (new_continue_bytes == 0) {
         const llvm::SMLoc location = llvm::SMLoc::getFromPointer(&c);
@@ -58,10 +71,28 @@ bool Context::validateSourceText(const rq::ModuleDetail &detail) {
       } else {
         extended_char_start = llvm::SMLoc::getFromPointer(&c);
         continue_bytes = new_continue_bytes;
+        continue_min = 0x80;
+        continue_max = 0xBF;
+        switch (std::bit_cast<unsigned char>(c)) {
+        case 0xE0:
+          continue_min = 0xA0;
+          break;
+        case 0xED:
+          continue_max = 0x9F;
+          break;
+        case 0xF0:
+          continue_min = 0x90;
+          break;
+        case 0xF4:
+          continue_max = 0x8F;
+          break;
+        default:
+          break;
+        }
       }
     } else if (continue_bytes != 0) {
-      this->logErrorInvalidUtf8Continuation(
-          extended_char_start, llvm::SMLoc::getFromPointer(&c), c);
+      this->logErrorInvalidUtf8Continuation(extended_char_start,
+                                            llvm::SMLoc::getFromPointer(&c), c);
       is_ok = false;
       extended_char_start = llvm::SMLoc();
       continue_bytes = 0;
