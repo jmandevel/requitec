@@ -338,10 +338,6 @@ void Tokenizer::_tokenizeSourceText() {
       bool is_float = false;
       while (this->getRanger().getIsNumeric()) {
         const char sub_c0 = this->getRanger().getChar(0);
-        if ((sub_c0 == '!' || sub_c0 == '?') &&
-            this->getRanger().getChar(1) == '=') {
-          break;
-        }
         if (sub_c0 == '.') {
           const char sub_c1 = this->getRanger().getChar(1);
           if (getIsDecimalDigit(sub_c1)) {
