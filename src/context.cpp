@@ -175,7 +175,7 @@ bool Context::loadSourceModule() {
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
     if (!this->emitRequite(
             rq::getOutputFilePath(),
-            llvm::cast<rq::Expression>(detail.getExpressionPtr()))) {
+            llvm::cast_or_null<rq::Expression>(detail.getExpressionPtr()))) {
       return false;
     }
     return parsed_ok;
