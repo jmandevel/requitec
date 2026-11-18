@@ -51,6 +51,10 @@ bool Context::validateSourceText(const rq::ModuleDetail &detail) {
         } else {
           continue_bytes--;
         }
+      } else if (new_continue_bytes == 0) {
+        const llvm::SMLoc location = llvm::SMLoc::getFromPointer(&c);
+        this->logErrorInvalidUtf8Continuation(location, location, c);
+        is_ok = false;
       } else {
         extended_char_start = llvm::SMLoc::getFromPointer(&c);
         continue_bytes = new_continue_bytes;
