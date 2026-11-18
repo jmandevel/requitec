@@ -105,15 +105,6 @@ struct SourceRanger final {
     return rq::getIsWhitespace(this->getChar(0));
   }
 
-  inline void skipWhitespace() {
-    while (!this->getIsDone()) {
-      if (this->getIsWhitespace()) {
-        this->incrementChar(1);
-      }
-    }
-    return;
-  }
-
   inline void skipUntilVerticalWhitespace() {
     while (!this->getIsDone()) {
       if (rq::getIsVerticalWhitespace(this->getChar(0))) {
