@@ -40,7 +40,7 @@ struct Name final {
   }
 
   [[nodiscard]] RQ_ALWAYS_INLINE bool operator!=(const rq::Name &rhs) const {
-    return this->getKeyword() != rhs.getKeyword() &&
+    return this->getKeyword() != rhs.getKeyword() ||
            this->getText() != rhs.getText();
   }
 
