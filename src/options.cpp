@@ -112,12 +112,10 @@ rq::Emit getEmitMode() { return rq::EMIT.getValue(); }
 
 bool getNoComment() { return rq::NO_COMMENT.getValue(); }
 
-bool getBreakOnError() {
 #if !defined(_NDEBUG)
+bool getBreakOnError() {
   return rq::BREAK_ON_ERROR.getValue();
-#else
-  return false;
-#endif
 }
+#endif
 
 } // namespace rq
