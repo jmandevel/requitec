@@ -13,8 +13,8 @@ enum class CodeunitInfoFlags : std::uint16_t {
   NONE = 0,
   HORIZONTAL_WHITESPACE = rq::getBit(15),
   VERTICAL_WHITESPACE = rq::getBit(14),
-  DECIMAL_DIGIT = rq::getBit(13),
-  EXTENDED_DIGIT = rq::getBit(12),
+  DIGIT = rq::getBit(13),
+  EXTENDED = rq::getBit(12),
   NUMERIC = rq::getBit(11),
   UPPERCASE_LETTER = rq::getBit(10),
   LOWERCASE_LETTER = rq::getBit(9),
@@ -556,23 +556,23 @@ getInfoFlags(char codeunit) {
   constexpr CF INVALID = CF::NONE;
   constexpr CF HORIZONTAL_WHITESPACE = CF::HORIZONTAL_WHITESPACE;
   constexpr CF VERTICAL_WHITESPACE = CF::VERTICAL_WHITESPACE;
-  constexpr CF DECIMAL_DIGIT =
-      CF::NUMERIC | CF::DECIMAL_DIGIT | CF::IDENTIFIER_BODY;
-  constexpr CF UPPERCASE_LETTER = CF::NUMERIC | CF::EXTENDED_DIGIT |
+  constexpr CF DECIMAL_DIGIT = CF::NUMERIC | CF::DIGIT | CF::IDENTIFIER_BODY;
+  constexpr CF UPPERCASE_LETTER = CF::NUMERIC | CF::DIGIT | CF::EXTENDED |
                                   CF::UPPERCASE_LETTER | CF::IDENTIFIER_FRONT |
                                   CF::IDENTIFIER_BODY;
-  constexpr CF LOWERCASE_LETTER = CF::NUMERIC | CF::EXTENDED_DIGIT |
+  constexpr CF LOWERCASE_LETTER = CF::NUMERIC | CF::DIGIT | CF::EXTENDED |
                                   CF::LOWERCASE_LETTER | CF::IDENTIFIER_FRONT |
                                   CF::IDENTIFIER_BODY;
   constexpr CF SYMBOL = CF::SYMBOL;
   constexpr CF UNDERSCORE =
       CF::NUMERIC | CF::IDENTIFIER_FRONT | CF::IDENTIFIER_BODY;
   constexpr CF DOT = CF::NUMERIC | CF::SYMBOL;
-  constexpr CF DIGIT_SYMBOL = CF::SYMBOL | CF::EXTENDED_DIGIT | CF::NUMERIC;
-  constexpr CF CONTINUE = CF::NONE | 0;
-  constexpr CF TWO_START = CF::NONE | 1;
-  constexpr CF THREE_START = CF::NONE | 2;
-  constexpr CF FOUR_START = CF::NONE | 3;
+  constexpr CF DIGIT_SYMBOL =
+      CF::SYMBOL | CF::DIGIT | CF::EXTENDED | CF::NUMERIC;
+  constexpr CF CONTINUE = CF::EXTENDED | 0;
+  constexpr CF TWO_START = CF::EXTENDED | 1;
+  constexpr CF THREE_START = CF::EXTENDED | 2;
+  constexpr CF FOUR_START = CF::EXTENDED | 3;
   switch (std::bit_cast<unsigned char>(codeunit)) {
   case 0x00: // NUL
     return INVALID;
@@ -1629,23 +1629,23 @@ getIsVerticalWhitespace(char codeunit) {
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsDigit(char codeunit) {
   const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
-  return rq::getHasSome(flags, rq::CodeunitInfoFlags::DECIMAL_DIGIT |
-                                   rq::CodeunitInfoFlags::EXTENDED_DIGIT);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::DIGIT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsDecimalDigit(char codeunit) {
   const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitInfoFlags::DECIMAL_DIGIT);
+  return rq::getHasAllAndNone(flags, rq::CodeunitInfoFlags::DIGIT,
+                              rq::CodeunitInfoFlags::EXTENDED);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
 getIsExtendedDigit(char codeunit) {
   const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
-  return rq::getHasAll(flags, rq::CodeunitInfoFlags::EXTENDED_DIGIT);
+  return rq::getHasAll(flags, rq::CodeunitInfoFlags::DIGIT |
+                                  rq::CodeunitInfoFlags::EXTENDED);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool
-getIsNumeric(char codeunit) {
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsNumeric(char codeunit) {
   const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
   return rq::getHasAll(flags, rq::CodeunitInfoFlags::NUMERIC);
 }
@@ -1718,7 +1718,8 @@ getIsIdentifierBody(char codeunit) {
   return (codeunit & rq::CHAR_EXTENDED_BIT) == rq::CHAR_EXTENDED_BIT;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<rq::CodeunitInfoFlags>
+[[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<
+    rq::CodeunitInfoFlags>
 getExtendedStartCount(char codeunit) {
   RQ_ASSERT(rq::getIsExtended(codeunit), "codeunit not extended");
   const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
