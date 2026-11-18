@@ -66,7 +66,7 @@ enum class TokenKind : std::uint_fast8_t {
   DOT_PLUS_PERCENT_OPERATOR,   // .+%
   DOT_DASH_PERCENT_OPERATOR,   // .-%
   DOT_STAR_PERCENT_OPERATOR,   // .*%
-  DOT_PLUS_PIPE_OPERATOR,      // .*|
+  DOT_PLUS_PIPE_OPERATOR,      // .+|
   DOT_DASH_PIPE_OPERATOR,      // .-|
   DOT_STAR_PIPE_OPERATOR,      // .*|
   DOT_LESS_OPERATOR,           // .<
