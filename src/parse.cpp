@@ -930,15 +930,14 @@ RequiteParser::parseBranches(rq::TokenKind end) {
 
 rq::Keyword RequiteParser::parseKeyword() {
   const rq::Token token = this->getRanger().getToken();
-  this->getRanger().incrementToken(1);
-  rq::Keyword keyword;
-  if (token.getKind() == rq::TokenKind::IDENTIFIER_LITERAL) {
-    keyword = this->getContext().getKeyword(token.getSourceText());
-  } else {
+  if (token.getKind() != rq::TokenKind::IDENTIFIER_LITERAL) {
     this->getContext().logErrorExpectedIdentifierLiteral(token);
     this->setNotOk();
     return rq::Keyword::ERROR;
   }
+  this->getRanger().incrementToken(1);
+  const rq::Keyword keyword =
+      this->getContext().getKeyword(token.getSourceText());
   if (keyword == rq::Keyword::NONE) {
     this->getContext().logErrorNotKeyword(token);
     this->setNotOk();
