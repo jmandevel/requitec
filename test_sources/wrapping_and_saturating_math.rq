@@ -1,0 +1,24 @@
+mangle::main
+[proc , ()SInt,
+    # wrapping arithmetic
+    wrapping_add := 10 +% 2;
+    wrapping_subtract := 10 -% 2;
+    wrapping_multiply := 10 *% 2;
+
+    # saturating arithmetic
+    saturating_add := 10 +| 2;
+    saturating_subtract := 10 -| 2;
+    saturating_multiply := 10 *| 2;
+
+    # wrapping sequence steps
+    wrapping_add_range := 0.<10.+%1;
+    wrapping_subtract_range := 10.>0.-%1;
+    wrapping_multiply_range := 1.<100.*%2;
+
+    # saturating sequence steps
+    saturating_add_range := 0.<10.+|1;
+    saturating_subtract_range := 10.>0.-|1;
+    saturating_multiply_range := 1.<100.*|2;
+
+    result <:= 0;
+];
