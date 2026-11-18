@@ -38,18 +38,19 @@ static llvm::cl::list<std::string>
                        llvm::cl::ZeroOrMore, llvm::cl::value_desc("dir"));
 
 static llvm::cl::opt<Emit>
-    EMIT("emit", llvm::cl::desc("Choose the type of target to build."),
+    EMIT("emit",
+         llvm::cl::desc("Choose the compilation stage or output format to emit."),
          llvm::cl::values(
              clEnumValN(EMIT_TOKENS, "tokens", "Output csv token data."),
              clEnumValN(EMIT_PARSED, "parsed",
-                        "Output intermediate requite source code of "
-                        "the ast immediatly after parsing."),
+                        "Output the AST as Requite source code "
+                        "immediately after parsing."),
              clEnumValN(EMIT_SITUATED, "situated",
-                        "Output intermediate requite source code of "
-                        "the ast immediatly after situating."),
+                        "Output the AST as Requite source code "
+                        "immediately after situating."),
              clEnumValN(EMIT_GENERATED, "generated",
-                        "Output intermediate requite source code of the ast "
-                        "immediatly after generating."),
+                        "Output the AST as Requite source code "
+                        "immediately after generating."),
              clEnumValN(EMIT_IR, "ir", "Output an llvm ir source file."),
              clEnumValN(EMIT_ASSEMBLY, "assembly",
                         "Output an assembly source file."),

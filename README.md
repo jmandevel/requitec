@@ -30,8 +30,8 @@ The requitec front-end compiles source files in 6 stages.
 2. Tokenization - In the tokenization stage, raw source file text is seperated into a list of tokens that correlate to different lexemes.
 3. Parsing - In the parsing stage, the list of tokens emitted by the tokenizer are parsed into an Abstract-Syntax Tree (AST) structure that represents Requite code in a format that is efficient for the compiler to manipulate.
 4. Situation - In the situation stage, the compiler performs a pre-order traversal in order to do error checking and modification of the AST. This stage is important because it greatly simplifies later stages.
-5. Generation - In the generation stage, the compiler traverses the outermost scopes of Requite source files and generates global symbols while also executing eager code to do code generation of Requite Intermediate Representation (RQIR) instructions. First, all symbols in source and imported files are lazily evaluated. After this is done, all remaining unevaluated global symbols in the source file are evaluated.
-6. IR Building - In the building stage, the symbol tables and RQIR are used to build LLVM Intermediate Representation (IR) for all global symbols in the source file (not import files).
+5. Generation - In the generation stage, the compiler evaluates global symbols and executes eager code, transforming the situated AST into the generated AST.
+6. IR Building - In the building stage, the symbol tables and generated AST are used to build LLVM Intermediate Representation (IR) for all global symbols in the source file (not import files).
 
 ## How to Use
 
@@ -48,16 +48,16 @@ The requitec compiler can be controlled from the command line. It is easy to set
 | `--break-on-error`    | Break into the debugger on an error (only valid when compiler built with debug flags enabled)        | No       | false     |
 | `-o <output file>`    | Path to the output build file                                  | Yes      |           |
 | `-I <dir>`            | Import directories (can be specified multiple times)           | No       |           |
-| `--emit <mode>`       | Choose the type of target to build (see below)                 | No       | object    |
+| `--emit <mode>`       | Choose the compilation stage or output format to emit (see below) | No       | object    |
 
 ### Emit Modes
 
 The `--emit` option supports the following modes:
 
 * `tokens`    : Output CSV token data
-* `parsed`    : Output intermediate Requite source code after parsing
-* `situated`  : Output intermediate Requite source code after situating
-* `symbols`   : Output a markup language file listing user symbols
+* `parsed`    : Output the AST as Requite source code after parsing
+* `situated`  : Output the AST as Requite source code after situating
+* `generated` : Output the AST as Requite source code after generating
 * `ir`        : Output an LLVM IR source file
 * `assembly`  : Output an assembly source file
 * `object`    : Output an object file (default)
