@@ -1636,7 +1636,10 @@ bool Situator::situateVignetteOrRvalueBranch(rq::Expression &branch) {
     this->getContext().logErrorExpectedTagExpression(branch);
     return false;
   }
-  if (!branch.getCanBeStatement() && !branch.getCanBeRvalue()) {
+  if (branch.getCanBeRvalue()) {
+    return this->situateTree(rq::Situation::RVALUE, branch);
+  }
+  if (!branch.getCanBeStatement()) {
     this->getContext().logErrorInvalidBranchSituation(rq::Situation::STATEMENT,
                                                       branch);
     return false;
