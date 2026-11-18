@@ -61,13 +61,8 @@ void PrecedenceFactory::parseAscribe(llvm::StringRef initial_source,
 
 void PrecedenceFactory::parseBinary(const rq::Token &token,
                                     rq::Keyword keyword) {
-  rq::Expression &new_expression = this->getContext().acquireExpression();
-  new_expression.setKeyword(keyword);
-  new_expression.setSource(this->getRecent(), token);
-  this->appendBranch(new_expression);
-  this->_expression_ptr = &new_expression;
-  this->_last_ptr = nullptr;
   this->appendRecent();
+  this->parseOuterBinary(token, keyword);
 }
 
 void PrecedenceFactory::parseOuterBinary(const rq::Token &token,
@@ -91,15 +86,7 @@ void PrecedenceFactory::parseNary(const rq::Token &token, rq::Keyword keyword) {
       return;
     }
   }
-  // need to make a new expression of this keyword because one does not exist
-  // yet
-  rq::Expression &new_expression = this->getContext().acquireExpression();
-  new_expression.setKeyword(keyword);
-  new_expression.setSource(this->getRecent(), token);
-  this->appendBranch(new_expression);
-  this->_expression_ptr = &new_expression;
-  this->_last_ptr = nullptr;
-  this->appendRecent();
+  this->parseBinary(token, keyword);
 }
 
 void PrecedenceFactory::parseSequenceBranch(const rq::Token &token,
