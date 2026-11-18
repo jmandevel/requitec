@@ -2244,8 +2244,7 @@ bool Situator::situateStatementMultiTagStatement(rq::Situation situation,
   if (last_ptr == nullptr) {
     return is_ok;
   }
-  rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
-  if (!this->situateStatementBranches(statement0.getNextPtr())) {
+  if (!this->situateStatementBranches(last_ptr)) {
     is_ok = false;
   }
   return is_ok;
