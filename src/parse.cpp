@@ -353,10 +353,22 @@ rq::Expression &RequiteParser::parsePrecedence9() {
           token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_LESS_EQUAL,
           this->parsePrecedence8());
       continue;
+    case rq::TokenKind::DOT_LESS_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_LESS,
+          this->parsePrecedence8());
+      continue;
     case rq::TokenKind::DOT_GREATER_EQUAL_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseSequenceBranch(
           token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_GREATER_EQUAL,
+          this->parsePrecedence8());
+      continue;
+    case rq::TokenKind::DOT_GREATER_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseSequenceBranch(
+          token, rq::Keyword::ARITHMETIC_SEQUENCE_CONDITION_GREATER,
           this->parsePrecedence8());
       continue;
     case rq::TokenKind::DOT_DOUBLE_EQUAL_OPERATOR:
