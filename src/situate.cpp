@@ -69,22 +69,15 @@ bool Situator::situateTree(rq::Situation situation,
 
   // SITUATIONAL
   case K::UNSITUATED_PARENTHESIS_GROUP: {
-    if (!expression.getHasBranch()) {
-      this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                       1);
+    if (!this->situateNaryTag(situation, expression, 1, S::RVALUE)) {
       is_ok = false;
       break;
     }
-    rq::Expression &first = expression.getBranch();
-    if (!this->situateTagBranch(S::RVALUE, first)) {
-      is_ok = false;
-      break;
+    if (!expression.getBranch().getHasNext()) {
+      this->getContext().discardExpression(expression.mergeAndPopBranch());
+    } else {
+      expression.changeKeyword(K::INSTANTIATE_TRIP);
     }
-    if (first.getHasNext()) {
-      this->getContext().logErrorTooManyBranchCount(situation, expression, 1);
-      break;
-    }
-    this->getContext().discardExpression(expression.mergeAndPopBranch());
   } break;
   case K::UNSITUATED_EQUAL_OPERATOR:
     switch (situation) {
@@ -274,10 +267,23 @@ bool Situator::situateTree(rq::Situation situation,
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
     [[fallthrough]];
-  case K::JUXT:
-    [[fallthrough]];
+  case K::INSTANTIATE_JUXT:
+    is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
+    break;
+  case K::JUXT_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::JUXT_RANGE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
   case K::INSTANTIATE_TRIP:
     is_ok = this->situateNaryTag(situation, expression, 2, S::RVALUE);
+    break;
+  case K::TRIP_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::TRIP_RANGE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
 
   // ARITHMETIC
@@ -370,7 +376,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateBinaryTag(situation, expression, S::LVALUE, S::RVALUE);
     break;
   case K::SPLIT:
-    is_ok = this->situateNaryTag(situation, expression, 2, S::ARGUMENT);
+    is_ok = this->situateNaryTag(situation, expression, 1, S::TUPLE_ELEMENT);
     break;
   case K::RVALUE_LABEL:
     is_ok = this->situateBinaryTag(situation, expression, S::NAME, S::RVALUE);
@@ -556,9 +562,10 @@ bool Situator::situateTree(rq::Situation situation,
         this->situateBinaryTag(situation, expression, S::BINDING, S::RVALUE);
     break;
   case K::PROC:
-    [[fallthrough]];
-  case K::IMPLEMENT_PROC:
     is_ok = this->situateNameStatementTagStatement(situation, expression);
+    break;
+  case K::IMPLEMENT_PROC:
+    is_ok = this->situateStatementTagStatement(situation, expression);
     break;
   case K::USE_PROC:
     is_ok = this->situateNameStatementTag(situation, expression);
@@ -729,17 +736,19 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatement(expression);
     break;
   case K::FOLD:
-    is_ok = this->situateStatementMultiTagStatement(situation, S::BINDING,
-                                                    expression);
+    is_ok = this->situateStatementMultiTagStatement(situation, expression,
+                                                    S::BINDING);
     break;
   case K::CHECK_GLOBAL:
-    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
+    is_ok = this->situateStatementMultiTagStatement(situation, expression,
+                                                    S::PARAMETER);
     break;
   case K::CHECK_FRAME:
-    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
+    is_ok = this->situateStatementMultiTagStatement(situation, expression,
+                                                    S::PARAMETER);
     break;
   case K::VALIDATE:
-    is_ok = this->situateStatementTagStatement(situation, expression);
+    is_ok = this->situateStatement(expression);
     break;
   case K::BREAK:
     is_ok = this->situateNullary(situation, expression);
@@ -955,6 +964,8 @@ bool Situator::situateTree(rq::Situation situation,
   case K::INVARIADIC:
     [[fallthrough]];
   case K::VARIADIC:
+    [[fallthrough]];
+  case K::POLYADIC:
     [[fallthrough]];
   case K::BEST_LOCATION:
     [[fallthrough]];
@@ -1192,6 +1203,12 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::OVERLOAD_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PARAMETER_RANGE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::PARAMETER_RANGE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::OVERLOAD_RANGE:
@@ -1508,6 +1525,8 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VARIADIC_MODIFIER_CONCEPT:
     [[fallthrough]];
+  case K::POLYADIC_MODIFIER_CONCEPT:
+    [[fallthrough]];
   case K::OFFSET_MODIFIER_CONCEPT:
     [[fallthrough]];
   case K::LAZY_DECLARATION_MODIFIER_CONCEPT:
@@ -1553,7 +1572,7 @@ bool Situator::situateTree(rq::Situation situation,
   if (is_ok && expression.getIsConverging()) {
     for (rq::Expression &branch : expression.getBranchSubrange()) {
       if (expression.getKeyword() == branch.getKeyword()) {
-        this->getContext().discardExpression(expression.mergeAndPopBranch());
+        this->getContext().discardExpression(branch.mergeAndPopBranch());
       }
     }
   }
@@ -2029,40 +2048,72 @@ bool Situator::situateNaryFromFirstParameterBranches(
   return is_ok;
 }
 
-bool Situator::situateStatement(rq::Expression &expression) {
+bool Situator::situateStatementSequenceBranch(rq::Expression &branch,
+                                              rq::ChainKind &chain) {
+  if (chain != rq::ChainKind::NONE) {
+    if (branch.getIsStatement()) {
+      const bool is_ok = this->situateStatementBranch(
+          rq::getFinishingChainSituation(chain), branch);
+      chain = rq::ChainKind::NONE;
+      return is_ok;
+    }
+    if (branch.getIsTag()) {
+      this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
+      return false;
+    }
+    return this->situateChainBranch(rq::getContinuingChainSituation(chain),
+                                    branch);
+  }
+  if (branch.getIsChain()) {
+    const bool is_ok =
+        this->situateChainBranch(rq::Situation::STARTING_CHAINLINK, branch);
+    chain = branch.getStartingChainKind();
+    if (chain == rq::ChainKind::INVALID) {
+      this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
+      return false;
+    }
+    return is_ok;
+  }
+  return this->situateStatementBranch(rq::Situation::STATEMENT, branch);
+}
+
+bool Situator::situateStatementBranchesBeforeTag(rq::Expression &first,
+                                                 rq::Expression *&tag_ptr) {
   bool is_ok = true;
   rq::ChainKind chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
+  tag_ptr = nullptr;
+  for (rq::Expression &branch : first.getInclusiveNextSubrange()) {
+    if (branch.getIsTag()) {
+      if (chain != rq::ChainKind::NONE) {
         this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
         is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
       }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
+      tag_ptr = &branch;
+      break;
+    }
+    if (!this->situateStatementSequenceBranch(branch, chain)) {
       is_ok = false;
     }
   }
   return is_ok;
+}
+
+bool Situator::situateStatementBranches(rq::Expression *first_ptr) {
+  if (first_ptr == nullptr) {
+    return true;
+  }
+  bool is_ok = true;
+  rq::ChainKind chain = rq::ChainKind::NONE;
+  for (rq::Expression &branch : first_ptr->getInclusiveNextSubrange()) {
+    if (!this->situateStatementSequenceBranch(branch, chain)) {
+      is_ok = false;
+    }
+  }
+  return is_ok;
+}
+
+bool Situator::situateStatement(rq::Expression &expression) {
+  return this->situateStatementBranches(expression.getBranchPtr());
 }
 
 bool Situator::situateNameStatementTagStatement(rq::Situation situation,
@@ -2083,40 +2134,8 @@ bool Situator::situateNameStatementTagStatement(rq::Situation situation,
   }
   rq::Expression &branch1 = branch0.getNext();
   rq::Expression *last_ptr = nullptr;
-  rq::ChainKind chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : branch1.getInclusiveNextSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(branch1, last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2126,36 +2145,8 @@ bool Situator::situateNameStatementTagStatement(rq::Situation situation,
   if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     is_ok = false;
   }
-  chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : tag.getNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(tag.getNextPtr())) {
+    is_ok = false;
   }
   return is_ok;
 }
@@ -2178,40 +2169,8 @@ bool Situator::situateNameStatementTag(rq::Situation situation,
   }
   rq::Expression &branch1 = branch0.getNext();
   rq::Expression *last_ptr = nullptr;
-  rq::ChainKind chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : branch1.getInclusiveNextSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(branch1, last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2236,40 +2195,9 @@ bool Situator::situateStatementTagStatement(rq::Situation situation,
     return false;
   }
   rq::Expression *last_ptr = nullptr;
-  rq::ChainKind chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(expression.getBranch(),
+                                               last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2279,82 +2207,24 @@ bool Situator::situateStatementTagStatement(rq::Situation situation,
   if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     is_ok = false;
   }
-  for (rq::Expression &branch : tag.getNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(tag.getNextPtr())) {
+    is_ok = false;
   }
   return is_ok;
 }
 
 bool Situator::situateStatementMultiTagStatement(rq::Situation situation,
-                                                 rq::Situation tag_situation,
-                                                 rq::Expression &expression) {
+                                                 rq::Expression &expression,
+                                                 rq::Situation tag_situation) {
   bool is_ok = true;
   if (!expression.getHasBranch()) {
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
     return false;
   }
-  rq::ChainKind chain = rq::ChainKind::NONE;
   rq::Expression *last_ptr = nullptr;
-  for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(expression.getBranch(),
+                                               last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2372,38 +2242,11 @@ bool Situator::situateStatementMultiTagStatement(rq::Situation situation,
     }
   }
   if (last_ptr == nullptr) {
-    return true;
+    return is_ok;
   }
   rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
-  for (rq::Expression &branch : statement0.getNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(statement0.getNextPtr())) {
+    is_ok = false;
   }
   return is_ok;
 }
@@ -2415,41 +2258,10 @@ bool Situator::situateStatementVignetteStatement(rq::Situation situation,
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
     return false;
   }
-  rq::ChainKind chain = rq::ChainKind::NONE;
   rq::Expression *last_ptr = nullptr;
-  for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(expression.getBranch(),
+                                               last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2459,6 +2271,7 @@ bool Situator::situateStatementVignetteStatement(rq::Situation situation,
   if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
+  last_ptr = nullptr;
   for (rq::Expression &branch : tag.getNextSubrange()) {
     if (!branch.getIsTag()) {
       last_ptr = &branch;
@@ -2468,36 +2281,8 @@ bool Situator::situateStatementVignetteStatement(rq::Situation situation,
       is_ok = false;
     }
   }
-  rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
-  for (rq::Expression &branch : statement0.getInclusiveNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(last_ptr)) {
+    is_ok = false;
   }
   return is_ok;
 }
@@ -2509,41 +2294,10 @@ bool Situator::situateStatementMultiVignetteStatement(
     this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
     return false;
   }
-  rq::ChainKind chain = rq::ChainKind::NONE;
   rq::Expression *last_ptr = nullptr;
-  for (rq::Expression &branch : expression.getBranchSubrange()) {
-    if (branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranchesBeforeTag(expression.getBranch(),
+                                               last_ptr)) {
+    is_ok = false;
   }
   if (last_ptr == nullptr) {
     this->getContext().logErrorExpectedTagBranch(expression);
@@ -2553,6 +2307,7 @@ bool Situator::situateStatementMultiVignetteStatement(
   if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     is_ok = false;
   }
+  last_ptr = nullptr;
   for (rq::Expression &branch : tag.getNextSubrange()) {
     if (!branch.getIsTag()) {
       last_ptr = &branch;
@@ -2562,39 +2317,8 @@ bool Situator::situateStatementMultiVignetteStatement(
       is_ok = false;
     }
   }
-  rq::Expression &statement0 = rq::dereferencePtr(last_ptr);
-  for (rq::Expression &branch : statement0.getInclusiveNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorExpectedChainExpression(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(last_ptr)) {
+    is_ok = false;
   }
   return is_ok;
 }
@@ -2611,36 +2335,8 @@ bool Situator::stiuateNameStatement(rq::Situation situation,
   if (!this->situateTagBranch(name_situation, branch0)) {
     is_ok = false;
   }
-  rq::ChainKind chain = rq::ChainKind::NONE;
-  for (rq::Expression &branch : branch0.getNextSubrange()) {
-    if (chain != rq::ChainKind::NONE) {
-      if (branch.getIsStatement()) {
-        if (!this->situateStatementBranch(rq::getFinishingChainSituation(chain),
-                                          branch)) {
-          is_ok = false;
-        }
-        chain = rq::ChainKind::NONE;
-      } else if (branch.getIsTag()) {
-        this->getContext().logErrorUnexpectedTagExpressionInChain(branch);
-        is_ok = false;
-      } else if (!this->situateChainBranch(
-                     rq::getContinuingChainSituation(chain), branch)) {
-        is_ok = false;
-      }
-    } else if (branch.getIsChain()) {
-      if (!this->situateChainBranch(rq::Situation::STARTING_CHAINLINK,
-                                    branch)) {
-        is_ok = false;
-      }
-      chain = branch.getStartingChainKind();
-      if (chain == rq::ChainKind::INVALID) {
-        this->getContext().logErrorExpectedStartingChainlinkExpression(branch);
-        is_ok = false;
-      }
-    } else if (!this->situateStatementBranch(rq::Situation::STATEMENT,
-                                             branch)) {
-      is_ok = false;
-    }
+  if (!this->situateStatementBranches(branch0.getNextPtr())) {
+    is_ok = false;
   }
   return is_ok;
 }

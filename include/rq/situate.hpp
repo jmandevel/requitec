@@ -109,8 +109,8 @@ struct Situator final {
   // case, fold
   [[nodiscard]] bool
   situateStatementMultiTagStatement(rq::Situation situation,
-                                    rq::Situation tag_situation,
-                                    rq::Expression &expression);
+                                    rq::Expression &expression,
+                                    rq::Situation tag_situation);
   // weave
   [[nodiscard]] bool
   situateStatementVignetteStatement(rq::Situation situation,
@@ -123,6 +123,15 @@ struct Situator final {
   [[nodiscard]] bool stiuateNameStatement(rq::Situation situation,
                                           rq::Expression &expression,
                                           rq::Situation name_situation);
+
+private:
+  [[nodiscard]] bool situateStatementSequenceBranch(rq::Expression &branch,
+                                                   rq::ChainKind &chain);
+  // The leading statements form their own chain sequence, ending before the tag.
+  [[nodiscard]] bool situateStatementBranchesBeforeTag(rq::Expression &first,
+                                               rq::Expression *&tag_ptr);
+  // Each call starts an independent statement sequence.
+  [[nodiscard]] bool situateStatementBranches(rq::Expression *first_ptr);
 };
 
 } // namespace rq
