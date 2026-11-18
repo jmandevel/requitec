@@ -584,16 +584,17 @@ bool Context::emitObject(llvm::StringRef path) {
 }
 
 void Context::logErrorInvalidUtf8Codeunit(llvm::SMLoc location, char c) {
-  llvm::Twine message =
-      llvm::Twine("invalid utf-8 codeunit \"") + rq::getUtf8Name(c) + "\"";
-  this->logMessage(location, rq::LogType::ERROR, message, {}, {});
+  this->logMessage(location, rq::LogType::ERROR,
+                   llvm::Twine("invalid utf-8 codeunit \"") +
+                       rq::getUtf8Name(c) + "\"",
+                   {}, {});
 }
 
 void Context::logErrorInvalidUtf8Continuation(llvm::SMLoc start,
                                               llvm::SMLoc cur, char c) {
-  llvm::Twine message = llvm::Twine("invalid utf-8 continuation codeunit \"") +
-                        rq::getUtf8Name(c) + "\"";
-  this->logMessage(cur, rq::LogType::ERROR, message,
+  this->logMessage(cur, rq::LogType::ERROR,
+                   llvm::Twine("invalid utf-8 continuation codeunit \"") +
+                       rq::getUtf8Name(c) + "\"",
                    {llvm::SMRange(start, cur)}, {});
 }
 
