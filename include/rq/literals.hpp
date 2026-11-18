@@ -7,7 +7,9 @@
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/StringRef.h>
 
+#include <charconv>
 #include <cstdint>
+#include <system_error>
 
 namespace rq {
 
@@ -231,8 +233,24 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
     return rq::NumericResultCode::OK;
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
-    std::ignore = rq::cleanFloatText(text, clean_text);
-    std::from_chars(clean_text.begin(), clean_text.end(), ost_term, 10);
+    const rq::NumericResultCode code = rq::cleanFloatText(text, clean_text);
+    if (code != rq::NumericResultCode::OK) {
+      return code;
+    }
+    if (clean_text.empty() || clean_text == ".") {
+      return rq::NumericResultCode::ERROR_NO_DIGITS;
+    }
+    Numeric term{};
+    const auto result = std::from_chars(clean_text.begin(), clean_text.end(),
+                                        term, std::chars_format::fixed);
+    if (result.ec == std::errc::result_out_of_range) {
+      return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
+    }
+    if (result.ec != std::errc{} || result.ptr != clean_text.end()) {
+      return rq::NumericResultCode::ERROR_INVALID_DIGIT;
+    }
+    ost_term = term;
+    return rq::NumericResultCode::OK;
   } else {
     static_assert(false, "type not supported");
   }
