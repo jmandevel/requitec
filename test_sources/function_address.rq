@@ -53,7 +53,7 @@ mangle::main
     g := myProc(1.0, positional_and_named=2.0, named=3.0);
 
     # call from a pointer to myProc
-    ptr :\mut= myProc.[proc_ptr];
+    ptr :mut\= myProc.[proc_ptr];
     # you can call from ptr just like myProc
     h := ptr(1.0, 2.0, named=3.0, locked=4.0);
     i := ptr();

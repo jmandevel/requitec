@@ -10,14 +10,14 @@
     [class Foo, public pure[layout_constructor]; {}];
 
     pure
-    [proc bar, ()Void=>$example.Foo,
+    [proc bar, ()Void=>Ref@example.Foo,
     
     ];
 ];
 
 mangle::main
 [proc , ()SInt,
-    my_array :Array::5@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
+    my_array :Array{5}@FSInt= [array 0, 1, 2, 3, 4].[of FSInt32];
 
     # call extension function
     my_array.[ref]->example.getElementCount().[ignore];

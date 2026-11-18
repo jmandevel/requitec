@@ -1,8 +1,8 @@
 [variant Number, SInt, 
-    integer : SInt32,
-    float : Binary32,
-    double : Binary64
-    quad : Binary128
+    integer : SInt32;
+    float : Binary32;
+    double : Binary64;
+    quad : Binary128;
 ];
 
 [import "std", std];

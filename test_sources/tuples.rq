@@ -11,7 +11,7 @@ mangle::main
 
     # can determine if tuple has type-keyed value at interpret time with .[has] railcar
     pre
-    [if inferenced.[variable].[type].[has Slice@Utf8],
+    [if inferenced.[reflect].[type].[has Slice@Utf8],
         # can get the value with .[get] railcar
         # errors with .[get] are caught at compile time, so this is very safe.
         type_keyed_text := inferenced.[get Slice@Utf8];

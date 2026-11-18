@@ -1,7 +1,7 @@
 [import "std", std];
 
 pure
-[function divide, 
+[proc divide, 
     throw::(Slice@Utf8, SInt)\
     ( numerator:SInt, denominator:SInt <)SInt,
     [if denominator==0,

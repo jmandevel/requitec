@@ -48,7 +48,7 @@ var10 :Ref@SInt= list.[ref].at(1).[ref];
 generic_list :std.List{Generic@ANY, detach}();
 generic_list.[ref mut\].pushBack(0.[as SInt]);
 generic_list.[ref mut\].pushBack(3.14.[as Single]);
-nested_list :mut\= std.List{SInt, detach}([list 0, 1, 2, 3, 4]);
+nested_list :mut\= std.List{SInt, detach}([array 0, 1, 2, 3, 4]);
 generic_list.[ref mut\].pushBack(nested_list.[move]);
 
 # no_detach lists are special, will use contiguous memory in native format.

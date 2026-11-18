@@ -17,15 +17,15 @@ mangle::main
         result = result + 1;
         [if result == 12,
             result = result + 2;
-            continue MyWhile;
+            MyWhile.[continue];
         ][else_if result == 20,
             MyWhile.[break];
         ];
     ];
 
     [switch result,
-        ][case 20, 21,
-            result = 2
+        ][case 20,
+            result = 2;
         ][else
             result = 3;
         ];    

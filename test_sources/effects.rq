@@ -13,7 +13,7 @@
 # if a pure function does something with a side effect, this causes a compiler error.
 # returning a value, mutating referenced arguments, mutating reciver are ok in pure functions.
 pure
-[function myAdd, (> a:SInt, b:SInt <)SInt,
+[proc myAdd, (> a:SInt, b:SInt <)SInt,
     result <:= a + b;
 ];
 
@@ -21,7 +21,7 @@ pure
 # impure is default, so if no modifier is applied functions automatically have impure.
 # writing it explicitly here for this example.
 impure
-[function myPrint, (> val:SInt)SInt,
+[proc myPrint, (> val:SInt)SInt,
     std.print(line="Hello, world!");
 ];
 
