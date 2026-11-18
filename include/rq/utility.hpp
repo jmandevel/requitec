@@ -214,7 +214,7 @@ template <rq::flags FlagsParam>
 template <rq::flags FlagsParam>
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr FlagsParam
 operator^(FlagsParam lhs, std::underlying_type_t<FlagsParam> rhs) {
-  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) & rhs);
+  return static_cast<FlagsParam>(rq::getUnderlyingValue(lhs) ^ rhs);
 }
 
 template <rq::flags FlagsParam>
