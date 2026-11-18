@@ -2,6 +2,7 @@
 
 #include <llvm/ADT/PointerIntPair.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/ErrorHandling.h>
 
 #include <cstdint>
 #include <format>
@@ -27,15 +28,15 @@ struct AssertException final : public std::logic_error {
   using std::logic_error::what;
 };
 
-#if defined(_MSC_VER) && defined(_NDEBUG)
+#if defined(_MSC_VER) && defined(NDEBUG)
 #define RQ_ALWAYS_INLINE inline __forceinline
-#elif (defined(__GNUC__) || defined(__clang__)) && defined(_NDEBUG)
-#define RQ_ALWAYS_INLINE inline __modifier__((always_inline))
+#elif (defined(__GNUC__) || defined(__clang__)) && defined(NDEBUG)
+#define RQ_ALWAYS_INLINE inline __attribute__((always_inline))
 #else
 #define RQ_ALWAYS_INLINE inline
 #endif
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 #define RQ_ASSERT(condition, reason)                                           \
   if (!(condition)) {                                                          \
     throw rq::AssertException(#condition, reason);                             \
@@ -45,30 +46,32 @@ struct AssertException final : public std::logic_error {
     throw rq::AssertException(#condition, reason, location);                   \
   }
 #else
-#define RQ_ASSERT(condition, reason)
-#define RQ_ASSERT_LOCATION(condition, reason, location)
+#define RQ_ASSERT(condition, reason)                                           \
+  ((void)sizeof(condition), (void)sizeof(reason))
+#define RQ_ASSERT_LOCATION(condition, reason, location)                        \
+  ((void)sizeof(condition), (void)sizeof(reason), (void)sizeof(location))
 #endif
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 #define RQ_UNREACHABLE()                                                       \
   throw rq::AssertException("RQ_UNREACHABLE()", "unreachable code detected");
 #else
-#define RQ_UNREACHABLE() std::unreachable()
+#define RQ_UNREACHABLE() llvm_unreachable("unreachable code detected")
 #endif
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 #define RQ_UNHANDLED_ERROR(reason)                                             \
   throw rq::AssertException("RQ_UNHANDLED_ERROR(\"" #reason "\")", #reason);
 #else
-#define RQ_UNHANDLED_ERROR() std::unreachable()
+#define RQ_UNHANDLED_ERROR(reason) llvm_unreachable(reason)
 #endif
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 #define RQ_TODO_IMPLEMENTATION()                                               \
   throw rq::AssertException("RQ_TODO_IMPLEMENTATION()", "not implemented "     \
                                                         "yet");
 #else
-#define RQ_NOT_IMPLEMENTED() std::unreachable()
+#define RQ_TODO_IMPLEMENTATION() llvm_unreachable("not implemented yet")
 #endif
 
 template <typename TypeParam>
@@ -344,45 +347,39 @@ struct PtrWithFlags {
   static constexpr unsigned FLAG_BITS = FLAG_BITS_PARAM;
   using Flags = FlagsParam;
   using Self = rq::PtrWithFlags<Type, FLAG_BITS, Flags>;
-#if defined(_NDEBUG)
-  llvm::PointerIntPair<Type *, FLAG_BITS, Flags> _ptr_int_pair;
+
+#if defined(NDEBUG)
+  llvm::PointerIntPair<Type *, FLAG_BITS, Flags> _ptr_int_pair{};
 #else
   Type *_ptr{nullptr};
   Flags _flags{};
 #endif
 
   PtrWithFlags() = default;
-  [[nodiscard]] RQ_ALWAYS_INLINE Type *const &getPtr() const {
-#if defined(_NDEBUG)
+  [[nodiscard]] RQ_ALWAYS_INLINE Type *getPtr() const {
+#if defined(NDEBUG)
     return this->_ptr_int_pair.getPointer();
 #else
     return this->_ptr;
 #endif
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE Type *&getPtr() {
-#if defined(_NDEBUG)
-    return _ptr_int_pair.getPointer();
-#else
-    return _ptr;
-#endif
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE Flags getFlags() const {
-#if defined(_NDEBUG)
-    return static_cast<Flags>(this->_ptr_int_pair.getInt());
+#if defined(NDEBUG)
+    return this->_ptr_int_pair.getInt();
 #else
     return this->_flags;
 #endif
   }
   RQ_ALWAYS_INLINE void setPtr(Type *ptr) {
-#if defined(_NDEBUG)
+#if defined(NDEBUG)
     this->_ptr_int_pair.setPointer(ptr);
 #else
     this->_ptr = ptr;
 #endif
   }
   RQ_ALWAYS_INLINE void addFlags(Flags flags) {
-#if defined(_NDEBUG)
-    this->_ptr_int_pair.getInt() |= rq::getUnderlyingValue(flags);
+#if defined(NDEBUG)
+    this->_ptr_int_pair.setInt(this->_ptr_int_pair.getInt() | flags);
 #else
     this->_flags |= flags;
 #endif

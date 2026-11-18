@@ -1075,8 +1075,8 @@ rq::Expression &Context::acquireExpression() {
   rq::Expression &unused_expression =
       rq::dereferencePtr(this->_free_expression_ptr);
   this->_free_expression_ptr =
-      static_cast<rq::Expression *>(unused_expression._branch_ptr);
-  unused_expression._branch_ptr = nullptr;
+      static_cast<rq::Expression *>(unused_expression._branch_ptr_flags.getPtr());
+  unused_expression._branch_ptr_flags.setPtr(nullptr);
   return unused_expression;
 }
 
@@ -1087,7 +1087,9 @@ rq::Expression &Context::copyExpression(rq::Expression &expression) {
   }
   new_expression._next_ptr_flags = expression._next_ptr_flags;
   new_expression._id = expression._id;
-  new_expression._source_ptr_flags = expression._source_ptr_flags;
+  new_expression._branch_ptr_flags.addFlags(
+      expression._branch_ptr_flags.getFlags());
+  new_expression._source_ptr = expression._source_ptr;
   new_expression._source_text_length = expression._source_text_length;
   return new_expression;
 }

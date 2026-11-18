@@ -19,7 +19,7 @@ static llvm::cl::opt<bool>
                llvm::cl::value_desc("<boolean>"), llvm::cl::Optional,
                llvm::cl::init(false));
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 static llvm::cl::opt<bool> BREAK_ON_ERROR(
     "break-on-error",
     llvm::cl::desc(
@@ -112,7 +112,7 @@ rq::Emit getEmitMode() { return rq::EMIT.getValue(); }
 
 bool getNoComment() { return rq::NO_COMMENT.getValue(); }
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 bool getBreakOnError() { return rq::BREAK_ON_ERROR.getValue(); }
 #endif
 

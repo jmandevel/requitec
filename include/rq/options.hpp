@@ -27,7 +27,7 @@ enum Emit {
 
 [[nodiscard]] bool getNoComment();
 
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
 [[nodiscard]] bool getBreakOnError();
 #else
 [[nodiscard]] RQ_ALWAYS_INLINE bool getBreakOnError() { return false; }

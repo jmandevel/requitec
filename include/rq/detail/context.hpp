@@ -1408,7 +1408,7 @@ Context::acquireJuxtListType(rq::NodeList<rq::QualifiedType> &&type_list) {
 
 [[nodiscard]] inline rq::Trip &
 Context::acquireTrip(llvm::SmallVector<rq::Entity *, 8> &entities) {
-#ifndef _NDEBUG
+#ifndef NDEBUG
   for (rq::Entity *entity_ptr : entities) {
     RQ_ASSERT(entity_ptr != nullptr, "null trip member");
     std::ignore = entity_ptr;

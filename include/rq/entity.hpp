@@ -2428,14 +2428,14 @@ struct alignas(4) Entity {
   using Self = rq::Entity;
 
   rq::EntityId _id;
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
   rq::Keyword _debug_keyword{rq::Keyword::NONE};
   rq::SymbolKind _debug_symbol_kind{rq::SymbolKind::NONE};
   rq::ValueKind _debug_value_kind{rq::ValueKind::NONE};
 #endif
 
   explicit RQ_ALWAYS_INLINE Entity(rq::EntityId id) : _id(id) {
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
     if (rq::getIsKeyword(id)) {
       this->_debug_keyword = rq::getKeyword(id);
     } else if (rq::getIsSymbolKind(id)) {

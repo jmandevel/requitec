@@ -465,7 +465,7 @@ struct Context final : public rq::BumpPtrAllocator {
     this->_llvm_source_mgr.PrintMessage(
         llvm::outs(), location, static_cast<llvm::SourceMgr::DiagKind>(type),
         message, ranges, fixits, true);
-#if !defined(_NDEBUG)
+#if !defined(NDEBUG)
     if (type == rq::LogType::ERROR && rq::getBreakOnError()) {
 #if __has_builtin(__builtin_debugtrap)
       llvm::outs().flush();
@@ -577,7 +577,7 @@ struct Context final : public rq::BumpPtrAllocator {
     RQ_ASSERT(!expression.getHasBranch(), "has branch");
     RQ_ASSERT(!expression.getHasNext(), "has next");
     expression.clearData();
-    expression._branch_ptr = this->_free_expression_ptr;
+    expression._branch_ptr_flags.setPtr(this->_free_expression_ptr);
     this->_free_expression_ptr = &expression;
   }
   [[nodiscard]] rq::Expression &copyExpression(rq::Expression &expression);
