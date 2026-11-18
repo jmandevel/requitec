@@ -228,10 +228,11 @@ struct RequiteParser final {
 
   std::reference_wrapper<rq::Context> _context_ref;
   rq::TokenRanger _token_ranger;
+  llvm::StringRef _source_text;
   bool _is_ok = true;
 
-  RequiteParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens)
-      : _context_ref(context), _token_ranger(tokens) {}
+  RequiteParser(rq::Context &context, llvm::ArrayRef<rq::Token> tokens, llvm::StringRef source_text)
+      : _context_ref(context), _token_ranger(tokens), _source_text(source_text) {}
   RequiteParser(const Self &) = delete;
   RequiteParser(Self &&) = delete;
   ~RequiteParser() = default;
@@ -242,6 +243,9 @@ struct RequiteParser final {
   }
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Context &getContext() const {
     return this->_context_ref.get();
+  }
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getSourceText() const {
+    return this->_source_text;
   }
   [[nodiscard]] RQ_ALWAYS_INLINE bool getIsOk() { return this->_is_ok; }
   RQ_ALWAYS_INLINE void setNotOk() { this->_is_ok = false; }

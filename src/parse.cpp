@@ -663,6 +663,15 @@ rq::Expression &RequiteParser::parsePrecedence3() {
     }
     break;
   }
+  if (!precedence_factory.getHasOuter()) {
+    rq::Expression &error = this->getContext().acquireExpression();
+    error.setSourceAt(
+        std::bit_cast<const char *>(this->getSourceText().bytes_end()));
+    error.setKeyword(rq::Keyword::ERROR);
+    error.setIsInserted();
+    this->setNotOk();
+    return error;
+  }
   return precedence_factory.getOuter();
 }
 

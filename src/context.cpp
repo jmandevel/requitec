@@ -321,7 +321,7 @@ bool Context::run() {
 }
 
 bool Context::parseRequite(rq::ModuleDetail &detail) {
-  rq::RequiteParser parser(*this, detail.getTokens());
+  rq::RequiteParser parser(*this, detail.getTokens(), detail.getBuffer());
   rq::Expression *root_ptr = parser.parseExpressions();
   detail.setOrChangeExpression(root_ptr);
   return parser.getIsOk();
