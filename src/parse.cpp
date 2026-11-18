@@ -578,7 +578,7 @@ rq::Expression &RequiteParser::parsePrecedence5() {
       continue;
     case rq::TokenKind::PLUS_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::Keyword::JUXT);
+      precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_JUXT);
       precedence_factory.setRecent(this->parsePrecedence4());
       continue;
     case rq::TokenKind::DOLLAR_OPERATOR:

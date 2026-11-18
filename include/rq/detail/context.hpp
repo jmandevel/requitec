@@ -387,6 +387,11 @@ Context::acquireVariadicModifier() {
   return this->_variadic_modifier;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::PolyadicModifier &
+Context::acquirePolyadicModifier() {
+  return this->_polyadic_modifier;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE rq::BestLocationModifier &
 Context::acquireBestLocationModifier() {
   return this->_best_location_modifier;
@@ -1133,6 +1138,11 @@ Context::acquireCopyableModifierConcept() {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicModifierConcept &
 Context::acquireVariadicModifierConcept() {
   return this->_variadic_modifier_concept;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::PolyadicModifierConcept &
+Context::acquirePolyadicModifierConcept() {
+  return this->_polyadic_modifier_concept;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::OffsetModifierConcept &

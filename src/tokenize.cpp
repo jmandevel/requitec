@@ -97,35 +97,35 @@ void Tokenizer::_tokenizeSourceText() {
                                   T::ERROR_UNTERMINATED_STRING_LITERAL>();
       continue;
     case '#':
-        this->getRanger().incrementChar(1);
-        {
-          bool found_newline = false;
-          while (!found_newline) {
-            switch (this->getRanger().getChar(0)) {
-            case '\x00':
-              return;
+      this->getRanger().incrementChar(1);
+      {
+        bool found_newline = false;
+        while (!found_newline) {
+          switch (this->getRanger().getChar(0)) {
+          case '\x00':
+            return;
+          case '\n':
+            [[fallthrough]];
+          case '\v':
+            this->getRanger().incrementChar(1);
+            found_newline = true;
+            break;
+          case '\r':
+            switch (this->getRanger().getChar(1)) {
             case '\n':
-              [[fallthrough]];
-            case '\v':
-              this->getRanger().incrementChar(1);
-              found_newline = true;
-              break;
-            case '\r':
-              switch (this->getRanger().getChar(1)) {
-              case '\n':
-                this->getRanger().incrementChar(2);
-                break;
-              default:
-                this->getRanger().incrementChar(1);
-              }
-              found_newline = true;
+              this->getRanger().incrementChar(2);
               break;
             default:
               this->getRanger().incrementChar(1);
             }
+            found_newline = true;
+            break;
+          default:
+            this->getRanger().incrementChar(1);
           }
         }
-        continue;
+      }
+      continue;
     case '$':
       this->tokenizeLengthToken(T::DOLLAR_OPERATOR, 1);
       continue;
@@ -469,6 +469,9 @@ void Tokenizer::_tokenizeSourceText() {
       continue;
     case '\\':
       switch (this->getRanger().getChar(1)) {
+      case '\\':
+        this->tokenizeLengthToken(T::DOUBLE_BACKSLASH_OPERATOR, 2);
+        break;
       case '/':
         this->tokenizeLengthToken(T::DOWN_ARROW_OPERATOR, 2);
         break;

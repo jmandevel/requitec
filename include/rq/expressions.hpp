@@ -87,11 +87,11 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::EXTEND:
     return "_extend";
   case K::INSTANTIATE_EXTENSION:
-    return "_instantiate_extension";
+    return "_extension";
   case K::INSTANTIATE_CONFORMITY:
-    return "_instantiate_conformity";
+    return "_conformity";
   case K::INSTANTIATE_REALIZATION:
-    return "_instantiate_realization";
+    return "_realization";
   case K::ADAPTION:
     return "adaption";
   case K::BINDING:
@@ -103,7 +103,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::ASCRIBE_MODIFIER:
     return "_ascribe_modifier";
   case K::INSTANTIATE_MODIFIER:
-    return "_instantiate_modifier";
+    return "_modifier";
   case K::IDENTIFY:
     return "identify";
   case K::IDENTIFY_OF:
@@ -112,10 +112,18 @@ static constexpr std::size_t KEYWORD_COUNT =
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
     return "_concatenate";
-  case K::JUXT:
+  case K::INSTANTIATE_JUXT:
     return "_juxt";
+  case K::JUXT_RANGE:
+    return "juxt_range";
+  case K::JUXT_RANGE_OF:
+    return "_juxt_range_of";
   case K::INSTANTIATE_TRIP:
-    return "_instantiate_trip";
+    return "_trip";
+  case K::TRIP_RANGE:
+    return "trip_range";
+  case K::TRIP_RANGE_OF:
+    return "_trip_range_of";
 
   // ARITHMETIC
   case K::ADD:
@@ -263,7 +271,7 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // SUBSYMBOL
   case K::INSTANTIATE_WRAP:
-    return "_instantiate_wrap";
+    return "_wrap";
   case K::ARRAY_SUBSYMBOL:
     return "Array";
   case K::REF_SUBSYMBOL:
@@ -287,11 +295,11 @@ static constexpr std::size_t KEYWORD_COUNT =
 
   // BRACES
   case K::INSTANTIATE_TUPLE:
-    return "_instantiate_tuple";
+    return "_tuple";
   case K::NAMED_ELEMENT:
     return "_named_element";
   case K::INSTANTIATE_LAYOUT:
-    return "_instantiate_layout";
+    return "_layout";
   case K::SPECIALIZE:
     return "_specialize";
 
@@ -299,7 +307,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::NAMED_ARGUMENT:
     return "_named_argument";
   case K::INSTANTIATE_SIGNATURE:
-    return "_instantiate_signature";
+    return "_signature";
   case K::PLACEMENT:
     return "placement";
   case K::COMPOSITION:
@@ -612,6 +620,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "invariadic";
   case K::VARIADIC:
     return "variadic";
+  case K::POLYADIC:
+    return "polyadic";
   case K::BEST_LOCATION:
     return "best_location";
   case K::LOCATION:
@@ -786,6 +796,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_reflect_of";
   case K::OVERLOAD_OF:
     return "_overload_of";
+  case K::PARAMETER_RANGE:
+    return "parameter_range";
+  case K::PARAMETER_RANGE_OF:
+    return "_parameter_range_of";
   case K::OVERLOAD_RANGE:
     return "overload_range";
   case K::OVERLOAD_RANGE_OF:
@@ -1086,6 +1100,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "COPYABLE_MODIFIER_CONCEPT";
   case K::VARIADIC_MODIFIER_CONCEPT:
     return "VARIADIC_MODIFIER";
+  case K::POLYADIC_MODIFIER_CONCEPT:
+    return "POLYADIC_MODIFIER_CONCEPT";
   case K::OFFSET_MODIFIER_CONCEPT:
     return "OFFSET_MODIFIER";
   case K::LAZY_DECLARATION_MODIFIER_CONCEPT:
@@ -1192,7 +1208,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::IDENTIFIER_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::NAME |
-           KIF::PATH | KIF::ROUTE | KIF::PORTAL;
+           KIF::PATH | KIF::STATEMENT | KIF::ROUTE | KIF::PORTAL;
   case K::SEMANTIC_LITERAL:
     return KIF::LITERAL | KIF::INTERNAL | KIF::STATEMENT | KIF::ARGUMENT |
            KIF::PARAMETER | KIF::LVALUE | KIF::RVALUE | KIF::TUPLE_ELEMENT;
@@ -1213,7 +1229,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
            KIF::TUPLE_ELEMENT | KIF::PORTAL;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     return KIF::STATEMENT | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE |
+           KIF::TUPLE_ELEMENT | KIF::ASCRIPTION | KIF::ROUTE | KIF::PORTAL |
            KIF::ALL_CHAINLINKS;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
@@ -1222,7 +1238,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::CONVERGING | KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE |
            KIF::RAILCAR | KIF::ARGUMENT | KIF::TUPLE_ELEMENT |
            KIF::ARITHMETIC_SEQUENCE_STEP | KIF::ARITHMETIC_SEQUENCE_CONDITION |
-           KIF::PATH | KIF::ROUTE | KIF::PORTAL;
+           KIF::PATH | KIF::NAME | KIF::ROUTE | KIF::PORTAL;
 
   // LOGICAL
   case K::LOGICAL_AND:
@@ -1248,7 +1264,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // APPLY
   case K::EXTEND:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+    return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::STATEMENT |
+           KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_EXTENSION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::INSTANTIATE_CONFORMITY:
@@ -1259,14 +1276,14 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BINDING:
     return KIF::LVALUE | KIF::PARAMETER | KIF::ARGUMENT | KIF::BINDING |
-           KIF::TUPLE_ELEMENT;
+           KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::UPBINDING:
     return KIF::LVALUE;
   case K::ASCRIBE_QUALIFIER:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::RAILCAR |
            KIF::ASCRIPTION;
   case K::ASCRIBE_MODIFIER:
-    return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION |
+    return KIF::STATEMENT | KIF::PARAMETER | KIF::ASCRIPTION | KIF::PORTAL |
            KIF::ALL_CHAINLINKS;
   case K::INSTANTIATE_MODIFIER:
     return KIF::NONE; // MODIFIER_INSTANTIATION
@@ -1279,10 +1296,20 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   // JUXTAPOSITIONAL
   case K::CONCATENATE:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::JUXT:
+  case K::INSTANTIATE_JUXT:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::JUXT_RANGE:
+    return KIF::RAILCAR | KIF::ASCRIPTION;
+  case K::JUXT_RANGE_OF:
+    return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE | KIF::PORTAL;
   case K::INSTANTIATE_TRIP:
     return KIF::CONVERGING | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::TRIP_RANGE:
+    return KIF::RAILCAR | KIF::ASCRIPTION;
+  case K::TRIP_RANGE_OF:
+    return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT | KIF::PATH | KIF::ROUTE | KIF::PORTAL;
 
   // ARITHMETIC
   case K::ADD:
@@ -1519,7 +1546,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
 
   // BUILTIN TYPES
   case K::INFERENCE:
-    return KIF::NAME | KIF::RVALUE | KIF::ARGUMENT;
+    return KIF::NAME | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT;
   case K::EXPRESSION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VOID:
@@ -1785,6 +1812,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VARIADIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::POLYADIC:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BEST_LOCATION:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LOCATION:
@@ -1952,7 +1981,7 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::THROW_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::STATEMENT;
   case K::PASS:
-    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+    return KIF::RAILCAR;
   case K::PASS_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT | KIF::STATEMENT;
   case K::REFLECT:
@@ -1960,6 +1989,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::REFLECT_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OVERLOAD_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PARAMETER_RANGE:
+    return KIF::RAILCAR;
+  case K::PARAMETER_RANGE_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::OVERLOAD_RANGE:
     return KIF::RAILCAR;
@@ -2394,6 +2427,9 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::VARIADIC_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
+  case K::POLYADIC_MODIFIER_CONCEPT:
+    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
+           KIF::TUPLE_ELEMENT;
   case K::OFFSET_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -2597,7 +2633,7 @@ getDescription(rq::Situation situation) {
   case S::ROUTE:
     return "route expression";
   case S::PORTAL:
-    return "import specifier expression";
+    return "portal expression";
   case S::ASCRIPTION:
     return "ascription expression";
   case S::MODIFIER_INSTANTIATION:
@@ -2654,6 +2690,10 @@ getDescription(rq::Situation situation) {
     return K::REF_OF;
   case K::IDENTIFY:
     return K::IDENTIFY_OF;
+  case K::JUXT_RANGE:
+    return K::JUXT_RANGE_OF;
+  case K::TRIP_RANGE:
+    return K::TRIP_RANGE_OF;
   case K::AS:
     return K::AS_OF;
   case K::OF:
@@ -2748,10 +2788,16 @@ getDescription(rq::Situation situation) {
     return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:
     return K::UNDERLYING_TYPE_OF;
+  case K::THROW:
+    return K::THROW_OF;
+  case K::PASS:
+    return K::PASS_OF;
   case K::REFLECT:
     return K::REFLECT_OF;
   case K::OVERLOAD:
     return K::OVERLOAD_OF;
+  case K::PARAMETER_RANGE:
+    return K::PARAMETER_RANGE_OF;
   case K::OVERLOAD_RANGE:
     return K::OVERLOAD_RANGE_OF;
   case K::SPECIALIZATION_RANGE:
@@ -3092,11 +3138,6 @@ getIsChainlinkPosition(rq::Situation situation) {
   return false;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName(rq::Keyword keyword) {
-  return keyword == rq::Keyword::IDENTIFY_OF ||
-         keyword == rq::Keyword::IDENTIFIER_LITERAL;
-}
-
 enum class ModifierKind : std::uint_fast8_t {
   NO_MODIFIER,
   // anchor
@@ -3163,6 +3204,8 @@ enum class ModifierKind : std::uint_fast8_t {
   // variadic
   INVARIADIC,
   VARIADIC,
+  // polyadic
+  POLYADIC,
   // offset
   BEST_LOCATION,
   LOCATION,
@@ -3280,6 +3323,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "invariadic";
   case M::VARIADIC:
     return "variadic";
+  case M::POLYADIC:
+    return "polyadic";
   case M::BEST_LOCATION:
     return "best_location";
   case M::LOCATION:
@@ -3401,6 +3446,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return M::INVARIADIC;
   case K::VARIADIC:
     return M::VARIADIC;
+  case K::POLYADIC:
+    return M::POLYADIC;
   case K::BEST_LOCATION:
     return M::BEST_LOCATION;
   case K::LOCATION:
@@ -3519,6 +3566,9 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   INVARIADIC = rq::getBit(42),
   VARIADIC = rq::getBit(43),
   VARIADIC_MODIFIER_MASK,
+
+  POLYADIC = rq::getBit(56),
+  POLYADIC_MODIFIER_MASK = POLYADIC,
 
   BEST_LOCATION = rq::getBit(44),
   LOCATION = rq::getBit(45),
@@ -3647,6 +3697,8 @@ getFuseFlags(rq::ModifierKind modifier) {
     return MFF::INVARIADIC;
   case M::VARIADIC:
     return MFF::VARIADIC;
+  case M::POLYADIC:
+    return MFF::POLYADIC;
   case M::BEST_LOCATION:
     return MFF::BEST_LOCATION;
   case M::LOCATION:
@@ -3781,6 +3833,8 @@ getInfoFlags(rq::ModifierKind modifier) {
     return MIF::NO_ATTACHMENT;
   case M::VARIADIC:
     return MIF::NO_ATTACHMENT;
+  case M::POLYADIC:
+    return MIF::NO_ATTACHMENT;
   case M::BEST_LOCATION:
     return MIF::NO_ATTACHMENT;
   case M::LOCATION:
@@ -3852,6 +3906,7 @@ enum class ModifierCategory : std::uint_fast8_t {
   MOVING,
   COPYING,
   VARIADIC,
+  POLYADIC,
   OFFSET,
   LAZY_DECLARATION_KIND,
   CONSTRAINT,
@@ -3909,6 +3964,8 @@ getDescription(rq::ModifierCategory category) {
     return "copying modifier";
   case MC::VARIADIC:
     return "variadic modifier";
+  case MC::POLYADIC:
+    return "polyadic modifier";
   case MC::OFFSET:
     return "offset modifier";
   case MC::LAZY_DECLARATION_KIND:
@@ -3978,6 +4035,8 @@ getMask(rq::ModifierCategory category) {
     return MFF::COPYING_MODIFIER_MASK;
   case MC::VARIADIC:
     return MFF::VARIADIC_MODIFIER_MASK;
+  case MC::POLYADIC:
+    return MFF::POLYADIC_MODIFIER_MASK;
   case MC::OFFSET:
     return MFF::OFFSET_MODIFIER_MASK;
   case MC::LAZY_DECLARATION_KIND:
@@ -4095,6 +4154,8 @@ getCategory(rq::ModifierKind modifier) {
     [[fallthrough]];
   case M::VARIADIC:
     return MC::VARIADIC;
+  case M::POLYADIC:
+    return MC::POLYADIC;
   case M::BEST_LOCATION:
     [[fallthrough]];
   case M::LOCATION:
@@ -5013,9 +5074,6 @@ struct Expression final : public rq::Entity {
     const rq::Expression &unascribed = this->getUnascribed();
     return rq::getStartingChainKind(unascribed.getKeyword());
   }
-  [[nodiscard]] RQ_ALWAYS_INLINE bool getIsEvaluatableName() const {
-    return rq::getIsEvaluatableName(this->getKeyword());
-  }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierKind getModifier() const {
     return rq::getModifierKind(this->getKeyword());
   }
@@ -5491,8 +5549,8 @@ ExpressionIteratorPolicy::getIsDone(const rq::Expression *&state) const {
   return state == nullptr;
 }
 
-RQ_ALWAYS_INLINE void
-ConstExpressionIteratorPolicy::next(const rq::Expression *&inout_state_ptr) const {
+RQ_ALWAYS_INLINE void ConstExpressionIteratorPolicy::next(
+    const rq::Expression *&inout_state_ptr) const {
   inout_state_ptr = rq::dereferencePtr(inout_state_ptr).getNextPtr();
 }
 

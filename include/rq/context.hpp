@@ -165,6 +165,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::CopyableModifier _copyable_modifier{};
   rq::InvariadicModifier _invariadic_modifier{};
   rq::VariadicModifier _variadic_modifier{};
+  rq::PolyadicModifier _polyadic_modifier{};
   rq::BestLocationModifier _best_location_modifier{};
   rq::LocationModifier _location_modifier{};
   rq::TemplateModifier _template_modifier{};
@@ -319,6 +320,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::MovableModifierConcept _movable_modifier_concept{};
   rq::CopyableModifierConcept _copyable_modifier_concept{};
   rq::VariadicModifierConcept _variadic_modifier_concept{};
+  rq::PolyadicModifierConcept _polyadic_modifier_concept{};
   rq::OffsetModifierConcept _offset_modifier_concept{};
   rq::LazyDeclarationModifierConcept _lazy_declaration_modifier_concept{};
   rq::ConstraintModifierConcept _constraint_modifier_concept{};
@@ -681,6 +683,8 @@ struct Context final : public rq::BumpPtrAllocator {
   acquireInvariadicModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicModifier &
   acquireVariadicModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PolyadicModifier &
+  acquirePolyadicModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::BestLocationModifier &
   acquireBestLocationModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LocationModifier &
@@ -935,6 +939,8 @@ struct Context final : public rq::BumpPtrAllocator {
   acquireCopyableModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VariadicModifierConcept &
   acquireVariadicModifierConcept();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::PolyadicModifierConcept &
+  acquirePolyadicModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::OffsetModifierConcept &
   acquireOffsetModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyDeclarationModifierConcept &

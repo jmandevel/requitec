@@ -183,6 +183,8 @@ namespace rq {
     return "InvariadicModifier";
   case S::VARIADIC_MODIFIER:
     return "VariadicModifier";
+  case S::POLYADIC_MODIFIER:
+    return "PolyadicModifier";
   case S::BEST_LOCATION_MODIFIER:
     return "BestLocationModifier";
   case S::LOCATION_MODIFIER:
@@ -507,6 +509,8 @@ namespace rq {
     return "CopyableModifierConcept";
   case S::VARIADIC_MODIFIER_CONCEPT:
     return "VariadicModifierConcept";
+  case S::POLYADIC_MODIFIER_CONCEPT:
+    return "PolyadicModifierConcept";
   case S::OFFSET_MODIFIER_CONCEPT:
     return "OffsetModifierConcept";
   case S::LAZY_DECLARATION_MODIFIER_CONCEPT:
