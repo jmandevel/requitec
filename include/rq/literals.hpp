@@ -7,6 +7,7 @@
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/StringRef.h>
 
+#include <algorithm>
 #include <charconv>
 #include <cstdint>
 #include <system_error>
@@ -119,9 +120,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
     using Unsigned = std::make_unsigned_t<Numeric>;
     const Unsigned unsigned_max = std::numeric_limits<Unsigned>::max();
     Unsigned base = 10;
-    Unsigned max_digit_multiplier = base - 1;
-    Unsigned max_before_multiply = unsigned_max / max_digit_multiplier;
-    Unsigned max_before_add = unsigned_max - max_digit_multiplier;
+    Unsigned max_before_multiply = unsigned_max / base;
     bool explicit_base = false;
     bool digit_found = false;
     Unsigned unsigned_term = 0;
@@ -136,9 +135,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
         } else if (base > rq::MAX_BASE) {
           return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
-        max_digit_multiplier = base - 1;
-        max_before_multiply = unsigned_max / max_digit_multiplier;
-        max_before_add = unsigned_max - max_digit_multiplier;
+        max_before_multiply = unsigned_max / base;
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
@@ -150,7 +147,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
         if (base < rq::MIN_UPPER_BASE) {
           lower_c = rq::getLowercaseLetter(c);
         }
-        const Numeric digit_base_multiplier =
+        const Unsigned digit_base_multiplier =
             rq::getDigitBaseMultiplier(lower_c);
         if (digit_base_multiplier >= base) {
           return rq::NumericResultCode::ERROR_INVALID_DIGIT;
@@ -159,7 +156,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
           return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term *= base;
-        if (unsigned_term > max_before_add) {
+        if (unsigned_term > unsigned_max - digit_base_multiplier) {
           return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term += digit_base_multiplier;
@@ -182,16 +179,16 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
     return rq::NumericResultCode::OK;
   } else if constexpr (std::same_as<Numeric, llvm::APInt>) {
     const unsigned bit_depth = ost_term.getBitWidth();
-    llvm::APInt max_base = llvm::APInt(bit_depth, rq::MAX_BASE);
-    llvm::APInt min_upper_base = llvm::APInt(bit_depth, rq::MIN_UPPER_BASE);
-    const llvm::APInt unsigned_max = llvm::APInt::getMaxValue(bit_depth);
-    llvm::APInt base = llvm::APInt(bit_depth, 10);
-    llvm::APInt max_digit_multiplier = base - 1;
-    llvm::APInt max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
-    llvm::APInt max_before_add = unsigned_max - max_digit_multiplier;
+    const unsigned working_bit_depth = std::max(bit_depth, 7u);
+    llvm::APInt max_base = llvm::APInt(working_bit_depth, rq::MAX_BASE);
+    llvm::APInt min_upper_base = llvm::APInt(working_bit_depth, rq::MIN_UPPER_BASE);
+    const llvm::APInt unsigned_max =
+        llvm::APInt::getMaxValue(bit_depth).zext(working_bit_depth);
+    llvm::APInt base = llvm::APInt(working_bit_depth, 10);
+    llvm::APInt max_before_multiply = unsigned_max.udiv(base);
     bool explicit_base = false;
     bool digit_found = false;
-    llvm::APInt unsigned_term = llvm::APInt(bit_depth, 0);
+    llvm::APInt unsigned_term = llvm::APInt(working_bit_depth, 0);
     for (const char c : text) {
       if (!explicit_base && c == 'x') {
         base = unsigned_term;
@@ -203,9 +200,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
         } else if (base.ugt(max_base)) {
           return rq::NumericResultCode::ERROR_BASE_TOO_BIG;
         }
-        max_digit_multiplier = base - 1;
-        max_before_multiply = unsigned_max.udiv(max_digit_multiplier);
-        max_before_add = unsigned_max - max_digit_multiplier;
+        max_before_multiply = unsigned_max.udiv(base);
         explicit_base = true;
         digit_found = false;
       } else if (c == '.') {
@@ -218,7 +213,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
           lower_c = rq::getLowercaseLetter(c);
         }
         const llvm::APInt digit_base_multiplier =
-            llvm::APInt(bit_depth, rq::getDigitBaseMultiplier(lower_c));
+            llvm::APInt(working_bit_depth, rq::getDigitBaseMultiplier(lower_c));
         if (digit_base_multiplier.uge(base)) {
           return rq::NumericResultCode::ERROR_INVALID_DIGIT;
         }
@@ -226,7 +221,8 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
           return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term *= base;
-        if (unsigned_term.ugt(max_before_add)) {
+        if (digit_base_multiplier.ugt(unsigned_max) ||
+            unsigned_term.ugt(unsigned_max - digit_base_multiplier)) {
           return rq::NumericResultCode::ERROR_TERM_TOO_BIG;
         }
         unsigned_term += digit_base_multiplier;
@@ -236,7 +232,7 @@ getNumericValue(llvm::StringRef text, NumericParam &ost_term) {
     if (!digit_found) {
       return rq::NumericResultCode::ERROR_NO_DIGITS;
     }
-    ost_term = unsigned_term;
+    ost_term = unsigned_term.trunc(bit_depth);
     return rq::NumericResultCode::OK;
   } else if constexpr (std::floating_point<Numeric>) {
     llvm::SmallString<16> clean_text;
