@@ -305,6 +305,7 @@ struct Tokenizer final {
         }
         break;
       case '\x00':
+        this->setNotOk();
         this->getTokens().push_back(
             this->getRanger().getSubToken(ERROR_UNTERMINATED_PARAM));
         return;
