@@ -1087,7 +1087,7 @@ enum class ValueKind : rq::EntityId {
 constexpr rq::EntityId KEYWORD_OFFSET = 1;
 
 constexpr rq::EntityId SYMBOL_OFFSET =
-    rq::getUnderlyingValue(rq::Keyword::LAST);
+    rq::KEYWORD_OFFSET + rq::getUnderlyingValue(rq::Keyword::LAST);
 
 constexpr rq::EntityId VALUE_OFFSET =
     rq::SYMBOL_OFFSET + rq::getUnderlyingValue(rq::SymbolKind::LAST);
@@ -1148,7 +1148,7 @@ getIsInRange(rq::SymbolKind kind) {
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsValueKind(rq::EntityId id) {
   return id >= rq::VALUE_OFFSET &&
-         id < rq::getUnderlyingValue(rq::ValueKind::LAST);
+         id < rq::VALUE_OFFSET + rq::getUnderlyingValue(rq::ValueKind::LAST);
 }
 
 [[nodiscard]] constexpr RQ_ALWAYS_INLINE bool getIsInRange(rq::ValueKind kind) {

@@ -4905,9 +4905,9 @@ struct Expression final : public rq::Entity {
       _source_ptr_flags{};
   unsigned _source_text_length{0};
 
-  explicit Expression() : Entity(rq::getUnderlyingValue(rq::Keyword::NONE)) {}
+  explicit Expression() : Entity(rq::getId(rq::Keyword::NONE)) {}
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Keyword getKeyword() const {
-    return static_cast<rq::Keyword>(this->getId());
+    return rq::getKeyword(this->getId());
   }
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName() const {
     return rq::getName(this->getKeyword());
@@ -5139,7 +5139,7 @@ struct Expression final : public rq::Entity {
     return this->getSourceTextPtr() + this->getSourceTextLength() - 1;
   }
   RQ_ALWAYS_INLINE void clearData() {
-    this->_id = rq::getUnderlyingValue(rq::Keyword::NONE);
+    this->_id = rq::getId(rq::Keyword::NONE);
 #if !defined(_NDEBUG)
     this->_debug_keyword = rq::Keyword::NONE;
     this->_debug_symbol_kind = rq::SymbolKind::NONE;
@@ -5151,20 +5151,20 @@ struct Expression final : public rq::Entity {
     this->_source_text_length = 0;
   }
   RQ_ALWAYS_INLINE void setKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id == rq::getUnderlyingValue(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id == rq::getId(rq::Keyword::NONE),
               "keyword must not already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUnderlyingValue(keyword);
+    this->_id = rq::getId(keyword);
   }
   RQ_ALWAYS_INLINE void changeKeyword(rq::Keyword keyword) {
-    RQ_ASSERT(this->_id != rq::getUnderlyingValue(rq::Keyword::NONE),
+    RQ_ASSERT(this->_id != rq::getId(rq::Keyword::NONE),
               "keyword must already be set");
 #if !defined(_NDEBUG)
     this->_debug_keyword = keyword;
 #endif
-    this->_id = rq::getUnderlyingValue(keyword);
+    this->_id = rq::getId(keyword);
   }
   RQ_ALWAYS_INLINE void setIsInserted() {
     this->_source_ptr_flags.addFlags(rq::ExpressionSourceInfoFlags::INSERTED);
