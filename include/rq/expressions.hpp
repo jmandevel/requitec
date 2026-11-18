@@ -3565,7 +3565,7 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
 
   INVARIADIC = rq::getBit(42),
   VARIADIC = rq::getBit(43),
-  VARIADIC_MODIFIER_MASK,
+  VARIADIC_MODIFIER_MASK = INVARIADIC | VARIADIC,
 
   POLYADIC = rq::getBit(56),
   POLYADIC_MODIFIER_MASK = POLYADIC,
