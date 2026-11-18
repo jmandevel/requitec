@@ -256,6 +256,7 @@ struct RequiteParser final {
     return this->_token_ranger;
   }
   [[nodiscard]] rq::Expression *parseExpressions();
+  [[nodiscard]] rq::Expression &parseUnexpectedEof();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseAscribableExpression() {
     return this->parsePrecedence12();
   }

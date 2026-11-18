@@ -624,6 +624,11 @@ void Context::logErrorFailedToAddPassesToEmitFile(llvm::StringRef path) {
       llvm::Twine("error: failed to add passes to emit file\n\tpath: ") + path);
 }
 
+void Context::logErrorUnexpectedEof(const rq::Expression &expression) {
+  this->logMessage(expression.getLlvmSourceBegin(), rq::LogType::ERROR,
+                   "unexpected eof", {}, {});
+}
+
 void Context::logErrorFoundErrorToken(const rq::Token &token) {
   this->logMessage(token.getLlvmSourceBegin(), rq::LogType::ERROR,
                    llvm::Twine("found ") + token.getDescription(),

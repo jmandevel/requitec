@@ -170,6 +170,16 @@ rq::Expression *RequiteParser::parseExpressions() {
   return result.getFirstBranchPtr();
 }
 
+rq::Expression &RequiteParser::parseUnexpectedEof() {
+  rq::Expression &error = this->getContext().acquireExpression();
+  error.setKeyword(rq::Keyword::ERROR);
+  error.setSourceAt(this->getSourceText().end());
+  error.setIsInserted();
+  this->setNotOk();
+  this->getContext().logErrorUnexpectedEof(error);
+  return error;
+}
+
 // MODIFIERS
 rq::Expression &RequiteParser::parsePrecedence12() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
@@ -199,6 +209,7 @@ rq::Expression &RequiteParser::parsePrecedence12() {
                                     rq::Keyword::UNSITUATED_ASCRIBE_MODIFIER);
     precedence_factory.appendBranch(instantiation);
   }
+  precedence_factory.appendBranch(this->parseUnexpectedEof());
   return precedence_factory.getOuter();
 }
 
@@ -659,19 +670,10 @@ rq::Expression &RequiteParser::parsePrecedence3() {
       continue;
     default:
       precedence_factory.appendBranch(this->parsePrecedence2());
-      break;
+      return precedence_factory.getOuter();
     }
-    break;
   }
-  if (!precedence_factory.getHasOuter()) {
-    rq::Expression &error = this->getContext().acquireExpression();
-    error.setSourceAt(
-        std::bit_cast<const char *>(this->getSourceText().bytes_end()));
-    error.setKeyword(rq::Keyword::ERROR);
-    error.setIsInserted();
-    this->setNotOk();
-    return error;
-  }
+  precedence_factory.appendBranch(this->parseUnexpectedEof());
   return precedence_factory.getOuter();
 }
 
@@ -711,17 +713,17 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       inference.setIsInserted();
       inference.setSourceBefore(token);
       precedence_factory.appendBranch(inference);
-      break;
+      return precedence_factory.getOuter();
     }
     rq::Expression &expression = this->parsePrecedence1();
     precedence_factory.setRecent(expression);
     if (expression.getCanBeChainLink()) {
       precedence_factory.appendRecent();
-      break;
+      return precedence_factory.getOuter();
     }
     if (this->getRanger().getIsDone()) {
       precedence_factory.appendRecent();
-      break;
+      return precedence_factory.getOuter();
     }
     const rq::Token post_token = this->getRanger().getToken();
     switch (post_token.getKind()) {
@@ -764,10 +766,10 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       continue;
     default:
       precedence_factory.appendRecent();
-      break;
+      return precedence_factory.getOuter();
     }
-    break;
   }
+  precedence_factory.appendBranch(this->parseUnexpectedEof());
   return precedence_factory.getOuter();
 }
 
@@ -825,6 +827,9 @@ rq::Expression &RequiteParser::parsePrecedence1() {
 
 // BASE NODES
 rq::Expression &RequiteParser::parsePrecedence0() {
+  if (this->getRanger().getIsDone()) {
+    return this->parseUnexpectedEof();
+  }
   const rq::Token token = this->getRanger().getToken();
   switch (token.getKind()) {
   case rq::TokenKind::LEFT_BRACKET_GROUPING:
@@ -860,7 +865,9 @@ RequiteParser::parseBranches(rq::TokenKind end) {
   rq::ForestFactory factory;
   const rq::Token first_token = this->getRanger().getToken();
   if (first_token.getKind() == end) {
-    this->getRanger().incrementToken(1);
+    if (end != rq::TokenKind::NONE) {
+      this->getRanger().incrementToken(1);
+    }
     return rq::ParseBranchesResult(nullptr, first_token, false);
   }
   bool parameter_mark_found = false;
@@ -884,7 +891,9 @@ RequiteParser::parseBranches(rq::TokenKind end) {
       mark.setKeyword(rq::Keyword::LOCKED_PARAMETERS_BEGIN);
       factory.appendTree(mark);
     } else if (next_token.getKind() == end) {
-      this->getRanger().incrementToken(1);
+      if (end != rq::TokenKind::NONE) {
+        this->getRanger().incrementToken(1);
+      }
       return rq::ParseBranchesResult(factory.build(), next_token,
                                      parameter_mark_found);
     }

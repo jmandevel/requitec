@@ -497,6 +497,7 @@ struct Context final : public rq::BumpPtrAllocator {
                                             const std::error_code &ec);
   void logErrorFailedToAddPassesToEmitFile(llvm::StringRef path);
   // parse errors
+  void logErrorUnexpectedEof(const rq::Expression &expression);
   void logErrorFoundErrorToken(const rq::Token &token);
   void logErrorUnexpectedToken(const rq::Token &token);
   void logErrorExpectedIdentifierLiteral(const rq::Token &token);
