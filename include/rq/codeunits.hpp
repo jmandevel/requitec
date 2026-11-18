@@ -1715,7 +1715,9 @@ getIsIdentifierBody(char codeunit) {
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr bool getIsExtended(char codeunit) {
-  return (codeunit & rq::CHAR_EXTENDED_BIT) == rq::CHAR_EXTENDED_BIT;
+  const rq::CodeunitInfoFlags flags = rq::getInfoFlags(codeunit);
+  return rq::getHasAllAndNone(flags, rq::CodeunitInfoFlags::EXTENDED,
+                              rq::CodeunitInfoFlags::DIGIT);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE constexpr std::underlying_type_t<
