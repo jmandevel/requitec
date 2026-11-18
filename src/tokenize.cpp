@@ -902,8 +902,9 @@ void Tokenizer::tokenizeRightGrouping(rq::GroupingKind grouping_kind,
     this->tokenizeUnmatchedLengthToken(token_kind, length);
     return;
   }
-  rq::Token right_token = this->getRanger().getLengthToken(token_kind, length);
-  this->getTokens().push_back(right_token);
+  this->getTokens().push_back(
+      this->getRanger().getLengthToken(token_kind, length));
+  rq::Token &right_token = this->getTokens().back();
   if (this->getHasGrouping()) {
     const rq::Grouping &top_grouping = this->getTopGrouping();
     if (top_grouping.getKind() != grouping_kind) {
