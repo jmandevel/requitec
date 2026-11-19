@@ -690,10 +690,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "_module_of";
   case K::MEMBER_OF:
     return "_member_of";
-  case K::WITHOUT:
-    return "without";
-  case K::WITHOUT_OF:
-    return "_without_of";
   case K::BAKE:
     return "bake";
   case K::BAKE_OF:
@@ -1884,10 +1880,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MEMBER_OF:
     return KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::WITHOUT:
-    return KIF::RAILCAR;
-  case K::WITHOUT_OF:
-    return KIF::ROUTE | KIF::PORTAL;
   case K::BAKE:
     return KIF::RAILCAR;
   case K::BAKE_OF:
@@ -2742,8 +2734,6 @@ getDescription(rq::Situation situation) {
     return K::CONTINUE_OF;
   case K::MODULE:
     return K::MODULE_OF;
-  case K::WITHOUT:
-    return K::WITHOUT_OF;
   case K::BAKE:
     return K::BAKE_OF;
   case K::IGNORE:

@@ -1,6 +1,6 @@
 # see exporting.rq for what is being imported
 
-[import "exporting", my_stuff.[without detail], std];  # notice there is no .rq file extension
+[import "exporting", my_stuff, std];  # notice there is no .rq file extension
 
 mangle::main
 [proc , ()SInt,

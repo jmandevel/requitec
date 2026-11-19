@@ -1041,12 +1041,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::MEMBER_OF:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
-  case K::WITHOUT:
-    is_ok = this->situateNaryTag(situation, expression, 1, S::ROUTE);
-    break;
-  case K::WITHOUT_OF:
-    is_ok = this->situateNaryTag(situation, expression, 2, S::ROUTE);
-    break;
   case K::BAKE:
     is_ok = this->situateNullary(situation, expression);
     break;

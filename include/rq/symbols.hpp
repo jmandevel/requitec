@@ -1236,7 +1236,6 @@ struct Portal final : public rq::TableMember {
 
   rq::Portal *_next_ptr{nullptr};
   rq::SymbolTable *_dest_ptr{nullptr};
-  rq::NodeList<rq::SymbolTable> _without_list{};
   rq::Expression *_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Portal();
@@ -1244,12 +1243,6 @@ struct Portal final : public rq::TableMember {
   RQ_ALWAYS_INLINE void setDest(rq::SymbolTable &dest);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getDest() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getDest();
-  RQ_ALWAYS_INLINE void
-  setWithoutList(rq::NodeList<rq::SymbolTable> &&without_list);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::SymbolTable>
-  getWithoutList() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::SymbolTable>
-  getWithoutList();
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();

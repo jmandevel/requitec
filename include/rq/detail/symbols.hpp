@@ -2520,22 +2520,6 @@ RQ_ALWAYS_INLINE void Portal::setDest(rq::SymbolTable &dest) {
   return rq::dereferencePtr(this->_dest_ptr);
 }
 
-RQ_ALWAYS_INLINE void
-Portal::setWithoutList(rq::NodeList<rq::SymbolTable> &&without_list) {
-  RQ_ASSERT(this->_without_list.getIsEmpty(), "without list already set");
-  this->_without_list = std::move(without_list);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNodeListRef<rq::SymbolTable>
-Portal::getWithoutList() const {
-  return this->_without_list;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::SymbolTable>
-Portal::getWithoutList() {
-  return this->_without_list;
-}
-
 RQ_ALWAYS_INLINE void Portal::setExpression(rq::Expression &expression) {
   rq::assignSingleValue(this->_expression_ptr, &expression);
 }

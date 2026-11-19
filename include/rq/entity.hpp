@@ -416,8 +416,6 @@ enum class Keyword : rq::EntityId {
   MODULE,
   MODULE_OF,
   MEMBER_OF,
-  WITHOUT,
-  WITHOUT_OF,
   BAKE,
   BAKE_OF,
   IGNORE,
