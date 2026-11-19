@@ -2719,6 +2719,15 @@ inline void SymbolTable::addMember(rq::BumpPtrAllocator &allocator,
   list.insertFront(allocator, member);
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::TableMember>
+SymbolTable::lookupList(rq::Name name) {
+  auto found = this->_member_map.find(name);
+  if (found == this->_member_map.end()) {
+    return {};
+  }
+  return found->getSecond();
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
 SymbolTable::lookupList(rq::Name name) const {
   auto found = this->_member_map.find(name);

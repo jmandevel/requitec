@@ -1218,6 +1218,8 @@ struct SymbolTable : public rq::TableMember {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
   inline void addMember(rq::BumpPtrAllocator &allocator, rq::Name name,
                         rq::TableMember &member);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeListRef<rq::TableMember>
+  lookupList(rq::Name name);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstNodeListRef<rq::TableMember>
   lookupList(rq::Name name) const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Subrange<InclusiveAscendingIterator>
