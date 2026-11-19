@@ -15,7 +15,8 @@ mangle::main
 [namespace A,
     pure
     [proc getBool, ()Bool,
-        # lazy symbols in same namespace have to be specified with whole path!
+        # imported lazy symbols in same namespace have to be specified with whole path!
+        # this is not required for lazy symbols in same file.
 
         # this still uses the _SneakyMacro so it expands to [true].
         this_is_true := true;
