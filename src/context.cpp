@@ -136,6 +136,7 @@ rq::SourceLocation Context::getSourceLocation(llvm::SMLoc llvm_location) {
 }
 
 rq::Keyword Context::getKeyword(llvm::Twine name) {
+  RQ_ASSERT(!this->_keyword_map.empty(), "keyword map not initialized");
   llvm::SmallString<64> buffer;
   auto it = this->_keyword_map.find(name.toStringRef(buffer));
   if (it == this->_keyword_map.end()) {
