@@ -10,11 +10,13 @@ mangle::main
         " count:" +> my_array.[type]->std.count() +>
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
-    [for my_array, index:=index, element:=value, 
+    [for index := 0; my_array, element:=[value], 
         element = element * index.[cast element.[type]];
+        index = index + 1;
     ];
-    [for my_array.[ref], index:=index, element:=value, 
+    [for index := 0; my_array.[ref], element:=[value], 
         std.print(line="element " +> index +> " is " +> element +> "!");
+        index = index + 1;
     ];
     std.print(line="it starts with " +> my_array.[ref]->std.at{0}() +> "!");
 
