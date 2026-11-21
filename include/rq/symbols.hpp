@@ -490,6 +490,8 @@ struct SimpleLeaf final : public ParentParam {
   }
 };
 
+constexpr unsigned MAX_SCALED_PRIMITIVE_DEPTH = 1024;
+
 struct ScaledPrimitiveType : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::ScaledPrimitiveType;
 
