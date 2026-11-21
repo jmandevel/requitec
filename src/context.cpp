@@ -144,6 +144,14 @@ rq::Keyword Context::getKeyword(llvm::Twine name) {
   return it->getValue();
 }
 
+[[nodiscard]] rq::Keyword Context::getBuiltinKeyword(rq::Name name) {
+    if (name.getKeyword() == rq::Keyword::NONE) {
+        const rq::Keyword keyword = this->getKeyword(name.getText());
+        return keyword;
+    }
+    return name.getKeyword();
+}
+
 rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
   rq::SourceRange source_range = {};
   source_range.start = this->getSourceLocation(expression.getLlvmSourceBegin());

@@ -425,6 +425,7 @@ struct Context final : public rq::BumpPtrAllocator {
   }
   void initializeKeywordMap();
   [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
+  [[nodiscard]] rq::Keyword getBuiltinKeyword(rq::Name name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
   [[nodiscard]] inline rq::SourceRange
   getSourceRange(const rq::Expression &expression);
