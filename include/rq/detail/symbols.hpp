@@ -793,7 +793,7 @@ RQ_ALWAYS_INLINE ScaledPrimitiveType::ScaledPrimitiveType(rq::SymbolKind kind,
                                                           unsigned depth)
     : Symbol(kind), _depth(depth) {
   RQ_ASSERT(rq::getIsScaledPrimitiveType(kind), "not scaled primitive type");
-  RQ_ASSERT(depth < rq::MAX_SCALED_PRIMITIVE_DEPTH && depth > 0,
+  RQ_ASSERT(depth <= rq::MAX_SCALED_PRIMITIVE_DEPTH && depth > 0,
             "invalid depth");
 }
 
