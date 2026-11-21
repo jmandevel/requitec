@@ -22,7 +22,7 @@ namespace rq {
 struct Expression;
 
 static constexpr std::size_t KEYWORD_COUNT =
-    static_cast<std::size_t>(rq::Keyword::LAST) - 1;
+    static_cast<std::size_t>(rq::Keyword::LAST);
 
 [[nodiscard]] inline llvm::StringRef getName(rq::Keyword keyword) {
   using namespace rq;
