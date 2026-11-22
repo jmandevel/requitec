@@ -4,8 +4,7 @@
 #include <rq/utility.hpp>
 
 #include <llvm/ADT/ArrayRef.h>
-#include <llvm/ADT/DenseMap.h>
-#include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/SmallPtrSet.h>
 
 namespace rq {
 
@@ -38,27 +37,23 @@ struct Generator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RValue
   resolveRvalue(rq::SymbolTable &host, rq::Expression &expression);
 
-  void lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
-              llvm::SmallVectorImpl<rq::Entity *> &candidates);
+  void lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
+              llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
 
   RQ_ALWAYS_INLINE void
-  lookup(rq::SymbolTable &host, rq::Name name,
-         llvm::SmallVectorImpl<rq::Entity *> &candidates) {
-    this->lookup(host, llvm::ArrayRef<rq::Name>(&name, 1), candidates);
+  lookUp(rq::SymbolTable &host, rq::Name name,
+         llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+    this->lookUp(host, llvm::ArrayRef<rq::Name>(&name, 1), candidates);
   }
 
-  void lookupMember(rq::SymbolTable &host, rq::Entity &receiver,
+  void lookDown(rq::Module& module, rq::TableMember &receiver,
                     llvm::ArrayRef<rq::Name> path,
-                    llvm::SmallVectorImpl<rq::Entity *> &candidates);
+                    llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
 
-  RQ_ALWAYS_INLINE void
-  lookupMember(rq::SymbolTable &host, rq::Entity &receiver, rq::Name name,
-               llvm::SmallVectorImpl<rq::Entity *> &candidates) {
-    this->lookupMember(host, receiver, llvm::ArrayRef<rq::Name>(&name, 1),
-                       candidates);
-  }
 
-  [[nodiscard]] rq::Entity *lookupBuiltin(rq::Name name);
+  [[nodiscard]] bool tryImplement(rq::TableMember& member);
+
+  [[nodiscard]] rq::Entity* lookAbove(rq::Name name);
 };
 
 } // namespace rq

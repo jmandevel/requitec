@@ -1,11 +1,91 @@
 #include <rq/context.hpp>
 #include <rq/generate.hpp>
+#include <rq/utility.hpp>
 
 #include <cstddef>
 
 namespace rq {
 
-[[nodiscard]] rq::Entity *Generator::lookupBuiltin(rq::Name name) {
+void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
+                       llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+  RQ_ASSERT(path.size() >= 1, "no names in path");
+  rq::Module &module = rq::dereferencePtr(host.getModulePtr());
+  for (rq::SymbolTable &scope : host.getInclusiveAscendingSubrange()) {
+    rq::NodeListRef<rq::TableMember> list = scope.lookupList(path.front());
+    for (rq::TableMember &member : list) {
+      if (!this->tryImplement(member)) {
+        continue;
+      }
+      if (path.size() == 1) {
+        candidates.insert(&member);
+      } else {
+        this->lookDown(module, member, path.drop_front(1), candidates);
+      }
+    }
+    if (scope.getContainerPtr() == nullptr) {
+      llvm::SmallPtrSet<rq::Module *, 1> searched_modules{{&module}};
+      for (rq::Import &import : module.getImportSubrange()) {
+        rq::Module &imported_module = rq::dereferencePtr(import.getModulePtr());
+        if (searched_modules.contains(&imported_module)) {
+          continue;
+        }
+        this->lookAcross(imported_module, path, searched_modules, candidates);
+      }
+    }
+    if (!candidates.empty()) {
+      return;
+    }
+  }
+  if (path.size() == 1) {
+    rq::Entity *builtin_ptr = this->lookAbove(path.front());
+    if (builtin_ptr == nullptr) {
+      return;
+    }
+    candidates.insert(builtin_ptr);
+  }
+}
+
+void Generator::lookDown(rq::Module &module, rq::TableMember &receiver,
+                         llvm::ArrayRef<rq::Name> path,
+                         llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+  RQ_ASSERT(path.size() >= 1, "no names in path");
+  if (!llvm::isa<rq::SymbolTable>(receiver)) {
+    return;
+  }
+  rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(receiver);
+  rq::NodeListRef<rq::TableMember> list = table.lookupList(path.front());
+  for (rq::TableMember &member : list) {
+    rq::Module &member_module = rq::dereferencePtr(member.getModulePtr());
+    rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
+    if (member_module != module) {
+      if (rq::getHasNone(member_flags, rq::ModifierFuseFlags::EXPORT)) {
+        continue;
+      }
+    }
+    if (!this->tryImplement(member)) {
+      continue;
+    }
+    if (path.size() == 1) {
+      candidates.insert(&member);
+    } else {
+      this->lookDown(module, member, path.drop_front(1), candidates);
+    }
+  }
+}
+
+[[nodiscard]] bool Generator::tryImplement(rq::TableMember &member) {
+  if (llvm::isa<rq::LazyDeclaration>(member)) {
+    rq::LazyDeclaration &lazy = llvm::cast<rq::LazyDeclaration>(member);
+    if (lazy.getState() < rq::LazyState::IMPLEMENTED) {
+      if (!this->implement(lazy)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+[[nodiscard]] rq::Entity *Generator::lookAbove(rq::Name name) {
   using K = rq::Keyword;
   const K keyword = this->getContext().getBuiltinKeyword(name);
   if (keyword == K::NONE) {
