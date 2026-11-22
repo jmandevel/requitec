@@ -39,7 +39,7 @@ struct Value;
 
 [[nodiscard]] inline llvm::StringRef getName(rq::SymbolKind kind);
 
-enum class EvaluationState : std::uint_fast8_t {
+enum class LazyState : std::uint_fast8_t {
   NONE,
   SURVEYED,
   DECLARING,
@@ -49,12 +49,12 @@ enum class EvaluationState : std::uint_fast8_t {
   ERROR
 };
 
-[[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::EvaluationState rhs,
-                                                rq::EvaluationState lhs) {
+[[nodiscard]] RQ_ALWAYS_INLINE auto operator<=>(rq::LazyState rhs,
+                                                rq::LazyState lhs) {
   return rq::getUnderlyingValue(rhs) <=> rq::getUnderlyingValue(lhs);
 }
 
-[[nodiscard]] inline llvm::StringRef getName(rq::EvaluationState state);
+[[nodiscard]] inline llvm::StringRef getName(rq::LazyState state);
 
 template <typename ParentParam, rq::SymbolInfoFlags FLAG_PARAM>
 struct SimpleBranch;
@@ -780,7 +780,6 @@ struct Import final : public rq::Symbol {
   using Self = rq::Import;
 
   rq::Import *_next_ptr{nullptr};
-  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
   rq::Expression *_expression_ptr{nullptr};
   rq::Module *_imported_ptr{nullptr};
   rq::Module *_module_ptr{nullptr};
@@ -788,9 +787,6 @@ struct Import final : public rq::Symbol {
 
   explicit RQ_ALWAYS_INLINE Import();
 
-  RQ_ALWAYS_INLINE void setModifierFuseFlags(rq::ModifierFuseFlags flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-  getModifierFuseFlags() const;
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
@@ -1065,12 +1061,20 @@ struct TableMember : public rq::Symbol {
 
   rq::SymbolTable *_container_ptr{nullptr};
   rq::Module *_module_ptr{nullptr};
+  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
 
   explicit RQ_ALWAYS_INLINE TableMember(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setContainer(rq::SymbolTable &container);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getContainerPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getContainerPtr() const;
+  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
+  RQ_ALWAYS_INLINE void
+  setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+  getModifierFuseFlags() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1127,15 +1131,10 @@ struct Enumerator final : public rq::EagerDeclaration {
 struct EagerVariable : public rq::EagerDeclaration {
   using Self = rq::EagerVariable;
 
-  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
   rq::QualifiedType *_type_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE EagerVariable(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void
-  setLowFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-  getModifierFuseFlags() const;
   RQ_ALWAYS_INLINE void setType(rq::QualifiedType &type);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *getTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType *getTypePtr() const;
@@ -1239,14 +1238,10 @@ struct Portal final : public rq::TableMember {
   using Self = rq::Portal;
 
   rq::Portal *_next_ptr{nullptr};
-  rq::SymbolTable *_dest_ptr{nullptr};
   rq::Expression *_expression_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Portal();
 
-  RQ_ALWAYS_INLINE void setDest(rq::SymbolTable &dest);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getDest() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getDest();
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
@@ -1326,17 +1321,12 @@ struct EagerScope : public rq::SymbolTable {
   using Self = rq::EagerScope;
 
   rq::Expression *_expression_ptr{nullptr};
-  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
 
   explicit RQ_ALWAYS_INLINE EagerScope(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  RQ_ALWAYS_INLINE void
-  setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-  getModifierFuseFlags() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1441,28 +1431,22 @@ struct LazyDeclaration : public rq::NamedTable {
   using Self = rq::LazyDeclaration;
 
   rq::Expression *_expression_ptr{nullptr};
-  rq::ModifierFuseFlags _modifier_fuse_flags{rq::ModifierFuseFlags::NONE};
   rq::SymbolTable *_host_ptr{nullptr};
   llvm::StringRef _mangled_name{};
-  rq::Module *_module_ptr{nullptr};
+  rq::LazyState _state{rq::LazyState::NONE};
 
   explicit RQ_ALWAYS_INLINE LazyDeclaration(rq::SymbolKind kind);
 
+  RQ_ALWAYS_INLINE void setState(rq::LazyState state);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::LazyState getState() const;
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  RQ_ALWAYS_INLINE void
-  setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags);
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-  getModifierFuseFlags() const;
   RQ_ALWAYS_INLINE void setHostTable(rq::SymbolTable &host);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable *getHostTablePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable *getHostTablePtr() const;
   void setMangledName(llvm::StringRef mangled_name);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getMangledName() const;
-  RQ_ALWAYS_INLINE void setModule(rq::Module &module);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *getModulePtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Module *getModulePtr();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);

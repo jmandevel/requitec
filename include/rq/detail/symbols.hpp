@@ -709,22 +709,22 @@ namespace rq {
   RQ_UNREACHABLE();
 }
 
-[[nodiscard]] inline llvm::StringRef getName(rq::EvaluationState state) {
-  using ES = rq::EvaluationState;
+[[nodiscard]] inline llvm::StringRef getName(rq::LazyState state) {
+  using L = rq::LazyState;
   switch (state) {
-  case ES::NONE:
+  case L::NONE:
     break;
-  case ES::SURVEYED:
+  case L::SURVEYED:
     return "surveyed";
-  case ES::DECLARING:
+  case L::DECLARING:
     return "declaring";
-  case ES::DECLARED:
+  case L::DECLARED:
     return "declared";
-  case ES::IMPLEMENTING:
+  case L::IMPLEMENTING:
     return "implementing";
-  case ES::IMPLEMENTED:
+  case L::IMPLEMENTED:
     return "implemented";
-  case ES::ERROR:
+  case L::ERROR:
     return "error";
   }
   RQ_UNREACHABLE();
@@ -2419,6 +2419,31 @@ TableMember::getContainerPtr() const {
   return this->_container_ptr;
 }
 
+RQ_ALWAYS_INLINE void TableMember::setModule(rq::Module &module) {
+  rq::assignSingleValue(this->_module_ptr, &module);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *
+TableMember::getModulePtr() const {
+  return this->_module_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Module *TableMember::getModulePtr() {
+  return this->_module_ptr;
+}
+
+RQ_ALWAYS_INLINE void
+TableMember::setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags) {
+  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
+            "flags already set");
+  this->_modifier_fuse_flags = modifier_fuse_flags;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
+TableMember::getModifierFuseFlags() const {
+  return this->_modifier_fuse_flags;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 TableMember::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -2426,18 +2451,6 @@ TableMember::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Import::Import() : Symbol(rq::SymbolKind::IMPORT) {}
-
-RQ_ALWAYS_INLINE void
-Import::setModifierFuseFlags(rq::ModifierFuseFlags flags) {
-  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
-            "already set");
-  this->_modifier_fuse_flags = flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-Import::getModifierFuseFlags() const {
-  return this->_modifier_fuse_flags;
-}
 
 RQ_ALWAYS_INLINE void Import::setExpression(rq::Expression &expression) {
   rq::assignSingleValue(this->_expression_ptr, &expression);
@@ -2509,18 +2522,6 @@ Import::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Portal::Portal() : TableMember(rq::SymbolKind::PORTAL) {}
-
-RQ_ALWAYS_INLINE void Portal::setDest(rq::SymbolTable &dest) {
-  rq::assignSingleValue(this->_dest_ptr, &dest);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &Portal::getDest() const {
-  return rq::dereferencePtr(this->_dest_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &Portal::getDest() {
-  return rq::dereferencePtr(this->_dest_ptr);
-}
 
 RQ_ALWAYS_INLINE void Portal::setExpression(rq::Expression &expression) {
   rq::assignSingleValue(this->_expression_ptr, &expression);
@@ -2618,18 +2619,6 @@ Enumerator::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE EagerVariable::EagerVariable(rq::SymbolKind kind)
     : EagerDeclaration(kind) {
   RQ_ASSERT(rq::getIsEagerVariable(kind), "not eager variable");
-}
-
-RQ_ALWAYS_INLINE void
-EagerVariable::setLowFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags) {
-  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
-            "already set");
-  this->_modifier_fuse_flags = modifier_fuse_flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-EagerVariable::getModifierFuseFlags() const {
-  return this->_modifier_fuse_flags;
 }
 
 RQ_ALWAYS_INLINE void EagerVariable::setType(rq::QualifiedType &type) {
@@ -2943,18 +2932,6 @@ EagerScope::getExpressionPtr() const {
   return this->_expression_ptr;
 }
 
-RQ_ALWAYS_INLINE void
-EagerScope::setModifierFuseFlags(rq::ModifierFuseFlags modifier_fuse_flags) {
-  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
-            "flags already set");
-  this->_modifier_fuse_flags = modifier_fuse_flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-EagerScope::getModifierFuseFlags() const {
-  return this->_modifier_fuse_flags;
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 EagerScope::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
@@ -3053,7 +3030,8 @@ NamedTable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Namespace::Namespace()
-    : NamedTable(rq::SymbolKind::NAMESPACE) {}
+    : NamedTable(rq::SymbolKind::NAMESPACE) {
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Namespace::classof(const rq::Entity *entity_ptr) {
@@ -3064,6 +3042,15 @@ Namespace::classof(const rq::Entity *entity_ptr) {
 RQ_ALWAYS_INLINE LazyDeclaration::LazyDeclaration(rq::SymbolKind kind)
     : NamedTable(kind) {
   RQ_ASSERT(rq::getIsLazyDeclaration(kind), "not lazy declaration");
+}
+
+RQ_ALWAYS_INLINE void LazyDeclaration::setState(rq::LazyState state) {
+  RQ_ASSERT(this->_state < state, "state not progressing");
+  this->_state = state;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::LazyState LazyDeclaration::getState() const {
+  return this->_state;
 }
 
 RQ_ALWAYS_INLINE void
@@ -3079,18 +3066,6 @@ LazyDeclaration::getExpressionPtr() {
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
 LazyDeclaration::getExpressionPtr() const {
   return this->_expression_ptr;
-}
-
-RQ_ALWAYS_INLINE void LazyDeclaration::setModifierFuseFlags(
-    rq::ModifierFuseFlags modifier_fuse_flags) {
-  RQ_ASSERT(this->_modifier_fuse_flags == rq::ModifierFuseFlags::NONE,
-            "flags already set");
-  this->_modifier_fuse_flags = modifier_fuse_flags;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ModifierFuseFlags
-LazyDeclaration::getModifierFuseFlags() const {
-  return this->_modifier_fuse_flags;
 }
 
 RQ_ALWAYS_INLINE void LazyDeclaration::setHostTable(rq::SymbolTable &host) {
@@ -3116,25 +3091,6 @@ inline void LazyDeclaration::setMangledName(llvm::StringRef mangled_name) {
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
 LazyDeclaration::getMangledName() const {
   return this->_mangled_name;
-}
-
-RQ_ALWAYS_INLINE void LazyDeclaration::setModule(rq::Module &module) {
-  rq::assignSingleValue(this->_module_ptr, &module);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Module *
-LazyDeclaration::getModulePtr() const {
-  return this->_module_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Module *LazyDeclaration::getModulePtr() {
-  return this->_module_ptr;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-LazyDeclaration::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return rq::getIsLazyDeclaration(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE Implementation::Implementation(rq::SymbolKind kind)
