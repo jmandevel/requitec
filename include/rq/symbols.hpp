@@ -1234,17 +1234,43 @@ struct SymbolTable : public rq::TableMember {
   classof(const rq::Entity *entity_ptr);
 };
 
+struct SymbolicPath final : public llvm::FoldingSetNode {
+  using Self = rq::SymbolicPath;
+
+  rq::SymbolicPath *_next_ptr;
+  rq::Expression *_expression_ptr;
+  llvm::StringRef _identifier_text;
+
+  explicit RQ_ALWAYS_INLINE SymbolicPath(rq::SymbolicPath *next_ptr,
+                                         rq::Expression &expression,
+                                         llvm::StringRef identifier_text);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getIdentifierText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath* getNextPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath* getNextPtr();
+};
+
 struct Portal final : public rq::TableMember {
   using Self = rq::Portal;
 
+  rq::Import* _import_ptr{nullptr};
   rq::Portal *_next_ptr{nullptr};
   rq::Expression *_expression_ptr{nullptr};
+  rq::SymbolicPath *_symbolic_path_ptr{nullptr};
 
   explicit RQ_ALWAYS_INLINE Portal();
 
+  RQ_ALWAYS_INLINE void setImport(rq::Import& import);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Import* getImportPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Import* getImportPtr();
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  RQ_ALWAYS_INLINE void setSymbolicPath(rq::SymbolicPath& path);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath &getSymbolicPath() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath &getSymbolicPath();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1800,7 +1826,18 @@ struct ProcSpecialization final : public rq::ProcImplementation {
 struct AliasImplementation : public rq::Implementation {
   using Self = rq::AliasImplementation;
 
+  rq::SymbolicPath *_path_ptr{};
+
   explicit RQ_ALWAYS_INLINE AliasImplementation(rq::SymbolKind kind);
+
+  RQ_ALWAYS_INLINE void setSymbolicPath(rq::SymbolicPath &symbolic_path);
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getSymbolicPathPtr();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *getSymbolicPathPtr() const;
+  [[nodiscard]] rq::NextSubrange<rq::SymbolicPath> getSymbolicPathSubrange();
+  [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+  getSymbolicPathSubrange() const;
+  [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+  getConstSymbolicPathSubrange() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
