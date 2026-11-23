@@ -37,23 +37,23 @@ struct Generator final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RValue
   resolveRvalue(rq::SymbolTable &host, rq::Expression &expression);
 
-  void lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
+  void lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
               llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
 
   RQ_ALWAYS_INLINE void
-  lookUp(rq::SymbolTable &host, rq::Name name,
+  lookup(rq::SymbolTable &host, rq::Name name,
          llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
-    this->lookUp(host, llvm::ArrayRef<rq::Name>(&name, 1), candidates);
+    this->lookup(host, llvm::ArrayRef<rq::Name>(&name, 1), candidates);
   }
 
-  void lookDown(rq::Module& module, rq::TableMember &receiver,
+  void dfsPath(rq::Module& module, rq::TableMember &receiver,
                     llvm::ArrayRef<rq::Name> path,
                     llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
 
 
   [[nodiscard]] bool tryImplement(rq::TableMember& member);
 
-  [[nodiscard]] rq::Entity* lookAbove(rq::Name name);
+  [[nodiscard]] rq::Entity* tryLookupBuiltin(rq::Name name);
 };
 
 } // namespace rq

@@ -6,7 +6,7 @@
 
 namespace rq {
 
-void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
+void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
                        llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   rq::Module &module = rq::dereferencePtr(host.getModulePtr());
@@ -16,10 +16,25 @@ void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
       if (!this->tryImplement(member)) {
         continue;
       }
-      if (path.size() == 1) {
-        candidates.insert(&member);
+      if (llvm::isa<rq::AliasImplementation>(member)) {
+        rq::AliasImplementation &alias =
+            llvm::cast<rq::AliasImplementation>(member);
+        rq::SymbolicPath &symbolic_path =
+            rq::dereferencePtr(alias.getSymbolicPathPtr());
+        rq::SymbolTable &alias_host =
+            rq::dereferencePtr(alias.getHostTablePtr());
+        this->dfsSymbolicPath(module, alias_host, alias, symbolic_path,
+                              path.drop_front(1), candidates);
+      } else if (llvm::isa<rq::Portal>(member)) {
+        rq::Portal &portal = llvm::cast<rq::Portal>(member);
+        rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
+        rq::Module &portal_module = rq::dereferencePtr(import.getModulePtr());
+        this->dfsSymbolicPath(module, portal_module, portal, symbolic_path,
+                              path.drop_front(1));
+      } else if (path.size() > 1) {
+        this->dfsPath(module, member, path.drop_front(1), candidates);
       } else {
-        this->lookDown(module, member, path.drop_front(1), candidates);
+        candidates.insert(&member);
       }
     }
     if (scope.getContainerPtr() == nullptr) {
@@ -29,7 +44,8 @@ void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
         if (searched_modules.contains(&imported_module)) {
           continue;
         }
-        this->lookAcross(imported_module, path, searched_modules, candidates);
+        this->scanExportedPortals(imported_module, path, searched_modules,
+                                  candidates);
       }
     }
     if (!candidates.empty()) {
@@ -37,7 +53,7 @@ void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
     }
   }
   if (path.size() == 1) {
-    rq::Entity *builtin_ptr = this->lookAbove(path.front());
+    rq::Entity *builtin_ptr = this->tryLookupBuiltin(path.front());
     if (builtin_ptr == nullptr) {
       return;
     }
@@ -45,9 +61,9 @@ void Generator::lookUp(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
   }
 }
 
-void Generator::lookDown(rq::Module &module, rq::TableMember &receiver,
-                         llvm::ArrayRef<rq::Name> path,
-                         llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
+                        llvm::ArrayRef<rq::Name> path,
+                        llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   if (!llvm::isa<rq::SymbolTable>(receiver)) {
     return;
@@ -68,7 +84,7 @@ void Generator::lookDown(rq::Module &module, rq::TableMember &receiver,
     if (path.size() == 1) {
       candidates.insert(&member);
     } else {
-      this->lookDown(module, member, path.drop_front(1), candidates);
+      this->dfsPath(module, member, path.drop_front(1), candidates);
     }
   }
 }
@@ -85,7 +101,7 @@ void Generator::lookDown(rq::Module &module, rq::TableMember &receiver,
   return true;
 }
 
-[[nodiscard]] rq::Entity *Generator::lookAbove(rq::Name name) {
+[[nodiscard]] rq::Entity *Generator::tryLookupBuiltin(rq::Name name) {
   using K = rq::Keyword;
   const K keyword = this->getContext().getBuiltinKeyword(name);
   if (keyword == K::NONE) {
