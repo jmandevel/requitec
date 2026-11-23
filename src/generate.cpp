@@ -29,6 +29,7 @@ void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
         rq::Portal &portal = llvm::cast<rq::Portal>(member);
         rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
         rq::Module &portal_module = rq::dereferencePtr(import.getModulePtr());
+        rq::SymbolicPath &symbolic_path = rq::dereferencePtr(portal.getSymbolicPathPtr());
         this->dfsSymbolicPath(module, portal_module, portal, symbolic_path,
                               path.drop_front(1));
       } else if (path.size() > 1) {

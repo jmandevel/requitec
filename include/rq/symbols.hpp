@@ -1266,11 +1266,11 @@ struct Portal final : public rq::TableMember {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Import* getImportPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Import* getImportPtr();
   RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
   RQ_ALWAYS_INLINE void setSymbolicPath(rq::SymbolicPath& path);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath &getSymbolicPath() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath &getSymbolicPath();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *getSymbolicPathPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getSymbolicPathPtr();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
