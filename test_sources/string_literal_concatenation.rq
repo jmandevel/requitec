@@ -2,6 +2,6 @@
 
 mangle::main
 [proc , ()SInt,
-    std.print(line="this" $ "is" $ "one" $ "string" $ "literal");
+    std.print(line="this" *> "is" *> "one" *> "string" *> "literal");
     result <:= 0;
 ];

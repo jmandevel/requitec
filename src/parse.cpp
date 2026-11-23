@@ -535,7 +535,7 @@ rq::Expression &RequiteParser::parsePrecedence6() {
       precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_JUXT);
       precedence_factory.setRecent(this->parsePrecedence5());
       continue;
-    case rq::TokenKind::DOLLAR_OPERATOR:
+    case rq::TokenKind::STAR_GREATER_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::CONCATENATE);
       precedence_factory.setRecent(this->parsePrecedence5());
