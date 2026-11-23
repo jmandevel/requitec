@@ -91,10 +91,88 @@ struct MutableFloat final : public rq::Float {
 
   explicit RQ_ALWAYS_INLINE MutableFloat(rq::QualifiedType &type,
                                          const llvm::APFloat &value);
-  using Float::getFloat;
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::APFloat &getFloat();
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
+};
+
+struct String : public rq::Value {
+  using Self = rq::String;
+
+  explicit RQ_ALWAYS_INLINE String(rq::QualifiedType &type);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct MutableString final : public rq::String {
+  using Self = rq::MutableString;
+
+  std::string _text{};
+
+  explicit RQ_ALWAYS_INLINE MutableString(rq::QualifiedType &type);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE std::string &getText();
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstantString final : public rq::String, public llvm::FoldingSetNode {
+  using Self = rq::ConstantString;
+
+  llvm::StringRef _text;
+
+  explicit RQ_ALWAYS_INLINE ConstantString(rq::QualifiedType &type,
+                                           llvm::StringRef value);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getText() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+
+  static inline void Profile(llvm::FoldingSetNodeID &id,
+                             const rq::QualifiedType &type,
+                             llvm::StringRef value);
+
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id);
+};
+
+struct Bool : public rq::Value {
+  using Self = rq::Bool;
+
+  bool _value;
+
+  explicit RQ_ALWAYS_INLINE Bool(rq::QualifiedType &type, bool value);
+
+  [[nodiscard]] RQ_ALWAYS_INLINE bool getBool() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct MutableBool final : public rq::Bool {
+  using Self = rq::MutableBool;
+
+  explicit RQ_ALWAYS_INLINE MutableBool(rq::QualifiedType &type, bool value);
+
+  RQ_ALWAYS_INLINE void setBool(bool value);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct ConstantBool final : public rq::Bool, public llvm::FoldingSetNode {
+  using Self = rq::ConstantBool;
+
+  explicit RQ_ALWAYS_INLINE ConstantBool(rq::QualifiedType &type, bool value);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+
+  static inline void Profile(llvm::FoldingSetNodeID &id, bool value);
+  RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &id) const;
 };
 
 struct DetachedArray : public rq::Value {
@@ -108,15 +186,13 @@ struct DetachedArray : public rq::Value {
 
 struct MutableDetachedArray final : public rq::DetachedArray {
   using Self = rq::MutableDetachedArray;
-  using Data = std::vector<rq::Entity *>;
-  Data _data;
 
-  explicit RQ_ALWAYS_INLINE
-  MutableDetachedArray(rq::QualifiedType &type,
-                       llvm::ArrayRef<rq::Entity *> data = {});
+  std::vector<rq::Entity *> _data;
+
+  explicit RQ_ALWAYS_INLINE MutableDetachedArray(rq::QualifiedType &type);
   [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Entity *>
   getDataArray() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE Data &getDataArray();
+  [[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Entity *> &getDataArray();
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 };
