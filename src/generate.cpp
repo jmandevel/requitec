@@ -8,12 +8,13 @@ namespace rq {
 
 void Generator::lookup(rq::SymbolTable &host,
                        llvm::ArrayRef<rq::PathComponent> path,
-                       llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+                       llvm::SmallPtrSetImpl<rq::Entity *> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   rq::Module &module = rq::dereferencePtr(host.getModulePtr());
+  const rq::PathComponent &front_component = path.front();
   for (rq::SymbolTable &scope : host.getInclusiveAscendingSubrange()) {
     rq::NodeListRef<rq::TableMember> list =
-        scope.lookupList(path.front().getName());
+        scope.lookupList(front_component.getName());
     for (rq::TableMember &member : list) {
       if (!this->tryImplement(member)) {
         continue;
@@ -24,8 +25,10 @@ void Generator::lookup(rq::SymbolTable &host,
             rq::dereferencePtr(route.getSymbolicPathPtr());
         rq::SymbolTable &route_start =
             rq::dereferencePtr(route.getDerivedRouteStartPtr());
-        this->dfsSymbolicPath(module, route_start, path.drop_front(1), {&route},
-                              {}, route, route_symbolic_path, candidates);
+        llvm::SmallPtrSet<rq::Route *, 1> found_redirects{&route};
+        this->dfsSymbolicPath(module, route_start, path.drop_front(1),
+                              found_redirects, {}, route, route_symbolic_path,
+                              candidates);
       } else if (path.size() > 1) {
         this->dfsPath(module, member, path.drop_front(1), candidates);
       } else {
@@ -39,8 +42,8 @@ void Generator::lookup(rq::SymbolTable &host,
         if (searched_modules.contains(&imported_module)) {
           continue;
         }
-        this->scanExportedPortals(imported_module, path, searched_modules,
-                                  candidates);
+        this->dfsExportedPortals(module, imported_module, path,
+                                 searched_modules, candidates);
       }
     }
     if (!candidates.empty()) {
@@ -58,14 +61,15 @@ void Generator::lookup(rq::SymbolTable &host,
 
 void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
                         llvm::ArrayRef<rq::PathComponent> path,
-                        llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+                        llvm::SmallPtrSetImpl<rq::Entity *> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   if (!llvm::isa<rq::SymbolTable>(receiver)) {
     return;
   }
   rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(receiver);
+  const rq::PathComponent &front_component = path.front();
   rq::NodeListRef<rq::TableMember> list =
-      table.lookupList(path.front().getName());
+      table.lookupList(front_component.getName());
   for (rq::TableMember &member : list) {
     rq::Module &member_module = rq::dereferencePtr(member.getModulePtr());
     rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
@@ -83,8 +87,10 @@ void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
           rq::dereferencePtr(route.getSymbolicPathPtr());
       rq::SymbolTable &route_start =
           rq::dereferencePtr(route.getDerivedRouteStartPtr());
-      this->dfsSymbolicPath(module, route_start, path.drop_front(1), {&route},
-                            {}, route, route_symbolic_path, candidates);
+      llvm::SmallPtrSet<rq::Route *, 1> found_redirects{&route};
+      this->dfsSymbolicPath(module, route_start, path.drop_front(1),
+                            found_redirects, {}, route, route_symbolic_path,
+                            candidates);
     } else if (path.size() > 1) {
       this->dfsPath(module, member, path.drop_front(1), candidates);
     } else {
@@ -96,10 +102,10 @@ void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
 void Generator::dfsSymbolicPath(
     rq::Module &module, rq::SymbolTable &host,
     llvm::ArrayRef<rq::PathComponent> path,
-    llvm::SmallPtrSet<rq::Route *, 1> found_redirects,
+    llvm::SmallPtrSetImpl<rq::Route *> &found_redirects,
     llvm::ArrayRef<rq::SymbolicPathSnapshot> snapshot_stack,
     rq::Route &redirect, rq::SymbolicPath &symbolic_path,
-    llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+    llvm::SmallPtrSetImpl<rq::Entity *> &candidates) {
   rq::NodeListRef<rq::TableMember> list =
       host.lookupList(symbolic_path.getName());
   for (rq::TableMember &member : list) {
@@ -127,9 +133,10 @@ void Generator::dfsSymbolicPath(
           rq::dereferencePtr(route.getSymbolicPathPtr());
       rq::SymbolTable &route_start =
           rq::dereferencePtr(route.getDerivedRouteStartPtr());
-      this->dfsSymbolicPath(module, route_start, path.drop_front(1), {&route},
-                            new_snapshot_stack, route, route_symbolic_path,
-                            candidates);
+      llvm::SmallPtrSet<rq::Route *, 1> found_redirects{&route};
+      this->dfsSymbolicPath(module, route_start, path.drop_front(1),
+                            found_redirects, new_snapshot_stack, route,
+                            route_symbolic_path, candidates);
       continue;
     }
     if (symbolic_path.getNextPtr() == nullptr) {
@@ -157,6 +164,49 @@ void Generator::dfsSymbolicPath(
       } else {
         this->dfsPath(module, member_table, path, candidates);
       }
+    }
+  }
+}
+
+void Generator::dfsExportedPortals(
+    rq::Module &module, rq::SymbolTable &host,
+    llvm::ArrayRef<rq::PathComponent> path,
+    llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
+    llvm::SmallPtrSetImpl<rq::Entity *> &candidates) {
+  const rq::PathComponent &front_component = path.front();
+  rq::NodeListRef<rq::TableMember> list =
+      host.lookupList(front_component.getName());
+  for (rq::TableMember &member : list) {
+    if (llvm::isa<rq::Namespace>(member)) {
+      rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(member);
+      this->dfsExportedPortals(module, namespace_, path.drop_front(1),
+                                  searched_modules, candidates);
+    } else if (llvm::isa<rq::Portal>(member)) {
+      rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
+      if (rq::getHasNone(member_flags, rq::ModifierFuseFlags::EXPORT)) {
+        continue;
+      }
+      rq::Portal &portal = llvm::cast<rq::Portal>(member);
+      rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
+      rq::Module &import_module = rq::dereferencePtr(import.getModulePtr());
+      llvm::SmallPtrSet<rq::Route *, 1> found_redirects{&portal};
+      rq::SymbolicPath &symbolic_path =
+          rq::dereferencePtr(portal.getSymbolicPathPtr());
+      this->dfsSymbolicPath(module, import_module, path.drop_front(1),
+                            found_redirects, {}, portal, symbolic_path,
+                            candidates);
+    }
+  }
+  if (llvm::isa<rq::Module>(host)) {
+    rq::Module &host_module = llvm::cast<rq::Module>(host);
+    for (rq::Import &import : host_module.getImportSubrange()) {
+      rq::Module &imported = rq::dereferencePtr(import.getImportedPtr());
+      if (searched_modules.contains(&imported)) {
+        continue;
+      }
+      searched_modules.insert(&imported);
+      this->lookupExportedPortals(module, imported, path, searched_modules,
+                                  candidates);
     }
   }
 }

@@ -45,18 +45,19 @@ struct SymbolicPathSnapshot final {
 
   rq::Route &_route;
   rq::SymbolicPath &_symbolic_path;
-  rq::SymbolTable& _host;
+  rq::SymbolTable &_host;
 
   explicit RQ_ALWAYS_INLINE
-  SymbolicPathSnapshot(rq::Route &route, rq::SymbolicPath &symbolic_path, rq::SymbolTable& host);
+  SymbolicPathSnapshot(rq::Route &route, rq::SymbolicPath &symbolic_path,
+                       rq::SymbolTable &host);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Route &getRoute() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Route &getRoute();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath &
   getSymbolicPath() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath &getSymbolicPath();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable& getHost() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable& getHost();
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHost() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHost();
 };
 
 struct RValue final {
@@ -83,19 +84,25 @@ struct Generator final {
   resolveRvalue(rq::SymbolTable &host, rq::Expression &expression);
 
   void lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::PathComponent> path,
-              llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
+              llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
 
   void dfsPath(rq::Module &module, rq::TableMember &receiver,
                llvm::ArrayRef<rq::PathComponent> path,
-               llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
+               llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
 
   void dfsSymbolicPath(rq::Module &module, rq::SymbolTable &host,
-    llvm::ArrayRef<rq::PathComponent> path,
-                       llvm::SmallPtrSet<rq::Route *, 1> found_redirects,
+                       llvm::ArrayRef<rq::PathComponent> path,
+                       llvm::SmallPtrSetImpl<rq::Route *> &found_redirects,
+                       llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
                        llvm::ArrayRef<rq::SymbolicPathSnapshot> snapshot_stack,
-                       rq::Route &redirect,
-                       rq::SymbolicPath& symbolic_path,
-                       llvm::SmallPtrSet<rq::Entity *, 1> &candidates);
+                       rq::Route &redirect, rq::SymbolicPath &symbolic_path,
+                       llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
+
+  void
+  dfsExportedPortals(rq::Module& module, rq::SymbolTable &host,
+                      llvm::ArrayRef<rq::PathComponent> path,
+                      llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
+                      llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
 
   [[nodiscard]] bool tryImplement(rq::TableMember &member);
 
