@@ -1239,7 +1239,7 @@ struct SymbolicPath final : public llvm::FoldingSetNode {
 
   rq::SymbolicPath *_next_ptr;
   rq::Expression *_expression_ptr;
-  llvm::StringRef _identifier_text;
+  rq::Name _name;
 
   explicit RQ_ALWAYS_INLINE SymbolicPath(rq::SymbolicPath *next_ptr,
                                          rq::Expression &expression,
@@ -1247,7 +1247,7 @@ struct SymbolicPath final : public llvm::FoldingSetNode {
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
-  [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getIdentifierText() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath* getNextPtr() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath* getNextPtr();
 };
