@@ -6,12 +6,13 @@
 
 namespace rq {
 
-void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
+void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Route> path,
                        llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   rq::Module &module = rq::dereferencePtr(host.getModulePtr());
   for (rq::SymbolTable &scope : host.getInclusiveAscendingSubrange()) {
-    rq::NodeListRef<rq::TableMember> list = scope.lookupList(path.front());
+    rq::NodeListRef<rq::TableMember> list =
+        scope.lookupList(path.front().getName());
     for (rq::TableMember &member : list) {
       if (!this->tryImplement(member)) {
         continue;
@@ -29,9 +30,10 @@ void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
         rq::Portal &portal = llvm::cast<rq::Portal>(member);
         rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
         rq::Module &portal_module = rq::dereferencePtr(import.getModulePtr());
-        rq::SymbolicPath &symbolic_path = rq::dereferencePtr(portal.getSymbolicPathPtr());
+        rq::SymbolicPath &symbolic_path =
+            rq::dereferencePtr(portal.getSymbolicPathPtr());
         this->dfsSymbolicPath(module, portal_module, portal, symbolic_path,
-                              path.drop_front(1));
+                              path.drop_front(1), candidates);
       } else if (path.size() > 1) {
         this->dfsPath(module, member, path.drop_front(1), candidates);
       } else {
@@ -54,7 +56,7 @@ void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
     }
   }
   if (path.size() == 1) {
-    rq::Entity *builtin_ptr = this->tryLookupBuiltin(path.front());
+    rq::Entity *builtin_ptr = this->tryLookupBuiltin(path.front().getName());
     if (builtin_ptr == nullptr) {
       return;
     }
@@ -63,14 +65,15 @@ void Generator::lookup(rq::SymbolTable &host, llvm::ArrayRef<rq::Name> path,
 }
 
 void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
-                        llvm::ArrayRef<rq::Name> path,
+                        llvm::ArrayRef<rq::Route> path,
                         llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
   RQ_ASSERT(path.size() >= 1, "no names in path");
   if (!llvm::isa<rq::SymbolTable>(receiver)) {
     return;
   }
   rq::SymbolTable &table = llvm::cast<rq::SymbolTable>(receiver);
-  rq::NodeListRef<rq::TableMember> list = table.lookupList(path.front());
+  rq::NodeListRef<rq::TableMember> list =
+      table.lookupList(path.front().getName());
   for (rq::TableMember &member : list) {
     rq::Module &member_module = rq::dereferencePtr(member.getModulePtr());
     rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
@@ -86,6 +89,44 @@ void Generator::dfsPath(rq::Module &module, rq::TableMember &receiver,
       candidates.insert(&member);
     } else {
       this->dfsPath(module, member, path.drop_front(1), candidates);
+    }
+  }
+}
+
+void Generator::dfsSymbolicPath(
+    rq::Module &module, rq::SymbolTable &host, rq::TableMember &redirect,
+    rq::SymbolicPath &symbolic_path, llvm::ArrayRef<rq::Route> path,
+    llvm::SmallPtrSet<rq::Entity *, 1> &candidates) {
+  rq::NodeListRef<rq::TableMember> list =
+      host.lookupList(symbolic_path.getName());
+  for (rq::TableMember &member : list) {
+    rq::Module &member_module = rq::dereferencePtr(member.getModulePtr());
+    rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
+    if (member_module != module) {
+      if (rq::getHasAll(member_flags, rq::ModifierFuseFlags::EXPORT)) {
+        continue;
+      }
+    }
+    if (!this->tryImplement(member)) {
+      continue;
+    }
+    if (symbolic_path.getNextPtr() == nullptr) {
+      if (path.empty()) {
+        candidates.insert(&member);
+        continue;
+      }
+    }
+    if (!llvm::isa<rq::SymbolTable>(member)) {
+      continue;
+    }
+    rq::SymbolTable &member_table = llvm::cast<rq::SymbolTable>(member);
+    if (symbolic_path.getNextPtr() != nullptr) {
+      rq::SymbolicPath &next_symbolic_path =
+          rq::dereferencePtr(symbolic_path.getNextPtr());
+      this->dfsSymbolicPath(module, member_table, redirect, next_symbolic_path,
+                            path, candidates);
+    } else {
+      this->dfsPath(module, member_table, path.drop_front(1), candidates);
     }
   }
 }
