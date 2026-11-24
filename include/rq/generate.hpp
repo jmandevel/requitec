@@ -12,7 +12,32 @@ struct Context;
 struct SymbolTable;
 struct Expression;
 
-using LookupCandidates = llvm::SmallVector<rq::Entity *, 4>;
+struct Route final {
+  using Self = rq::Route;
+
+  rq::Keyword _keyword;
+  std::string _name;
+  rq::Expression *_expression_ptr;
+
+  explicit RQ_ALWAYS_INLINE Route(llvm::StringRef name, rq::Keyword keyword,
+                                  rq::Expression &expression)
+      : _keyword(keyword), _name(name), _expression_ptr(&expression) {}
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const {
+    if (this->_keyword == rq::Keyword::NONE) {
+      return rq::Name{this->_name};
+    }
+    return rq::Name{this->_keyword};
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression() {
+    return rq::dereferencePtr(this->_expression_ptr);
+  }
+};
 
 struct RValue final {
   using Self = rq::RValue;
