@@ -93,16 +93,9 @@ struct Generator final {
   void dfsSymbolicPath(rq::Module &module, rq::SymbolTable &host,
                        llvm::ArrayRef<rq::PathComponent> path,
                        llvm::SmallPtrSetImpl<rq::Route *> &found_redirects,
-                       llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
                        llvm::ArrayRef<rq::SymbolicPathSnapshot> snapshot_stack,
                        rq::Route &redirect, rq::SymbolicPath &symbolic_path,
                        llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
-
-  void
-  dfsExportedPortals(rq::Module& module, rq::SymbolTable &host,
-                      llvm::ArrayRef<rq::PathComponent> path,
-                      llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
-                      llvm::SmallPtrSetImpl<rq::Entity *> &candidates);
 
   [[nodiscard]] bool tryImplement(rq::TableMember &member);
 

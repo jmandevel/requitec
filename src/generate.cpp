@@ -35,17 +35,6 @@ void Generator::lookup(rq::SymbolTable &host,
         candidates.insert(&member);
       }
     }
-    if (scope.getContainerPtr() == nullptr) {
-      llvm::SmallPtrSet<rq::Module *, 1> searched_modules{&module};
-      for (rq::Import &import : module.getImportSubrange()) {
-        rq::Module &imported_module = rq::dereferencePtr(import.getModulePtr());
-        if (searched_modules.contains(&imported_module)) {
-          continue;
-        }
-        this->dfsExportedPortals(module, imported_module, path,
-                                 searched_modules, candidates);
-      }
-    }
     if (!candidates.empty()) {
       return;
     }
@@ -164,49 +153,6 @@ void Generator::dfsSymbolicPath(
       } else {
         this->dfsPath(module, member_table, path, candidates);
       }
-    }
-  }
-}
-
-void Generator::dfsExportedPortals(
-    rq::Module &module, rq::SymbolTable &host,
-    llvm::ArrayRef<rq::PathComponent> path,
-    llvm::SmallPtrSetImpl<rq::Module *> &searched_modules,
-    llvm::SmallPtrSetImpl<rq::Entity *> &candidates) {
-  const rq::PathComponent &front_component = path.front();
-  rq::NodeListRef<rq::TableMember> list =
-      host.lookupList(front_component.getName());
-  for (rq::TableMember &member : list) {
-    if (llvm::isa<rq::Namespace>(member)) {
-      rq::Namespace &namespace_ = llvm::cast<rq::Namespace>(member);
-      this->dfsExportedPortals(module, namespace_, path.drop_front(1),
-                                  searched_modules, candidates);
-    } else if (llvm::isa<rq::Portal>(member)) {
-      rq::ModifierFuseFlags member_flags = member.getModifierFuseFlags();
-      if (rq::getHasNone(member_flags, rq::ModifierFuseFlags::EXPORT)) {
-        continue;
-      }
-      rq::Portal &portal = llvm::cast<rq::Portal>(member);
-      rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
-      rq::Module &import_module = rq::dereferencePtr(import.getModulePtr());
-      llvm::SmallPtrSet<rq::Route *, 1> found_redirects{&portal};
-      rq::SymbolicPath &symbolic_path =
-          rq::dereferencePtr(portal.getSymbolicPathPtr());
-      this->dfsSymbolicPath(module, import_module, path.drop_front(1),
-                            found_redirects, {}, portal, symbolic_path,
-                            candidates);
-    }
-  }
-  if (llvm::isa<rq::Module>(host)) {
-    rq::Module &host_module = llvm::cast<rq::Module>(host);
-    for (rq::Import &import : host_module.getImportSubrange()) {
-      rq::Module &imported = rq::dereferencePtr(import.getImportedPtr());
-      if (searched_modules.contains(&imported)) {
-        continue;
-      }
-      searched_modules.insert(&imported);
-      this->lookupExportedPortals(module, imported, path, searched_modules,
-                                  candidates);
     }
   }
 }
