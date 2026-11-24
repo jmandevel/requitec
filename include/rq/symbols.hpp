@@ -380,7 +380,6 @@ struct Symbol;
     struct VariantPolymorph;
     struct ConceptPolymorph;
   struct TableMember;
-    struct Portal;
     struct EagerDeclaration;
       struct Anchor;
       struct Enumerator;
@@ -403,31 +402,33 @@ struct Symbol;
         struct Namespace;
         struct LazyDeclaration;
           struct Implementation;
-            struct EnumImplementation;
+            struct Enum;
               struct EnumOverload;
               struct EnumSpecialization;
-            struct LazyVariableImplementation;
+            struct LazyVariable;
               struct LazyVariableOverload;
               struct LazyVariableSpecialization;
-            struct AdapterImplementation;
+            struct Adapter;
               struct AdapterOverload;
               struct AdapterSpecialization;
-            struct InterfaceImplementation;
+            struct Interface;
               struct InterfaceOverload;
               struct InterfaceSpecialization;
-            struct ClassImplementation;
+            struct Class;
               struct ClassOverload;
               struct ClassSpecialization;
-            struct ProcImplementation;
+            struct Proc;
               struct ProcOverload;
               struct ProcSpecialization;
-            struct AliasImplementation;
-              struct AliasOverload;
-              struct AliasSpecialization;
-            struct ConceptImplementation;
-              struct ConceptOverload;
-              struct ConceptSpecialization;
-            struct VariantImplementation;
+            struct Route;
+              struct Alias;
+                struct AliasOverload;
+                struct AliasSpecialization;
+                struct Portal;
+            struct UserConcept;
+              struct UserConceptOverload;
+              struct UserConceptSpecialization;
+            struct Variant;
               struct VariantOverload;
               struct VariantSpecialization;
           struct Template;
@@ -1248,32 +1249,8 @@ struct SymbolicPath final : public llvm::FoldingSetNode {
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getName() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath* getNextPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath* getNextPtr();
-};
-
-struct Portal final : public rq::TableMember {
-  using Self = rq::Portal;
-
-  rq::Import* _import_ptr{nullptr};
-  rq::Portal *_next_ptr{nullptr};
-  rq::Expression *_expression_ptr{nullptr};
-  rq::SymbolicPath *_symbolic_path_ptr{nullptr};
-
-  explicit RQ_ALWAYS_INLINE Portal();
-
-  RQ_ALWAYS_INLINE void setImport(rq::Import& import);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Import* getImportPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Import* getImportPtr();
-  RQ_ALWAYS_INLINE void setExpression(rq::Expression &expression);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *getExpressionPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *getExpressionPtr();
-  RQ_ALWAYS_INLINE void setSymbolicPath(rq::SymbolicPath& path);
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *getSymbolicPathPtr() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getSymbolicPathPtr();
-
-  [[nodiscard]] static RQ_ALWAYS_INLINE bool
-  classof(const rq::Entity *entity_ptr);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *getNextPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getNextPtr();
 };
 
 enum class ModuleKind : std::uint_fast8_t { NONE, SOURCE, IMPORT };
@@ -1493,12 +1470,12 @@ struct Implementation : public rq::LazyDeclaration {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct EnumImplementation : public rq::Implementation {
-  using Self = rq::EnumImplementation;
+struct Enum : public rq::Implementation {
+  using Self = rq::Enum;
 
   rq::QualifiedType *_underlying_type_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE EnumImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Enum(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setUnderlyingType(rq::QualifiedType *underlying_type);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *getUnderlyingTypePtr();
@@ -1509,7 +1486,7 @@ struct EnumImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct EnumOverload final : public rq::EnumImplementation {
+struct EnumOverload final : public rq::Enum {
   using Self = rq::EnumOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1529,7 +1506,7 @@ struct EnumOverload final : public rq::EnumImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct EnumSpecialization final : public rq::EnumImplementation {
+struct EnumSpecialization final : public rq::Enum {
   using Self = rq::EnumSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1551,12 +1528,12 @@ struct EnumSpecialization final : public rq::EnumImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct LazyVariableImplementation : public rq::Implementation {
+struct LazyVariable : public rq::Implementation {
   using Self = rq::LazyVariableImplementation;
 
   rq::QualifiedType *_type_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE LazyVariableImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE LazyVariable(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setType(rq::QualifiedType &type);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *getTypePtr();
@@ -1566,7 +1543,7 @@ struct LazyVariableImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct LazyVariableOverload : public rq::LazyVariableImplementation {
+struct LazyVariableOverload : public rq::LazyVariable {
   using Self = rq::LazyVariableOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1587,7 +1564,7 @@ struct LazyVariableOverload : public rq::LazyVariableImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
+struct LazyVariableSpecialization : public rq::LazyVariable {
   using Self = rq::LazyVariableSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1611,12 +1588,12 @@ struct LazyVariableSpecialization : public rq::LazyVariableImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AdapterImplementation : public rq::Implementation {
-  using Self = rq::AdapterImplementation;
+struct Adapter : public rq::Implementation {
+  using Self = rq::Adapter;
 
   rq::Realization *_realization_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE AdapterImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Adapter(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setRealization(rq::Realization &realization);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Realization *getRealizationPtr();
@@ -1627,7 +1604,7 @@ struct AdapterImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AdapterOverload final : public rq::AdapterImplementation {
+struct AdapterOverload final : public rq::Adapter {
   using Self = rq::AdapterOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1643,7 +1620,7 @@ struct AdapterOverload final : public rq::AdapterImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AdapterSpecialization final : public rq::AdapterImplementation {
+struct AdapterSpecialization final : public rq::Adapter {
   using Self = rq::AdapterSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1661,10 +1638,10 @@ struct AdapterSpecialization final : public rq::AdapterImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct InterfaceImplementation : public rq::Implementation {
-  using Self = rq::InterfaceImplementation;
+struct Interface : public rq::Implementation {
+  using Self = rq::Interface;
 
-  explicit RQ_ALWAYS_INLINE InterfaceImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Interface(rq::SymbolKind kind);
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
@@ -1673,22 +1650,21 @@ struct InterfaceImplementation : public rq::Implementation {
 struct CompositionType final : public rq::Symbol, public llvm::FoldingSetNode {
   using Self = rq::CompositionType;
 
-  rq::NodeList<rq::InterfaceImplementation> _interface_list;
+  rq::NodeList<rq::Interface> _interface_list;
 
   explicit RQ_ALWAYS_INLINE
-  CompositionType(rq::NodeList<rq::InterfaceImplementation> &&interface_list);
+  CompositionType(rq::NodeList<rq::Interface> &&interface_list);
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 
-  static inline void
-  Profile(llvm::FoldingSetNodeID &inout_id,
-          const rq::NodeList<rq::InterfaceImplementation> &interface_list);
+  static inline void Profile(llvm::FoldingSetNodeID &inout_id,
+                             const rq::NodeList<rq::Interface> &interface_list);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
 
-struct InterfaceOverload final : public rq::InterfaceImplementation {
+struct InterfaceOverload final : public rq::Interface {
   using Self = rq::InterfaceOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1704,7 +1680,7 @@ struct InterfaceOverload final : public rq::InterfaceImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct InterfaceSpecialization final : public rq::InterfaceImplementation {
+struct InterfaceSpecialization final : public rq::Interface {
   using Self = rq::InterfaceSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1722,12 +1698,12 @@ struct InterfaceSpecialization final : public rq::InterfaceImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ClassImplementation : public rq::Implementation {
-  using Self = rq::ClassImplementation;
+struct Class : public rq::Implementation {
+  using Self = rq::Class;
 
   rq::QualifiedType *_best_layout_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE ClassImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Class(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setBestLayout(rq::QualifiedType &best);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *getBestLayoutPtr();
@@ -1738,7 +1714,7 @@ struct ClassImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ClassOverload final : public rq::ClassImplementation {
+struct ClassOverload final : public rq::Class {
   using Self = rq::ClassOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1755,7 +1731,7 @@ struct ClassOverload final : public rq::ClassImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ClassSpecialization final : public rq::ClassImplementation {
+struct ClassSpecialization final : public rq::Class {
   using Self = rq::ClassSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1773,12 +1749,12 @@ struct ClassSpecialization final : public rq::ClassImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ProcImplementation : public rq::Implementation {
-  using Self = rq::ProcImplementation;
+struct Proc : public rq::Implementation {
+  using Self = rq::Proc;
 
   rq::SignatureType *_signature_type_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE ProcImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Proc(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setSignatureType(rq::SignatureType &signature);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *getSignatureTypePtr();
@@ -1789,7 +1765,7 @@ struct ProcImplementation : public rq::Implementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ProcOverload final : public rq::ProcImplementation {
+struct ProcOverload final : public rq::Proc {
   using Self = rq::ProcOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1805,7 +1781,7 @@ struct ProcOverload final : public rq::ProcImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct ProcSpecialization final : public rq::ProcImplementation {
+struct ProcSpecialization final : public rq::Proc {
   using Self = rq::ProcSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1823,27 +1799,38 @@ struct ProcSpecialization final : public rq::ProcImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AliasImplementation : public rq::Implementation {
-  using Self = rq::AliasImplementation;
+struct Route : public rq::Implementation {
+  using Self = rq::Route;
 
-  rq::SymbolicPath *_path_ptr{};
+  rq::SymbolicPath *_path_ptr{nullptr};
 
-  explicit RQ_ALWAYS_INLINE AliasImplementation(rq::SymbolKind kind);
+  explicit RQ_ALWAYS_INLINE Route(rq::SymbolKind kind);
 
   RQ_ALWAYS_INLINE void setSymbolicPath(rq::SymbolicPath &symbolic_path);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getSymbolicPathPtr();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *getSymbolicPathPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *
+  getSymbolicPathPtr() const;
   [[nodiscard]] rq::NextSubrange<rq::SymbolicPath> getSymbolicPathSubrange();
   [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
   getSymbolicPathSubrange() const;
   [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
   getConstSymbolicPathSubrange() const;
+  [[nodiscard]] inline rq::SymbolTable* getDerivedRouteStartPtr();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AliasOverload final : public rq::AliasImplementation {
+struct Alias : public rq::Route {
+  using Self = rq::Alias;
+
+  explicit RQ_ALWAYS_INLINE Alias(rq::SymbolKind kind);
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct AliasOverload final : public rq::Alias {
   using Self = rq::AliasOverload;
 
   rq::NodeList<rq::Expression *> _prototype_expression_ptr_list{};
@@ -1859,7 +1846,7 @@ struct AliasOverload final : public rq::AliasImplementation {
   classof(const rq::Entity *entity_ptr);
 };
 
-struct AliasSpecialization final : public rq::AliasImplementation {
+struct AliasSpecialization final : public rq::Alias {
   using Self = rq::AliasSpecialization;
 
   rq::ConstantDetachedArray *_template_tuple_ptr{nullptr};
@@ -1872,6 +1859,22 @@ struct AliasSpecialization final : public rq::AliasImplementation {
   getTemplateTuplePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::ConstantDetachedArray *
   getTemplateTuplePtr() const;
+
+  [[nodiscard]] static RQ_ALWAYS_INLINE bool
+  classof(const rq::Entity *entity_ptr);
+};
+
+struct Portal final : public rq::Route {
+  using Self = rq::Portal;
+
+  rq::Import *_import_ptr{nullptr};
+  rq::Portal *_next_ptr{nullptr};
+
+  explicit RQ_ALWAYS_INLINE Portal();
+
+  RQ_ALWAYS_INLINE void setImport(rq::Import &import);
+  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Import *getImportPtr() const;
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Import *getImportPtr();
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);

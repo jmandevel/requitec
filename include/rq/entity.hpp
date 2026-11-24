@@ -981,9 +981,6 @@ enum class SymbolKind : rq::EntityId {
   INFINITE_ARITHMETIC_SEQUENCE_TYPE,
   FINITE_ARITHMETIC_SEQUENCE_TYPE,
 
-  // PORTAL
-  PORTAL,
-
   // EAGER DECLARATIONS
   ANCHOR,
   ENUMERATOR,
@@ -1027,6 +1024,7 @@ enum class SymbolKind : rq::EntityId {
   ADAPTER_OVERLOAD,
   PROC_OVERLOAD,
   LAZY_VARIABLE_OVERLOAD,
+  PORTAL,
   ALIAS_OVERLOAD,
   CONCEPT_OVERLOAD,
   VARIANT_OVERLOAD,
@@ -1208,9 +1206,10 @@ enum class SymbolInfoFlags : std::uint64_t {
   ADAPTER_IMPLEMENTATION = rq::getBit(29),
   PROC_IMPLEMENTATION = rq::getBit(30),
   LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(31),
-  ALIAS_IMPLEMENTATION = rq::getBit(32),
-  CONCEPT_IMPLEMENTATION = rq::getBit(33),
-  VARIANT_IMPLEMENTATION = rq::getBit(34),
+  ROUTE_IMPLEMENTATION = rq::getBit(32),
+  ALIAS_IMPLEMENTATION = rq::getBit(33),
+  CONCEPT_IMPLEMENTATION = rq::getBit(34),
+  VARIANT_IMPLEMENTATION = rq::getBit(35),
 
   // SYMBOL DETAIL
   IS_RUNTIME_TYPE = rq::getBit(48),
@@ -1874,10 +1873,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::IMPORT:
     return SIF::NONE;
 
-  // PORTAL
-  case S::PORTAL:
-    return SIF::NONE;
-
   // REALIZATION
   case S::REALIZATION:
     return SIF::NONE;
@@ -1999,7 +1994,11 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
            SIF::LAZY_DECLARATION | SIF::LAZY_VARIABLE_IMPLEMENTATION;
   case S::ALIAS_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
-           SIF::LAZY_DECLARATION | SIF::ALIAS_IMPLEMENTATION;
+           SIF::LAZY_DECLARATION | SIF::ROUTE_IMPLEMENTATION |
+           SIF::ALIAS_IMPLEMENTATION;
+  case S::PORTAL:
+    return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
+           SIF::LAZY_DECLARATION | SIF::ROUTE_IMPLEMENTATION;
   case S::CONCEPT_OVERLOAD:
     return SIF::TABLE_MEMBER | SIF::SYMBOL_TABLE | SIF::NAMED_TABLE |
            SIF::LAZY_DECLARATION | SIF::CONCEPT_IMPLEMENTATION;
@@ -2284,6 +2283,13 @@ getIsLazyVariableImplementation(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::LAZY_VARIABLE_IMPLEMENTATION);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+getIsRouteImplementation(rq::SymbolKind kind) {
+  using SIF = rq::SymbolInfoFlags;
+  SIF flags = rq::getInfoFlags(kind);
+  return rq::getHasAll(flags, SIF::ROUTE_IMPLEMENTATION);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
