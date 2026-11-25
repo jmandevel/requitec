@@ -989,8 +989,8 @@ SpecializedArraySubsymbol::Profile(llvm::FoldingSetNodeID &inout_id) const {
 }
 
 RQ_ALWAYS_INLINE Adaption::Adaption(rq::QualifiedType &reciever,
-                                    rq::InterfaceImplementation &interface,
-                                    rq::AdapterImplementation &adapter)
+                                    rq::Interface &interface,
+                                    rq::Adapter &adapter)
     : Symbol(rq::SymbolKind::ADAPTION), _reciever_ptr(&reciever),
       _interface_ptr(&interface), _adapter_ptr(&adapter) {}
 
@@ -1003,23 +1003,20 @@ Adaption::getReciever() const {
   return rq::dereferencePtr(this->_reciever_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
 Adaption::getInterface() const {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
-Adaption::getInterface() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &Adaption::getInterface() {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
-Adaption::getAdapter() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Adapter &Adaption::getAdapter() const {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &
-Adaption::getAdapter() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Adapter &Adaption::getAdapter() {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
 
@@ -1034,19 +1031,17 @@ inline void Adaption::Profile(llvm::FoldingSetNodeID &inout_id) const {
                     this->getAdapter());
 }
 
-RQ_ALWAYS_INLINE void
-Adaption::Profile(llvm::FoldingSetNodeID &inout_id,
-                  const rq::QualifiedType &reciever,
-                  const rq::InterfaceImplementation &interface,
-                  const rq::AdapterImplementation &adapter) {
+RQ_ALWAYS_INLINE void Adaption::Profile(llvm::FoldingSetNodeID &inout_id,
+                                        const rq::QualifiedType &reciever,
+                                        const rq::Interface &interface,
+                                        const rq::Adapter &adapter) {
   inout_id.AddPointer(&reciever);
   inout_id.AddPointer(&interface);
   inout_id.AddPointer(&adapter);
 }
 
 RQ_ALWAYS_INLINE
-Realization::Realization(rq::QualifiedType &reciever,
-                         rq::InterfaceImplementation &interface)
+Realization::Realization(rq::QualifiedType &reciever, rq::Interface &interface)
     : Symbol(rq::SymbolKind::REALIZATION), _reciever_ptr(&reciever),
       _interface_ptr(&interface) {}
 
@@ -1059,13 +1054,12 @@ Realization::getReciever() const {
   return rq::dereferencePtr(this->_reciever_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
 Realization::getInterface() const {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
-Realization::getInterface() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &Realization::getInterface() {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
@@ -1079,36 +1073,33 @@ inline void Realization::Profile(llvm::FoldingSetNodeID &inout_id) const {
   Realization::Profile(inout_id, this->getReciever(), this->getInterface());
 }
 
-RQ_ALWAYS_INLINE void
-Realization::Profile(llvm::FoldingSetNodeID &inout_id,
-                     const rq::QualifiedType &reciever,
-                     const rq::InterfaceImplementation &interface) {
+RQ_ALWAYS_INLINE void Realization::Profile(llvm::FoldingSetNodeID &inout_id,
+                                           const rq::QualifiedType &reciever,
+                                           const rq::Interface &interface) {
   inout_id.AddPointer(&reciever);
   inout_id.AddPointer(&interface);
 }
 
-RQ_ALWAYS_INLINE Conformity::Conformity(rq::InterfaceImplementation &interface,
-                                        rq::AdapterImplementation &adapter)
+RQ_ALWAYS_INLINE Conformity::Conformity(rq::Interface &interface,
+                                        rq::Adapter &adapter)
     : Symbol(rq::SymbolKind::CONFORMITY), _interface_ptr(&interface),
       _adapter_ptr(&adapter) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::InterfaceImplementation &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Interface &
 Conformity::getInterface() const {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::InterfaceImplementation &
-Conformity::getInterface() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Interface &Conformity::getInterface() {
   return rq::dereferencePtr(this->_interface_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::AdapterImplementation &
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Adapter &
 Conformity::getAdapter() const {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::AdapterImplementation &
-Conformity::getAdapter() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Adapter &Conformity::getAdapter() {
   return rq::dereferencePtr(this->_adapter_ptr);
 }
 
@@ -1122,10 +1113,9 @@ inline void Conformity::Profile(llvm::FoldingSetNodeID &inout_id) const {
   Conformity::Profile(inout_id, this->getInterface(), this->getAdapter());
 }
 
-RQ_ALWAYS_INLINE void
-Conformity::Profile(llvm::FoldingSetNodeID &inout_id,
-                    const rq::InterfaceImplementation &interface,
-                    const rq::AdapterImplementation &adapter) {
+RQ_ALWAYS_INLINE void Conformity::Profile(llvm::FoldingSetNodeID &inout_id,
+                                          const rq::Interface &interface,
+                                          const rq::Adapter &adapter) {
   inout_id.AddPointer(&interface);
   inout_id.AddPointer(&adapter);
 }
@@ -1512,8 +1502,8 @@ RQ_ALWAYS_INLINE void Parameter::Profile(
   inout_id.AddPointer(default_ptr);
 }
 
-RQ_ALWAYS_INLINE CompositionType::CompositionType(
-    rq::NodeList<rq::InterfaceImplementation> &&interface_list)
+RQ_ALWAYS_INLINE
+CompositionType::CompositionType(rq::NodeList<rq::Interface> &&interface_list)
     : Symbol(rq::SymbolKind::COMPOSITION_TYPE),
       _interface_list(std::move(interface_list)) {}
 
@@ -1523,9 +1513,9 @@ CompositionType::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::COMPOSITION_TYPE);
 }
 
-inline void CompositionType::Profile(
-    llvm::FoldingSetNodeID &inout_id,
-    const rq::NodeList<rq::InterfaceImplementation> &interface_list) {
+inline void
+CompositionType::Profile(llvm::FoldingSetNodeID &inout_id,
+                         const rq::NodeList<rq::Interface> &interface_list) {
   interface_list.Profile(inout_id);
 }
 
@@ -1674,16 +1664,14 @@ LayoutType::Profile(llvm::FoldingSetNodeID &inout_id,
 }
 
 RQ_ALWAYS_INLINE
-PlacementType::PlacementType(rq::ProcImplementation &function)
+PlacementType::PlacementType(rq::Proc &function)
     : Symbol(rq::SymbolKind::PLACEMENT_TYPE), _proc_ptr(&function) {}
 
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::ProcImplementation &
-PlacementType::getProc() const {
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Proc &PlacementType::getProc() const {
   return rq::dereferencePtr(this->_proc_ptr);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::ProcImplementation &
-PlacementType::getProc() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Proc &PlacementType::getProc() {
   return rq::dereferencePtr(this->_proc_ptr);
 }
 
@@ -1697,9 +1685,8 @@ inline void PlacementType::Profile(llvm::FoldingSetNodeID &inout_id) const {
   PlacementType::Profile(inout_id, this->getProc());
 }
 
-RQ_ALWAYS_INLINE void
-PlacementType::Profile(llvm::FoldingSetNodeID &inout_id,
-                       const rq::ProcImplementation &function) {
+RQ_ALWAYS_INLINE void PlacementType::Profile(llvm::FoldingSetNodeID &inout_id,
+                                             const rq::Proc &function) {
   inout_id.AddPointer(&function);
 }
 
@@ -2521,27 +2508,6 @@ Import::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::IMPORT);
 }
 
-RQ_ALWAYS_INLINE Portal::Portal() : TableMember(rq::SymbolKind::PORTAL) {}
-
-RQ_ALWAYS_INLINE void Portal::setExpression(rq::Expression &expression) {
-  rq::assignSingleValue(this->_expression_ptr, &expression);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
-Portal::getExpression() const {
-  return rq::dereferencePtr(this->_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &Portal::getExpression() {
-  return rq::dereferencePtr(this->_expression_ptr);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool
-Portal::classof(const rq::Entity *entity_ptr) {
-  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
-  return entity.getId() == rq::getId(rq::SymbolKind::PORTAL);
-}
-
 RQ_ALWAYS_INLINE EagerDeclaration::EagerDeclaration(rq::SymbolKind kind)
     : TableMember(kind) {}
 
@@ -3030,8 +2996,7 @@ NamedTable::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Namespace::Namespace()
-    : NamedTable(rq::SymbolKind::NAMESPACE) {
-}
+    : NamedTable(rq::SymbolKind::NAMESPACE) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Namespace::classof(const rq::Entity *entity_ptr) {
@@ -3113,34 +3078,32 @@ Implementation::classof(const rq::Entity *entity_ptr) {
   return rq::getIsImplementation(entity.getUnsafeSymbolKind());
 }
 
-RQ_ALWAYS_INLINE EnumImplementation::EnumImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+RQ_ALWAYS_INLINE Enum::Enum(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsEnumImplementation(kind), "not enum implementation");
 }
 
 RQ_ALWAYS_INLINE void
-EnumImplementation::setUnderlyingType(rq::QualifiedType *underlying_type) {
+Enum::setUnderlyingType(rq::QualifiedType *underlying_type) {
   rq::assignSingleValue(this->_underlying_type_ptr, underlying_type);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *
-EnumImplementation::getUnderlyingTypePtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *Enum::getUnderlyingTypePtr() {
   return this->_underlying_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType *
-EnumImplementation::getUnderlyingTypePtr() const {
+Enum::getUnderlyingTypePtr() const {
   return this->_underlying_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-EnumImplementation::classof(const rq::Entity *entity_ptr) {
+Enum::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsEnumImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE EnumOverload::EnumOverload()
-    : EnumImplementation(rq::SymbolKind::ENUM_OVERLOAD) {}
+    : Enum(rq::SymbolKind::ENUM_OVERLOAD) {}
 
 RQ_ALWAYS_INLINE void
 EnumOverload::setParentEnumPolymorph(rq::EnumPolymorph &parent) {
@@ -3174,7 +3137,7 @@ EnumOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE EnumSpecialization::EnumSpecialization()
-    : EnumImplementation(rq::SymbolKind::ENUM_SPECIALIZATION) {}
+    : Enum(rq::SymbolKind::ENUM_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void
 EnumSpecialization::setParentEnumTemplate(rq::EnumTemplate &template_) {
@@ -3213,35 +3176,32 @@ EnumSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-LazyVariableImplementation::LazyVariableImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+LazyVariable::LazyVariable(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsLazyVariableImplementation(kind),
             "not lazy variable implementation");
 }
 
-RQ_ALWAYS_INLINE void
-LazyVariableImplementation::setType(rq::QualifiedType &type) {
+RQ_ALWAYS_INLINE void LazyVariable::setType(rq::QualifiedType &type) {
   rq::assignSingleValue(this->_type_ptr, &type);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *
-LazyVariableImplementation::getTypePtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *LazyVariable::getTypePtr() {
   return this->_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType *
-LazyVariableImplementation::getTypePtr() const {
+LazyVariable::getTypePtr() const {
   return this->_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-LazyVariableImplementation::classof(const rq::Entity *entity_ptr) {
+LazyVariable::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsLazyVariableImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE LazyVariableOverload::LazyVariableOverload()
-    : LazyVariableImplementation(rq::SymbolKind::LAZY_VARIABLE_OVERLOAD) {}
+    : LazyVariable(rq::SymbolKind::LAZY_VARIABLE_OVERLOAD) {}
 
 RQ_ALWAYS_INLINE void LazyVariableOverload::setParentLazyVariablePolymorph(
     rq::LazyVariablePolymorph &parent) {
@@ -3275,8 +3235,7 @@ LazyVariableOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE LazyVariableSpecialization::LazyVariableSpecialization()
-    : LazyVariableImplementation(rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION) {
-}
+    : LazyVariable(rq::SymbolKind::LAZY_VARIABLE_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void LazyVariableSpecialization::setParentLazyVariableTemplate(
     rq::LazyVariableTemplate &parent) {
@@ -3316,34 +3275,31 @@ LazyVariableSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-AdapterImplementation::AdapterImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+Adapter::Adapter(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsAdapterImplementation(kind), "not adapter implementation");
 }
 
-RQ_ALWAYS_INLINE void
-AdapterImplementation::setRealization(rq::Realization &realization) {
+RQ_ALWAYS_INLINE void Adapter::setRealization(rq::Realization &realization) {
   rq::assignSingleValue(this->_realization_ptr, &realization);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::Realization *
-AdapterImplementation::getRealizationPtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Realization *Adapter::getRealizationPtr() {
   return this->_realization_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Realization *
-AdapterImplementation::getRealizationPtr() const {
+Adapter::getRealizationPtr() const {
   return this->_realization_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-AdapterImplementation::classof(const rq::Entity *entity_ptr) {
+Adapter::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsAdapterImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE AdapterOverload::AdapterOverload()
-    : AdapterImplementation(rq::SymbolKind::ADAPTER_OVERLOAD) {}
+    : Adapter(rq::SymbolKind::ADAPTER_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 AdapterOverload::getPrototypeExpressionPtrList() {
@@ -3362,7 +3318,7 @@ AdapterOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE AdapterSpecialization::AdapterSpecialization()
-    : AdapterImplementation(rq::SymbolKind::ADAPTER_SPECIALIZATION) {}
+    : Adapter(rq::SymbolKind::ADAPTER_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void AdapterSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3386,20 +3342,19 @@ AdapterSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-InterfaceImplementation::InterfaceImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+Interface::Interface(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsInterfaceImplementation(kind),
             "not interface implementation");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-InterfaceImplementation::classof(const rq::Entity *entity_ptr) {
+Interface::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsInterfaceImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE InterfaceOverload::InterfaceOverload()
-    : InterfaceImplementation(rq::SymbolKind::INTERFACE_OVERLOAD) {}
+    : Interface(rq::SymbolKind::INTERFACE_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 InterfaceOverload::getPrototypeExpressionPtrList() {
@@ -3418,7 +3373,7 @@ InterfaceOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE InterfaceSpecialization::InterfaceSpecialization()
-    : InterfaceImplementation(rq::SymbolKind::INTERFACE_SPECIALIZATION) {}
+    : Interface(rq::SymbolKind::INTERFACE_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void InterfaceSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3441,37 +3396,34 @@ InterfaceSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::INTERFACE_SPECIALIZATION);
 }
 
-RQ_ALWAYS_INLINE ClassImplementation::ClassImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+RQ_ALWAYS_INLINE Class::Class(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsClassImplementation(kind), "not class implementation");
 }
 
-RQ_ALWAYS_INLINE void
-ClassImplementation::setBestLayout(rq::QualifiedType &best) {
+RQ_ALWAYS_INLINE void Class::setBestLayout(rq::QualifiedType &best) {
   RQ_ASSERT(best.getType().getSymbolKind() == rq::SymbolKind::UNKNOWN_TYPE ||
                 best.getType().getSymbolKind() == rq::SymbolKind::LAYOUT_TYPE,
             "invalid symbol for layout");
   rq::assignSingleValue(this->_best_layout_ptr, &best);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *
-ClassImplementation::getBestLayoutPtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *Class::getBestLayoutPtr() {
   return this->_best_layout_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType *
-ClassImplementation::getBestLayoutPtr() const {
+Class::getBestLayoutPtr() const {
   return this->_best_layout_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ClassImplementation::classof(const rq::Entity *entity_ptr) {
+Class::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsClassImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE ClassOverload::ClassOverload()
-    : ClassImplementation(rq::SymbolKind::CLASS_OVERLOAD) {}
+    : Class(rq::SymbolKind::CLASS_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 ClassOverload::getPrototypeExpressionPtrList() {
@@ -3503,7 +3455,7 @@ ClassOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE ClassSpecialization::ClassSpecialization()
-    : ClassImplementation(rq::SymbolKind::CLASS_SPECIALIZATION) {}
+    : Class(rq::SymbolKind::CLASS_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void ClassSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3527,34 +3479,31 @@ ClassSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-ProcImplementation::ProcImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+Proc::Proc(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsProcImplementation(kind), "not proc implementation");
 }
 
-RQ_ALWAYS_INLINE void
-ProcImplementation::setSignatureType(rq::SignatureType &signature) {
+RQ_ALWAYS_INLINE void Proc::setSignatureType(rq::SignatureType &signature) {
   rq::assignSingleValue(this->_signature_type_ptr, &signature);
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *
-ProcImplementation::getSignatureTypePtr() {
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SignatureType *Proc::getSignatureTypePtr() {
   return this->_signature_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::SignatureType *
-ProcImplementation::getSignatureTypePtr() const {
+Proc::getSignatureTypePtr() const {
   return this->_signature_type_ptr;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ProcImplementation::classof(const rq::Entity *entity_ptr) {
+Proc::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsProcImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE ProcOverload::ProcOverload()
-    : ProcImplementation(rq::SymbolKind::PROC_OVERLOAD) {}
+    : Proc(rq::SymbolKind::PROC_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 ProcOverload::getPrototypeExpressionPtrList() {
@@ -3573,7 +3522,7 @@ ProcOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE ProcSpecialization::ProcSpecialization()
-    : ProcImplementation(rq::SymbolKind::PROC_SPECIALIZATION) {}
+    : Proc(rq::SymbolKind::PROC_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void ProcSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3596,19 +3545,18 @@ ProcSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_SPECIALIZATION);
 }
 
-RQ_ALWAYS_INLINE AliasImplementation::AliasImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+RQ_ALWAYS_INLINE Alias::Alias(rq::SymbolKind kind) : Route(kind) {
   RQ_ASSERT(rq::getIsAliasImplementation(kind), "not alias implementation");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-AliasImplementation::classof(const rq::Entity *entity_ptr) {
+Alias::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsAliasImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE AliasOverload::AliasOverload()
-    : AliasImplementation(rq::SymbolKind::ALIAS_OVERLOAD) {}
+    : Alias(rq::SymbolKind::ALIAS_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 AliasOverload::getPrototypeExpressionPtrList() {
@@ -3627,7 +3575,7 @@ AliasOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE AliasSpecialization::AliasSpecialization()
-    : AliasImplementation(rq::SymbolKind::ALIAS_SPECIALIZATION) {}
+    : Alias(rq::SymbolKind::ALIAS_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void AliasSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3650,20 +3598,27 @@ AliasSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::ALIAS_SPECIALIZATION);
 }
 
+RQ_ALWAYS_INLINE Portal::Portal() : Route(rq::SymbolKind::PORTAL) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Portal::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return entity.getId() == rq::getId(rq::SymbolKind::PORTAL);
+}
+
 RQ_ALWAYS_INLINE
-ConceptImplementation::ConceptImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
+Concept::Concept(rq::SymbolKind kind) : Implementation(kind) {
   RQ_ASSERT(rq::getIsConceptImplementation(kind), "not concept implementation");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-ConceptImplementation::classof(const rq::Entity *entity_ptr) {
+Concept::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsConceptImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE ConceptOverload::ConceptOverload()
-    : ConceptImplementation(rq::SymbolKind::CONCEPT_OVERLOAD) {}
+    : Concept(rq::SymbolKind::CONCEPT_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 ConceptOverload::getPrototypeExpressionPtrList() {
@@ -3682,7 +3637,7 @@ ConceptOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE ConceptSpecialization::ConceptSpecialization()
-    : ConceptImplementation(rq::SymbolKind::CONCEPT_SPECIALIZATION) {}
+    : Concept(rq::SymbolKind::CONCEPT_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void ConceptSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
@@ -3706,19 +3661,18 @@ ConceptSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-VariantImplementation::VariantImplementation(rq::SymbolKind kind)
-    : Implementation(kind) {
-  RQ_ASSERT(VariantImplementation::classof(this), "not variant implementation");
+Variant::Variant(rq::SymbolKind kind) : Implementation(kind) {
+  RQ_ASSERT(rq::getIsVariantImplementation(kind), "not variant implementation");
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
-VariantImplementation::classof(const rq::Entity *entity_ptr) {
+Variant::classof(const rq::Entity *entity_ptr) {
   const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
   return rq::getIsVariantImplementation(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE VariantOverload::VariantOverload()
-    : VariantImplementation(rq::SymbolKind::VARIANT_OVERLOAD) {}
+    : Variant(rq::SymbolKind::VARIANT_OVERLOAD) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::NodeList<rq::Expression *> &
 VariantOverload::getPrototypeExpressionPtrList() {
@@ -3737,7 +3691,7 @@ VariantOverload::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE VariantSpecialization::VariantSpecialization()
-    : VariantImplementation(rq::SymbolKind::VARIANT_SPECIALIZATION) {}
+    : Variant(rq::SymbolKind::VARIANT_SPECIALIZATION) {}
 
 RQ_ALWAYS_INLINE void VariantSpecialization::setTemplateTuple(
     rq::ConstantDetachedArray &template_tuple) {
