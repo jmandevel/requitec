@@ -3,6 +3,5 @@
 mangle::main
 [proc , () result:SInt,
     std.print(line="Hello, world!");
-
     result <:= 0;
 ];
