@@ -5,7 +5,7 @@ copyable movable
 
     {> public var:SInt=0 },
 
-    public [layout_constructor];
+    public layout_constructor;
 
     public[constructor (> a:SInt, b:SInt <) result:,
         result <:= MyClass.[init a + b];

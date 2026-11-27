@@ -1,0 +1,11 @@
+[import "std", std];
+
+template::{> Size:USize <}
+copyable moveable
+[class SIntArrayIterator,
+    { dat : Array{Size}@SInt <},
+
+    public layout_constructor;
+
+    
+];

@@ -7,7 +7,7 @@
     ];
 
     copyable movable
-    [class Foo, public pure[layout_constructor]; {}];
+    [class Foo, public pure layout_constructor; {}];
 
     pure
     [proc bar, ()=>Ref@example.Foo,

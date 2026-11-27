@@ -8,7 +8,7 @@ copyable movable
         public z : FSInt32 = 0
     <},
 
-    public pure [layout_constructor];
+    public pure layout_constructor;
 
     public pure
     [proc fromScalar, (> scalar:FSInt32 <) result:MyClass,

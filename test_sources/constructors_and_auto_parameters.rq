@@ -6,7 +6,7 @@ template::{> auto Element:NUMERIC <}
 
     # layout constructor:
     public pure
-    [layout_constructor];
+    layout_constructor;
 
     # NOTE: return type of constructor must be same type as instance and it can be inferred.
     # scalar constructor:

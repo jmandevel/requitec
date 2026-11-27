@@ -17,13 +17,13 @@
 ];
 
 copyable movable
-[class Dog, public[layout_constructor]; {}];
+[class Dog, public layout_constructor; {}];
 
 copyable movable
-[class Cat, public[layout_constructor]; {}];
+[class Cat, public layout_constructor; {}];
 
 copyable movable
-[class Rat, public[layout_constructor]; {},
+[class Rat, public layout_constructor; {},
     public
     [proc squeak, () => Ref@,
         std.print(line="Squeak!");  

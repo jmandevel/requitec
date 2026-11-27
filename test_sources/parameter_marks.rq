@@ -29,13 +29,13 @@ copyable movable
 template::{a:=0, > b:=1 <, c:=2, | d:=3}
 [class MyTemplateClass,     
     {},
-    public[layout_constructor];
+    public layout_constructor;
 ];
 
 copyable movable
 [class MyClass, 
     {a:=0, > b:=1 <, c:=2, | d:=3},
-    public[layout_constructor];
+    public layout_constructor;
 ];
 
 mangle::main

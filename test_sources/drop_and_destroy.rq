@@ -1,10 +1,10 @@
 [import "std", std];
 
 copyable movable
-[class WithoutDestroy, public pure[layout_constructor]; {}];
+[class WithoutDestroy, public pure layout_constructor; {}];
 
 copyable movable
-[class WithDestroy, public[layout_constructor]; {},
+[class WithDestroy, public layout_constructor; {},
     public [destructor () => this:,
         std.print(line="In destroy!");
         this.[take].[ignore];

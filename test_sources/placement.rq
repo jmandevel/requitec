@@ -11,7 +11,7 @@ template::{ Type:TYPE <}
 [class UniquePtr,
     { ptr:Ptr@mut\Type <},
 
-    public[layout_constructor];
+    public layout_constructor;
 
     public inline
     template::{Placement:PLACEMENT<}
@@ -37,7 +37,7 @@ copyable movable
 [class MyClass,
     { val:Single <},
 
-    public[layout_constructor];
+    public layout_constructor;
 ];
 
 mangle::main

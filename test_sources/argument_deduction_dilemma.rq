@@ -22,7 +22,7 @@ copyable movable
     # instead, the compiler ignores them until specialization.
     comtime count := count_div_2 * 2; 
 
-    public [layout_constructor];
+    public layout_constructor;
 
     # note that Element is [auto], so its still possible to map arguments for deduction at declaration time
     # the value of count cannot be determined until specialization, but this does not stop the mapping during declaration!

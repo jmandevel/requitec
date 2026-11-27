@@ -1,11 +1,11 @@
 [import "std", std];
 
 copyable movable
-[class MyClass, public pure [layout_constructor]; {}];
+[class MyClass, public pure layout_constructor; {}];
 
 # This class has no movable modifier, so it cannnot be moved to a new memory address
 copyable
-[class MyPinned, public pure [layout_constructor]; {}];
+[class MyPinned, public pure layout_constructor; {}];
 
 pure
 [proc takeReciever, ()=>this:MyPinned,

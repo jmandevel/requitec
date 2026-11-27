@@ -19,7 +19,7 @@ copyable movable
 [class NumContainer,
     {| num := 0 },
 
-    public [layout_constructor];
+    public layout_constructor;
 
     # if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
     public template::{| auto mut0:MUT }
