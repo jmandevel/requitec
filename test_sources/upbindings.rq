@@ -13,7 +13,7 @@ mangle::main
 ];
 
 pure
-[proc doMath, (>int:SInt<) rsult:SInt,
+[proc doMath, (>int:SInt<) result:SInt,
     # `<:` is upbiniding (variable exists in higher scope), and `:` is normal binding (variable exists in current scope).
     other_int :mut\= 2; 
 
