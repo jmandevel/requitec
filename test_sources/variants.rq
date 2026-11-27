@@ -17,11 +17,11 @@ mangle::main
 
     inits::str.[reflect]
     [match num0
-        ][arm Number.integer, out:=value,
+        ][arm Number.integer, v:, out:=v,
             str ?= "its an integer";
-        ][arm Number.float, out:=value,
+        ][arm Number.float, v:, out:=v,
             str ?= "its a float";
-        ][arm Number.double, out:=value,
+        ][arm Number.double, v:, out:=v,
             str ?= "its a double";
         ][else
             str ?= "its something else";

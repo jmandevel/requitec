@@ -37,7 +37,6 @@ struct Situator final {
   [[nodiscard]] bool situateChainBranch(rq::Situation situation,
                                         rq::Expression &branch);
   [[nodiscard]] bool situateVignetteBranch(rq::Expression &branch);
-  [[nodiscard]] bool situateVignetteOrRvalueBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullary(rq::Situation situation,
                                     rq::Expression &expression);
   [[nodiscard]] bool situateNullaryOrUnaryTag(rq::Situation situation,
@@ -114,9 +113,7 @@ struct Situator final {
   [[nodiscard]] bool
   situateStatementVignetteStatement(rq::Situation situation,
                                     rq::Expression &expression);
-  // arm
-  [[nodiscard]] bool
-  situateStatementMultiVignetteStatement(rq::Situation situation,
+  [[nodiscard]] bool situateArmStatement(rq::Situation situation,
                                          rq::Expression &expression);
   [[nodiscard]] bool situateForStatement(rq::Situation situation,
                                          rq::Expression &expression);
