@@ -48,10 +48,10 @@ mangle::main
 
     it := SIntArrayIterator(arr.[ref]);
 
-    [while it.[probe],
-        next := it.[peek];
+    [while it.[ref].[probe],
+        next := it.[ref].[peek];
         std.print(line=next);
-        it.[consume];
+        it.[ref mut\].[consume];
     ];
 
     [for SIntArrayIterator(arr.[ref]), next:=[value],
@@ -60,9 +60,9 @@ mangle::main
 
     wrap := ArrayWrapper(arr);
 
-    it2 :=  wrap.[iterate];
+    it2 :=  wrap.[ref mut\].[iterate];
 
-    [for wrap, next:=[value],
+    [for wrap.[ref mut\], next:=[value],
         std.print(line=next);
     ];
 
