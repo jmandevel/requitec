@@ -25,7 +25,7 @@ template::{ Type:TYPE <}
         this.ptr.[content] ?= placement.[invoke];
     ];
 
-    public[destructor () this:,
+    public[destructor () => this:,
         this.ptr.[content].[take].[destroy];
         free(this.ptr);
         this.[take].[ignore];

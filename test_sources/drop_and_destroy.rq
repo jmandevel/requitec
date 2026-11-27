@@ -5,7 +5,7 @@ copyable movable
 
 copyable movable
 [class WithDestroy, public[layout_constructor]; {},
-    [destructor
+    public [destructor () => this:,
         std.print(line="In destroy!");
         this.[take].[ignore];
     ];
