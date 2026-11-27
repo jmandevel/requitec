@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 
 __NOTICE: This repository contains a compiler front-end that is in the early stages of development. Its buggy, incomplete, and hard to work with. Use it at your own risk!__
 
-Requite is a statically typed systems programming langauge with an orthogonal syntax. It has been in development since June 2024. Look in the [test_sources](test_sources) folder for example source code files.
+Requite is a statically typed systems programming langauge with an isomorphic syntax. It has been in development since June 2024. Look in the [test_sources](test_sources) folder for example source code files.
 
 ```
 [import "std", std];
