@@ -100,9 +100,8 @@ struct Situator final {
   [[nodiscard]] bool
   situateNameStatementTagStatement(rq::Situation situation,
                                    rq::Expression &expression);
-  [[nodiscard]] bool
-  situateNameStatementTag(rq::Situation situation,
-                                   rq::Expression &expression);
+  [[nodiscard]] bool situateNameStatementTag(rq::Situation situation,
+                                             rq::Expression &expression);
   // switch, match, if, else_if, while, constructor
   [[nodiscard]] bool situateStatementTagStatement(rq::Situation situation,
                                                   rq::Expression &expression);
@@ -111,13 +110,15 @@ struct Situator final {
   situateStatementMultiTagStatement(rq::Situation situation,
                                     rq::Expression &expression,
                                     rq::Situation tag_situation);
-  // weave
+  // catch
   [[nodiscard]] bool
   situateStatementVignetteStatement(rq::Situation situation,
                                     rq::Expression &expression);
-  // for
+  // arm
   [[nodiscard]] bool
   situateStatementMultiVignetteStatement(rq::Situation situation,
+                                         rq::Expression &expression);
+  [[nodiscard]] bool situateForStatement(rq::Situation situation,
                                          rq::Expression &expression);
   // interface, namespace
   [[nodiscard]] bool stiuateNameStatement(rq::Situation situation,
@@ -126,10 +127,12 @@ struct Situator final {
 
 private:
   [[nodiscard]] bool situateStatementSequenceBranch(rq::Expression &branch,
-                                                   rq::ChainKind &chain);
-  // The leading statements form their own chain sequence, ending before the tag.
-  [[nodiscard]] bool situateStatementBranchesBeforeTag(rq::Expression &first,
-                                               rq::Expression *&tag_ptr);
+                                                    rq::ChainKind &chain);
+  // The leading statements form their own chain sequence, ending before the
+  // tag.
+  [[nodiscard]] bool
+  situateStatementBranchesBeforeTag(rq::Expression &first,
+                                    rq::Expression *&tag_ptr);
   // Each call starts an independent statement sequence.
   [[nodiscard]] bool situateStatementBranches(rq::Expression *first_ptr);
 };

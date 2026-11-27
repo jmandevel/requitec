@@ -137,8 +137,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
-        situation, expression, 2, K::ASCRIBE_MODIFIER,
-        S::RVALUE, situation);
+        situation, expression, 2, K::ASCRIBE_MODIFIER, S::RVALUE, situation);
     break;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
@@ -250,8 +249,8 @@ bool Situator::situateTree(rq::Situation situation,
                                                situation, S::RVALUE);
     break;
   case K::ASCRIBE_MODIFIER:
-    is_ok = this->situateNaryDifferentFirstTag(
-        situation, expression, 2, situation, S::RVALUE);
+    is_ok = this->situateNaryDifferentFirstTag(situation, expression, 2,
+                                               situation, S::RVALUE);
     break;
   case K::INSTANTIATE_MODIFIER_ATTACHMENT:
     is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
@@ -731,7 +730,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatementVignetteStatement(situation, expression);
     break;
   case K::FOR:
-    is_ok = this->situateStatementMultiVignetteStatement(situation, expression);
+    is_ok = this->situateForStatement(situation, expression);
     break;
   case K::WHILE:
     is_ok = this->situateStatementTagStatement(situation, expression);
@@ -2378,6 +2377,57 @@ bool Situator::situateStatementMultiVignetteStatement(
     }
   }
   if (!this->situateStatementBranches(last_ptr)) {
+    is_ok = false;
+  }
+  return is_ok;
+}
+
+bool Situator::situateForStatement(rq::Situation situation,
+                                   rq::Expression &expression) {
+  using S = rq::Situation;
+  if (!expression.getHasBranch()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 3);
+    return false;
+  }
+  bool is_ok = true;
+  rq::Expression *branch_ptr = nullptr;
+  if (!this->situateStatementBranchesBeforeTag(expression.getBranch(),
+                                               branch_ptr)) {
+    is_ok = false;
+  }
+  if (branch_ptr == nullptr) {
+    this->getContext().logErrorExpectedTagBranch(expression);
+    return false;
+  }
+  unsigned tag_count = 0;
+  bool expect_range = true;
+  while (branch_ptr != nullptr && branch_ptr->getIsTag()) {
+    rq::Expression &branch = *branch_ptr;
+    rq::Expression *next_ptr = branch.getNextPtr();
+    const bool is_last_tag = next_ptr == nullptr || !next_ptr->getIsTag();
+    ++tag_count;
+    if (is_last_tag) {
+      if (tag_count < 3) {
+        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
+                                                         3);
+        is_ok = false;
+      } else if (!expect_range) {
+        this->getContext().logErrorExpectedTagBranch(expression);
+        is_ok = false;
+      }
+      if (!this->situateVignetteBranch(branch)) {
+        is_ok = false;
+      }
+    } else {
+      if (!this->situateTagBranch(expect_range ? S::RVALUE : S::BINDING,
+                                  branch)) {
+        is_ok = false;
+      }
+      expect_range = !expect_range;
+    }
+    branch_ptr = next_ptr;
+  }
+  if (!this->situateStatementBranches(branch_ptr)) {
     is_ok = false;
   }
   return is_ok;
