@@ -3116,8 +3116,8 @@ RQ_ALWAYS_INLINE Enum::Enum(rq::SymbolKind kind) : Implementation(kind) {
 }
 
 RQ_ALWAYS_INLINE void
-Enum::setUnderlyingType(rq::QualifiedType *underlying_type) {
-  rq::assignSingleValue(this->_underlying_type_ptr, underlying_type);
+Enum::setUnderlyingType(rq::QualifiedType &underlying_type) {
+  rq::assignSingleValue(this->_underlying_type_ptr, &underlying_type);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *Enum::getUnderlyingTypePtr() {

@@ -1472,7 +1472,7 @@ struct Enum : public rq::Implementation {
 
   explicit RQ_ALWAYS_INLINE Enum(rq::SymbolKind kind);
 
-  RQ_ALWAYS_INLINE void setUnderlyingType(rq::QualifiedType *underlying_type);
+  RQ_ALWAYS_INLINE void setUnderlyingType(rq::QualifiedType &underlying_type);
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType *getUnderlyingTypePtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType *
   getUnderlyingTypePtr() const;
