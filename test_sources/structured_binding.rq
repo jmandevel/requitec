@@ -11,20 +11,16 @@ mangle::main
 [proc , () result:SInt,
     # by name
     # in is a name for the returned value. since it is a split tuple, can store members in seperate local variables
-    [split divided:= in.div, multiplied:= in.mul ] =in\\ multiReturn(0, 1);
-
-    # can also use [value]
-    [split divided:= [value].div, multiplied:= [value].mul ] = multiReturn(0, 1);
-
+    [split divided:= in.div, multiplied:= in.mul ] = multiReturn(0, 1).[to in];
 
     # by index
-    [split divided = in->std.at(0), multiplied = in->std.at(1) ] =in\\ multiReturn(0, 1);
+    [split divided = in->std.at(0), multiplied = in->std.at(1) ] = multiReturn(0, 1).[to in];
 
     # as tuple
     tuple := multiReturn(0, 1);
 
     # as split tuple
-    [split { a:=in->std.at(0), b:=in.mul, c:=3 }] =in\\ multiReturn(0, 1);
+    [split { a:=in->std.at(0), b:=in.mul, c:=3 }] = multiReturn(0, 1).[to in];
 
     result <:= 0;
 ];
