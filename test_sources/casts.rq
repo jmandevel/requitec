@@ -1,5 +1,5 @@
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
 
   float := 3.14;
 

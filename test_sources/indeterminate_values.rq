@@ -1,6 +1,6 @@
 [import "std", std];
 
-[proc , ()SInt,
+[proc , () result:SInt,
     result <:= 0;
 
     # notice how rvalue is nothing. compiler parses inference and interprets this as an indeterminate value. 

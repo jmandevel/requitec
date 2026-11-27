@@ -8,7 +8,7 @@ copyable
 [class MyPinned, public pure [layout_constructor]; {}];
 
 pure
-[proc takeReciever, ()=>MyPinned,
+[proc takeReciever, ()=>this:MyPinned,
 
 ];
 
@@ -23,7 +23,7 @@ pure
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
   class :mut\= MyClass();
   copy := class;
   reference := class.[ref];

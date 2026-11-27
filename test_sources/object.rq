@@ -11,17 +11,17 @@ copyable movable
     public pure [layout_constructor];
 
     public pure
-    [proc fromScalar, (> scalar:FSInt32 <)MyClass,
+    [proc fromScalar, (> scalar:FSInt32 <) result:MyClass,
         result <:= MyClass(scalar, scalar, scalar);    
     ];
 
     public pure
-    [proc getTotal, ()FSInt32=>Ref@,
+    [proc getTotal, () result:FSInt32 => this:Ref@, 
         result <:= this.x + this.y + this.z;
     ];
 
     public pure
-    [proc add, (>a:MyClass, b:MyClass<)MyClass,
+    [proc add, (>a:MyClass, b:MyClass<) result:MyClass,
         result <:=
             MyClass(
                 a.x + b.x,
@@ -32,7 +32,7 @@ copyable movable
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
 
     a := MyClass();
     b := MyClass(1, 2, 3);

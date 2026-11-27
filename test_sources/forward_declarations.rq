@@ -7,7 +7,7 @@ opaque mangle::myForwardedAdd pure
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     std.print(
         "the result is " +>
         myForwardedAdd(

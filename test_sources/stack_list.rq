@@ -7,13 +7,13 @@ copyable movable
 
     public [layout_constructor];
 
-    public[constructor {> a:SInt, b:SInt <},
+    public[constructor (> a:SInt, b:SInt <) result:,
         result <:= MyClass.[init a + b];
     ];
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     # create stack
     my_stack :mut\= std.StackList{MyClass}();
     

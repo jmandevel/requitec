@@ -13,7 +13,7 @@
 # if a pure function does something with a side effect, this causes a compiler error.
 # returning a value, mutating referenced arguments, mutating reciver are ok in pure functions.
 pure
-[proc myAdd, (> a:SInt, b:SInt <)SInt,
+[proc myAdd, (> a:SInt, b:SInt <) result:SInt,
     result <:= a + b;
 ];
 
@@ -21,7 +21,7 @@ pure
 # impure is default, so if no modifier is applied functions automatically have impure.
 # writing it explicitly here for this example.
 impure
-[proc myPrint, (> val:SInt)SInt,
+[proc myPrint, (> val:SInt) result:SInt,
     std.print(line="Hello, world!");
 ];
 
@@ -31,7 +31,7 @@ impure
 runtime predefined MY_NUMBER := myAdd(1, 2);
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     # pure functions can be rvalue sub-expressions
     added := myAdd(1, myAdd(2, 3));
 

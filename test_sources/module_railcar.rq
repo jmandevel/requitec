@@ -2,7 +2,7 @@
 # this is a feature to help with outputing intermediate files from stage 5
 # of the requite compiler.
 
-[proc , ()SInt,
+[proc , () result:SInt,
     "std".[module].std.print(line="Hello, world!");
     result <:= 0;
 ];

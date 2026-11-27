@@ -1,14 +1,14 @@
 [import "std", std];
 
 pure
-[proc multiReturn, ( a:SInt, b:SInt <)Split@{> div:SInt, mul:SInt <},
+[proc multiReturn, ( a:SInt, b:SInt <) result:Split@{> div:SInt, mul:SInt <},
     result <:=;
     result.div ?= a / b;
     result.mul ?= a * b;
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     # by name
     # in is a name for the returned value. since it is a split tuple, can store members in seperate local variables
     [split divided:= in.div, multiplied:= in.mul ] =in\\ multiReturn(0, 1);

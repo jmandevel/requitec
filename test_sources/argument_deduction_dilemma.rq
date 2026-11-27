@@ -31,7 +31,7 @@ copyable movable
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     my_double_array := A.Array{count_div_2=1}([array 1, 2].[emplace]);
 
     result <:= 0;

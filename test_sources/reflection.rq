@@ -2,7 +2,7 @@
 
 template::{> NUM:SInt <}
 pure
-[proc getNum, ()SInt,
+[proc getNum, () result:SInt,
     result <:= NUM;
 ];
 
@@ -11,17 +11,17 @@ pure
 # declarations without a template modifier are attached directly to polymorph
 
 pure
-[proc getNum, ()SInt,
+[proc getNum, () result:SInt,
     result <:= 0;
 ];
 
 pure
-[proc getNum, (> num:SInt <)SInt,
+[proc getNum, (> num:SInt <) result:SInt,
     result <:= num;
 ];
 
 # get overload with no args.
-comtime noArgs := getNum.[resolve_proc ()SInt];
+comtime noArgs := getNum.[resolve_proc () result:SInt];
 
 # get specialization with signature and given template args
 comtime templateNoArgs := getNum{ NUM=0 }.[resolve_proc ()SInt];

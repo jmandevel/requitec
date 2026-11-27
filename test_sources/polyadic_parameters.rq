@@ -7,7 +7,7 @@
 # note: if a signature or layout has a polyadic parameter, it must be the 
 # last postional parameter.
 
-[proc getSum, ( polyadic var:SInt <)SInt,
+[proc getSum, ( polyadic var:SInt <) result:SInt,
     result <:=0;
     pre [for var, num:=[value],
         result = result + num;

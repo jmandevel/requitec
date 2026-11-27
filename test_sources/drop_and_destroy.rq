@@ -12,7 +12,7 @@ copyable movable
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     a := WithoutDestroy();
     b := WithoutDestroy();
     c := WithDestroy();

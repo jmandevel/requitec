@@ -5,7 +5,7 @@ opaque mangle::MyClass
 [class MyClass, Unknown];
 
 opaque mangle::getInstanceRef
-[proc getInstance, ()Ref@MyClass];
+[proc getInstance, () result:Ref@MyClass];
 
 # when this class fully implemented, it can be a maximum of 64 bits in size
 copyable movable
@@ -13,14 +13,14 @@ opaque mangle::SizedClass
 [class SizedClass, margin{64}\Unknown,
 
     opaque
-    [proc doSomething, ()=>Ref@mut\];
+    [proc doSomething, () => this:Ref@mut\];
 ];
 
 opaque mangle::getSized
-[proc getSized, ()MyClass];
+[proc getSized, () result:MyClass];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     ref := getInstanceRef().[ref];
     sized := getSized(); 
     # Sized uses 64 bits of memory in the stack.

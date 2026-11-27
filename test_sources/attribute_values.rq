@@ -1,5 +1,5 @@
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     # high and modifiers are compile time values
 
     pre modifier := pre;
@@ -24,7 +24,7 @@ copyable movable
     # if reciever is mut, return is ref to mut. is reciver is no_mut, return is ref to no_mut.
     public template::{| auto mut0:MUT }
     pure
-    [proc getNumRef, ()Ref@mut0\SInt=>Ref@mut0\,
+    [proc getNumRef, () result:Ref@mut0\SInt => this:Ref@mut0\,
         result <:= this.num.[ref mut0\];
     ];
 

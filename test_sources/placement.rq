@@ -1,7 +1,7 @@
 
 
 opaque mangle::malloc
-[proc malloc, (size:USize<)Ptr@mut\Unknown];
+[proc malloc, (size:USize<) result:Ptr@mut\Unknown];
 
 opaque mangle::free
 [proc free, (ptr:Ptr@mut\Unknown<)];
@@ -16,7 +16,7 @@ template::{ Type:TYPE <}
     public inline
     template::{Placement:PLACEMENT<}
     [proc create, 
-        (placement:Placement<)mut\UniquePtr{Type},
+        (placement:Placement<) result:mut\UniquePtr{Type},
 
         ptr := malloc(Type.[byte_size]).[cast Ptr@mut\Type];
         result <:= UniquePtr{Type}(
@@ -25,7 +25,7 @@ template::{ Type:TYPE <}
         this.ptr.[content] ?= placement.[invoke];
     ];
 
-    public[destructor         
+    public[destructor () this:,
         this.ptr.[content].[take].[destroy];
         free(this.ptr);
         this.[take].[ignore];
@@ -41,7 +41,7 @@ copyable movable
 ];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     uptr := UniquePtr{MyClass}.create(
             MyClass(3.14).[emplace]
         );

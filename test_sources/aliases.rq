@@ -3,7 +3,7 @@
 alias print = std.print;
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     print(line="Hello, world!");
     result <:= 0;
 ];

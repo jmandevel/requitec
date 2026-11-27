@@ -1,7 +1,7 @@
 [import "std", std];
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     # for tuple with inferenced type, all parameters of type are nonpositional
     # nonpositional parameters are either name-keyed if name is specified, or type-keyed if name is noname
     # can only be one type-keyed parameter of any given type. this is enforced at compile time.
@@ -18,7 +18,6 @@ mangle::main
         std.print(line=type_keyed_text);
         # see captures.rq for more example usage of this feature
     ];
-
 
     # explicitly typed tuples must not be created with bindings per element using colon.
     # this is unlike how they are written when the type is inferenced.

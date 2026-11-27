@@ -13,7 +13,7 @@ pure
     result <:= numerator / denominator;
 ];
 
-[proc , ()SInt,
+[proc , () result:SInt,
     result <:=;
     [try
         intermediate := divide(10, 2).[pass 0];

@@ -3,7 +3,7 @@
 [import "exporting", my_stuff, std];  # notice there is no .rq file extension
 
 mangle::main
-[proc , ()SInt,
+[proc , () result:SInt,
     my_stuff.printHelloWorld(); # this function is from exporting.rq
     std.print(line="Goodbye, world!"); # std was imported by exporting.rq
     result <:= 0;
