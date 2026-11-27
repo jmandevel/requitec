@@ -967,7 +967,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
       rq::Expression& void_ = this->getContext().acquireExpression();
       void_.setSourceAfter(parenthesis);
       void_.setIsInserted();
-      void_.setKeyword(rq::Keyword::VOID);
+      void_.setKeyword(rq::Keyword::INFERENCE);
       return_type_ptr = &void_;
     } else {
       return_type_ptr = &this->parseReturnExpression();
