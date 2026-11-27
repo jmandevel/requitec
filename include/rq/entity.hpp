@@ -131,6 +131,8 @@ enum class Keyword : rq::EntityId {
   MOVE_OF,
   TAKE,
   TAKE_OF,
+  TO,
+  TO_OF,
   CALL,
   EMPLACE,
   EMPLACE_OF,

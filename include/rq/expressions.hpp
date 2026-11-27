@@ -234,6 +234,10 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "take";
   case K::TAKE_OF:
     return "_take_of";
+  case K::TO:
+    return "to";
+  case K::TO_OF:
+    return "_to_of";
   case K::CALL:
     return "_call";
   case K::EMPLACE:
@@ -1271,8 +1275,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::ADAPTION:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::BINDING:
-    return KIF::LVALUE | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT | KIF::BINDING |
-           KIF::STATEMENT | KIF::TUPLE_ELEMENT;
+    return KIF::LVALUE | KIF::RVALUE | KIF::PARAMETER | KIF::ARGUMENT |
+           KIF::BINDING | KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::UPBINDING:
     return KIF::LVALUE;
   case K::ASCRIBE_QUALIFIER:
@@ -1415,6 +1419,10 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::TAKE:
     return KIF::RAILCAR;
   case K::TAKE_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::TO:
+    return KIF::RAILCAR;
+  case K::TO_OF:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CALL:
     return KIF::STATEMENT | KIF::RVALUE | KIF::LVALUE | KIF::ARGUMENT |
@@ -2708,6 +2716,8 @@ getDescription(rq::Situation situation) {
     return K::MOVE_OF;
   case K::TAKE:
     return K::TAKE_OF;
+  case K::TO:
+    return K::TO_OF;
   case K::EMPLACE:
     return K::EMPLACE_OF;
   case K::INVOKE:
