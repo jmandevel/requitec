@@ -1,11 +1,69 @@
 [import "std", std];
 
-template::{> Size:USize <}
-copyable moveable
+template::{> auto Size:USize <}
+copyable moveable 
 [class SIntArrayIterator,
+
+    public inline 
+    layout_constructor;
+
+    { dat : Ref@Array{Size}@SInt, index: USize = 0 <},
+
+    template::{| auto mut0:MUT }
+    public inline require::index<size
+    [peeker (> index:SIndex <) result:Ref@mut0\SInt => this:Ref@mut0\,
+        result <:= this.dat.[at index];
+    ];
+
+    public
+    [consumer () => this:Ref@mut\,
+        this.index = this.index + 1;
+    ];
+
+    public
+    [prober () result:Bool => this:Ref@,
+        result <:= this.dat < size;
+    ];  
+];
+
+template::{> size:USize }
+copyable moveable
+[class ArrayWrapper,
+
+    public inline 
+    layout_constructor;
+
     { dat : Array{Size}@SInt <},
 
-    public layout_constructor;
+    [iterator () result:SIntArrayIterator{size} => Ref@mut\,
+        result <:= SIntArrayIterator(dat.[ref]);
+    ]  
+];
 
-    
+mangle::main
+[proc , () result:SInt,
+
+    arr := [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    it := SIntArrayIterator(arr.[ref]);
+
+    [while it.[probe],
+        next := it.[peek];
+        std.print(line=next);
+        it.[consume];
+    ];
+
+    [for SIntArrayIterator(arr.[ref]), next:=[value],
+        std.print(line=next);
+    ];
+
+    wrap := ArrayWrapper(arr);
+
+    it2 :=  wrap.[iterate];
+
+    [for wrap, next:=[value],
+        std.print(line=next);
+    ];
+
+    result <:= 0;
 ];
