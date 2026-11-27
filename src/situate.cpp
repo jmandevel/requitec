@@ -618,10 +618,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VALUE:
     [[fallthrough]];
-  case K::INDEX:
-    [[fallthrough]];
-  case K::THIS:
-    [[fallthrough]];
   case K::CALLSITE:
     is_ok = this->situateNullary(situation, expression);
     break;

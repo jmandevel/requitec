@@ -199,10 +199,6 @@ enum class Keyword : rq::EntityId {
   FALSE,
   // vignette value.
   VALUE,
-  // vignette index.
-  INDEX,
-  // reference to reciever
-  THIS,
   // get information about location of a proc call
   CALLSITE,
 
