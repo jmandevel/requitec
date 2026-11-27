@@ -11,18 +11,18 @@
 namespace rq {
 
 bool Situator::situateModule(rq::ModuleDetail &detail) {
-  if (detail.getExpressionPtr() == nullptr) {
+  if (detail.getExpressionPtr() == nullptr ||
+      detail.getExpressionPtr()->getKeyword() != rq::Keyword::TOP) {
     rq::Expression &top = this->getContext().acquireExpression();
     top.setIsInserted();
     top.setKeyword(rq::Keyword::TOP);
-    detail.setOrChangeExpression(&top);
-  }
-  rq::Expression &first = rq::dereferencePtr(detail.getExpressionPtr());
-  if (first.getKeyword() != rq::Keyword::TOP) {
-    rq::Expression &top = this->getContext().acquireExpression();
-    top.setIsInserted();
-    top.setKeyword(rq::Keyword::TOP);
-    top.setBranch(first);
+    const llvm::StringRef source = detail.getBuffer();
+    if (source.empty()) {
+      top.setSourceAt(source.data());
+    } else {
+      top.setSource(source);
+    }
+    top.setBranch(detail.getExpressionPtr());
     detail.setOrChangeExpression(&top);
   }
   rq::Expression &top = rq::dereferencePtr(detail.getExpressionPtr());
@@ -138,7 +138,7 @@ bool Situator::situateTree(rq::Situation situation,
   case K::UNSITUATED_ASCRIBE_MODIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
         situation, expression, 2, K::ASCRIBE_MODIFIER,
-        S::MODIFIER_INSTANTIATION, situation);
+        S::RVALUE, situation);
     break;
   case K::UNSITUATED_ASCRIBE_QUALIFIER:
     is_ok = this->situateUnsituatedAscribeExpression(
@@ -251,11 +251,13 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::ASCRIBE_MODIFIER:
     is_ok = this->situateNaryDifferentFirstTag(
-        situation, expression, 2, situation, S::MODIFIER_INSTANTIATION);
+        situation, expression, 2, situation, S::RVALUE);
     break;
-  case K::INSTANTIATE_MODIFIER:
-    is_ok = this->situateUnaryOrBinaryTag(situation, expression, S::RVALUE,
-                                          S::RVALUE);
+  case K::INSTANTIATE_MODIFIER_ATTACHMENT:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
+    break;
+  case K::INSTANTIATE_QUALIFIER_ATTACHMENT:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::RVALUE);
     break;
   case K::IDENTIFY:
     is_ok = this->situateNullary(situation, expression);

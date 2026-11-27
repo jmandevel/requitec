@@ -220,7 +220,7 @@ void Tokenizer::_tokenizeSourceText() {
           this->tokenizeLengthToken(T::ELIPSIS_OPERATOR, 3);
           break;
         default:
-          this->tokenizeLengthToken(T::DOT_OPERATOR, 1);
+          this->tokenizeLengthToken(T::DOUBLE_DOT_OPERATOR, 2);
         }
         break;
       case '+':

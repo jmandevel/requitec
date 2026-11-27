@@ -168,10 +168,10 @@ rq::Expression &RequiteParser::parseUnexpectedEof() {
 }
 
 // MODIFIERS
-rq::Expression &RequiteParser::parsePrecedence12() {
+rq::Expression &RequiteParser::parsePrecedence13() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
-    rq::Expression &expression = this->parsePrecedence11();
+    rq::Expression &expression = this->parsePrecedence12();
     if (this->getRanger().getIsDone()) {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
@@ -182,21 +182,59 @@ rq::Expression &RequiteParser::parsePrecedence12() {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
     }
-    rq::Expression &instantiation = this->getContext().acquireExpression();
-    instantiation.setSource(expression);
-    instantiation.setKeyword(rq::Keyword::INSTANTIATE_MODIFIER);
-    instantiation.setBranch(expression);
-    if (after_token.getKind() == rq::TokenKind::DOUBLE_COLON_OPERATOR) {
-      this->getRanger().incrementToken(1);
-      rq::Expression &value = this->parseNonascribableExpression();
-      expression.setNext(value);
-      instantiation.extendSourceOver(value);
-    }
-    precedence_factory.parseAscribe(instantiation.getSourceText(),
+    precedence_factory.parseAscribe(expression.getSourceText(),
                                     rq::Keyword::UNSITUATED_ASCRIBE_MODIFIER);
-    precedence_factory.appendBranch(instantiation);
+    precedence_factory.appendBranch(expression);
   }
   precedence_factory.appendBranch(this->parseUnexpectedEof());
+  return precedence_factory.getOuter();
+}
+
+// MODIFIER AND QUALIFIER ATTACHMENTS
+rq::Expression &RequiteParser::parsePrecedence12() {
+  rq::PrecedenceFactory precedence_factory(this->getContext());
+  precedence_factory.setRecent(this->parsePrecedence11());
+  while (!this->getRanger().getIsDone()) {
+    if (precedence_factory.getRecent().getCanBeChainLink()) {
+      break;
+    }
+    const rq::Token token = this->getRanger().getToken();
+    rq::Keyword keyword;
+    switch (token.getKind()) {
+    case rq::TokenKind::DOUBLE_COLON_OPERATOR:
+      keyword = rq::Keyword::INSTANTIATE_MODIFIER_ATTACHMENT;
+      break;
+    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
+      keyword = rq::Keyword::INSTANTIATE_QUALIFIER_ATTACHMENT;
+      break;
+    default:
+      precedence_factory.appendRecent();
+      return precedence_factory.getOuter();
+    }
+    this->getRanger().incrementToken(1);
+    precedence_factory.parseBinary(token, keyword);
+    rq::Expression &right = this->parsePrecedence11();
+    if (keyword == rq::Keyword::INSTANTIATE_QUALIFIER_ATTACHMENT &&
+        right.getKeyword() == rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER &&
+        right.getHasBranch()) {
+      rq::Expression &first = right.popBranch();
+      rq::Expression *remaining_ptr = first.popNextPtr();
+      precedence_factory.setRecent(first);
+      precedence_factory.appendRecent();
+      rq::Expression &attachment = precedence_factory.getOuter();
+      attachment.setNext(remaining_ptr);
+      right.setBranch(attachment);
+      right.extendSourceOver(attachment);
+      if (remaining_ptr != nullptr) {
+        rq::Expression &remaining = rq::dereferencePtr(remaining_ptr);
+        right.extendSourceOver(remaining);
+      }
+      precedence_factory.setOnlyRecent(right);
+    } else {
+      precedence_factory.setRecent(right);
+    }
+  }
+  precedence_factory.appendRecent();
   return precedence_factory.getOuter();
 }
 
@@ -962,9 +1000,9 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   if (result.getFoundParameterMark() || !parenthesis.getHasBranch()) {
     parenthesis.changeKeyword(rq::Keyword::INSTANTIATE_SIGNATURE);
     rq::Token next_token = this->getRanger().getToken();
-    rq::Expression* return_type_ptr = nullptr;
+    rq::Expression *return_type_ptr = nullptr;
     if (next_token.getIsInferenceTerminator()) {
-      rq::Expression& void_ = this->getContext().acquireExpression();
+      rq::Expression &void_ = this->getContext().acquireExpression();
       void_.setSourceAfter(parenthesis);
       void_.setIsInserted();
       void_.setKeyword(rq::Keyword::INFERENCE);
