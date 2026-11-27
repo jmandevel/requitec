@@ -10,7 +10,7 @@ opaque mangle::getInstanceRef
 # when this class fully implemented, it can be a maximum of 64 bits in size
 copyable movable
 opaque mangle::SizedClass
-[class SizedClass, margin{64}\Unknown,
+[class SizedClass, margin..64\Unknown,
 
     opaque
     [proc doSomething, () => this:Ref@mut\];
