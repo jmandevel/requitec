@@ -22,7 +22,7 @@ concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate
             result ?= false;
             done;
         ];
-        [for Subject.[parameter_range], param:=[value].[ref],
+        [for Subject.[parameter_range], v:, param:=v.[ref],
             [if !param.[type].[is TYPE],
                 result ?= false;
                 done;

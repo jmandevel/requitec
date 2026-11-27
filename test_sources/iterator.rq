@@ -54,7 +54,7 @@ mangle::main
         it.[ref mut\].[consume];
     ];
 
-    [for SIntArrayIterator(arr.[ref]), next:=[value],
+    [for SIntArrayIterator(arr.[ref]), v:, next:=v,
         std.print(line=next);
     ];
 
@@ -62,7 +62,7 @@ mangle::main
 
     it2 :=  wrap.[ref mut\].[iterate];
 
-    [for wrap.[ref mut\], next:=[value],
+    [for wrap.[ref mut\], v:, next:=v,
         std.print(line=next);
     ];
 

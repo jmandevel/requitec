@@ -9,7 +9,7 @@ anchor::A
 
 mangle::main
 [proc , () result:SInt,
-    pre [for 0.<=10, pre num:=[value],
+    pre [for 0.<=10, v:, pre num:=v,
         pre varname :std.String= std.format(text="VAR" +> num);
         std.print(line=varname.getSlice() +> " is " +> (varname.getSlice().[identify]) +> "!");  
     ];
