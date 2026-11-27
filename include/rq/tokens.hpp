@@ -410,7 +410,7 @@ getInfoFlags(rq::TokenKind kind) {
   case T::DOUBLE_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::THICK_ARROW_OPERATOR:
-    return TF::OPERATOR;
+    return TF::OPERATOR | TF::INFERENCE_TERMINATOR;
   case T::DOUBLE_THICK_ARROW_OPERATOR:
     return TF::OPERATOR;
   case T::STAR_GREATER_OPERATOR:

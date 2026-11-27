@@ -1,5 +1,5 @@
 opaque mangle::printf
-[proc , (>format:Ptr@Char, variadic args:variadic<)Void];
+[proc , (>format:Ptr@Char, variadic args:variadic<)];
 
 mangle::main
 [proc , ()SInt,

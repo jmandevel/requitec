@@ -221,9 +221,9 @@ rq::Expression &RequiteParser::parsePrecedence11() {
       precedence_factory.parseBinary(token, rq::Keyword::INDETERMINATE_ASSIGN);
       precedence_factory.setRecent(this->parsePrecedence10());
       continue;
-    case rq::TokenKind::ELIPSIS_OPERATOR:
+    case rq::TokenKind::THICK_ARROW_OPERATOR:
       this->getRanger().incrementToken(1);
-      precedence_factory.parseBinary(token, rq::Keyword::POLYADIC_PARAMETER);
+      precedence_factory.parseBinary(token, rq::Keyword::INSTANTIATE_EXTENSION);
       precedence_factory.setRecent(this->parsePrecedence10());
       continue;
     default:
@@ -681,16 +681,6 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       precedence_factory.parseNary(token, rq::Keyword::EXTEND);
       continue;
     }
-    case rq::TokenKind::THICK_ARROW_OPERATOR: {
-      rq::Expression &inference = this->getContext().acquireExpression();
-      inference.setKeyword(rq::Keyword::INFERENCE);
-      inference.setIsInserted();
-      inference.setSourceBefore(token);
-      precedence_factory.setRecent(inference);
-      this->getRanger().incrementToken(1);
-      precedence_factory.parseNary(token, rq::Keyword::INSTANTIATE_EXTENSION);
-      continue;
-    }
     default:
       break;
     }
@@ -718,12 +708,6 @@ rq::Expression &RequiteParser::parsePrecedence2() {
       this->getRanger().incrementToken(1);
       precedence_factory.appendRecent();
       precedence_factory.parseOuterBinary(post_token, rq::Keyword::EXTEND);
-      continue;
-    case rq::TokenKind::THICK_ARROW_OPERATOR:
-      this->getRanger().incrementToken(1);
-      precedence_factory.appendRecent();
-      precedence_factory.parseOuterBinary(post_token,
-                                          rq::Keyword::INSTANTIATE_EXTENSION);
       continue;
     case rq::TokenKind::BACKSLASH_OPERATOR: {
       this->getRanger().incrementToken(1);
@@ -977,7 +961,18 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
   parenthesis.setBranch(result.getFirstBranchPtr());
   if (result.getFoundParameterMark() || !parenthesis.getHasBranch()) {
     parenthesis.changeKeyword(rq::Keyword::INSTANTIATE_SIGNATURE);
-    rq::Expression &return_type = this->parseAscribableExpression();
+    rq::Token next_token = this->getRanger().getToken();
+    rq::Expression* return_type_ptr = nullptr;
+    if (next_token.getIsInferenceTerminator()) {
+      rq::Expression& void_ = this->getContext().acquireExpression();
+      void_.setSourceAfter(parenthesis);
+      void_.setIsInserted();
+      void_.setKeyword(rq::Keyword::VOID);
+      return_type_ptr = &void_;
+    } else {
+      return_type_ptr = &this->parsePrecedence10();
+    }
+    rq::Expression &return_type = rq::dereferencePtr(return_type_ptr);
     if (parenthesis.getHasBranch()) {
       return_type.setNext(parenthesis.replaceBranch(return_type));
     } else {

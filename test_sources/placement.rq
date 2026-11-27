@@ -1,10 +1,10 @@
 
 
 opaque mangle::malloc
-[proc malloc, (size:USize<)Ptr@mut\Void];
+[proc malloc, (size:USize<)Ptr@mut\Unknown];
 
 opaque mangle::free
-[proc free, (ptr:Ptr@mut\Void<)Void];
+[proc free, (ptr:Ptr@mut\Unknown<)];
 
 copyable movable
 template::{ Type:TYPE <}

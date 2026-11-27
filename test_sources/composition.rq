@@ -4,13 +4,13 @@
     # this proc is virtual so can be overriden by adapters
     # its not opaque, so it does not have to be overriden
     public virtual
-    [proc speak, ()Void=>,
+    [proc speak, ()=>,
         std.print(line="I don't speak.");
     ];
 
     # this proc is not virtual so it cannot be overriden by adapters
     public
-    [proc doSomething, ()Void=>,
+    [proc doSomething, ()=>,
         std.print(line="do something now!");
     ];
 
@@ -25,45 +25,45 @@ copyable movable
 copyable movable
 [class Rat, public[layout_constructor]; {},
     public
-    [proc squeak, ()Void=>,
+    [proc squeak, ()=>Ref@,
         std.print(line="Squeak!");  
     ];
 ];
 
 [adapter A, Dog==>ISpeak,
     [public]
-    [proc speak, ()Void=>,
+    [proc speak, ()=>Ref@,
         std.print(line="Woof!");
     ];
 ];
 
 [adapter A, Cat==>ISpeak,
     public
-    [proc speak, ()Void=>,
+    [proc speak, ()=>Ref@,
         std.print(line="Meow!");
     ];
 ];
 
 [adapter A, Rat==>ISpeak,
-    [use_proc speak, Rat.squeak.[resolve_proc ()Void=>Ref@]];
+    [use_proc speak, Rat.squeak.[resolve_proc ()=>Ref@]];
 ];
 
 [interface IGreet,
     # virtual and opqaque, so there is no default implementation and adapters must implement it.
     public virtual opaque
-    [proc greet, ()Void=>];
+    [proc greet, ()=>Ref@];
 ];
 
 [adapter A, Dog==>IGreet,
     public
-    [proc greet, ()Void=>,
+    [proc greet, ()=>Ref@,
         std.print(line="*wags tail*");
     ];
 ];
 
 [adapter B, Dog==>IGreet,
     public
-    [proc greet, ()Void=>,
+    [proc greet, ()=>Ref@,
         std.print(line="bark!");
     ];
 ];
@@ -98,7 +98,7 @@ mangle::main
     result <:= 0;
 ];
 
-[proc speakAndGreet, (> animal:margin{64}\[composition ISpeak, IGreet] <)Void,
+[proc speakAndGreet, (> animal:margin{64}\[composition ISpeak, IGreet] <),
     animal.[decompose ISpeak].speak();
     animal.[decompose IGreet].greet();
 ];

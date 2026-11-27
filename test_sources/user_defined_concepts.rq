@@ -34,7 +34,7 @@ concept TYPE_TUPLE :COMPOSITE=Subject\\ [validate
 # this is an opaque function. it exists nowhere, but we can still perform substitution checking against it.
 # however, actually calling it is a bad idea because it will cause a linking error.
 opaque mangle:myFunc
-[proc myFunc, ( in:SInt <)Void ];
+[proc myFunc, ( in:SInt <)];
 
 # with [check_frame] you can perform substitution checking as if in proc frame scope
 concept MY_FUNC_ARG_TYPE :TYPE=Subject\\ [check_frame val:Subject, 

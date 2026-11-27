@@ -13,7 +13,7 @@ opaque mangle::SizedClass
 [class SizedClass, margin{64}\Unknown,
 
     opaque
-    [proc doSomething, ()Void=>Ref@mut\];
+    [proc doSomething, ()=>Ref@mut\];
 ];
 
 opaque mangle::getSized

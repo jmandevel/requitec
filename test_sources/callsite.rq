@@ -5,7 +5,7 @@
         snippet:=callsite.[snippet],
         line:=callsite.[line],
         column:=callsite.[column]
-    )Void,
+    ),
     std.print(line=
         "snippet: \"" +> snippet +> "\"" +>
         " line: " +> line +>

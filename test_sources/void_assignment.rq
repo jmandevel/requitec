@@ -1,0 +1,4 @@
+# when assigning to concept that can be void and rvalue is inferenced, it 
+# becomes Void type.
+comtime void : ANY = ;
+

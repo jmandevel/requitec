@@ -24,4 +24,4 @@ mangle::main
 ];
 
 opaque mangle::puts
-[proc , (>str:pointer@no_mut\Char<)Void];
+[proc , (>str:pointer@no_mut\Char<)];

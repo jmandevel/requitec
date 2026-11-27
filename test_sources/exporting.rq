@@ -2,7 +2,7 @@
 
 [namespace my_stuff,
     export
-    [proc printHelloWorld, ()Void,
+    [proc printHelloWorld, (),
         std.print(line = "Hello, world!");
     ];
     [namespace detail,

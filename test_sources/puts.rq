@@ -1,5 +1,5 @@
 opaque mangle::puts
-[proc , (>str:Ptr@Char<)Void];
+[proc , (>str:Ptr@Char<)];
 
 mangle::main
 [proc , ()SInt,

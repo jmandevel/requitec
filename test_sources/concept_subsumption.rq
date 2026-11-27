@@ -10,19 +10,19 @@
 
 # A
 template::{> Type:FLOAT <}
-[proc printType, ( val:Type <)Void,
+[proc printType, ( val:Type <),
     std.print(line="Its a float");
 ];
 
 # B
 template::{> Type:INT <}
-[proc printType, ( val:Type <)Void,
+[proc printType, ( val:Type <),
     std.print(line="Its an integer");
 ];
 
 # C
 template::{> Type:TYPE <}
-[proc printType, ( val:Type <)Void,
+[proc printType, ( val:Type <),
     std.print(line="Its something");
 ];
 

@@ -10,7 +10,7 @@
     [class Foo, public pure[layout_constructor]; {}];
 
     pure
-    [proc bar, ()Void=>Ref@example.Foo,
+    [proc bar, ()=>Ref@example.Foo,
     
     ];
 ];

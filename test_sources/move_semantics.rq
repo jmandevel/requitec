@@ -8,17 +8,17 @@ copyable
 [class MyPinned, public pure [layout_constructor]; {}];
 
 pure
-[proc takeReciever, ()Void=>MyPinned,
+[proc takeReciever, ()=>MyPinned,
 
 ];
 
 pure
-[proc takeArg, (pinned:MyPinned<)Void,
+[proc takeArg, (pinned:MyPinned<),
 
 ];
 
 pure
-[proc takeOrCopyArg, (pinned:MyClass<)Void,
+[proc takeOrCopyArg, (pinned:MyClass<),
 
 ];
 

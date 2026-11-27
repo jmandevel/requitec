@@ -363,7 +363,7 @@ static constexpr std::size_t KEYWORD_COUNT =
   case K::EXPRESSION:
     return "Expression";
   case K::VOID:
-    return "Void";
+    return "_Void";
   case K::NO_RETURN:
     return "NoReturn";
   case K::BOOL:
