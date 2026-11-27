@@ -1157,7 +1157,7 @@ bool Situator::situateTree(rq::Situation situation,
     break;
   case K::DESTRUCTOR:
     if (situation == S::STATEMENT) {
-      is_ok = this->situateStatement(expression);
+      is_ok = this->situateStatementTagStatement(situation, expression);
     } else {
       is_ok = this->situateNullary(situation, expression);
     }
