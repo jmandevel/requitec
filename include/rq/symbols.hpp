@@ -1239,7 +1239,7 @@ struct SymbolicPath final : public llvm::FoldingSetNode {
 
   explicit RQ_ALWAYS_INLINE SymbolicPath(rq::SymbolicPath *next_ptr,
                                          rq::Expression &expression,
-                                         llvm::StringRef identifier_text);
+                                         rq::Name name);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &getExpression() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &getExpression();
@@ -1805,10 +1805,11 @@ struct Route : public rq::Implementation {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *getSymbolicPathPtr();
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *
   getSymbolicPathPtr() const;
-  [[nodiscard]] rq::NextSubrange<rq::SymbolicPath> getSymbolicPathSubrange();
-  [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::NextSubrange<rq::SymbolicPath>
+  getSymbolicPathSubrange();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::SymbolicPath>
   getSymbolicPathSubrange() const;
-  [[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::ConstNextSubrange<rq::SymbolicPath>
   getConstSymbolicPathSubrange() const;
   [[nodiscard]] inline rq::SymbolTable *getDerivedRouteStartPtr();
 

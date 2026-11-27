@@ -43,21 +43,9 @@ struct PathComponent final {
 struct SymbolicPathSnapshot final {
   using Self = rq::SymbolicPathSnapshot;
 
-  rq::Route &_route;
-  rq::SymbolicPath &_symbolic_path;
-  rq::SymbolTable &_host;
-
-  explicit RQ_ALWAYS_INLINE
-  SymbolicPathSnapshot(rq::Route &route, rq::SymbolicPath &symbolic_path,
-                       rq::SymbolTable &host);
-
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::Route &getRoute() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::Route &getRoute();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath &
-  getSymbolicPath() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath &getSymbolicPath();
-  [[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolTable &getHost() const;
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolTable &getHost();
+  rq::Route &route;
+  rq::SymbolicPath &symbolic_path;
+  rq::SymbolTable &host;
 };
 
 struct RValue final {

@@ -1026,14 +1026,14 @@ struct Context final : public rq::BumpPtrAllocator {
                        unsigned margin);
   [[nodiscard]] inline rq::Adaption &
   acquireAdaption(rq::QualifiedType &reciever,
-                  rq::InterfaceImplementation &interface,
-                  rq::AdapterImplementation &adapter);
+                  rq::Interface &interface,
+                  rq::Adapter &adapter);
   [[nodiscard]] inline rq::Realization &
   acquireRealization(rq::QualifiedType &reciever,
-                     rq::InterfaceImplementation &interface);
+                     rq::Interface &interface);
   [[nodiscard]] inline rq::Conformity &
-  acquireConformity(rq::InterfaceImplementation &interface,
-                    rq::AdapterImplementation &adapter);
+  acquireConformity(rq::Interface &interface,
+                    rq::Adapter &adapter);
   [[nodiscard]] inline rq::JuxtListType &
   acquireJuxtListType(rq::NodeList<rq::QualifiedType> &&type_list);
   [[nodiscard]] inline rq::Trip &
@@ -1054,14 +1054,14 @@ struct Context final : public rq::BumpPtrAllocator {
                    rq::ModifierFuseFlags modifier_flags,
                    rq::ParameterInfoFlags param_flags, rq::Entity *default_ptr);
   [[nodiscard]] inline rq::CompositionType &acquireCompositionType(
-      rq::NodeList<rq::InterfaceImplementation> &&interface_list);
+      rq::NodeList<rq::Interface> &&interface_list);
   [[nodiscard]] inline rq::SignatureType &
   acquireSignatureType(rq::Parameter *first_parameter_ptr,
                        rq::QualifiedType &return_type);
   [[nodiscard]] inline rq::LayoutType &
   acquireLayoutType(rq::Parameter *first_parameter_ptr);
   [[nodiscard]] inline rq::PlacementType &
-  acquirePlacementType(rq::ProcImplementation &function);
+  acquirePlacementType(rq::Proc &function);
 
   // Each declaration, scope, overload, specialization and template has
   // identity.
@@ -1166,8 +1166,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] inline rq::MutableFloat &
   acquireMutableFloat(rq::QualifiedType &type, const llvm::APFloat &value);
   [[nodiscard]] inline rq::MutableDetachedArray &
-  acquireMutableDetachedArray(rq::QualifiedType &type,
-                              llvm::ArrayRef<rq::Entity *> data = {});
+  acquireMutableDetachedArray(rq::QualifiedType &type);
 };
 
 } // namespace rq

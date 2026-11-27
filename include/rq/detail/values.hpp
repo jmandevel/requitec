@@ -122,21 +122,18 @@ DetachedArray::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE
-MutableDetachedArray::MutableDetachedArray(rq::QualifiedType &type,
-                                           llvm::ArrayRef<rq::Entity *> data)
-    : DetachedArray(rq::ValueKind::MUTABLE_DETACHED_ARRAY, type),
-      _data(data.begin(), data.end()) {}
+MutableDetachedArray::MutableDetachedArray(rq::QualifiedType &type)
+    : DetachedArray(rq::ValueKind::MUTABLE_DETACHED_ARRAY, type) {}
 
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::ArrayRef<rq::Entity *>
 MutableDetachedArray::getDataArray() const {
   return {this->_data.data(), this->_data.size()};
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE MutableDetachedArray::Data &
+[[nodiscard]] RQ_ALWAYS_INLINE std::vector<rq::Entity *> &
 MutableDetachedArray::getDataArray() {
   return this->_data;
 }
-
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 MutableDetachedArray::classof(const rq::Entity *entity_ptr) {
   return entity_ptr->getId() ==

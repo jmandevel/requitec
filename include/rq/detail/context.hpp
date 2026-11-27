@@ -1384,20 +1384,20 @@ Context::acquireArithmeticSequenceType(rq::SymbolKind kind,
 
 [[nodiscard]] inline rq::Adaption &
 Context::acquireAdaption(rq::QualifiedType &reciever,
-                         rq::InterfaceImplementation &interface,
-                         rq::AdapterImplementation &adapter) {
+                         rq::Interface &interface,
+                         rq::Adapter &adapter) {
   return rq::acquire(*this, this->_adaption_set, reciever, interface, adapter);
 }
 
 [[nodiscard]] inline rq::Realization &
 Context::acquireRealization(rq::QualifiedType &reciever,
-                            rq::InterfaceImplementation &interface) {
+                            rq::Interface &interface) {
   return rq::acquire(*this, this->_realization_set, reciever, interface);
 }
 
 [[nodiscard]] inline rq::Conformity &
-Context::acquireConformity(rq::InterfaceImplementation &interface,
-                           rq::AdapterImplementation &adapter) {
+Context::acquireConformity(rq::Interface &interface,
+                           rq::Adapter &adapter) {
   return rq::acquire(*this, this->_conformity_set, interface, adapter);
 }
 
@@ -1466,7 +1466,7 @@ Context::acquireAdapterSpecializationSet(
 }
 
 [[nodiscard]] inline rq::CompositionType &Context::acquireCompositionType(
-    rq::NodeList<rq::InterfaceImplementation> &&interface_list) {
+    rq::NodeList<rq::Interface> &&interface_list) {
   return rq::acquire(*this, this->_composition_type_set,
                      std::move(interface_list));
 }
@@ -1484,7 +1484,7 @@ Context::acquireLayoutType(rq::Parameter *first_parameter_ptr) {
 }
 
 [[nodiscard]] inline rq::PlacementType &
-Context::acquirePlacementType(rq::ProcImplementation &function) {
+Context::acquirePlacementType(rq::Proc &function) {
   return rq::acquire(*this, this->_placement_type_set, function);
 }
 
@@ -1795,9 +1795,8 @@ Context::acquireMutableFloat(rq::QualifiedType &type,
 }
 
 [[nodiscard]] inline rq::MutableDetachedArray &
-Context::acquireMutableDetachedArray(rq::QualifiedType &type,
-                                     llvm::ArrayRef<rq::Entity *> data) {
-  return this->allocateGcValue<rq::MutableDetachedArray>(type, data);
+Context::acquireMutableDetachedArray(rq::QualifiedType &type) {
+  return this->allocateGcValue<rq::MutableDetachedArray>(type);
 }
 
 [[nodiscard]] inline rq::PreEagerVariable &

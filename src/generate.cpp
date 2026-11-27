@@ -117,7 +117,7 @@ void Generator::dfsSymbolicPath(
       llvm::SmallVector<rq::SymbolicPathSnapshot, 1> new_snapshot_stack{};
       new_snapshot_stack.reserve(snapshot_stack.size() + 1);
       new_snapshot_stack.append(snapshot_stack.begin(), snapshot_stack.end());
-      new_snapshot_stack.emplace_back(redirect, symbolic_path);
+      new_snapshot_stack.emplace_back(redirect, symbolic_path, host);
       rq::SymbolicPath &route_symbolic_path =
           rq::dereferencePtr(route.getSymbolicPathPtr());
       rq::SymbolTable &route_start =
@@ -136,9 +136,9 @@ void Generator::dfsSymbolicPath(
         }
       } else {
         rq::SymbolicPathSnapshot snapshot = snapshot_stack.back();
-        this->dfsSymbolicPath(module, snapshot.getHost(), path, found_redirects,
-                              snapshot_stack.drop_back(1), snapshot.getRoute(),
-                              snapshot.getSymbolicPath(), candidates);
+        this->dfsSymbolicPath(module, snapshot.host, path, found_redirects,
+                              snapshot_stack.drop_back(1), snapshot.route,
+                              snapshot.symbolic_path, candidates);
         continue;
       }
     }

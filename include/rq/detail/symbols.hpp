@@ -2758,6 +2758,33 @@ SymbolTable::classof(const rq::Entity *entity_ptr) {
   return rq::getIsSymbolTable(entity.getUnsafeSymbolKind());
 }
 
+RQ_ALWAYS_INLINE SymbolicPath::SymbolicPath(rq::SymbolicPath *next_ptr,
+                                            rq::Expression &expression,
+                                            rq::Name name)
+    : _next_ptr(next_ptr), _expression_ptr(&expression), _name(name) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
+SymbolicPath::getExpression() const {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &SymbolicPath::getExpression() {
+  return rq::dereferencePtr(this->_expression_ptr);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name SymbolicPath::getName() const {
+  return this->_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *
+SymbolicPath::getNextPtr() const {
+  return this->_next_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *SymbolicPath::getNextPtr() {
+  return this->_next_ptr;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef getName(rq::ModuleKind kind) {
   using MK = rq::ModuleKind;
   switch (kind) {
@@ -3056,6 +3083,12 @@ inline void LazyDeclaration::setMangledName(llvm::StringRef mangled_name) {
 [[nodiscard]] RQ_ALWAYS_INLINE llvm::StringRef
 LazyDeclaration::getMangledName() const {
   return this->_mangled_name;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+LazyDeclaration::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsLazyDeclaration(entity.getUnsafeSymbolKind());
 }
 
 RQ_ALWAYS_INLINE Implementation::Implementation(rq::SymbolKind kind)
@@ -3545,6 +3578,62 @@ ProcSpecialization::classof(const rq::Entity *entity_ptr) {
   return entity.getId() == rq::getId(rq::SymbolKind::PROC_SPECIALIZATION);
 }
 
+RQ_ALWAYS_INLINE Route::Route(rq::SymbolKind kind) : Implementation(kind) {}
+
+RQ_ALWAYS_INLINE void Route::setSymbolicPath(rq::SymbolicPath &symbolic_path) {
+  rq::assignSingleValue(this->_path_ptr, &symbolic_path);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::SymbolicPath *Route::getSymbolicPathPtr() {
+  return this->_path_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::SymbolicPath *
+Route::getSymbolicPathPtr() const {
+  return this->_path_ptr;
+}
+
+[[nodiscard]] rq::NextSubrange<rq::SymbolicPath>
+Route::getSymbolicPathSubrange() {
+  return rq::NextSubrange<rq::SymbolicPath>(
+      rq::NextIterator<rq::SymbolicPath>(this->_path_ptr),
+      rq::NextIterator<rq::SymbolicPath>(nullptr));
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+Route::getSymbolicPathSubrange() const {
+  return rq::ConstNextSubrange<rq::SymbolicPath>(
+      rq::ConstNextIterator<rq::SymbolicPath>(this->_path_ptr),
+      rq::ConstNextIterator<rq::SymbolicPath>(nullptr));
+}
+
+[[nodiscard]] rq::ConstNextSubrange<rq::SymbolicPath>
+Route::getConstSymbolicPathSubrange() const {
+  return rq::ConstNextSubrange<rq::SymbolicPath>(
+      rq::ConstNextIterator<rq::SymbolicPath>(this->_path_ptr),
+      rq::ConstNextIterator<rq::SymbolicPath>(nullptr));
+}
+
+[[nodiscard]] inline rq::SymbolTable *Route::getDerivedRouteStartPtr() {
+  if (llvm::isa<rq::Alias>(this)) {
+    return this->getContainerPtr();
+  } else if (llvm::isa<rq::Portal>(this)) {
+    rq::Portal &portal = llvm::cast<rq::Portal>(*this);
+    if (portal.getImportPtr() == nullptr) {
+      return nullptr;
+    }
+    rq::Import &import = rq::dereferencePtr(portal.getImportPtr());
+    return import.getImportedPtr();
+  }
+  return nullptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE bool
+Route::classof(const rq::Entity *entity_ptr) {
+  const rq::Entity &entity = rq::dereferencePtr(entity_ptr);
+  return rq::getIsRouteImplementation(entity.getUnsafeSymbolKind());
+}
+
 RQ_ALWAYS_INLINE Alias::Alias(rq::SymbolKind kind) : Route(kind) {
   RQ_ASSERT(rq::getIsAliasImplementation(kind), "not alias implementation");
 }
@@ -3599,6 +3688,18 @@ AliasSpecialization::classof(const rq::Entity *entity_ptr) {
 }
 
 RQ_ALWAYS_INLINE Portal::Portal() : Route(rq::SymbolKind::PORTAL) {}
+
+RQ_ALWAYS_INLINE void Portal::setImport(rq::Import &import) {
+  rq::assignSingleValue(this->_import_ptr, &import);
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Import *Portal::getImportPtr() const {
+  return this->_import_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Import *Portal::getImportPtr() {
+  return this->_import_ptr;
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool
 Portal::classof(const rq::Entity *entity_ptr) {

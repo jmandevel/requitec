@@ -1193,23 +1193,22 @@ enum class SymbolInfoFlags : std::uint64_t {
   TABLE_MEMBER = rq::getBit(16),
   EAGER_DECLARATION = rq::getBit(17),
   EAGER_VARIABLE = rq::getBit(18),
-  ROUTE = rq::getBit(19),
-  POLYMORPH = rq::getBit(20),
-  TEMPLATE = rq::getBit(21),
-  SYMBOL_TABLE = rq::getBit(22),
-  EAGER_SCOPE = rq::getBit(23),
-  NAMED_TABLE = rq::getBit(24),
-  LAZY_DECLARATION = rq::getBit(25),
-  CLASS_IMPLEMENTATION = rq::getBit(26),
-  ENUM_IMPLEMENTATION = rq::getBit(27),
-  INTERFACE_IMPLEMENTATION = rq::getBit(28),
-  ADAPTER_IMPLEMENTATION = rq::getBit(29),
-  PROC_IMPLEMENTATION = rq::getBit(30),
-  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(31),
-  ROUTE_IMPLEMENTATION = rq::getBit(32),
-  ALIAS_IMPLEMENTATION = rq::getBit(33),
-  CONCEPT_IMPLEMENTATION = rq::getBit(34),
-  VARIANT_IMPLEMENTATION = rq::getBit(35),
+  POLYMORPH = rq::getBit(19),
+  TEMPLATE = rq::getBit(20),
+  SYMBOL_TABLE = rq::getBit(23),
+  EAGER_SCOPE = rq::getBit(24),
+  NAMED_TABLE = rq::getBit(25),
+  LAZY_DECLARATION = rq::getBit(26),
+  CLASS_IMPLEMENTATION = rq::getBit(27),
+  ENUM_IMPLEMENTATION = rq::getBit(28),
+  INTERFACE_IMPLEMENTATION = rq::getBit(29),
+  ADAPTER_IMPLEMENTATION = rq::getBit(30),
+  PROC_IMPLEMENTATION = rq::getBit(31),
+  LAZY_VARIABLE_IMPLEMENTATION = rq::getBit(32),
+  ROUTE_IMPLEMENTATION = rq::getBit(33),
+  ALIAS_IMPLEMENTATION = rq::getBit(34),
+  CONCEPT_IMPLEMENTATION = rq::getBit(35),
+  VARIANT_IMPLEMENTATION = rq::getBit(36),
 
   // SYMBOL DETAIL
   IS_RUNTIME_TYPE = rq::getBit(48),
@@ -2188,12 +2187,6 @@ getIsSpecializationSet(rq::SymbolKind kind) {
   using SIF = rq::SymbolInfoFlags;
   SIF flags = rq::getInfoFlags(kind);
   return rq::getHasAll(flags, SIF::EAGER_VARIABLE);
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE bool getIsRoute(rq::SymbolKind kind) {
-  using SIF = rq::SymbolInfoFlags;
-  SIF flags = rq::getInfoFlags(kind);
-  return rq::getHasAll(flags, SIF::ROUTE);
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE bool getIsPolymorph(rq::SymbolKind kind) {
