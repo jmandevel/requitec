@@ -168,10 +168,10 @@ rq::Expression &RequiteParser::parseUnexpectedEof() {
 }
 
 // MODIFIERS
-rq::Expression &RequiteParser::parsePrecedence13() {
+rq::Expression &RequiteParser::parsePrecedence12() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   while (!this->getRanger().getIsDone()) {
-    rq::Expression &expression = this->parsePrecedence12();
+    rq::Expression &expression = this->parsePrecedence11();
     if (this->getRanger().getIsDone()) {
       precedence_factory.appendBranch(expression);
       return precedence_factory.getOuter();
@@ -187,54 +187,6 @@ rq::Expression &RequiteParser::parsePrecedence13() {
     precedence_factory.appendBranch(expression);
   }
   precedence_factory.appendBranch(this->parseUnexpectedEof());
-  return precedence_factory.getOuter();
-}
-
-// MODIFIER AND QUALIFIER ATTACHMENTS
-rq::Expression &RequiteParser::parsePrecedence12() {
-  rq::PrecedenceFactory precedence_factory(this->getContext());
-  precedence_factory.setRecent(this->parsePrecedence11());
-  while (!this->getRanger().getIsDone()) {
-    if (precedence_factory.getRecent().getCanBeChainLink()) {
-      break;
-    }
-    const rq::Token token = this->getRanger().getToken();
-    rq::Keyword keyword;
-    switch (token.getKind()) {
-    case rq::TokenKind::DOUBLE_COLON_OPERATOR:
-      keyword = rq::Keyword::INSTANTIATE_MODIFIER_ATTACHMENT;
-      break;
-    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
-      keyword = rq::Keyword::INSTANTIATE_QUALIFIER_ATTACHMENT;
-      break;
-    default:
-      precedence_factory.appendRecent();
-      return precedence_factory.getOuter();
-    }
-    this->getRanger().incrementToken(1);
-    precedence_factory.parseBinary(token, keyword);
-    rq::Expression &right = this->parsePrecedence11();
-    if (keyword == rq::Keyword::INSTANTIATE_QUALIFIER_ATTACHMENT &&
-        right.getKeyword() == rq::Keyword::UNSITUATED_ASCRIBE_QUALIFIER &&
-        right.getHasBranch()) {
-      rq::Expression &first = right.popBranch();
-      rq::Expression *remaining_ptr = first.popNextPtr();
-      precedence_factory.setRecent(first);
-      precedence_factory.appendRecent();
-      rq::Expression &attachment = precedence_factory.getOuter();
-      attachment.setNext(remaining_ptr);
-      right.setBranch(attachment);
-      right.extendSourceOver(attachment);
-      if (remaining_ptr != nullptr) {
-        rq::Expression &remaining = rq::dereferencePtr(remaining_ptr);
-        right.extendSourceOver(remaining);
-      }
-      precedence_factory.setOnlyRecent(right);
-    } else {
-      precedence_factory.setRecent(right);
-    }
-  }
-  precedence_factory.appendRecent();
   return precedence_factory.getOuter();
 }
 
@@ -782,7 +734,7 @@ rq::Expression &RequiteParser::parsePrecedence2() {
   return precedence_factory.getOuter();
 }
 
-// DOT AND CALL OPERATORS
+// DOT, ATTACHMENT, AND CALL OPERATORS
 rq::Expression &RequiteParser::parsePrecedence1() {
   rq::PrecedenceFactory precedence_factory(this->getContext());
   precedence_factory.setRecent(this->parsePrecedence0());
@@ -795,6 +747,16 @@ rq::Expression &RequiteParser::parsePrecedence1() {
     case rq::TokenKind::DOT_OPERATOR:
       this->getRanger().incrementToken(1);
       precedence_factory.parseNary(token, rq::Keyword::UNSITUATED_TRAIN);
+      precedence_factory.setRecent(this->parsePrecedence0());
+      continue;
+    case rq::TokenKind::DOUBLE_COLON_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::INSTANTIATE_MODIFIER_ATTACHMENT);
+      precedence_factory.setRecent(this->parsePrecedence0());
+      continue;
+    case rq::TokenKind::DOUBLE_DOT_OPERATOR:
+      this->getRanger().incrementToken(1);
+      precedence_factory.parseBinary(token, rq::Keyword::INSTANTIATE_QUALIFIER_ATTACHMENT);
       precedence_factory.setRecent(this->parsePrecedence0());
       continue;
     case rq::TokenKind::LEFT_PARENTHESIS_GROUPING: {

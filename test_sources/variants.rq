@@ -15,7 +15,7 @@ mangle::main
 
     str:Slice@Utf=;
 
-    inits::str.[reflect]
+    inits::(str.[reflect])
     [match num0
         ][arm Number.integer, out:=value,
             str ?= "its an integer";

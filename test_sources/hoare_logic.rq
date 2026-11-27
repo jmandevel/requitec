@@ -1,6 +1,6 @@
 template::{ Type:TYPE <}
-require::b != 0
-ensure::result >= 0
+require::(b != 0)
+ensure::(result >= 0)
 pure
 [proc divideSquare, ( a:Type, b:Type <) result:Type,
     divide_result := a / b;

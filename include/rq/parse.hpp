@@ -258,7 +258,7 @@ struct RequiteParser final {
   [[nodiscard]] rq::Expression *parseExpressions();
   [[nodiscard]] rq::Expression &parseUnexpectedEof();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseAscribableExpression() {
-    return this->parsePrecedence13();
+    return this->parsePrecedence12();
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &
   parseNonascribableExpression() {
@@ -267,7 +267,6 @@ struct RequiteParser final {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseReturnExpression() {
     return this->parsePrecedence10(); // skip the extension operator for signature instantiation return
   }
-  [[nodiscard]] rq::Expression &parsePrecedence13();
   [[nodiscard]] rq::Expression &parsePrecedence12();
   [[nodiscard]] rq::Expression &parsePrecedence11();
   [[nodiscard]] rq::Expression &parsePrecedence10();

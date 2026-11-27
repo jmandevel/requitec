@@ -18,7 +18,7 @@
 
     # using inits modifier before a scope or chain of scopes to specify that indeterminate values must be initialized within
     # this means that all branches must either set the value or return if in function frame
-    inits::other.[reflect]
+    inits::(other.[reflect])
     [if indeterminate==0,
         other ?= 3.14;
     ][else_if indeterminate==1,
@@ -31,7 +31,7 @@
 
     # mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
     # with an else where its also set.
-    inits::uninit.[reflect]
+    inits::(uninit.[reflect])
     [for 0.<10, var:=[value],
         uninit ?= var;
     ][else 

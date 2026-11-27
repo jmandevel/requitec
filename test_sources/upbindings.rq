@@ -4,7 +4,7 @@ mangle::main
 [proc , (>args:Slice@Ptr@Char<) result:SInt,
     result <:=;
 
-    inits::result.[reflect]
+    inits::(result.[reflect])
     [if args->std.count() == 0,
         result ?= 5;
     ][else 
@@ -34,7 +34,7 @@ pure
         # also, its indeterminate so not set yet.
         var <:mut\SInt=;
 
-        inits::var.[reflect]
+        inits::(var.[reflect])
         [if int < 7,
             var ?= 7;
         ][else_if int > 9,

@@ -10,7 +10,7 @@ copyable moveable
     { dat : Ref@Array{Size}@SInt, index: USize = 0 <},
 
     template::{| auto mut0:MUT }
-    public inline require::index<size
+    public inline require::(index<size)
     [peeker (> index:SIndex <) result:Ref@mut0\SInt => this:Ref@mut0\,
         result <:= this.dat.[at index];
     ];
