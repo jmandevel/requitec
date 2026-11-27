@@ -5358,7 +5358,7 @@ struct Expression final : public rq::Entity {
               "semantic literal has no branches");
     rq::Entity *entity_ptr = this->_branch_ptr_flags.getPtr();
     this->_branch_ptr_flags.setPtr(branch_ptr);
-    return llvm::cast<rq::Expression>(entity_ptr);
+    return llvm::cast_or_null<rq::Expression>(entity_ptr);
   }
   [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *
   replaceNextPtr(rq::Expression *next_ptr) {
