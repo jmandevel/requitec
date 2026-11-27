@@ -109,10 +109,8 @@ struct Situator final {
   situateStatementMultiTagStatement(rq::Situation situation,
                                     rq::Expression &expression,
                                     rq::Situation tag_situation);
-  // catch
-  [[nodiscard]] bool
-  situateStatementVignetteStatement(rq::Situation situation,
-                                    rq::Expression &expression);
+  [[nodiscard]] bool situateCatchStatement(rq::Situation situation,
+                                           rq::Expression &expression);
   [[nodiscard]] bool situateArmStatement(rq::Situation situation,
                                          rq::Expression &expression);
   [[nodiscard]] bool situateForStatement(rq::Situation situation,

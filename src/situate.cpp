@@ -727,7 +727,7 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateStatement(expression);
     break;
   case K::CATCH:
-    is_ok = this->situateStatementVignetteStatement(situation, expression);
+    is_ok = this->situateCatchStatement(situation, expression);
     break;
   case K::FOR:
     is_ok = this->situateForStatement(situation, expression);
@@ -2294,11 +2294,11 @@ bool Situator::situateStatementMultiTagStatement(rq::Situation situation,
   return is_ok;
 }
 
-bool Situator::situateStatementVignetteStatement(rq::Situation situation,
-                                                 rq::Expression &expression) {
+bool Situator::situateCatchStatement(rq::Situation situation,
+                                     rq::Expression &expression) {
   bool is_ok = true;
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 1);
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression *last_ptr = nullptr;
@@ -2314,17 +2314,15 @@ bool Situator::situateStatementVignetteStatement(rq::Situation situation,
   if (!this->situateTagBranch(rq::Situation::RVALUE, tag)) {
     return false;
   }
-  last_ptr = nullptr;
-  for (rq::Expression &branch : tag.getNextSubrange()) {
-    if (!branch.getIsTag()) {
-      last_ptr = &branch;
-      break;
-    }
-    if (!this->situateVignetteBranch(branch)) {
-      is_ok = false;
-    }
+  if (!tag.getHasNext()) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
+    return false;
   }
-  if (!this->situateStatementBranches(last_ptr)) {
+  rq::Expression &binding = tag.getNext();
+  if (!this->situateTagBranch(rq::Situation::BINDING, binding)) {
+    is_ok = false;
+  }
+  if (!this->situateStatementBranches(binding.getNextPtr())) {
     is_ok = false;
   }
   return is_ok;
