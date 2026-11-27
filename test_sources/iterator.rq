@@ -15,12 +15,12 @@ copyable moveable
         result <:= this.dat.[at index];
     ];
 
-    public
+    public inline
     [consumer () => this:Ref@mut\,
         this.index = this.index + 1;
     ];
 
-    public
+    public inline
     [prober () result:Bool => this:Ref@,
         result <:= this.dat < size;
     ];  
@@ -35,6 +35,7 @@ copyable moveable
 
     { dat : Array{Size}@SInt <},
 
+    public inline
     [iterator () result:SIntArrayIterator{size} => Ref@mut\,
         result <:= SIntArrayIterator(dat.[ref]);
     ];
