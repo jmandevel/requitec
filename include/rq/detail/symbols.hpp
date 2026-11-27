@@ -1608,9 +1608,14 @@ ParameterList::classof(const rq::Entity *entity_ptr) {
 
 RQ_ALWAYS_INLINE
 SignatureType::SignatureType(rq::Parameter *first_parameter_ptr,
-                             rq::QualifiedType &return_type)
+                             rq::QualifiedType &return_type,
+                             rq::Name return_name)
     : ParameterList(rq::SymbolKind::SIGNATURE_TYPE, first_parameter_ptr),
-      _return_type_ptr(&return_type) {}
+      _return_type_ptr(&return_type), _return_name(return_name) {}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Name SignatureType::getReturnName() const {
+  return this->_return_name;
+}
 
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType &
 SignatureType::getReturnType() const {
@@ -1629,15 +1634,16 @@ SignatureType::classof(const rq::Entity *entity_ptr) {
 }
 
 inline void SignatureType::Profile(llvm::FoldingSetNodeID &inout_id) const {
-  SignatureType::Profile(inout_id, this->_first_ptr, this->getReturnType());
+  SignatureType::Profile(inout_id, this->_first_ptr, this->getReturnType(),
+                         this->_return_name);
 }
 
-RQ_ALWAYS_INLINE void
-SignatureType::Profile(llvm::FoldingSetNodeID &inout_id,
-                       const rq::Parameter *first_parameter_ptr,
-                       const rq::QualifiedType &return_type) {
+RQ_ALWAYS_INLINE void SignatureType::Profile(
+    llvm::FoldingSetNodeID &inout_id, const rq::Parameter *first_parameter_ptr,
+    const rq::QualifiedType &return_type, rq::Name return_name) {
   inout_id.AddPointer(first_parameter_ptr);
   inout_id.AddPointer(&return_type);
+  return_name.Profile(inout_id);
 }
 
 RQ_ALWAYS_INLINE LayoutType::LayoutType(rq::Parameter *first_parameter_ptr)

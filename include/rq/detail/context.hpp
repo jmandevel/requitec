@@ -1373,8 +1373,7 @@ Context::acquireArithmeticSequenceType(rq::SymbolKind kind,
 }
 
 [[nodiscard]] inline rq::Adaption &
-Context::acquireAdaption(rq::QualifiedType &reciever,
-                         rq::Interface &interface,
+Context::acquireAdaption(rq::QualifiedType &reciever, rq::Interface &interface,
                          rq::Adapter &adapter) {
   return rq::acquire(*this, this->_adaption_set, reciever, interface, adapter);
 }
@@ -1386,8 +1385,7 @@ Context::acquireRealization(rq::QualifiedType &reciever,
 }
 
 [[nodiscard]] inline rq::Conformity &
-Context::acquireConformity(rq::Interface &interface,
-                           rq::Adapter &adapter) {
+Context::acquireConformity(rq::Interface &interface, rq::Adapter &adapter) {
   return rq::acquire(*this, this->_conformity_set, interface, adapter);
 }
 
@@ -1455,17 +1453,18 @@ Context::acquireAdapterSpecializationSet(
                      modifier_flags, param_flags, default_ptr);
 }
 
-[[nodiscard]] inline rq::CompositionType &Context::acquireCompositionType(
-    rq::NodeList<rq::Interface> &&interface_list) {
+[[nodiscard]] inline rq::CompositionType &
+Context::acquireCompositionType(rq::NodeList<rq::Interface> &&interface_list) {
   return rq::acquire(*this, this->_composition_type_set,
                      std::move(interface_list));
 }
 
 [[nodiscard]] inline rq::SignatureType &
 Context::acquireSignatureType(rq::Parameter *first_parameter_ptr,
-                              rq::QualifiedType &return_type) {
+                              rq::QualifiedType &return_type,
+                              rq::Name return_name) {
   return rq::acquire(*this, this->_signature_type_set, first_parameter_ptr,
-                     return_type);
+                     return_type, return_name);
 }
 
 [[nodiscard]] inline rq::LayoutType &

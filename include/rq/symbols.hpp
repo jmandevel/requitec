@@ -999,19 +999,23 @@ struct SignatureType final : public rq::ParameterList,
   using Self = rq::SignatureType;
 
   rq::QualifiedType *_return_type_ptr;
+  rq::Name _return_name;
 
   explicit RQ_ALWAYS_INLINE SignatureType(rq::Parameter *first_parameter_ptr,
-                                          rq::QualifiedType &return_type);
+                                          rq::QualifiedType &return_type,
+                                          rq::Name return_name);
 
   [[nodiscard]] RQ_ALWAYS_INLINE const rq::QualifiedType &getReturnType() const;
   [[nodiscard]] RQ_ALWAYS_INLINE rq::QualifiedType &getReturnType();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Name getReturnName() const;
 
   [[nodiscard]] static RQ_ALWAYS_INLINE bool
   classof(const rq::Entity *entity_ptr);
 
   static inline void Profile(llvm::FoldingSetNodeID &inout_id,
                              const rq::Parameter *first_parameter_ptr,
-                             const rq::QualifiedType &return_type);
+                             const rq::QualifiedType &return_type,
+                             rq::Name return_name);
 
   RQ_ALWAYS_INLINE void Profile(llvm::FoldingSetNodeID &inout_id) const;
 };
