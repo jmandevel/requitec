@@ -436,6 +436,12 @@ bool Situator::situateTree(rq::Situation situation,
   case K::TAKE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
+  case K::TO:
+    is_ok = this->situateUnaryTag(situation, expression, S::NAME);
+    break;
+  case K::TO_OF:
+    is_ok = this->situateBinaryTag(situation, expression, S::RVALUE, S::NAME);
+    break;
   case K::CALL:
     is_ok = this->situateNaryDifferentFirstTag(situation, expression, 1,
                                                S::RVALUE, S::ARGUMENT);
