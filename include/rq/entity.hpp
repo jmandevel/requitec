@@ -198,8 +198,6 @@ enum class Keyword : rq::EntityId {
   ARRAY,
   TRUE,
   FALSE,
-  // vignette value.
-  VALUE,
   // get information about location of a proc call
   CALLSITE,
 

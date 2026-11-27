@@ -354,8 +354,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "true";
   case K::FALSE:
     return "false";
-  case K::VALUE:
-    return "value";
   case K::CALLSITE:
     return "callsite";
 
@@ -1567,8 +1565,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::FALSE:
     return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::VALUE:
-    return KIF::RVALUE;
   case K::CALLSITE:
     return KIF::RVALUE;
 
