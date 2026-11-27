@@ -1,7 +1,7 @@
 [import "std", std];
 
 anchor::A
-[for 0.<=10, num:=value\\value,
+[for 0.<=10, v:, num:=v,
     varname :std.String= std.format(text="VAR" +> num);
     flank::A comtime capture::{num:=num}
     varname.getSlice().[identify] : SInt = num;
