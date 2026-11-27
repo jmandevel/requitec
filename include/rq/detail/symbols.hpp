@@ -203,8 +203,6 @@ namespace rq {
     return "DirectModifier";
   case S::VIRTUAL_MODIFIER:
     return "VirtualModifier";
-  case S::RANGER_MODIFIER:
-    return "RangerModifier";
   case S::REQUIRE_MODIFIER:
     return "RequireModifier";
   case S::ENSURE_MODIFIER:
@@ -521,8 +519,6 @@ namespace rq {
     return "DeductionModifierConcept";
   case S::VIRTUALITY_MODIFIER_CONCEPT:
     return "VirtualityModifierConcept";
-  case S::RANGER_MODIFIER_CONCEPT:
-    return "RangerModifierConcept";
   case S::REQUIRE_MODIFIER_CONCEPT:
     return "RequireModifierConcept";
   case S::ENSURE_MODIFIER_CONCEPT:

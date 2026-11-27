@@ -644,8 +644,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "direct";
   case K::VIRTUAL:
     return "virtual";
-  case K::RANGER:
-    return "ranger";
   case K::REQUIRE:
     return "require";
   case K::ENSURE:
@@ -774,6 +772,38 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "destroy";
   case K::DESTROY_OF:
     return "_destroy_of";
+  case K::PEEKER:
+    return "peeker";
+  case K::PEEKER_OF:
+    return "_peeker_of";
+  case K::PEEK:
+    return "peek";
+  case K::PEEK_OF:
+    return "_peek_of";
+  case K::CONSUMER:
+    return "consumer";
+  case K::CONSUMER_OF:
+    return "_consumer_of";
+  case K::CONSUME:
+    return "consume";
+  case K::CONSUME_OF:
+    return "_consume_of";
+  case K::PROBER:
+    return "prober";
+  case K::PROBER_OF:
+    return "_prober_of";
+  case K::PROBE:
+    return "probe";
+  case K::PROBE_OF:
+    return "_probe_of";
+  case K::ITERATOR:
+    return "iterator";
+  case K::ITERATOR_OF:
+    return "_iterator_of";
+  case K::ITERATE:
+    return "iterate";
+  case K::ITERATE_OF:
+    return "_iterate_of";
   case K::UNDERLYING_VALUE:
     return "underlying_value";
   case K::UNDERLYING_VALUE_OF:
@@ -1112,8 +1142,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "DEDUCTION_MODIFIER";
   case K::VIRTUALITY_MODIFIER_CONCEPT:
     return "VIRTUALITY_MODIFIER";
-  case K::RANGER_MODIFIER_CONCEPT:
-    return "RANGER_MODIFIER";
   case K::REQUIRE_MODIFIER_CONCEPT:
     return "REQUIRE_MODIFIER";
   case K::ENSURE_MODIFIER_CONCEPT:
@@ -1838,8 +1866,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::VIRTUAL:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::RANGER:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::REQUIRE:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::ENSURE:
@@ -1967,6 +1993,38 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::DESTROY:
     return KIF::RAILCAR;
   case K::DESTROY_OF:
+    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
+  case K::PEEKER:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
+  case K::PEEKER_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PEEK:
+    return KIF::RAILCAR;
+  case K::PEEK_OF:
+    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
+  case K::CONSUMER:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
+  case K::CONSUMER_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::CONSUME:
+    return KIF::RAILCAR;
+  case K::CONSUME_OF:
+    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
+  case K::PROBER:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
+  case K::PROBER_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::PROBE:
+    return KIF::RAILCAR;
+  case K::PROBE_OF:
+    return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
+  case K::ITERATOR:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::RAILCAR | KIF::STATEMENT;
+  case K::ITERATOR_OF:
+    return KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::ITERATE:
+    return KIF::RAILCAR;
+  case K::ITERATE_OF:
     return KIF::STATEMENT | KIF::TUPLE_ELEMENT;
   case K::UNDERLYING_VALUE:
     return KIF::RAILCAR;
@@ -2445,9 +2503,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::VIRTUALITY_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
-  case K::RANGER_MODIFIER_CONCEPT:
-    return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
-           KIF::TUPLE_ELEMENT;
   case K::REQUIRE_MODIFIER_CONCEPT:
     return KIF::LITERAL | KIF::INTERNAL | KIF::RVALUE | KIF::ARGUMENT |
            KIF::TUPLE_ELEMENT;
@@ -2784,6 +2839,22 @@ getDescription(rq::Situation situation) {
     return K::DESTRUCTOR_OF;
   case K::DESTROY:
     return K::DESTROY_OF;
+  case K::PEEKER:
+    return K::PEEKER_OF;
+  case K::PEEK:
+    return K::PEEK_OF;
+  case K::CONSUMER:
+    return K::CONSUMER_OF;
+  case K::CONSUME:
+    return K::CONSUME_OF;
+  case K::PROBER:
+    return K::PROBER_OF;
+  case K::PROBE:
+    return K::PROBE_OF;
+  case K::ITERATOR:
+    return K::ITERATOR_OF;
+  case K::ITERATE:
+    return K::ITERATE_OF;
   case K::UNDERLYING_VALUE:
     return K::UNDERLYING_VALUE_OF;
   case K::UNDERLYING_TYPE:
@@ -3220,8 +3291,6 @@ enum class ModifierKind : std::uint_fast8_t {
   // virtuality
   DIRECT,
   VIRTUAL,
-  // ranger
-  RANGER,
   // require
   REQUIRE,
   // ensure
@@ -3343,8 +3412,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return "direct";
   case M::VIRTUAL:
     return "virtual";
-  case M::RANGER:
-    return "ranger";
   case M::REQUIRE:
     return "require";
   case M::ENSURE:
@@ -3466,8 +3533,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return M::DIRECT;
   case K::VIRTUAL:
     return M::VIRTUAL;
-  case K::RANGER:
-    return M::RANGER;
   case K::REQUIRE:
     return M::REQUIRE;
   case K::ENSURE:
@@ -3589,13 +3654,10 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   VIRTUAL = rq::getBit(52),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  RANGER = rq::getBit(53),
-  RANGER_MODIFIER_MASK = RANGER,
-
-  REQUIRE = rq::getBit(54),
+  REQUIRE = rq::getBit(53),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(55),
+  ENSURE = rq::getBit(54),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -3717,8 +3779,6 @@ getFuseFlags(rq::ModifierKind modifier) {
     return MFF::DIRECT;
   case M::VIRTUAL:
     return MFF::VIRTUAL;
-  case M::RANGER:
-    return MFF::RANGER;
   case M::REQUIRE:
     return MFF::REQUIRE;
   case M::ENSURE:
@@ -3853,8 +3913,6 @@ getInfoFlags(rq::ModifierKind modifier) {
     return MIF::NO_ATTACHMENT;
   case M::VIRTUAL:
     return MIF::NO_ATTACHMENT;
-  case M::RANGER:
-    return MIF::NO_ATTACHMENT;
   case M::REQUIRE:
     return MIF::NO_ATTACHMENT;
   case M::ENSURE:
@@ -3912,7 +3970,6 @@ enum class ModifierCategory : std::uint_fast8_t {
   CONSTRAINT,
   DEDUCTION,
   VIRTUALITY,
-  RANGER,
   REQUIRE,
   ENSURE,
   LAST
@@ -3976,8 +4033,6 @@ getDescription(rq::ModifierCategory category) {
     return "deduction modifier";
   case MC::VIRTUALITY:
     return "virtuality modifier";
-  case MC::RANGER:
-    return "ranger modifier";
   case MC::REQUIRE:
     return "require modifier";
   case MC::ENSURE:
@@ -4047,8 +4102,6 @@ getMask(rq::ModifierCategory category) {
     return MFF::DEDUCTION_MODIFIER_MASK;
   case MC::VIRTUALITY:
     return MFF::VIRTUALITY_MODIFIER_MASK;
-  case MC::RANGER:
-    return MFF::RANGER_MODIFIER_MASK;
   case MC::REQUIRE:
     return MFF::REQUIRE_MODIFIER_MASK;
   case MC::ENSURE:
@@ -4174,8 +4227,6 @@ getCategory(rq::ModifierKind modifier) {
     [[fallthrough]];
   case M::VIRTUAL:
     return MC::VIRTUALITY;
-  case M::RANGER:
-    return MC::RANGER;
   case M::REQUIRE:
     return MC::REQUIRE;
   case M::ENSURE:

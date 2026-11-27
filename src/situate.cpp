@@ -991,8 +991,6 @@ bool Situator::situateTree(rq::Situation situation,
     [[fallthrough]];
   case K::VIRTUAL:
     [[fallthrough]];
-  case K::RANGER:
-    [[fallthrough]];
   case K::REQUIRE:
     [[fallthrough]];
   case K::ENSURE: {
@@ -1169,6 +1167,70 @@ bool Situator::situateTree(rq::Situation situation,
     is_ok = this->situateNullary(situation, expression);
     break;
   case K::DESTROY_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PEEKER:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatementTagStatement(situation, expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
+  case K::PEEKER_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PEEK:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::PEEK_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::CONSUMER:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatementTagStatement(situation, expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
+  case K::CONSUMER_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::CONSUME:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::CONSUME_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PROBER:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatementTagStatement(situation, expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
+  case K::PROBER_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::PROBE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::PROBE_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::ITERATOR:
+    if (situation == S::STATEMENT) {
+      is_ok = this->situateStatementTagStatement(situation, expression);
+    } else {
+      is_ok = this->situateNullary(situation, expression);
+    }
+    break;
+  case K::ITERATOR_OF:
+    is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
+    break;
+  case K::ITERATE:
+    is_ok = this->situateNullary(situation, expression);
+    break;
+  case K::ITERATE_OF:
     is_ok = this->situateUnaryTag(situation, expression, S::RVALUE);
     break;
   case K::UNDERLYING_VALUE:
@@ -1536,8 +1598,6 @@ bool Situator::situateTree(rq::Situation situation,
   case K::DEDUCTION_MODIFIER_CONCEPT:
     [[fallthrough]];
   case K::VIRTUALITY_MODIFIER_CONCEPT:
-    [[fallthrough]];
-  case K::RANGER_MODIFIER_CONCEPT:
     [[fallthrough]];
   case K::REQUIRE_MODIFIER_CONCEPT:
     [[fallthrough]];

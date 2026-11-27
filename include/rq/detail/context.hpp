@@ -437,11 +437,6 @@ Context::acquireVirtualModifier() {
   return this->_virtual_modifier;
 }
 
-[[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifier &
-Context::acquireRangerModifier() {
-  return this->_ranger_modifier;
-}
-
 [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifier &
 Context::acquireRequireModifier() {
   return this->_require_modifier;
@@ -1168,11 +1163,6 @@ Context::acquireDeductionModifierConcept() {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::VirtualityModifierConcept &
 Context::acquireVirtualityModifierConcept() {
   return this->_virtuality_modifier_concept;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifierConcept &
-Context::acquireRangerModifierConcept() {
-  return this->_ranger_modifier_concept;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifierConcept &

@@ -176,7 +176,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::AutoModifier _auto_modifier{};
   rq::DirectModifier _direct_modifier{};
   rq::VirtualModifier _virtual_modifier{};
-  rq::RangerModifier _ranger_modifier{};
   rq::RequireModifier _require_modifier{};
   rq::EnsureModifier _ensure_modifier{};
   rq::NoMutQualifier _no_mut_qualifier{};
@@ -327,7 +326,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::ConstraintModifierConcept _constraint_modifier_concept{};
   rq::DeductionModifierConcept _deduction_modifier_concept{};
   rq::VirtualityModifierConcept _virtuality_modifier_concept{};
-  rq::RangerModifierConcept _ranger_modifier_concept{};
   rq::RequireModifierConcept _require_modifier_concept{};
   rq::EnsureModifierConcept _ensure_modifier_concept{};
   rq::QualifierConcept _qualifier_concept{};
@@ -704,7 +702,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::AutoModifier &acquireAutoModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::DirectModifier &acquireDirectModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VirtualModifier &acquireVirtualModifier();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifier &acquireRangerModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifier &acquireRequireModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureModifier &acquireEnsureModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::NoMutQualifier &acquireNoMutQualifier();
@@ -956,8 +953,6 @@ struct Context final : public rq::BumpPtrAllocator {
   acquireDeductionModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::VirtualityModifierConcept &
   acquireVirtualityModifierConcept();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::RangerModifierConcept &
-  acquireRangerModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::RequireModifierConcept &
   acquireRequireModifierConcept();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::EnsureModifierConcept &

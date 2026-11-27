@@ -392,8 +392,6 @@ void Generator::dfsSymbolicPath(
     return &this->getContext().acquireDirectModifier();
   case K::VIRTUAL:
     return &this->getContext().acquireVirtualModifier();
-  case K::RANGER:
-    return &this->getContext().acquireRangerModifier();
   case K::REQUIRE:
     return &this->getContext().acquireRequireModifier();
   case K::ENSURE:
@@ -686,8 +684,6 @@ void Generator::dfsSymbolicPath(
     return &this->getContext().acquireDeductionModifierConcept();
   case K::VIRTUALITY_MODIFIER_CONCEPT:
     return &this->getContext().acquireVirtualityModifierConcept();
-  case K::RANGER_MODIFIER_CONCEPT:
-    return &this->getContext().acquireRangerModifierConcept();
   case K::REQUIRE_MODIFIER_CONCEPT:
     return &this->getContext().acquireRequireModifierConcept();
   case K::ENSURE_MODIFIER_CONCEPT:
