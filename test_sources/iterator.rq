@@ -37,7 +37,7 @@ copyable moveable
 
     [iterator () result:SIntArrayIterator{size} => Ref@mut\,
         result <:= SIntArrayIterator(dat.[ref]);
-    ]  
+    ];
 ];
 
 mangle::main
