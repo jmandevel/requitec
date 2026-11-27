@@ -970,7 +970,7 @@ rq::Expression &RequiteParser::parseEnclosedParenthesisExpression() {
       void_.setKeyword(rq::Keyword::VOID);
       return_type_ptr = &void_;
     } else {
-      return_type_ptr = &this->parsePrecedence10();
+      return_type_ptr = &this->parseReturnExpression();
     }
     rq::Expression &return_type = rq::dereferencePtr(return_type_ptr);
     if (parenthesis.getHasBranch()) {

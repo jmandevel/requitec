@@ -264,6 +264,9 @@ struct RequiteParser final {
   parseNonascribableExpression() {
     return this->parsePrecedence11();
   }
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::Expression &parseReturnExpression() {
+    return this->parsePrecedence10(); // skip the extension operator for signature instantiation return
+  }
   [[nodiscard]] rq::Expression &parsePrecedence12();
   [[nodiscard]] rq::Expression &parsePrecedence11();
   [[nodiscard]] rq::Expression &parsePrecedence10();
