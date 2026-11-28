@@ -308,6 +308,7 @@ enum class Keyword : rq::EntityId {
   // access
   PRIVATE,
   PUBLIC,
+  INTERNAL,
   EXPORT,
   // mutability
   MUTABLE,
@@ -331,7 +332,6 @@ enum class Keyword : rq::EntityId {
   SINGLETON,
   // closure
   CAPTURE,
-  STATELESS,
   // linkage
   LINKED,
   INLINE,
@@ -720,6 +720,7 @@ enum class SymbolKind : rq::EntityId {
   OPAQUE_MODIFIER,
   PRIVATE_MODIFIER,
   PUBLIC_MODIFIER,
+  INTERNAL_MODIFIER,
   EXPORT_MODIFIER,
   MUTABLE_MODIFIER,
   PARTIALLY_MUTABLE_MODIFIER,
@@ -738,7 +739,6 @@ enum class SymbolKind : rq::EntityId {
   PRESET_MODIFIER,
   SINGLETON_MODIFIER,
   CAPTURE_MODIFIER,
-  STATELESS_MODIFIER,
   LINKED_MODIFIER,
   INLINE_MODIFIER,
   PURE_MODIFIER,
@@ -1405,6 +1405,8 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
     return SIF::MODIFIER;
   case S::PUBLIC_MODIFIER:
     return SIF::MODIFIER;
+  case S::INTERNAL_MODIFIER:
+    return SIF::MODIFIER;
   case S::EXPORT_MODIFIER:
     return SIF::MODIFIER;
   case S::MUTABLE_MODIFIER:
@@ -1440,8 +1442,6 @@ RQ_DEFINE_FLAGS(rq::SymbolInfoFlags);
   case S::SINGLETON_MODIFIER:
     return SIF::MODIFIER;
   case S::CAPTURE_MODIFIER:
-    return SIF::MODIFIER;
-  case S::STATELESS_MODIFIER:
     return SIF::MODIFIER;
   case S::LINKED_MODIFIER:
     return SIF::MODIFIER;

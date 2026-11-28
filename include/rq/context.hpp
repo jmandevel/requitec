@@ -129,6 +129,7 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::OpaqueModifier _opaque_modifier{};
   rq::PrivateModifier _private_modifier{};
   rq::PublicModifier _public_modifier{};
+  rq::InternalModifier _internal_modifier{};
   rq::ExportModifier _export_modifier{};
   rq::MutableModifier _mutable_modifier{};
   rq::PartiallyMutableModifier _partially_mutable_modifier{};
@@ -147,7 +148,6 @@ struct Context final : public rq::BumpPtrAllocator {
   rq::PresetModifier _preset_modifier{};
   rq::SingletonModifier _singleton_modifier{};
   rq::CaptureModifier _capture_modifier{};
-  rq::StatelessModifier _stateless_modifier{};
   rq::LinkedModifier _linked_modifier{};
   rq::InlineModifier _inline_modifier{};
   rq::PureModifier _pure_modifier{};
@@ -635,6 +635,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueModifier &acquireOpaqueModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PrivateModifier &acquirePrivateModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicModifier &acquirePublicModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InternalModifier &acquireInternalModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExportModifier &acquireExportModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::MutableModifier &acquireMutableModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PartiallyMutableModifier &
@@ -657,8 +658,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::SingletonModifier &
   acquireSingletonModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureModifier &acquireCaptureModifier();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::StatelessModifier &
-  acquireStatelessModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::LinkedModifier &acquireLinkedModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::InlineModifier &acquireInlineModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PureModifier &acquirePureModifier();

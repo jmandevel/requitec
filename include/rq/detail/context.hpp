@@ -204,6 +204,11 @@ Context::acquirePublicModifier() {
   return this->_public_modifier;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE rq::InternalModifier &
+Context::acquireInternalModifier() {
+  return this->_internal_modifier;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE rq::ExportModifier &
 Context::acquireExportModifier() {
   return this->_export_modifier;
@@ -291,11 +296,6 @@ Context::acquireSingletonModifier() {
 [[nodiscard]] RQ_ALWAYS_INLINE rq::CaptureModifier &
 Context::acquireCaptureModifier() {
   return this->_capture_modifier;
-}
-
-[[nodiscard]] RQ_ALWAYS_INLINE rq::StatelessModifier &
-Context::acquireStatelessModifier() {
-  return this->_stateless_modifier;
 }
 
 [[nodiscard]] RQ_ALWAYS_INLINE rq::LinkedModifier &

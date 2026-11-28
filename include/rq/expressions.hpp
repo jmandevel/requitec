@@ -548,6 +548,8 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "private";
   case K::PUBLIC:
     return "public";
+  case K::INTERNAL:
+    return "internal";
   case K::EXPORT:
     return "export";
   case K::MUTABLE:
@@ -582,8 +584,6 @@ static constexpr std::size_t KEYWORD_COUNT =
     return "singleton";
   case K::CAPTURE:
     return "capture";
-  case K::STATELESS:
-    return "stateless";
   case K::LINKED:
     return "linked";
   case K::INLINE:
@@ -1764,6 +1764,8 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::PUBLIC:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
+  case K::INTERNAL:
+    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::EXPORT:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::MUTABLE:
@@ -1797,8 +1799,6 @@ RQ_DEFINE_FLAGS(rq::KeywordInfoFlags);
   case K::SINGLETON:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::CAPTURE:
-    return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
-  case K::STATELESS:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
   case K::LINKED:
     return KIF::MODIFIER | KIF::RVALUE | KIF::ARGUMENT | KIF::TUPLE_ELEMENT;
@@ -3206,6 +3206,7 @@ enum class ModifierKind : std::uint_fast8_t {
   // access
   PRIVATE,
   PUBLIC,
+  INTERNAL,
   EXPORT,
   // mutability
   MUTABLE,
@@ -3229,7 +3230,6 @@ enum class ModifierKind : std::uint_fast8_t {
   SINGLETON,
   // closure
   CAPTURE,
-  STATELESS,
   // linkage
   LINKED,
   INLINE,
@@ -3302,6 +3302,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return "private";
   case M::PUBLIC:
     return "public";
+  case M::INTERNAL:
+    return "internal";
   case M::EXPORT:
     return "export";
   case M::MUTABLE:
@@ -3336,8 +3338,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return "singleton";
   case M::CAPTURE:
     return "capture";
-  case M::STATELESS:
-    return "stateless";
   case M::LINKED:
     return "linked";
   case M::INLINE:
@@ -3427,6 +3427,8 @@ enum class ModifierKind : std::uint_fast8_t {
     return M::PRIVATE;
   case K::PUBLIC:
     return M::PUBLIC;
+  case K::INTERNAL:
+    return M::INTERNAL;
   case K::EXPORT:
     return M::EXPORT;
   case K::MUTABLE:
@@ -3461,8 +3463,6 @@ enum class ModifierKind : std::uint_fast8_t {
     return M::SINGLETON;
   case K::CAPTURE:
     return M::CAPTURE;
-  case K::STATELESS:
-    return M::STATELESS;
   case K::LINKED:
     return M::LINKED;
   case K::INLINE:
@@ -3525,7 +3525,7 @@ enum class ModifierKind : std::uint_fast8_t {
   RQ_UNREACHABLE();
 }
 
-enum class ModifierFuseFlags : std::uint_fast32_t {
+enum class ModifierFuseFlags : std::uint_fast64_t {
   NONE = 0,
 
   NO_MODIFIER = 0,
@@ -3547,7 +3547,8 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   PRIVATE = rq::getBit(6),
   PUBLIC = rq::getBit(7),
   EXPORT = rq::getBit(8),
-  ACCESS_MODIFIER_MASK = PRIVATE | PUBLIC | EXPORT,
+  INTERNAL = rq::getBit(53),
+  ACCESS_MODIFIER_MASK = PRIVATE | PUBLIC | INTERNAL | EXPORT,
 
   MUTABLE = rq::getBit(9),
   PARTIALLY_MUTABLE = rq::getBit(10),
@@ -3575,71 +3576,70 @@ enum class ModifierFuseFlags : std::uint_fast32_t {
   INITIALIZATION_TIME_MASK = PRESET | SINGLETON,
 
   CAPTURE = rq::getBit(24),
-  STATELESS = rq::getBit(25),
-  CLOSURE_MODIFIER_MASK = CAPTURE | STATELESS,
+  CLOSURE_MODIFIER_MASK = CAPTURE,
 
-  LINKED = rq::getBit(26),
-  INLINE = rq::getBit(27),
+  LINKED = rq::getBit(25),
+  INLINE = rq::getBit(26),
   LINKAGE_MODIFIER_MASK = LINKED | INLINE,
 
-  PURE = rq::getBit(28),
-  IMPURE = rq::getBit(29),
+  PURE = rq::getBit(27),
+  IMPURE = rq::getBit(28),
   SIDE_EFFECTS_MODIFIER_MASK = PURE | IMPURE,
 
-  STANDARD_MANGLE = rq::getBit(30),
-  MANGLE = rq::getBit(31),
+  STANDARD_MANGLE = rq::getBit(29),
+  MANGLE = rq::getBit(28),
   MANGLE_MODIFIER_MASK = STANDARD_MANGLE | MANGLE,
 
-  PAD = rq::getBit(32),
-  PACK = rq::getBit(33),
+  PAD = rq::getBit(29),
+  PACK = rq::getBit(30),
   PACK_MODIFIER_MASK = PAD | PACK,
 
-  EQUIVOCAL = rq::getBit(34),
-  LIKELY = rq::getBit(35),
-  UNLIKELY = rq::getBit(36),
+  EQUIVOCAL = rq::getBit(31),
+  LIKELY = rq::getBit(32),
+  UNLIKELY = rq::getBit(33),
   BRANCH_TREND_MODIFIER_MASK = EQUIVOCAL | LIKELY | UNLIKELY,
 
-  SUPPORTED = rq::getBit(37),
-  DEPRECIATED = rq::getBit(38),
-  EXPERIMENTAL = rq::getBit(39),
+  SUPPORTED = rq::getBit(34),
+  DEPRECIATED = rq::getBit(35),
+  EXPERIMENTAL = rq::getBit(36),
   SUPPORT_NOTICE_MODIFIER_MASK = SUPPORTED | DEPRECIATED | EXPERIMENTAL,
 
-  MOVEABLE = rq::getBit(40),
+  MOVEABLE = rq::getBit(37),
   MOVING_MODIFIER_MASK = MOVEABLE,
 
-  COPYABLE = rq::getBit(41),
+  COPYABLE = rq::getBit(38),
   COPYING_MODIFIER_MASK = COPYABLE,
 
-  INVARIADIC = rq::getBit(42),
-  VARIADIC = rq::getBit(43),
+  INVARIADIC = rq::getBit(39),
+  VARIADIC = rq::getBit(40),
   VARIADIC_MODIFIER_MASK = INVARIADIC | VARIADIC,
 
-  POLYADIC = rq::getBit(56),
+  POLYADIC = rq::getBit(41),
   POLYADIC_MODIFIER_MASK = POLYADIC,
 
-  BEST_LOCATION = rq::getBit(44),
-  LOCATION = rq::getBit(45),
+  BEST_LOCATION = rq::getBit(42),
+  LOCATION = rq::getBit(43),
   OFFSET_MODIFIER_MASK = BEST_LOCATION | LOCATION,
 
-  TEMPLATE = rq::getBit(46),
-  OVERLOAD = rq::getBit(47),
+  TEMPLATE = rq::getBit(44),
+  OVERLOAD = rq::getBit(45),
   LAZY_DECLARATION_KIND_MODIFIER_MASK = TEMPLATE | OVERLOAD,
 
-  CONSTRAINT = rq::getBit(48),
+  CONSTRAINT = rq::getBit(46),
   CONSTRAINT_MODIFIER_MASK = CONSTRAINT,
 
-  MANUAL = rq::getBit(49),
-  AUTO = rq::getBit(50),
+  MANUAL = rq::getBit(47),
+  AUTO = rq::getBit(48),
   DEDUCTION_MODIFIER_MASK = MANUAL | AUTO,
 
-  DIRECT = rq::getBit(51),
-  VIRTUAL = rq::getBit(52),
+  DIRECT = rq::getBit(49),
+  VIRTUAL = rq::getBit(50),
   VIRTUALITY_MODIFIER_MASK = DIRECT | VIRTUAL,
 
-  REQUIRE = rq::getBit(53),
+  REQUIRE = rq::getBit(51),
   REQUIRE_MODIFIER_MASK = REQUIRE,
 
-  ENSURE = rq::getBit(54),
+  ENSURE = rq::getBit(52),
   ENSURE_MODIFIER_MASK = ENSURE
 };
 
@@ -3669,6 +3669,8 @@ getFuseFlags(rq::ModifierKind modifier) {
     return MFF::PRIVATE;
   case M::PUBLIC:
     return MFF::PUBLIC;
+  case M::INTERNAL:
+    return MFF::INTERNAL;
   case M::EXPORT:
     return MFF::EXPORT;
   case M::MUTABLE:
@@ -3703,8 +3705,6 @@ getFuseFlags(rq::ModifierKind modifier) {
     return MFF::SINGLETON;
   case M::CAPTURE:
     return MFF::CAPTURE;
-  case M::STATELESS:
-    return MFF::STATELESS;
   case M::LINKED:
     return MFF::LINKED;
   case M::INLINE:
@@ -3803,6 +3803,8 @@ getInfoFlags(rq::ModifierKind modifier) {
     return MIF::NO_ATTACHMENT;
   case M::PUBLIC:
     return MIF::NO_ATTACHMENT;
+  case M::INTERNAL:
+    return MIF::NO_ATTACHMENT;
   case M::EXPORT:
     return MIF::NO_ATTACHMENT;
   case M::MUTABLE:
@@ -3837,8 +3839,6 @@ getInfoFlags(rq::ModifierKind modifier) {
     return MIF::NO_ATTACHMENT;
   case M::CAPTURE:
     return MIF::ATTACHMENT;
-  case M::STATELESS:
-    return MIF::NO_ATTACHMENT;
   case M::LINKED:
     return MIF::NO_ATTACHMENT;
   case M::INLINE:
@@ -4117,6 +4117,8 @@ getCategory(rq::ModifierKind modifier) {
     [[fallthrough]];
   case M::PUBLIC:
     [[fallthrough]];
+  case M::INTERNAL:
+    [[fallthrough]];
   case M::EXPORT:
     return MC::ACCESS;
   case M::MUTABLE:
@@ -4150,8 +4152,6 @@ getCategory(rq::ModifierKind modifier) {
   case M::SINGLETON:
     return MC::INITIALIZATION_TIME;
   case M::CAPTURE:
-    [[fallthrough]];
-  case M::STATELESS:
     return MC::CLOSURE;
   case M::LINKED:
     [[fallthrough]];

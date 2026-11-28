@@ -109,6 +109,8 @@ namespace rq {
     return "PrivateModifier";
   case S::PUBLIC_MODIFIER:
     return "PublicModifier";
+  case S::INTERNAL_MODIFIER:
+    return "InternalModifier";
   case S::EXPORT_MODIFIER:
     return "ExportModifier";
   case S::MUTABLE_MODIFIER:
@@ -145,8 +147,6 @@ namespace rq {
     return "SingletonModifier";
   case S::CAPTURE_MODIFIER:
     return "CaptureModifier";
-  case S::STATELESS_MODIFIER:
-    return "StatelessModifier";
   case S::LINKED_MODIFIER:
     return "LinkedModifier";
   case S::INLINE_MODIFIER:

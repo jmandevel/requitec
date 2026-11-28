@@ -298,6 +298,8 @@ void Generator::dfsSymbolicPath(
     return &this->getContext().acquirePrivateModifier();
   case K::PUBLIC:
     return &this->getContext().acquirePublicModifier();
+  case K::INTERNAL:
+    return &this->getContext().acquireInternalModifier();
   case K::EXPORT:
     return &this->getContext().acquireExportModifier();
   case K::MUTABLE:
@@ -334,10 +336,6 @@ void Generator::dfsSymbolicPath(
     return &this->getContext().acquireSingletonModifier();
   case K::CAPTURE:
     return &this->getContext().acquireCaptureModifier();
-  case K::STATELESS:
-    return &this->getContext().acquireStatelessModifier();
-  case K::LINKED:
-    return &this->getContext().acquireLinkedModifier();
   case K::INLINE:
     return &this->getContext().acquireInlineModifier();
   case K::PURE:
