@@ -1673,19 +1673,6 @@ bool Situator::situateStatementBranch(rq::Situation situation,
   return this->situateTree(situation, branch);
 }
 
-bool Situator::situateVignetteBranch(rq::Expression &branch) {
-  if (!branch.getIsTag()) {
-    this->getContext().logErrorExpectedTagExpression(branch);
-    return false;
-  }
-  if (!branch.getCanBeStatement()) {
-    this->getContext().logErrorInvalidBranchSituation(rq::Situation::STATEMENT,
-                                                      branch);
-    return false;
-  }
-  return this->situateTree(rq::Situation::STATEMENT, branch);
-}
-
 bool Situator::situateNullary(rq::Situation situation,
                               rq::Expression &expression) {
   if (expression.getHasBranch()) {
@@ -2330,7 +2317,7 @@ bool Situator::situateArmStatement(rq::Situation situation,
                                    rq::Expression &expression) {
   bool is_ok = true;
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 3);
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   rq::Expression *first_ptr = nullptr;
@@ -2348,24 +2335,18 @@ bool Situator::situateArmStatement(rq::Situation situation,
     ++tag_count;
     body_ptr = body_ptr->getNextPtr();
   }
-  if (tag_count < 3) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 3);
+  if (tag_count < 2) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     is_ok = false;
   }
   unsigned index = 0;
   for (rq::Expression *branch_ptr = first_ptr; branch_ptr != body_ptr;
        branch_ptr = branch_ptr->getNextPtr(), ++index) {
-    if (index + 1 == tag_count) {
-      if (!this->situateVignetteBranch(*branch_ptr)) {
-        is_ok = false;
-      }
-    } else {
-      const rq::Situation branch_situation = index + 2 == tag_count
-                                                 ? rq::Situation::BINDING
-                                                 : rq::Situation::RVALUE;
-      if (!this->situateTagBranch(branch_situation, *branch_ptr)) {
-        is_ok = false;
-      }
+    const rq::Situation branch_situation = index + 1 == tag_count
+                                               ? rq::Situation::BINDING
+                                               : rq::Situation::RVALUE;
+    if (!this->situateTagBranch(branch_situation, *branch_ptr)) {
+      is_ok = false;
     }
   }
   if (!this->situateStatementBranches(body_ptr)) {
@@ -2378,7 +2359,7 @@ bool Situator::situateForStatement(rq::Situation situation,
                                    rq::Expression &expression) {
   using S = rq::Situation;
   if (!expression.getHasBranch()) {
-    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 3);
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
     return false;
   }
   bool is_ok = true;
@@ -2396,28 +2377,20 @@ bool Situator::situateForStatement(rq::Situation situation,
   while (branch_ptr != nullptr && branch_ptr->getIsTag()) {
     rq::Expression &branch = *branch_ptr;
     rq::Expression *next_ptr = branch.getNextPtr();
-    const bool is_last_tag = next_ptr == nullptr || !next_ptr->getIsTag();
     ++tag_count;
-    if (is_last_tag) {
-      if (tag_count < 3) {
-        this->getContext().logErrorNotAtLeastBranchCount(situation, expression,
-                                                         3);
-        is_ok = false;
-      } else if (!expect_range) {
-        this->getContext().logErrorExpectedTagBranch(expression);
-        is_ok = false;
-      }
-      if (!this->situateVignetteBranch(branch)) {
-        is_ok = false;
-      }
-    } else {
-      if (!this->situateTagBranch(expect_range ? S::RVALUE : S::BINDING,
-                                  branch)) {
-        is_ok = false;
-      }
-      expect_range = !expect_range;
+    if (!this->situateTagBranch(expect_range ? S::RVALUE : S::BINDING,
+                                branch)) {
+      is_ok = false;
     }
+    expect_range = !expect_range;
     branch_ptr = next_ptr;
+  }
+  if (tag_count < 2) {
+    this->getContext().logErrorNotAtLeastBranchCount(situation, expression, 2);
+    is_ok = false;
+  } else if (!expect_range) {
+    this->getContext().logErrorExpectedTagBranch(expression);
+    is_ok = false;
   }
   if (!this->situateStatementBranches(branch_ptr)) {
     is_ok = false;

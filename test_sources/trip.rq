@@ -10,7 +10,7 @@ my_other_2_trip := (2, 1);
 
 # the order of the values when looping over a trip is indeterminate.
 # the order may be different every time you compile the source code.
-[for my_trip.[trip_range], v:, num:=v,
+[for my_trip.[trip_range], num:,
     std.print(line=num);
 ];
 
@@ -24,7 +24,7 @@ my_trip_of_one := 1;
 my_other_trip_of_one := (2);
 
 # looping over a trip of one will give just the single value.
-[for my_trip_of_one.[trip_range], v:, num:=v,
+[for my_trip_of_one.[trip_range], num:,
     std.print(line=num);
 ];
 

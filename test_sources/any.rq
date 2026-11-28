@@ -16,7 +16,7 @@ is_boolean := my_any.[type].[is Bool];
 mangle::main
 [proc , () result:SInt,
     my_tuple := { 1, 3.14, true, "Hello!" };
-    pre [for my_tuple, v:, var:Generic@TYPE=v,
+    pre [for my_tuple, var:Generic@TYPE,
         pre [if var.[type].[is INT],
             std.print(line="integer");
         ] pre [else_if var.[type].[is FLOAT],

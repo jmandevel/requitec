@@ -32,7 +32,7 @@
     # mut indeterminates of types without constructors (or builtin primitives) can be initialized in a loop
     # with an else where its also set.
     inits::uninit.[reflect]
-    [for 0.<10, v:, var:=v,
+    [for 0.<10, var:,
         uninit ?= var;
     ][else 
         uninit ?= 0;

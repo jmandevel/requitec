@@ -10,11 +10,11 @@ mangle::main
         " count:" +> my_array.[type]->std.count() +>
         " depth:" +> my_array.[type].[bit_depth] +>
         "!");
-    [for index := 0; my_array, v:, element:=v,
+    [for index := 0; my_array, element:,
         element = element * index.[cast element.[type]];
         index = index + 1;
     ];
-    [for index := 0; my_array.[ref], v:, element:=v,
+    [for index := 0; my_array.[ref], element:Ref@,
         std.print(line="element " +> index +> " is " +> element +> "!");
         index = index + 1;
     ];

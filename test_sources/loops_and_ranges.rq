@@ -6,17 +6,17 @@ mangle::main
     # all of these loops are equivalent
 
     # equal limit interval
-    [for 0.!=9, v:, value:=v,
+    [for 0.!=9, value:,
         std.print(line="value is " +> value);    
     ];
 
     # less limit interval
-    [for 0.<10, v:, value:=v,
+    [for 0.<10, value:,
         std.print(line="value is " +> value);    
     ];
 
     # interval
-    [for 0.<10.+1, v:, value:=v,
+    [for 0.<10.+1, value:,
         std.print(line="value is " +> value);    
     ];
 
@@ -30,7 +30,7 @@ mangle::main
     ];
 
     # array element range
-    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v:, value:=v,
+    [for [array 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], value:,
         std.print(line="value is " +> value);
     ];
 

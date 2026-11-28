@@ -3,7 +3,7 @@
 template::{> auto List:ANY <}
 [proc printList, (> list:List <),
     std.print(line="begin!");
-    pre [for list.[juxt_range], v:, item:Generic@TYPE=v.[ref],
+    pre [for list.[juxt_range], item:Ref@Generic@TYPE,
         text:Slice@Utf8=;
         inits::text
         pre [if item.[is INT],

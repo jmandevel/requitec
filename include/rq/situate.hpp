@@ -36,7 +36,6 @@ struct Situator final {
                                             rq::Expression &branch);
   [[nodiscard]] bool situateChainBranch(rq::Situation situation,
                                         rq::Expression &branch);
-  [[nodiscard]] bool situateVignetteBranch(rq::Expression &branch);
   [[nodiscard]] bool situateNullary(rq::Situation situation,
                                     rq::Expression &expression);
   [[nodiscard]] bool situateNullaryOrUnaryTag(rq::Situation situation,

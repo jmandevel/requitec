@@ -9,7 +9,7 @@
 
 [proc getSum, ( polyadic var:SInt <) result:SInt,
     result <:=0;
-    pre [for var, v:, num:=v,
+    pre [for var, num:,
         result = result + num;
     ]
 ];
@@ -19,7 +19,7 @@
 template::{ auto polyadic Types:TYPE <}
 [proc printAll, ( values:Types <),
     # note: must be pre so loop gets unrolled because types could be different.
-    pre [for values, v:, value:=v.[ref],
+    pre [for values, value:Ref@,
         std.print(line=value);    
     ];
 ];
