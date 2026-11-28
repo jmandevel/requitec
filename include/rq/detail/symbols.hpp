@@ -2860,6 +2860,15 @@ RQ_ALWAYS_INLINE Module::Module(rq::ModuleDetail &&detail)
   return this->_buffer;
 }
 
+[[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression *
+Module::getExpressionPtr() const {
+  return this->_expression_ptr;
+}
+
+[[nodiscard]] RQ_ALWAYS_INLINE rq::Expression *Module::getExpressionPtr() {
+  return this->_expression_ptr;
+}
+
 [[nodiscard]] RQ_ALWAYS_INLINE const rq::Expression &
 Module::getExpression() const {
   return rq::dereferencePtr(this->_expression_ptr);

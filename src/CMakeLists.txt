@@ -4,6 +4,7 @@ target_sources(
         build.cpp
         generate.cpp
         context.cpp
+        emit_requite.cpp
         options.cpp
         parse.cpp
         situate.cpp

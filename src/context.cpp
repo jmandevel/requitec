@@ -1,6 +1,7 @@
 #include <rq/build.hpp>
 #include <rq/codeunits.hpp>
 #include <rq/context.hpp>
+#include <rq/emit_requite.hpp>
 #include <rq/entity.hpp>
 #include <rq/generate.hpp>
 #include <rq/literals.hpp>
@@ -146,11 +147,11 @@ rq::Keyword Context::getKeyword(llvm::Twine name) {
 }
 
 [[nodiscard]] rq::Keyword Context::getBuiltinKeyword(rq::Name name) {
-    if (name.getKeyword() == rq::Keyword::NONE) {
-        const rq::Keyword keyword = this->getKeyword(name.getText());
-        return keyword;
-    }
-    return name.getKeyword();
+  if (name.getKeyword() == rq::Keyword::NONE) {
+    const rq::Keyword keyword = this->getKeyword(name.getText());
+    return keyword;
+  }
+  return name.getKeyword();
 }
 
 rq::SourceRange Context::getSourceRange(const rq::Expression &expression) {
@@ -188,6 +189,19 @@ Context::loadRequiteFileBuffer(llvm::StringRef path) {
     return ref;
   }
   return buffer_eo.getError();
+}
+
+static bool emitRequiteFile(rq::Context &context, llvm::StringRef path,
+                            const rq::Module &module) {
+  std::error_code ec;
+  llvm::raw_fd_ostream output(path, ec, llvm::sys::fs::OF_Text);
+  if (ec) {
+    context.logErrorFailedToOpenOutputFile(path, ec);
+    return false;
+  }
+  rq::RequiteEmitter(context, output).emit(module);
+  output.close();
+  return true;
 }
 
 bool Context::loadSourceModule() {
@@ -229,9 +243,8 @@ bool Context::loadSourceModule() {
   this->initializeKeywordMap();
   const bool parsed_ok = this->parseRequite(detail);
   if (rq::getEmitMode() == rq::EMIT_PARSED) {
-    if (!this->emitRequite(
-            rq::getOutputFilePath(),
-            llvm::cast_or_null<rq::Expression>(detail.getExpressionPtr()))) {
+    rq::Module module(std::move(detail));
+    if (!rq::emitRequiteFile(*this, rq::getOutputFilePath(), module)) {
       return false;
     }
     return parsed_ok;
@@ -241,9 +254,8 @@ bool Context::loadSourceModule() {
   }
   const bool situated_ok = this->situateModule(detail);
   if (rq::getEmitMode() == rq::EMIT_SITUATED) {
-    if (!this->emitRequite(
-            rq::getOutputFilePath(),
-            llvm::cast<rq::Expression>(detail.getExpressionPtr()))) {
+    rq::Module module(std::move(detail));
+    if (!rq::emitRequiteFile(*this, rq::getOutputFilePath(), module)) {
       return false;
     }
     return situated_ok;
@@ -417,101 +429,6 @@ bool Context::emitTokens(llvm::StringRef path,
       fout << "\",\n";
     } else {
       fout << "\"";
-    }
-  }
-  fout.close();
-  return true;
-}
-
-static void emitIndent(llvm::raw_fd_ostream &fout, unsigned indent) {
-  for (unsigned i = 0; i < indent; i++) {
-    fout << "  ";
-  }
-}
-
-static void emitRequiteBranch(rq::Context &context, llvm::raw_fd_ostream &fout,
-                              const rq::Expression &top, unsigned indent) {
-  if (!rq::getNoComment()) {
-    rq::emitIndent(fout, indent);
-    fout << "//";
-    if (top.getIsInternal()) {
-      fout << " " << top.getName();
-    }
-    if (!top.getHasSourceText()) {
-      fout << " (no position)";
-    } else if (top.getSourceTextLength() == 0) {
-      rq::SourceLocation location =
-          context.getSourceLocation(top.getLlvmSourceBegin());
-      fout << " " << location.file << ":" << location.line << ":"
-           << location.column;
-    } else {
-      rq::SourceRange range = context.getSourceRange(top);
-      fout << " " << range.start.file << ":" << range.start.line << ":"
-           << range.start.column << "-";
-      if (range.start.file != range.end.file) {
-        fout << range.end.file << ":";
-      }
-      fout << range.end.line << ":" << range.end.column;
-    }
-    if (top.getIsInserted()) {
-      fout << " (inserted)";
-    }
-    if (top.getHasSituatorError()) {
-      fout << " (situator error)";
-    }
-    fout << "\n";
-  }
-  rq::emitIndent(fout, indent);
-  if (top.getIsLiteral()) {
-    fout << top.getSourceText();
-    return;
-  }
-  fout << "[" << top.getName();
-  if (top.getHasBranch()) {
-    fout << '\n';
-    for (const rq::Expression &branch : top.getBranchSubrange()) {
-      rq::emitRequiteBranch(context, fout, branch, indent + 1);
-      if (branch.getIsStatement()) {
-        fout << ";\n";
-      } else if (branch.getIsTag()) {
-        if (branch.getHasNext()) {
-          fout << ",\n";
-        } else {
-          fout << "\n";
-        }
-      } else {
-        fout << '\n';
-      }
-    }
-    rq::emitIndent(fout, indent);
-  }
-  fout << "]";
-}
-
-bool Context::emitRequite(llvm::StringRef path, const rq::Expression *top_ptr) {
-  std::error_code ec;
-  llvm::raw_fd_ostream fout(path, ec, llvm::sys::fs::OF_Text);
-  if (ec) {
-    this->logErrorFailedToOpenOutputFile(path, ec);
-    return false;
-  }
-  if (top_ptr == nullptr) {
-    fout.close();
-    return true;
-  }
-  const rq::Expression &top = rq::dereferencePtr(top_ptr);
-  for (const rq::Expression &branch : top.getInclusiveNextSubrange()) {
-    rq::emitRequiteBranch(*this, fout, branch, 0);
-    if (branch.getIsStatement()) {
-      fout << ";\n";
-    } else if (branch.getIsTag()) {
-      if (branch.getHasNext()) {
-        fout << ",\n";
-      } else {
-        fout << "\n";
-      }
-    } else {
-      fout << "\n";
     }
   }
   fout.close();
@@ -1083,8 +1000,8 @@ rq::Expression &Context::acquireExpression() {
   }
   rq::Expression &unused_expression =
       rq::dereferencePtr(this->_free_expression_ptr);
-  this->_free_expression_ptr =
-      static_cast<rq::Expression *>(unused_expression._branch_ptr_flags.getPtr());
+  this->_free_expression_ptr = static_cast<rq::Expression *>(
+      unused_expression._branch_ptr_flags.getPtr());
   unused_expression._branch_ptr_flags.setPtr(nullptr);
   return unused_expression;
 }

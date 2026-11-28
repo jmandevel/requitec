@@ -425,7 +425,7 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] rq::Keyword getKeyword(llvm::Twine name);
   [[nodiscard]] rq::Keyword getBuiltinKeyword(rq::Name name);
   [[nodiscard]] rq::SourceLocation getSourceLocation(llvm::SMLoc llvm_location);
-  [[nodiscard]] inline rq::SourceRange
+  [[nodiscard]] rq::SourceRange
   getSourceRange(const rq::Expression &expression);
   [[nodiscard]] RQ_ALWAYS_INLINE std::error_code
   canonicalizePath(llvm::SmallVectorImpl<char> &path);
@@ -444,8 +444,6 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] bool buildLlvmIr();
   [[nodiscard]] bool emitTokens(llvm::StringRef path,
                                 llvm::ArrayRef<rq::Token> tokens);
-  [[nodiscard]] bool emitRequite(llvm::StringRef path,
-                                 const rq::Expression *top_ptr);
   [[nodiscard]] bool emitLlvmIr(llvm::StringRef path);
   [[nodiscard]] bool emitAssembly(llvm::StringRef path);
   [[nodiscard]] bool emitObject(llvm::StringRef path);
@@ -635,7 +633,8 @@ struct Context final : public rq::BumpPtrAllocator {
   [[nodiscard]] RQ_ALWAYS_INLINE rq::OpaqueModifier &acquireOpaqueModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PrivateModifier &acquirePrivateModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PublicModifier &acquirePublicModifier();
-  [[nodiscard]] RQ_ALWAYS_INLINE rq::InternalModifier &acquireInternalModifier();
+  [[nodiscard]] RQ_ALWAYS_INLINE rq::InternalModifier &
+  acquireInternalModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::ExportModifier &acquireExportModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::MutableModifier &acquireMutableModifier();
   [[nodiscard]] RQ_ALWAYS_INLINE rq::PartiallyMutableModifier &
